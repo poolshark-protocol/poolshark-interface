@@ -147,8 +147,8 @@ export default function Cover() {
                   logoURI: logoMap[allCoverPools[0].tokenOne.symbol],
                   symbol: allCoverPools[0].tokenOne.symbol,
                 } as tokenCover;
-                setCoverTokenIn(tokenOut, tokenIn);
-                setCoverTokenOut(tokenIn, tokenOut);
+                setCoverTokenIn(tokenOut, tokenIn, '0', true);
+                setCoverTokenOut(tokenIn, tokenOut, '0', false);
                 setCoverPoolFromVolatility(
                   tokenIn,
                   tokenOut,

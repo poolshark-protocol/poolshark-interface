@@ -42,12 +42,10 @@ import LimitCreateAndMintButton from "../components/Buttons/LimitCreateAndMintBu
 import { fetchLimitPositions } from "../utils/queries";
 import { getClaimTick, mapUserLimitPositions } from "../utils/maps";
 import { displayPoolPrice, getAveragePrice, getExpectedAmountInFromOutput, getExpectedAmountOut, getExpectedAmountOutFromInput, getMarketPriceAboveBelowString } from "../utils/math/priceMath";
-import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
 import { inputHandler, parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
 import { useConfigStore } from "../hooks/useConfigStore";
-import { formatUnits } from "ethers/lib/utils.js";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -1013,6 +1011,8 @@ export default function Trade() {
                     tokenOut={tokenOut}
                     setTokenOut={setTokenOut}
                     displayToken={tokenIn}
+                    amount={exactIn ? displayIn : displayOut}
+                    isAmountIn={exactIn}
                   />
                 </div>
               </div>
@@ -1081,6 +1081,8 @@ export default function Trade() {
                     setTokenOut={setTokenOut}
                     setPairSelected={setPairSelected}
                     displayToken={tokenOut}
+                    amount={exactIn ? displayIn : displayOut}
+                    isAmountIn={exactIn}
                   />
                 </div>
               </div>

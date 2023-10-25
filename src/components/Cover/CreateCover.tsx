@@ -110,7 +110,7 @@ export default function CreateCover(props: any) {
 
   const { data: signer } = useSigner();
   const { address, isConnected, isDisconnected } = useAccount();
-  const { bnInput, inputBox, maxBalance } = useInputBox();
+  const { bnInput, inputBox, maxBalance, display } = useInputBox();
   const [loadingPrices, setLoadingPrices] = useState(true);
 
   // for mint modal
@@ -586,6 +586,8 @@ export default function CreateCover(props: any) {
                 tokenOut={tokenOut}
                 setTokenOut={setTokenOut}
                 displayToken={tokenIn}
+                amount={display}
+                isAmountIn={true}
               />
             </div>
           </div>
@@ -662,6 +664,8 @@ export default function CreateCover(props: any) {
                 tokenOut={tokenOut}
                 setTokenOut={setTokenOut}
                 displayToken={tokenOut}
+                amount={display}
+                isAmountIn={true}
               />
             </div>
           </div>

@@ -85,8 +85,8 @@ export default function UserLimitPool({
             logoURI: logoMap[limitPosition.tokenOut.symbol],
             address: limitPosition.tokenOut.id,
         } as tokenRangeLimit;
-        setTokenIn(tokenOutNew, tokenInNew);
-        setTokenOut(tokenInNew, tokenOutNew);
+        setTokenIn(tokenOutNew, tokenInNew, '0', true);
+        setTokenOut(tokenInNew, tokenOutNew, '0', false);
         setLimitPoolFromVolatility(
             tokenInNew,
             tokenOutNew,

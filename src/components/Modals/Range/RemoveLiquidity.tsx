@@ -12,6 +12,7 @@ import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { useAccount, useSigner } from "wagmi";
 import { gasEstimateRangeBurn } from "../../../utils/gas";
 import { parseUnits } from "../../../utils/math/valueMath";
+import { formatUnits } from "ethers/lib/utils.js";
 
 export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
   const [
@@ -88,7 +89,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
             Number(
               ethers.utils.formatUnits(
                 tokenOrder ? amount0Bn : amount1Bn,
-                tokenIn.decimals
+                tokenOrder ? tokenIn.decimals : tokenOut.decimals
               )
             ).toPrecision(6)
           );
@@ -225,21 +226,11 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
                   <div className="flex items-end justify-between text-[11px] text-grey1">
                     <span>
                       ~$
-                      {tokenOrder
-                        ? Number(
+                      {Number(
                             tokenIn.USDPrice *
                               parseFloat(
                                 ethers.utils.formatUnits(
                                   amount0,
-                                  tokenIn.decimals
-                                )
-                              )
-                          ).toFixed(2)
-                        : Number(
-                            tokenOut.USDPrice *
-                              parseFloat(
-                                ethers.utils.formatUnits(
-                                  amount1,
                                   tokenIn.decimals
                                 )
                               )
@@ -268,22 +259,11 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
                   <div className="flex items-end justify-between text-[11px] text-grey1">
                     <span>
                       ~$
-                      {tokenOrder
-                        ? Number(
-                            tokenOut.USDPrice *
+                      {(tokenOut.USDPrice *
                               parseFloat(
                                 ethers.utils.formatUnits(
                                   amount1,
-                                  tokenIn.decimals
-                                )
-                              )
-                          ).toFixed(2)
-                        : Number(
-                            tokenIn.USDPrice *
-                              parseFloat(
-                                ethers.utils.formatUnits(
-                                  amount0,
-                                  tokenIn.decimals
+                                  tokenOut.decimals
                                 )
                               )
                           ).toFixed(2)}
@@ -292,9 +272,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
                   <div className="flex items-end justify-between mt-2 mb-3">
                     <span className="text-3xl">
                       {Number(
-                        tokenOrder
-                          ? ethers.utils.formatUnits(amount1, tokenIn.decimals)
-                          : ethers.utils.formatUnits(amount0, tokenIn.decimals)
+                        ethers.utils.formatUnits(amount1, tokenOut.decimals)
                       ).toPrecision(5)}
                     </span>
                     <div className="flex items-center gap-x-2">

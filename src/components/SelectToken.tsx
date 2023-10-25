@@ -61,22 +61,42 @@ export default function SelectToken(props) {
       logoURI: coin?.logoURI,
       decimals: coin?.decimals,
     };
-    if (props.type === "in") {
-      props.setTokenIn(props.tokenOut, {
-        name: coin?.name,
-        address: coin?.address,
-        symbol: coin?.symbol,
-        logoURI: coin?.logoURI,
-        decimals: coin?.decimals,
-      });
+    if (props.amount != undefined && props.isAmountIn != undefined) {
+      if (props.type === "in") {
+        props.setTokenIn(props.tokenOut, {
+          name: coin?.name,
+          address: coin?.address,
+          symbol: coin?.symbol,
+          logoURI: coin?.logoURI,
+          decimals: coin?.decimals,
+        }, props.amount, props.isAmountIn);
+      } else {
+        props.setTokenOut(props.tokenIn, {
+          name: coin?.name,
+          address: coin?.address,
+          symbol: coin?.symbol,
+          logoURI: coin?.logoURI,
+          decimals: coin?.decimals,
+        }, props.amount, props.isAmountIn);
+      }
     } else {
-      props.setTokenOut(props.tokenIn, {
-        name: coin?.name,
-        address: coin?.address,
-        symbol: coin?.symbol,
-        logoURI: coin?.logoURI,
-        decimals: coin?.decimals,
-      });
+      if (props.type === "in") {
+        props.setTokenIn(props.tokenOut, {
+          name: coin?.name,
+          address: coin?.address,
+          symbol: coin?.symbol,
+          logoURI: coin?.logoURI,
+          decimals: coin?.decimals,
+        });
+      } else {
+        props.setTokenOut(props.tokenIn, {
+          name: coin?.name,
+          address: coin?.address,
+          symbol: coin?.symbol,
+          logoURI: coin?.logoURI,
+          decimals: coin?.decimals,
+        });
+      }
     }
     closeModal();
   };
