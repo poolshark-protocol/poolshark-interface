@@ -479,7 +479,6 @@ export default function AddLiquidity({}) {
       startPrice &&
       !isNaN(parseFloat(startPrice))
     ) {
-      console.log('setting range pool data from empty')
       setRangePoolData({
         poolPrice: String(
           TickMath.getSqrtPriceAtPriceString(
