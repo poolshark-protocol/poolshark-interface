@@ -1,4 +1,9 @@
-import { ApolloClient, InMemoryCache, NormalizedCacheObject, gql } from "@apollo/client";
+import {
+  ApolloClient,
+  InMemoryCache,
+  NormalizedCacheObject,
+  gql,
+} from "@apollo/client";
 import { BigNumber } from "ethers";
 import { CoverSubgraph, LimitSubgraph } from "./types";
 
@@ -44,7 +49,11 @@ export const countDecimals = (value: number, tokenDecimals: number) => {
   return false;
 };
 
-export const getRangePoolFromFactory = (client: LimitSubgraph, tokenA?: string, tokenB?: string) => {
+export const getRangePoolFromFactory = (
+  client: LimitSubgraph,
+  tokenA?: string,
+  tokenB?: string
+) => {
   const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
   const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
   return new Promise(function (resolve) {
@@ -85,7 +94,11 @@ export const getRangePoolFromFactory = (client: LimitSubgraph, tokenA?: string, 
   });
 };
 
-export const getCoverPoolFromFactory = (client: CoverSubgraph, tokenA: string, tokenB: string) => {
+export const getCoverPoolFromFactory = (
+  client: CoverSubgraph,
+  tokenA: string,
+  tokenB: string
+) => {
   const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
   const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
   return new Promise(function (resolve) {
@@ -138,7 +151,11 @@ export const getCoverPoolFromFactory = (client: CoverSubgraph, tokenA: string, t
   });
 };
 
-export const getLimitPoolFromFactory = (client: LimitSubgraph, tokenA: string, tokenB: string) => {
+export const getLimitPoolFromFactory = (
+  client: LimitSubgraph,
+  tokenA: string,
+  tokenB: string
+) => {
   const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
   const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
   return new Promise(function (resolve) {
@@ -488,7 +505,11 @@ export const fetchLimitPositions = (client: LimitSubgraph, address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
       query($owner: String) {
-          limitPositions(where: {owner:"${address}"}) {
+          limitPositions(
+            where: {owner:"${address}"},
+            orderBy: createdAtTimestamp,
+            orderDirection: desc
+          ) {
                 id
                 positionId
                 createdAtTimestamp
@@ -851,7 +872,10 @@ export const fetchUniV3Positions = (address: string) => {
   });
 };
 
-export const fetchTokenPrice = (client: LimitSubgraph, tokenAddress: string) => {
+export const fetchTokenPrice = (
+  client: LimitSubgraph,
+  tokenAddress: string
+) => {
   return new Promise(function (resolve) {
     const poolsQuery = `
             query($id: String) {

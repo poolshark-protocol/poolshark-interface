@@ -36,14 +36,10 @@ import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function CreateCover(props: any) {
-  const [
-    chainId,
-    networkName,
-    coverSubgraph
-  ] = useConfigStore((state) => [
+  const [chainId, networkName, coverSubgraph] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
-    state.coverSubgraph
+    state.coverSubgraph,
   ]);
 
   const [
@@ -133,7 +129,7 @@ export default function CreateCover(props: any) {
     if (coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS) {
       setNeedsLatestTick(true);
     }
-  }, [coverPoolAddress]);
+  }, [coverPoolAddress, router.isReady]);
 
   ////////////////////////////////Token Allowances
 
@@ -189,6 +185,7 @@ export default function CreateCover(props: any) {
     functionName: "syncLatestTick",
     chainId: chainId,
     enabled: coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS,
+    watch: needsLatestTick,
     onSuccess(data) {
       setNeedsLatestTick(false);
     },
@@ -209,8 +206,7 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     if (
       //updating from empty selected token
-      tokenOut.name != "Select Token" &&
-      !coverPoolData
+      tokenOut.name != "Select Token"
     ) {
       updatePools("1000");
       setNeedsLatestTick(true);

@@ -87,10 +87,8 @@ export default function LimitSwapButton({
       setNeedsAllowanceIn(true);
       setNeedsBalanceIn(true);
       setNeedsSnapshot(true);
-      setTimeout(() => {
-        setNeedsRefetch(true);
-        closeModal();
-      }, 1000);
+      setNeedsRefetch(true);
+      closeModal();
     },
     onError() {
       setErrorDisplay(true);

@@ -31,7 +31,9 @@ export default function Cover() {
     setCoverTokenOut,
     setCoverPoolFromVolatility,
     needsRefetch,
+    needsPosRefetch,
     setNeedsRefetch,
+    setNeedsPosRefetch,
     tokenIn,
     tokenOut,
   ] = useCoverStore((state) => [
@@ -39,7 +41,9 @@ export default function Cover() {
     state.setTokenOut,
     state.setCoverPoolFromVolatility,
     state.needsRefetch,
+    state.needsPosRefetch,
     state.setNeedsRefetch,
+    state.setNeedsPosRefetch,
     state.tokenIn,
     state.tokenOut,
   ]);
@@ -69,11 +73,9 @@ export default function Cover() {
   }, []);
 
   useEffect(() => {
-    if (address && needsRefetch) {
-      getUserCoverPositionData();
-      setNeedsRefetch(false);
-    }
-  }, [needsRefetch, router.isReady]);
+    getUserCoverPositionData();
+    setNeedsPosRefetch(false);
+  }, [needsPosRefetch, router.isReady]);
 
   async function getUserCoverPositionData() {
     setIsPositionsLoading(true);
@@ -90,7 +92,8 @@ export default function Cover() {
 
   useEffect(() => {
     getCoverPoolData();
-  }, []);
+    setNeedsRefetch(false);
+  }, [needsRefetch, router.isReady]);
 
   async function getCoverPoolData() {
     setIsPoolsLoading(true);
