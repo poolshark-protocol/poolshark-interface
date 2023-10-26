@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useProvider } from "wagmi";
 import { useRouter } from "next/router";
 import Navbar from "../../components/Navbar";
 import { fetchCoverPositions } from "../../utils/queries";
@@ -17,14 +17,12 @@ import { mapCoverPools } from "../../utils/maps";
 import { logoMap } from "../../utils/tokens";
 import { tokenCover } from "../../utils/types";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { chainProperties, supportedNetworkNames } from "../../utils/chains";
 
 export default function Cover() {
-  const [
-    limitSubgraph,
-    coverSubgraph
-  ] = useConfigStore((state) => [
-    state.limitSubgraph,
-    state.coverSubgraph
+  const [coverSubgraph, setCoverSubgraph] = useConfigStore((state) => [
+    state.coverSubgraph,
+    state.setCoverSubgraph,
   ]);
 
   const [
@@ -47,6 +45,9 @@ export default function Cover() {
 
   const router = useRouter();
   const { address, isDisconnected } = useAccount();
+  const {
+    network: { chainId, name },
+  } = useProvider();
 
   const [selectedPool, setSelectedPool] = useState(router.query ?? undefined);
   const [state, setState] = useState(router.query.state ?? "initial");
@@ -61,6 +62,11 @@ export default function Cover() {
 
   useEffect(() => {
     if (address) {
+      const networkName = supportedNetworkNames[name] ?? "unknownNetwork";
+      const chainConstants = chainProperties[networkName]
+        ? chainProperties[networkName]
+        : chainProperties["arbitrumGoerli"];
+      setCoverSubgraph(chainConstants["coverSubgraphUrl"]);
       getUserCoverPositionData();
     }
   }, []);
@@ -147,8 +153,8 @@ export default function Cover() {
                   logoURI: logoMap[allCoverPools[0].tokenOne.symbol],
                   symbol: allCoverPools[0].tokenOne.symbol,
                 } as tokenCover;
-                setCoverTokenIn(tokenOut, tokenIn, '0', true);
-                setCoverTokenOut(tokenIn, tokenOut, '0', false);
+                setCoverTokenIn(tokenOut, tokenIn, "0", true);
+                setCoverTokenOut(tokenIn, tokenOut, "0", false);
                 setCoverPoolFromVolatility(
                   tokenIn,
                   tokenOut,
