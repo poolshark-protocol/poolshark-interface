@@ -181,6 +181,13 @@ export default function Trade() {
   //market display variables
   const [exactIn, setExactIn] = useState(true)
 
+  const resetAfterSwap = () => {
+    setDisplayIn('')
+    setDisplayOut('')
+    setAmountIn(BN_ZERO)
+    setAmountOut(BN_ZERO)
+  }
+
   const handleInputBox = (e) => {
     if (e.target.name === "tokenIn") {
       const [value, bnValue] = inputHandler(e, tokenIn)
@@ -1264,6 +1271,7 @@ export default function Trade() {
                       poolAddresses={swapPoolAddresses}
                       swapParams={swapParams ?? {}}
                       gasLimit={swapGasLimit}
+                      resetAfterSwap={resetAfterSwap}
                     />
                   )
                 }
@@ -1295,6 +1303,7 @@ export default function Trade() {
                     closeModal={() => {}}
                     zeroForOne={tokenIn.callId == 0}
                     gasLimit={mintGasLimit}
+                    resetAfterSwap={resetAfterSwap}
                   />
                 ) : (
                   <LimitCreateAndMintButton

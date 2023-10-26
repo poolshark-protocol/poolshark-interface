@@ -18,6 +18,7 @@ export default function SwapRouterButton({
   poolAddresses,
   swapParams,
   gasLimit,
+  resetAfterSwap
 }) {
   const [
     chainId,
@@ -55,6 +56,7 @@ export default function SwapRouterButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
+      resetAfterSwap()
       setNeedsAllowanceIn(true);
       setNeedsBalanceIn(true);
     },

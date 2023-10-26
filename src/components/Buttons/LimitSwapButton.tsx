@@ -25,6 +25,7 @@ export default function LimitSwapButton({
   zeroForOne,
   closeModal,
   gasLimit,
+  resetAfterSwap
 }) {
   const [
     chainId,
@@ -72,7 +73,6 @@ export default function LimitSwapButton({
     overrides: {
       gasLimit: gasLimit,
     },
-    onSuccess() {},
     onError() {
       setErrorDisplay(true);
     },
@@ -84,6 +84,7 @@ export default function LimitSwapButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
+      resetAfterSwap();
       setNeedsAllowanceIn(true);
       setNeedsBalanceIn(true);
       setNeedsSnapshot(true);
