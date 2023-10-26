@@ -36,7 +36,11 @@ import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function CreateCover(props: any) {
-  const [chainId] = useConfigStore((state) => [state.chainId]);
+  const [chainId, networkName, coverSubgraph] = useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
+    state.coverSubgraph,
+  ]);
 
   const [
     coverPoolAddress,
@@ -102,7 +106,7 @@ export default function CreateCover(props: any) {
 
   const { data: signer } = useSigner();
   const { address, isConnected, isDisconnected } = useAccount();
-  const { bnInput, inputBox, maxBalance } = useInputBox();
+  const { bnInput, inputBox, maxBalance, display } = useInputBox();
   const [loadingPrices, setLoadingPrices] = useState(true);
 
   // for mint modal
@@ -125,7 +129,7 @@ export default function CreateCover(props: any) {
     if (coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS) {
       setNeedsLatestTick(true);
     }
-  }, [coverPoolAddress]);
+  }, [coverPoolAddress, router.isReady]);
 
   ////////////////////////////////Token Allowances
 
@@ -133,7 +137,7 @@ export default function CreateCover(props: any) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
+    args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowance,
     enabled: tokenIn.address != undefined,
@@ -171,7 +175,7 @@ export default function CreateCover(props: any) {
         );
       }
     }
-  }, [coverPoolData, tokenIn.callId == 0]);
+  }, [coverPoolData, tokenIn.callId, tokenOut.callId]);
 
   ////////////////////////////////Latest Tick
 
@@ -181,6 +185,7 @@ export default function CreateCover(props: any) {
     functionName: "syncLatestTick",
     chainId: chainId,
     enabled: coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS,
+    watch: needsLatestTick,
     onSuccess(data) {
       setNeedsLatestTick(false);
     },
@@ -201,8 +206,7 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     if (
       //updating from empty selected token
-      tokenOut.name != "Select Token" &&
-      !coverPoolData
+      tokenOut.name != "Select Token"
     ) {
       updatePools("1000");
       setNeedsLatestTick(true);
@@ -210,7 +214,7 @@ export default function CreateCover(props: any) {
   }, [tokenIn.name, tokenOut.name]);
 
   async function updatePools(feeAmount: string) {
-    setCoverPoolFromVolatility(tokenIn, tokenOut, feeAmount);
+    setCoverPoolFromVolatility(tokenIn, tokenOut, feeAmount, coverSubgraph);
   }
 
   //sames as updatePools but triggered from the html
@@ -306,11 +310,11 @@ export default function CreateCover(props: any) {
     if (!bnInput.eq(BN_ZERO)) {
       setTokenInAmount(bnInput);
     }
-  }, [bnInput]);
+  }, [bnInput, tokenIn.address]);
 
   useEffect(() => {
     changeCoverAmounts();
-  }, [tokenIn.callId, coverPositionData]);
+  }, [tokenIn.address, coverPositionData]);
 
   function changeCoverAmounts() {
     if (
@@ -440,7 +444,8 @@ export default function CreateCover(props: any) {
             tokenIn,
             tokenOut,
             coverMintParams.tokenInAmount,
-            signer
+            signer,
+            networkName
           )
         : await gasEstimateCoverCreateAndMint(
             "PSHARK-CPROD",
@@ -463,7 +468,8 @@ export default function CreateCover(props: any) {
             tokenIn,
             tokenOut,
             coverMintParams.tokenInAmount,
-            signer
+            signer,
+            networkName
           );
 
     if (!newMintGasFee.gasUnits.mul(120).div(100).eq(mintGasLimit)) {
@@ -576,6 +582,8 @@ export default function CreateCover(props: any) {
                 tokenOut={tokenOut}
                 setTokenOut={setTokenOut}
                 displayToken={tokenIn}
+                amount={display}
+                isAmountIn={true}
               />
             </div>
           </div>
@@ -652,6 +660,8 @@ export default function CreateCover(props: any) {
                 tokenOut={tokenOut}
                 setTokenOut={setTokenOut}
                 displayToken={tokenOut}
+                amount={display}
+                isAmountIn={true}
               />
             </div>
           </div>
@@ -797,14 +807,14 @@ export default function CreateCover(props: any) {
       {allowanceInCover ? (
         allowanceInCover.lt(coverMintParams.tokenInAmount) ? (
           <CoverMintApproveButton
-            routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
+            routerAddress={chainProperties[networkName]["routerAddress"]}
             approveToken={tokenIn.address}
             amount={bnInput}
             tokenSymbol={tokenIn.symbol}
           />
         ) : coverPoolAddress != ZERO_ADDRESS ? (
           <CoverMintButton
-            routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
+            routerAddress={chainProperties[networkName]["routerAddress"]}
             poolAddress={coverPoolAddress}
             disabled={coverMintParams.disabled}
             to={address}
@@ -840,7 +850,7 @@ export default function CreateCover(props: any) {
           />
         ) : (
           <CoverCreateAndMintButton
-            routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
+            routerAddress={chainProperties[networkName]["routerAddress"]}
             poolType={"PSHARK-CPROD"}
             tokenIn={tokenIn}
             tokenOut={tokenOut}

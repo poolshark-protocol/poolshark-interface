@@ -36,7 +36,17 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { fetchRangePositions } from "../../utils/queries";
 import { mapUserLimitPositions, mapUserRangePositions } from "../../utils/maps";
 export default function CoverExistingPool({ goBack }) {
-  const [chainId] = useConfigStore((state) => [state.chainId]);
+  const [
+    chainId,
+    networkName,
+    limitSubgraph,
+    coverSubgraph,
+  ] = useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
+    state.limitSubgraph,
+    state.coverSubgraph
+  ]);
 
   const [
     coverPoolAddress,
@@ -133,7 +143,7 @@ export default function CoverExistingPool({ goBack }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
+    args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowance,
     enabled: tokenIn.address != undefined,
@@ -227,7 +237,7 @@ export default function CoverExistingPool({ goBack }) {
   }, [tokenIn.name, tokenOut.name]);
 
   async function updatePools(feeAmount: string) {
-    setCoverPoolFromVolatility(tokenIn, tokenOut, feeAmount);
+    setCoverPoolFromVolatility(tokenIn, tokenOut, feeAmount, coverSubgraph);
   }
 
   //sames as updatePools but triggered from the html
@@ -327,7 +337,7 @@ export default function CoverExistingPool({ goBack }) {
 
   useEffect(() => {
     if (!coverPoolData.id) {
-      setCoverPoolFromVolatility(tokenIn, tokenOut, "1000");
+      setCoverPoolFromVolatility(tokenIn, tokenOut, "1000", coverSubgraph);
     }
 
     refetchRangePositionData();
@@ -345,7 +355,7 @@ export default function CoverExistingPool({ goBack }) {
 
   async function refetchRangePositionData() {
     //refetch rangePositionData frm positionId in router params
-    const data = await fetchRangePositions(address);
+    const data = await fetchRangePositions(limitSubgraph, address);
     if (data["data"]) {
       const positions = mapUserRangePositions(data["data"].rangePositions);
       const positionId = router.query.positionId;
@@ -506,7 +516,8 @@ export default function CoverExistingPool({ goBack }) {
             tokenIn,
             tokenOut,
             coverMintParams.tokenInAmount,
-            signer
+            signer,
+            networkName
           )
         : await gasEstimateCoverCreateAndMint(
             "PSHARK-CPROD",
@@ -529,7 +540,8 @@ export default function CoverExistingPool({ goBack }) {
             tokenIn,
             tokenOut,
             coverMintParams.tokenInAmount,
-            signer
+            signer,
+            networkName
           );
     if (!newMintGasFee.gasUnits.mul(120).div(100).eq(mintGasLimit)) {
       setMintGasFee(newMintGasFee.formattedPrice);
@@ -827,14 +839,14 @@ export default function CoverExistingPool({ goBack }) {
       {allowanceInCover ? (
         allowanceInCover.lt(coverMintParams.tokenInAmount) ? (
           <CoverMintApproveButton
-            routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
+            routerAddress={chainProperties[networkName]["routerAddress"]}
             approveToken={tokenIn.address}
             amount={String(coverMintParams.tokenInAmount)}
             tokenSymbol={tokenIn.symbol}
           />
         ) : coverPoolAddress != ZERO_ADDRESS ? (
           <CoverMintButton
-            routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
+            routerAddress={chainProperties[networkName]["routerAddress"]}
             poolAddress={coverPoolAddress}
             disabled={coverMintParams.disabled}
             buttonMessage={coverMintParams.buttonMessage}
@@ -878,7 +890,7 @@ export default function CoverExistingPool({ goBack }) {
           />
         ) : (
           <CoverCreateAndMintButton
-            routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
+            routerAddress={chainProperties[networkName]["routerAddress"]}
             poolType={"PSHARK-CPROD"}
             tokenIn={tokenIn}
             tokenOut={tokenOut}

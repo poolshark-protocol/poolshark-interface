@@ -20,9 +20,11 @@ export default function LimitCollectButton({ poolAddress, address, positionId, c
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [

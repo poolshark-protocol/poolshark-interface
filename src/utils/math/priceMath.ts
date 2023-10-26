@@ -58,7 +58,7 @@ export function getMarketPriceAboveBelowString(limitStringPriceQuote: string, pa
  */
 export function getAveragePrice(tokenA: token, tokenB: token, lowerTick: number, upperTick: number, zeroForOne: boolean, liquidity: BigNumber, amountIn: BigNumber, ): number {
     if(
-        lowerTick >= upperTick ||
+        Number(lowerTick) >= Number(upperTick) ||
         lowerTick < TickMath.MIN_TICK ||
         lowerTick > TickMath.MAX_TICK ||
         upperTick < TickMath.MIN_TICK ||
@@ -69,16 +69,15 @@ export function getAveragePrice(tokenA: token, tokenB: token, lowerTick: number,
 
     const amount = JSBI.BigInt(amountIn.div(2).toString())
     const liquidityAmount = JSBI.BigInt(liquidity.toString())
-
     let newSqrtPrice
     if (zeroForOne) {
         // start from lower price
         const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
-        newSqrtPrice = TickMath.getNewSqrtPrice(lowerSqrtPrice, liquidityAmount, amount, !zeroForOne, true)
+        newSqrtPrice = TickMath.getNewSqrtPrice(lowerSqrtPrice, liquidityAmount, amount, !zeroForOne, false)
     } else {
         // start from upper price
         const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
-        newSqrtPrice = TickMath.getNewSqrtPrice(upperSqrtPrice, liquidityAmount, amount, !zeroForOne, true)
+        newSqrtPrice = TickMath.getNewSqrtPrice(upperSqrtPrice, liquidityAmount, amount, !zeroForOne, false)
     }
     // convert sqrt price to price string
     return parseFloat(TickMath.getPriceStringAtSqrtPrice(newSqrtPrice, tokenA, tokenB))
@@ -131,7 +130,7 @@ export function getExpectedAmountInFromOutput(lowerTick: number, upperTick: numb
  */
 export function getExpectedAmountOutFromInput(lowerTick: number, upperTick: number, zeroForOne: boolean, amountIn: BigNumber): BigNumber {
     if(
-        lowerTick >= upperTick ||
+        Number(lowerTick) >= Number(upperTick) ||
         TickMath.MIN_TICK > lowerTick ||
         TickMath.MAX_TICK < lowerTick ||
         TickMath.MIN_TICK > upperTick || 
@@ -200,7 +199,7 @@ export function getExpectedAmountIn(lowerTick: number, upperTick: number, zeroFo
  */
 export function getExpectedAmountOut(lowerTick: number, upperTick: number, zeroForOne: boolean, liquidity: BigNumber): BigNumber {
     if(
-        lowerTick >= upperTick ||
+        Number(lowerTick) >= Number(upperTick) ||
         lowerTick < TickMath.MIN_TICK ||
         lowerTick > TickMath.MAX_TICK ||
         upperTick < TickMath.MIN_TICK ||

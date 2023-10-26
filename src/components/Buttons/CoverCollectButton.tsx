@@ -70,6 +70,7 @@ export default function CoverCollectButton({
     functionName: "burn",
     args: [[address, BigNumber.from(0), positionId, claim, zeroForOne, true]],
     chainId: chainId,
+    enabled: positionId != undefined,
     overrides: {
       gasLimit: gasLimit,
     },

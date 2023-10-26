@@ -29,7 +29,7 @@ export const gasEstimateSwap = async (
 ): Promise<void> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
     const ethUsdQuery = await fetchEthPrice();
     const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
@@ -75,11 +75,12 @@ export const gasEstimateMintLimit = async (
   bnInput: BigNumber,
   signer,
   setMintGasFee,
-  setMintGasLimit
+  setMintGasLimit,
+  networkName: string
 ): Promise<void> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
@@ -89,7 +90,7 @@ export const gasEstimateMintLimit = async (
     }
     const zeroForOne = token0.address.localeCompare(token1.address) < 0;
 
-    const routerAddress = chainProperties["arbitrumGoerli"]["routerAddress"];
+    const routerAddress = chainProperties[networkName]["routerAddress"];
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
@@ -140,11 +141,12 @@ export const gasEstimateCreateAndMintLimit = async (
   bnInput: BigNumber,
   signer,
   setMintGasFee,
-  setMintGasLimit
+  setMintGasLimit,
+  networkName: string
 ): Promise<void> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
@@ -155,7 +157,7 @@ export const gasEstimateCreateAndMintLimit = async (
     const recipient = address;
     const zeroForOne = token0.address.localeCompare(token1.address) < 0;
 
-    const routerAddress = chainProperties["arbitrumGoerli"]["routerAddress"];
+    const routerAddress = chainProperties[networkName]["routerAddress"];
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
@@ -217,7 +219,7 @@ export const gasEstimateBurnLimit = async (
 ): Promise<void> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
@@ -274,11 +276,12 @@ export const gasEstimateRangeMint = async (
   amount0: BigNumber,
   amount1: BigNumber,
   signer,
+  networkName: string,
   positionId?: number
 ): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
     if (
       !rangePoolRoute ||
@@ -288,7 +291,7 @@ export const gasEstimateRangeMint = async (
     ) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
-    const routerAddress = chainProperties["arbitrumGoerli"]["routerAddress"];
+    const routerAddress = chainProperties[networkName]["routerAddress"];
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
@@ -339,11 +342,12 @@ export const gasEstimateRangeCreateAndMint = async (
   amount0: BigNumber,
   amount1: BigNumber,
   signer,
+  networkName: string,
   positionId?: number
 ): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
     if (!provider || (amount0.eq(BN_ZERO) && amount1.eq(BN_ZERO))) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
@@ -352,7 +356,7 @@ export const gasEstimateRangeCreateAndMint = async (
         JSBI.greaterThanOrEqual(JSBI.BigInt(startPrice.toString()), TickMath.MAX_SQRT_RATIO)) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
-    const routerAddress = chainProperties["arbitrumGoerli"]["routerAddress"];
+    const routerAddress = chainProperties[networkName]["routerAddress"];
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
@@ -406,7 +410,7 @@ export const gasEstimateRangeBurn = async (
 ): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
     if (
       !rangePoolRoute ||
@@ -453,18 +457,19 @@ export const gasEstimateCoverMint = async (
   tokenOut: tokenCover,
   inAmount: BigNumber,
   signer,
+  networkName: string,
   positionId?: number
 ): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
     if (!coverPoolRoute || !provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     if (inAmount.eq(BN_ZERO))
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
-    const routerAddress = chainProperties["arbitrumGoerli"]["routerAddress"];
+    const routerAddress = chainProperties[networkName]["routerAddress"];
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
@@ -515,16 +520,17 @@ export const gasEstimateCoverCreateAndMint = async (
   tokenOut: tokenCover,
   inAmount: BigNumber,
   signer,
+  networkName: string,
   positionId?: number
 ): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
     if (!provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
-    const routerAddress = chainProperties["arbitrumGoerli"]["routerAddress"];
+    const routerAddress = chainProperties[networkName]["routerAddress"];
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
@@ -584,7 +590,7 @@ export const gasEstimateCoverBurn = async (
 ): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
 
     if (!coverPoolRoute || !provider) {

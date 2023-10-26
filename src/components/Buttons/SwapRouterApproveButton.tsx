@@ -26,9 +26,11 @@ export default function SwapRouterApproveButton({
   const [successDisplay, setSuccessDisplay] = useState(false);
 
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [setNeedsAllowanceIn] = useTradeStore((state) => [

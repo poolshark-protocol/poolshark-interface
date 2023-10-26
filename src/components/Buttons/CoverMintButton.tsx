@@ -33,13 +33,11 @@ export default function CoverMintButton({
   setSuccessDisplay,
   setErrorDisplay,
   setIsLoading,
-  setTxHash
+  setTxHash,
 }) {
-
-  const [
-    chainId
-  ] = useConfigStore((state) => [
+  const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
+    state.networkName,
   ]);
 
   const [
@@ -91,18 +89,19 @@ export default function CoverMintButton({
       setNeedsBalance(true);
       setNeedsRefetch(true);
       setNeedsPosRefetch(true);
-  }});
+    },
+  });
 
   useEffect(() => {
-    if(isLoading) {
-      setIsLoading(true)
+    if (isLoading) {
+      setIsLoading(true);
     } else {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }, [isLoading]);
-  
+
   useEffect(() => {
-    setTxHash(data?.hash)
+    setTxHash(data?.hash);
   }, [data]);
 
   return (
@@ -112,7 +111,7 @@ export default function CoverMintButton({
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer flex items-center justify-center text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         onClick={() => write?.()}
       >
-       {gasLimit.lte(BN_ZERO) ? <Loader/> : buttonMessage}
+        {gasLimit.lte(BN_ZERO) ? <Loader /> : buttonMessage}
       </button>
     </>
   );

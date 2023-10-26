@@ -32,9 +32,11 @@ export default function CoverAddLiqButton({
   setIsOpen,
 }) {
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
   const [
     coverPoolData,
@@ -70,7 +72,7 @@ export default function CoverAddLiqButton({
         },
       ],
     ],
-    enabled: amount.gt(BN_ZERO) && poolAddress != undefined,
+    enabled: amount.gt(BN_ZERO) && poolAddress != undefined && positionId != undefined,
     chainId: chainId,
     overrides: {
       gasLimit: gasLimit,

@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { fetchCoverTokenUSDPrice, logoMap } from "../../utils/tokens";
+import { logoMap } from "../../utils/tokens";
 import { TickMath } from "../../utils/math/tickMath";
 import { getClaimTick } from "../../utils/maps";
 import { tokenCover } from "../../utils/types";
 import ArrowRightIcon from "../Icons/ArrowRightIcon";
 import router from "next/router";
-import { getCoverPoolFromFactory } from "../../utils/queries";
 import { ethers } from "ethers";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function UserCoverPool({
   coverPosition,
@@ -15,6 +15,14 @@ export default function UserCoverPool({
   upperPrice,
   href,
 }) {
+  const [
+    limitSubgraph,
+    coverSubgraph
+  ] = useConfigStore((state) => [
+    state.limitSubgraph,
+    state.coverSubgraph
+  ]);
+
   const [
     tokenIn,
     tokenOut,
@@ -56,7 +64,8 @@ export default function UserCoverPool({
       Number(coverPosition.max),
       Boolean(coverPosition.zeroForOne),
       Number(coverPosition.epochLast),
-      true
+      true,
+      coverSubgraph
     );
     setClaimTick(tick);
     setClaimPrice(parseFloat(TickMath.getPriceStringAtTick(tick, tokenIn, tokenOut)));
@@ -122,12 +131,13 @@ export default function UserCoverPool({
       logoURI: logoMap[coverPosition.tokenOne.symbol],
       address: coverPosition.tokenOne.id,
     } as tokenCover;
-    setTokenIn(tokenOutNew, tokenInNew);
-    setTokenOut(tokenInNew, tokenOutNew);
+    setTokenIn(tokenOutNew, tokenInNew, '0', true);
+    setTokenOut(tokenInNew, tokenOutNew, '0', false);
     setCoverPoolFromVolatility(
       tokenInNew,
       tokenOutNew,
-      coverPosition.volatilityTier.feeAmount.toString()
+      coverPosition.volatilityTier.feeAmount.toString(),
+      coverSubgraph
     );
     router.push({
       pathname: href,

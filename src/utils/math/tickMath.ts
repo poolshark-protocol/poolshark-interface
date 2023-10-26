@@ -45,6 +45,12 @@ export function invertPrice(priceString: string, zeroForOne: boolean): string {
   return priceString
 }
 
+export function roundPrice(priceString: string, tokenA: token, tokenB: token, tickSpacing: number): string {
+  if (isNaN(parseFloat(priceString)) || parseFloat(priceString) == 0 || isNaN(tickSpacing)) return '0.00'
+  const tick = TickMath.getTickAtPriceString(priceString, tokenA, tokenB, tickSpacing)
+  return TickMath.getPriceStringAtTick(tick, tokenA, tokenB, tickSpacing)
+}
+
 export function getDefaultLowerTick(minLimit, maxLimit, zeroForOne, latestTick = 0): number {
   const midTick = Math.round((Number(minLimit) + Number(maxLimit)) / 2)
   if (zeroForOne) {
@@ -151,6 +157,7 @@ export abstract class TickMath {
     // divide by Q96
     let price = JSBD.divide(sqrtPriceExp, Q96Exp)
     // scale based on decimal difference
+
     const token0 = tokenA?.address.localeCompare(tokenB?.address) < 0 ? tokenA : tokenB
     const token1 = token0?.address == tokenA?.address ? tokenB : tokenA
     const decimalDiff = !isNaN(token0?.decimals) && !isNaN(token1?.decimals) ? token0.decimals - token1.decimals : 0;
@@ -201,7 +208,8 @@ export abstract class TickMath {
    * @param tick the tick for which to compute the sqrt ratio
    */
   public static getSqrtRatioAtTick(tick: number): JSBI {
-    invariant(tick >= TickMath.MIN_TICK && tick <= TickMath.MAX_TICK && Number.isInteger(Number(tick)), 'TICK')
+    if(tick <= TickMath.MIN_TICK) return this.MIN_SQRT_RATIO
+    if(tick >= TickMath.MAX_TICK) return this.MAX_SQRT_RATIO
     const absTick: number = tick < 0 ? tick * -1 : tick
 
     let ratio: JSBI =

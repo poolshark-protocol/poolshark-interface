@@ -9,9 +9,11 @@ export default function useTokenBalance(tokenAddress: string) {
   const [queryToken, setQueryToken] = useState(tokenOneAddress as any);
 
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const tokenBalanceSetting = () => {

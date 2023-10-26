@@ -1,3 +1,4 @@
+import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 import { BigNumber } from "ethers";
 
 export type coinsList = {
@@ -68,3 +69,7 @@ export type tokenCover = {
 };
 
 export type token = tokenCover | tokenRangeLimit | tokenSwap;
+
+export type LimitSubgraph = ApolloClient<NormalizedCacheObject>;
+
+export type CoverSubgraph = ApolloClient<NormalizedCacheObject>;
