@@ -75,7 +75,6 @@ export default function Cover() {
     setIsPositionsLoading(true);
     const data = await fetchCoverPositions(coverSubgraph, address);
     if (data["data"]) {
-      console.log(data["data"]);
       const positions = data["data"].positions;
       const positionData = mapUserCoverPositions(positions, coverSubgraph);
       setAllCoverPositions(positionData);
