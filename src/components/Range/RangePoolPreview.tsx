@@ -475,7 +475,7 @@ export default function RangePoolPreview() {
                                   )
                                 : BN_ZERO
                             }
-                            disabled={rangeMintParams.disabled}
+                            disabled={rangeMintParams.disabled || mintGasLimit.lte(BN_ZERO)}
                             buttonMessage={rangeMintParams.buttonMessage}
                             amount0={
                               tokenIn.callId === 0
@@ -539,7 +539,7 @@ export default function RangePoolPreview() {
                                   )
                                 : BN_ZERO
                             }
-                            disabled={rangeMintParams.disabled}
+                            disabled={rangeMintParams.disabled || mintGasLimit.lte(BN_ZERO)}
                             buttonMessage={rangeMintParams.buttonMessage}
                             amount0={
                               tokenIn.callId === 0

@@ -157,6 +157,7 @@ export abstract class TickMath {
     // divide by Q96
     let price = JSBD.divide(sqrtPriceExp, Q96Exp)
     // scale based on decimal difference
+
     const token0 = tokenA?.address.localeCompare(tokenB?.address) < 0 ? tokenA : tokenB
     const token1 = token0?.address == tokenA?.address ? tokenB : tokenA
     const decimalDiff = !isNaN(token0?.decimals) && !isNaN(token1?.decimals) ? token0.decimals - token1.decimals : 0;

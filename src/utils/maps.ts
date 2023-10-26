@@ -222,8 +222,14 @@ export function mapUserLimitPositions(limitPositions) {
       max: limitPosition.upper,
       tickSpacing: limitPosition.pool.tickSpacing,
       epochLast: limitPosition.epochLast,
-      tokenIn: limitPosition.tokenIn,
-      tokenOut: limitPosition.tokenOut,
+      tokenIn: {
+        ...limitPosition.tokenIn,
+        address: limitPosition.tokenIn.id
+      },
+      tokenOut: {
+        ...limitPosition.tokenOut,
+        address: limitPosition.tokenOut.id
+      },
       price0: limitPosition.pool.price0,
       price1: limitPosition.pool.price1,
       feeTierProperties: limitPosition.pool.feeTier,
