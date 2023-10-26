@@ -67,7 +67,6 @@ export default function Cover() {
   }, []);
 
   useEffect(() => {
-    console.log("refetching");
     getUserCoverPositionData();
     setNeedsPosRefetch(false);
   }, [needsPosRefetch, router.isReady]);
