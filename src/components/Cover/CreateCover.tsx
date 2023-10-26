@@ -126,7 +126,6 @@ export default function CreateCover(props: any) {
   const [priceOrder, setPriceOrder] = useState(true);
 
   useEffect(() => {
-    console.log("coverPoolAddress", coverPoolAddress);
     if (coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS) {
       setNeedsLatestTick(true);
     }
