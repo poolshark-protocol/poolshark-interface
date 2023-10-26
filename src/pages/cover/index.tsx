@@ -20,7 +20,8 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties, supportedNetworkNames } from "../../utils/chains";
 
 export default function Cover() {
-  const [coverSubgraph, setCoverSubgraph] = useConfigStore((state) => [
+  const [networkName, coverSubgraph, setCoverSubgraph] = useConfigStore((state) => [
+    state.networkName,
     state.coverSubgraph,
     state.setCoverSubgraph,
   ]);
@@ -45,9 +46,6 @@ export default function Cover() {
 
   const router = useRouter();
   const { address, isDisconnected } = useAccount();
-  const {
-    network: { chainId, name },
-  } = useProvider();
 
   const [selectedPool, setSelectedPool] = useState(router.query ?? undefined);
   const [state, setState] = useState(router.query.state ?? "initial");
@@ -62,7 +60,6 @@ export default function Cover() {
 
   useEffect(() => {
     if (address) {
-      const networkName = supportedNetworkNames[name] ?? "unknownNetwork";
       const chainConstants = chainProperties[networkName]
         ? chainProperties[networkName]
         : chainProperties["arbitrumGoerli"];

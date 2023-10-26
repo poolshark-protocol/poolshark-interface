@@ -20,7 +20,9 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties, supportedNetworkNames } from "../../utils/chains";
 
 export default function ViewCover() {
-  const [coverSubgraph, setCoverSubgraph] = useConfigStore((state) => [
+  const [chainId, networkName, coverSubgraph, setCoverSubgraph] = useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
     state.coverSubgraph,
     state.setCoverSubgraph,
   ]);
@@ -250,12 +252,7 @@ export default function ViewCover() {
 
   ////////////////////////////////Position Data
 
-  const {
-    network: { chainId, name },
-  } = useProvider();
-
   useEffect(() => {
-    const networkName = supportedNetworkNames[name] ?? "unknownNetwork";
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
       : chainProperties["arbitrumGoerli"];

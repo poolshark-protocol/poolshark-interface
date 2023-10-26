@@ -24,7 +24,9 @@ import { ZERO_ADDRESS } from "../../utils/math/constants";
 import { chainProperties, supportedNetworkNames } from "../../utils/chains";
 
 export default function ViewRange() {
-  const [limitSubgraph, setLimitSubgraph] = useConfigStore((state) => [
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph] = useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
     state.limitSubgraph,
     state.setLimitSubgraph,
   ]);
@@ -179,12 +181,8 @@ export default function ViewRange() {
   };
 
   ////////////////////////////////Position Data
-  const {
-    network: { chainId, name },
-  } = useProvider();
 
   useEffect(() => {
-    const networkName = supportedNetworkNames[name] ?? "unknownNetwork";
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
       : chainProperties["arbitrumGoerli"];
