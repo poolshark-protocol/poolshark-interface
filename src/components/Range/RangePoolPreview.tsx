@@ -21,9 +21,11 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function RangePoolPreview() {
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [
@@ -75,7 +77,7 @@ export default function RangePoolPreview() {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
+    args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowanceIn && router.isReady,
     //enabled: tokenIn.address,
@@ -91,7 +93,7 @@ export default function RangePoolPreview() {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
+    args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowanceOut && router.isReady,
     //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
@@ -156,7 +158,8 @@ export default function RangePoolPreview() {
             ),
             rangeMintParams.tokenInAmount,
             rangeMintParams.tokenOutAmount,
-            signer
+            signer,
+            networkName
           )
         : await gasEstimateRangeCreateAndMint(
             limitPoolTypeIds["constant-product"],
@@ -184,7 +187,8 @@ export default function RangePoolPreview() {
             tokenOrder ? tokenOut : tokenIn,
             rangeMintParams.tokenInAmount,
             rangeMintParams.tokenOutAmount,
-            signer
+            signer,
+            networkName
           );
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
@@ -407,7 +411,7 @@ export default function RangePoolPreview() {
                         ) ? (
                           <RangeMintDoubleApproveButton
                             routerAddress={
-                              chainProperties["arbitrumGoerli"]["routerAddress"]
+                              chainProperties[networkName]["routerAddress"]
                             }
                             tokenIn={tokenIn}
                             tokenOut={tokenOut}
@@ -419,7 +423,7 @@ export default function RangePoolPreview() {
                           ) ? (
                           <RangeMintApproveButton
                             routerAddress={
-                              chainProperties["arbitrumGoerli"]["routerAddress"]
+                              chainProperties[networkName]["routerAddress"]
                             }
                             approveToken={tokenIn}
                             amount={rangeMintParams.tokenInAmount}
@@ -429,7 +433,7 @@ export default function RangePoolPreview() {
                           ) ? (
                           <RangeMintApproveButton
                             routerAddress={
-                              chainProperties["arbitrumGoerli"]["routerAddress"]
+                              chainProperties[networkName]["routerAddress"]
                             }
                             approveToken={tokenOut}
                             amount={rangeMintParams.tokenOutAmount}
@@ -437,7 +441,7 @@ export default function RangePoolPreview() {
                         ) : rangePoolAddress != ZERO_ADDRESS ? (
                           <RangeMintButton
                             routerAddress={
-                              chainProperties["arbitrumGoerli"]["routerAddress"]
+                              chainProperties[networkName]["routerAddress"]
                             }
                             to={address}
                             poolAddress={rangePoolAddress}
@@ -471,7 +475,7 @@ export default function RangePoolPreview() {
                                   )
                                 : BN_ZERO
                             }
-                            disabled={rangeMintParams.disabled}
+                            disabled={rangeMintParams.disabled || mintGasLimit.lte(BN_ZERO)}
                             buttonMessage={rangeMintParams.buttonMessage}
                             amount0={
                               tokenIn.callId === 0
@@ -492,7 +496,7 @@ export default function RangePoolPreview() {
                         ) : (
                           <RangeCreateAndMintButton
                             routerAddress={
-                              chainProperties["arbitrumGoerli"]["routerAddress"]
+                              chainProperties[networkName]["routerAddress"]
                             }
                             poolTypeId={limitPoolTypeIds["constant-product"]}
                             token0={tokenIn}
@@ -535,7 +539,7 @@ export default function RangePoolPreview() {
                                   )
                                 : BN_ZERO
                             }
-                            disabled={rangeMintParams.disabled}
+                            disabled={rangeMintParams.disabled || mintGasLimit.lte(BN_ZERO)}
                             buttonMessage={rangeMintParams.buttonMessage}
                             amount0={
                               tokenIn.callId === 0

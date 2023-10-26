@@ -21,9 +21,11 @@ export default function CoverMintApproveButton({
   const [successDisplay, setSuccessDisplay] = useState(false)
 
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [setNeedsAllowance] = useCoverStore((state) => [

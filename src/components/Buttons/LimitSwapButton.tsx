@@ -25,11 +25,14 @@ export default function LimitSwapButton({
   zeroForOne,
   closeModal,
   gasLimit,
+  resetAfterSwap
 }) {
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [
@@ -70,7 +73,6 @@ export default function LimitSwapButton({
     overrides: {
       gasLimit: gasLimit,
     },
-    onSuccess() {},
     onError() {
       setErrorDisplay(true);
     },
@@ -82,13 +84,12 @@ export default function LimitSwapButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
+      resetAfterSwap();
       setNeedsAllowanceIn(true);
       setNeedsBalanceIn(true);
       setNeedsSnapshot(true);
-      setTimeout(() => {
-        setNeedsRefetch(true);
-        closeModal();
-      }, 1000);
+      setNeedsRefetch(true);
+      closeModal();
     },
     onError() {
       setErrorDisplay(true);
@@ -102,7 +103,7 @@ export default function LimitSwapButton({
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         onClick={() => write?.()}
       >
-        Mint Position
+        CREATE LIMIT SWAP
       </button>
       <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay && (

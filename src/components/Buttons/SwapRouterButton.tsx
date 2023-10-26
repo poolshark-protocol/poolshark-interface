@@ -18,11 +18,14 @@ export default function SwapRouterButton({
   poolAddresses,
   swapParams,
   gasLimit,
+  resetAfterSwap
 }) {
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [setNeedsAllowanceIn, setNeedsBalanceIn] = useRangeLimitStore(
@@ -53,6 +56,7 @@ export default function SwapRouterButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
+      resetAfterSwap()
       setNeedsAllowanceIn(true);
       setNeedsBalanceIn(true);
     },

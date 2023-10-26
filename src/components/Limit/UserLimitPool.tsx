@@ -9,6 +9,8 @@ import { logoMap } from "../../utils/tokens";
 import timeDifference from "../../utils/time";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { parseUnits } from "../../utils/math/valueMath";
+import { useConfigStore } from "../../hooks/useConfigStore";
+import { invertPrice } from "../../utils/math/tickMath";
 
 export default function UserLimitPool({
     limitPosition,
@@ -16,6 +18,14 @@ export default function UserLimitPool({
     address,
     href,
 }) {
+    const [
+        limitSubgraph,
+        coverSubgraph
+    ] = useConfigStore((state) => [
+        state.limitSubgraph,
+        state.coverSubgraph
+    ]);
+
     const [
         tokenIn,
         tokenOut,
@@ -52,7 +62,8 @@ export default function UserLimitPool({
             Number(limitPosition.max),
             tokenIn.callId == 0,
             Number(limitPosition.epochLast),
-            false
+            false,
+            limitSubgraph
         );
         setClaimTick(tick);
     };
@@ -68,19 +79,22 @@ export default function UserLimitPool({
             symbol: limitPosition.tokenIn.symbol,
             logoURI: logoMap[limitPosition.tokenIn.symbol],
             address: limitPosition.tokenIn.id,
+            decimals: limitPosition.tokenIn.decimals,
         } as tokenRangeLimit;
         const tokenOutNew = {
             name: limitPosition.tokenOut.name,
             symbol: limitPosition.tokenOut.symbol,
             logoURI: logoMap[limitPosition.tokenOut.symbol],
             address: limitPosition.tokenOut.id,
+            decimals: limitPosition.tokenOut.decimals,
         } as tokenRangeLimit;
-        setTokenIn(tokenOutNew, tokenInNew);
-        setTokenOut(tokenInNew, tokenOutNew);
+        setTokenIn(tokenOutNew, tokenInNew, '0', true);
+        setTokenOut(tokenInNew, tokenOutNew, '0', false);
         setLimitPoolFromVolatility(
             tokenInNew,
             tokenOutNew,
             limitPosition.feeTier.toString(),
+            limitSubgraph,
         );
         router.push({
             pathname: href,
@@ -101,7 +115,7 @@ export default function UserLimitPool({
                         className="w-[23px] h-[23px]"
                         src={logoMap[limitPosition.tokenIn.symbol]}
                     />
-                    {parseFloat(ethers.utils.formatEther(limitPosition.amountIn)).toFixed(3) + " " + limitPosition.tokenIn.symbol}
+                    {parseFloat(ethers.utils.formatUnits(limitPosition.amountIn, limitPosition.tokenIn.decimals)).toFixed(3) + " " + limitPosition.tokenIn.symbol}
                 </div>
             </td>
             <td className="">
@@ -110,13 +124,15 @@ export default function UserLimitPool({
                         className="w-[23px] h-[23px]"
                         src={logoMap[limitPosition.tokenOut.symbol]}
                     />
-                    {parseFloat(ethers.utils.formatEther(
+                    {parseFloat(ethers.utils.formatUnits(
                         getExpectedAmountOut(
                             parseInt(limitPosition.min),
                             parseInt(limitPosition.max),
                             limitPosition.tokenIn.id.localeCompare(limitPosition.tokenOut.id) < 0,
-                            BigNumber.from(limitPosition.liquidity))
-                    )).toFixed(3) + " " + limitPosition.tokenOut.symbol}
+                            BigNumber.from(limitPosition.liquidity)
+                        ),
+                        limitPosition.tokenOut.decimals
+                    )).toPrecision(6) + " " + limitPosition.tokenOut.symbol}
                 </div>
             </td>
             <td className="text-left text-xs">
@@ -124,15 +140,15 @@ export default function UserLimitPool({
                     <span>
                         <span className="text-grey1">1 {limitPosition.tokenIn.symbol} = </span>
                         {
-                            getAveragePrice(
-                                tokenIn,
-                                tokenOut,
+                            invertPrice(getAveragePrice(
+                                limitPosition.tokenIn,
+                                limitPosition.tokenOut,
                                 parseInt(limitPosition.min),
                                 parseInt(limitPosition.max),
                                 limitPosition.tokenIn.id.localeCompare(limitPosition.tokenOut.id) < 0,
                                 BigNumber.from(limitPosition.liquidity),
                                 BigNumber.from(limitPosition.amountIn)
-                            ).toFixed(3) + " " + limitPosition.tokenOut.symbol}
+                            ).toPrecision(6), limitPosition.tokenIn.id.localeCompare(limitPosition.tokenOut.id) < 0) + " " + limitPosition.tokenOut.symbol}
                     </span>
                 </div>
             </td>

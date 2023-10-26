@@ -38,16 +38,12 @@ export default function CoverRemoveLiquidity({
 
   const router = useRouter();
 
-  const [burnPercent, setBurnPercent] = useState(
-    parseUnits("5", 37)
-  );
+  const [burnPercent, setBurnPercent] = useState(parseUnits("5", 37));
   const [sliderValue, setSliderValue] = useState(1);
   const [sliderOutput, setSliderOutput] = useState("1");
 
   useEffect(() => {
-    setTokenInAmount(
-      parseUnits(String(sliderOutput), tokenIn.decimals)
-    );
+    setTokenInAmount(parseUnits(String(sliderOutput), tokenIn.decimals));
   }, [sliderOutput]);
 
   useEffect(() => {
@@ -70,22 +66,42 @@ export default function CoverRemoveLiquidity({
     setMintButtonState();
   }, [burnPercent]);
 
+  //////////////////Slider
+
+  const [sliderDisplay, setSliderDisplay] = useState(50);
+  const [sliderLastValue, setSliderLastValue] = useState(50);
+  const [sliderController, setSliderController] = useState(false);
+
   const handleChange = (event: any) => {
     if (Number(event.target.value) != 0) {
-      setSliderValue(event.target.value);
+      setSliderDisplay(event.target.value);
     } else {
-      setSliderValue(1);
+      setSliderDisplay(1);
     }
   };
 
   const handleSliderButton = (percent: number) => {
-    setSliderValue(percent);
+    setSliderDisplay(percent);
   };
 
-  //////////////////Slider
+  useEffect(() => {
+    setSliderLastValue(sliderDisplay);
+    if (!sliderController) {
+      setSliderController(true);
+      setTimeout(() => {
+        setSliderController(false);
+      }, 1000);
+    }
+  }, [sliderDisplay]);
 
   useEffect(() => {
-    setSliderValue(50);
+    if (!sliderController) {
+      setSliderValue(sliderLastValue);
+    }
+  }, [sliderLastValue, sliderController]);
+
+  useEffect(() => {
+    setSliderDisplay(50);
   }, [router.isReady]);
 
   ////////////////////////////////Gas Fees Estimation
@@ -100,8 +116,9 @@ export default function CoverRemoveLiquidity({
       sliderValue &&
       signer &&
       claimTick &&
-      claimTick >= coverPositionData.lowerTick && 
-      claimTick <= coverPositionData.upperTick
+      claimTick >= coverPositionData.lowerTick &&
+      claimTick <= coverPositionData.upperTick &&
+      coverPositionData.positionId != undefined
     ) {
       updateGasFee();
     }
@@ -176,7 +193,7 @@ export default function CoverRemoveLiquidity({
                 </div>
                 <div className="w-full  bg-[#0C0C0C] border border-[#1C1C1C] gap-4 px-4 py-4 rounded-[4px] mt-6 mb-6">
                   <div className="flex justify-between items-center">
-                    <div className="text-3xl ">{sliderValue}%</div>
+                    <div className="text-3xl ">{sliderDisplay}%</div>
                     <div className="md:flex items-center hidden md:text-base text-sm gap-x-4">
                       <button
                         onClick={() => handleSliderButton(25)}
@@ -209,7 +226,7 @@ export default function CoverRemoveLiquidity({
                     type="range"
                     min="1"
                     max="100"
-                    value={sliderValue}
+                    value={sliderDisplay}
                     onChange={handleChange}
                     className="w-full styled-slider slider-progress bg-transparent mt-6"
                   />
@@ -219,14 +236,12 @@ export default function CoverRemoveLiquidity({
                     <span>
                       ~$
                       {(
-                          tokenIn.coverUSDPrice * parseFloat(sliderOutput)
-                        ).toFixed(2)}
+                        tokenIn.coverUSDPrice * parseFloat(sliderOutput)
+                      ).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex items-end justify-between mt-2 mb-3">
-                    <span className="text-3xl">
-                    {sliderOutput}
-                    </span>
+                    <span className="text-3xl">{sliderOutput}</span>
                     <div className="flex items-center gap-x-2">
                       <button
                         onClick={() => handleSliderButton(100)}

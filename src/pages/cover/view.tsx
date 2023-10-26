@@ -1,7 +1,7 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import router from "next/router";
-import { useAccount, useContractRead, useSigner } from "wagmi";
+import { useAccount, useContractRead, useProvider, useSigner } from "wagmi";
 import CoverCollectButton from "../../components/Buttons/CoverCollectButton";
 import { BigNumber, ethers } from "ethers";
 import { TickMath } from "../../utils/math/tickMath";
@@ -17,9 +17,15 @@ import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import { useCopyElementUseEffect } from "../../utils/misc";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { chainProperties, supportedNetworkNames } from "../../utils/chains";
 
 export default function ViewCover() {
-  const [chainId] = useConfigStore((state) => [state.chainId]);
+  const [chainId, networkName, coverSubgraph, setCoverSubgraph] = useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
+    state.coverSubgraph,
+    state.setCoverSubgraph,
+  ]);
 
   const [
     coverPoolAddress,
@@ -186,7 +192,7 @@ export default function ViewCover() {
         );
       }
     }
-  }, []);
+  }, [coverPoolData?.token0, coverPoolData?.token1]);
 
   useEffect(() => {
     getCoverPoolRatios();
@@ -247,6 +253,10 @@ export default function ViewCover() {
   ////////////////////////////////Position Data
 
   useEffect(() => {
+    const chainConstants = chainProperties[networkName]
+      ? chainProperties[networkName]
+      : chainProperties["arbitrumGoerli"];
+    setCoverSubgraph(chainConstants["coverSubgraphUrl"]);
     setTimeout(() => {
       if (
         needsRefetch == true ||
@@ -271,10 +281,10 @@ export default function ViewCover() {
   async function getUserCoverPositionData() {
     setIsLoading(true);
     try {
-      const data = await fetchCoverPositions(address);
+      const data = await fetchCoverPositions(coverSubgraph, address);
       if (data["data"]) {
         const positions = data["data"].positions;
-        const positionData = mapUserCoverPositions(positions);
+        const positionData = mapUserCoverPositions(positions, coverSubgraph);
         setAllCoverPositions(positionData);
         const positionId =
           coverPositionData.positionId ?? router.query.positionId;
@@ -284,7 +294,8 @@ export default function ViewCover() {
         setCoverPoolFromVolatility(
           tokenIn,
           tokenOut,
-          position.volatilityTier.feeAmount.toString()
+          position.volatilityTier.feeAmount.toString(),
+          coverSubgraph
         );
         if (position != undefined) {
           setCoverPositionData(position);
@@ -319,7 +330,8 @@ export default function ViewCover() {
       BigNumber.from(claimTick).lte(coverPositionData.upperTick) &&
       isConnected &&
       coverPoolAddress != undefined &&
-      address != undefined,
+      address != undefined &&
+      coverPositionData?.positionId != undefined,
     onError(error) {
       console.log("Error snapshot Cover", error);
     },
@@ -370,6 +382,7 @@ export default function ViewCover() {
       Boolean(coverPositionData.zeroForOne),
       Number(coverPositionData.epochLast),
       true,
+      coverSubgraph,
       latestTick
     );
     setClaimTick(aux);

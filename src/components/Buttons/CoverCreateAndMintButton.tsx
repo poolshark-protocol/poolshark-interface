@@ -40,9 +40,11 @@ export default function CoverCreateAndMintButton({
 }) {
 
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [setNeedsRefetch, setNeedsAllowance, setNeedsBalance] = useCoverStore(

@@ -30,9 +30,11 @@ import { useConfigStore } from "../../../hooks/useConfigStore";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [
@@ -128,7 +130,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
+    args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowanceIn && router.isReady,
     enabled: isConnected,
@@ -145,7 +147,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
+    args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowanceOut && router.isReady,
     enabled: isConnected,
@@ -375,6 +377,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       rangeMintParams.tokenInAmount,
       rangeMintParams.tokenOutAmount,
       signer,
+      networkName,
       rangePositionData.positionId
     );
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
@@ -448,7 +451,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                     <div className="flex items-end justify-between mt-2 mb-3">
                       {inputBox("0", tokenIn, "tokenIn", handleInput1, amountInDisabled)}
                       <div className="flex items-center gap-x-2">
-                        {isConnected && stateChainName === "arbitrumGoerli" ? (
+                        {isConnected && stateChainName === networkName ? (
                           <button
                             onClick={() => maxBalance(tokenIn.userBalance, "0", tokenIn)}
                             className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
@@ -517,7 +520,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                       tokenOutAllowance?.gte(rangeMintParams.tokenOutAmount) ? (
                         <RangeAddLiqButton
                           routerAddress={
-                            chainProperties["arbitrumGoerli"]["routerAddress"]
+                            chainProperties[networkName]["routerAddress"]
                           }
                           poolAddress={rangePoolAddress}
                           address={address}
@@ -537,7 +540,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         doubleApprove ? (
                         <RangeMintDoubleApproveButton
                           routerAddress={
-                            chainProperties["arbitrumGoerli"]["routerAddress"]
+                            chainProperties[networkName]["routerAddress"]
                           }
                           tokenIn={tokenIn}
                           tokenOut={tokenOut}
@@ -548,7 +551,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         tokenInAllowance.lt(rangeMintParams.tokenInAmount) ? (
                         <RangeMintApproveButton
                           routerAddress={
-                            chainProperties["arbitrumGoerli"]["routerAddress"]
+                            chainProperties[networkName]["routerAddress"]
                           }
                           approveToken={tokenIn}
                           amount={rangeMintParams.tokenInAmount}
@@ -557,7 +560,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         tokenOutAllowance.lt(rangeMintParams.tokenOutAmount) ? (
                         <RangeMintApproveButton
                           routerAddress={
-                            chainProperties["arbitrumGoerli"]["routerAddress"]
+                            chainProperties[networkName]["routerAddress"]
                           }
                           approveToken={tokenOut}
                           amount={rangeMintParams.tokenOutAmount}

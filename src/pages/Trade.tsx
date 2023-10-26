@@ -15,6 +15,7 @@ import { BigNumber, ethers } from "ethers";
 import {
   chainIdsToNamesForGitTokenList,
   chainProperties,
+  supportedNetworkNames,
 } from "../utils/chains";
 import SwapRouterApproveButton from "../components/Buttons/SwapRouterApproveButton";
 import {
@@ -42,12 +43,10 @@ import LimitCreateAndMintButton from "../components/Buttons/LimitCreateAndMintBu
 import { fetchLimitPositions } from "../utils/queries";
 import { getClaimTick, mapUserLimitPositions } from "../utils/maps";
 import { displayPoolPrice, getAveragePrice, getExpectedAmountInFromOutput, getExpectedAmountOut, getExpectedAmountOutFromInput, getMarketPriceAboveBelowString } from "../utils/math/priceMath";
-import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
 import { inputHandler, parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
 import { useConfigStore } from "../hooks/useConfigStore";
-import { formatUnits } from "ethers/lib/utils.js";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -58,9 +57,15 @@ export default function Trade() {
     useInputBox();
 
   const [
-    chainId
+    chainId,
+    networkName,
+    limitSubgraph,
+    setLimitSubgraph
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName,
+    state.limitSubgraph,
+    state.setLimitSubgraph
   ]);
 
   const [
@@ -176,6 +181,13 @@ export default function Trade() {
   //market display variables
   const [exactIn, setExactIn] = useState(true)
 
+  const resetAfterSwap = () => {
+    setDisplayIn('')
+    setDisplayOut('')
+    setAmountIn(BN_ZERO)
+    setAmountOut(BN_ZERO)
+  }
+
   const handleInputBox = (e) => {
     if (e.target.name === "tokenIn") {
       const [value, bnValue] = inputHandler(e, tokenIn)
@@ -275,7 +287,7 @@ export default function Trade() {
 
   useEffect(() => {
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address === ZERO_ADDRESS) {
-      getLimitTokenUsdPrice(tokenIn.address, setTokenInTradeUSDPrice);
+      getLimitTokenUsdPrice(tokenIn.address, setTokenInTradeUSDPrice, limitSubgraph);
     }
   }, [tokenIn.address]);
 
@@ -301,7 +313,7 @@ export default function Trade() {
   }, [tokenIn.address, tokenOut.address]);
 
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
-    const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
+    const pools = await getSwapPools(limitSubgraph, tokenIn, tokenOut, setTradePoolData);
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
     if (pools) {
@@ -321,7 +333,7 @@ export default function Trade() {
   }
 
   const { data: poolQuotes } = useContractRead({
-    address: chainProperties["arbitrumGoerli"]["routerAddress"], //contract address,
+    address: chainProperties[networkName]["routerAddress"], //contract address,
     abi: poolsharkRouterABI, // contract abi,
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
@@ -412,7 +424,7 @@ export default function Trade() {
 
   ////////////////////////////////Filled Amount
   const { data: filledAmountList } = useContractRead({
-    address: chainProperties['arbitrumGoerli']['routerAddress'],
+    address: chainProperties[networkName]['routerAddress'],
     abi: poolsharkRouterABI,
     functionName: "multiSnapshotLimit",
     args: [
@@ -454,13 +466,9 @@ export default function Trade() {
 
   useEffect(() => {
     if (address) {
-      getUserLimitPositionData();
-      setNeedsRefetch(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (address && needsRefetch === true) {
+      const chainConstants = chainProperties[networkName] ? chainProperties[networkName]
+                                                          : chainProperties['arbitrumGoerli'];
+      setLimitSubgraph(chainConstants['limitSubgraphUrl']);
       getUserLimitPositionData();
       setNeedsRefetch(false);
     }
@@ -474,7 +482,7 @@ export default function Trade() {
 
   async function getUserLimitPositionData() {
     try {
-      const data = await fetchLimitPositions(address.toLowerCase());
+      const data = await fetchLimitPositions(limitSubgraph, address.toLowerCase());
       if (data["data"]) {
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
@@ -502,12 +510,12 @@ export default function Trade() {
             Number(allLimitPositions[i].max),
             allLimitPositions[i].tokenIn.id.localeCompare(allLimitPositions[i].tokenOut.id) < 0,
             Number(allLimitPositions[i].epochLast),
-            false
+            false,
+            limitSubgraph
           ));
           mappedLimitSnapshotParams[i][4] = allLimitPositions[i].tokenIn.id
             .localeCompare(allLimitPositions[i].tokenOut.id) < 0;
         }
-        
         setLimitPoolAddressList(mappedLimitPoolAddresses)
         setLimitPositionSnapshotList(mappedLimitSnapshotParams)
       }
@@ -593,7 +601,7 @@ export default function Trade() {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
+    args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowanceIn,
     enabled: tokenIn.address != ZERO_ADDRESS,
@@ -819,7 +827,7 @@ export default function Trade() {
     if (tokenIn.userRouterAllowance?.gte(amountIn)) {
 
       await gasEstimateSwap(
-        chainProperties["arbitrumGoerli"]["routerAddress"],
+        chainProperties[networkName]["routerAddress"],
         swapPoolAddresses,
         swapParams,
         tokenIn,
@@ -848,7 +856,8 @@ export default function Trade() {
         amountIn,
         signer,
         setMintFee,
-        setMintGasLimit
+        setMintGasLimit,
+        networkName
       );
   }
 
@@ -988,7 +997,7 @@ export default function Trade() {
               <div className="flex items-end justify-between mt-2 mb-3">
                 {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox)}
                 <div className="flex items-center gap-x-2">
-                  {isConnected && stateChainName === "arbitrumGoerli" ? (
+                  {isConnected && stateChainName === networkName ? (
                     <button
                       onClick={() => {
                         maxBalance(tokenIn.userBalance, "1", tokenIn);
@@ -1007,6 +1016,8 @@ export default function Trade() {
                     tokenOut={tokenOut}
                     setTokenOut={setTokenOut}
                     displayToken={tokenIn}
+                    amount={exactIn ? displayIn : displayOut}
+                    isAmountIn={exactIn}
                   />
                 </div>
               </div>
@@ -1075,6 +1086,8 @@ export default function Trade() {
                     setTokenOut={setTokenOut}
                     setPairSelected={setPairSelected}
                     displayToken={tokenOut}
+                    amount={exactIn ? displayIn : displayOut}
+                    isAmountIn={exactIn}
                   />
                 </div>
               </div>
@@ -1242,7 +1255,7 @@ export default function Trade() {
                     <div>
                       <SwapRouterApproveButton
                         routerAddress={
-                          chainProperties["arbitrumGoerli"]["routerAddress"]
+                          chainProperties[networkName]["routerAddress"]
                         }
                         approveToken={tokenIn.address}
                         tokenSymbol={tokenIn.symbol}
@@ -1253,11 +1266,12 @@ export default function Trade() {
                     <SwapRouterButton
                       disabled={tradeParams.disabled || needsAllowanceIn || swapGasLimit.eq(BN_ZERO)}
                       routerAddress={
-                        chainProperties["arbitrumGoerli"]["routerAddress"]
+                        chainProperties[networkName]["routerAddress"]
                       }
                       poolAddresses={swapPoolAddresses}
                       swapParams={swapParams ?? {}}
                       gasLimit={swapGasLimit}
+                      resetAfterSwap={resetAfterSwap}
                     />
                   )
                 }
@@ -1268,19 +1282,19 @@ export default function Trade() {
                 {tokenIn.userRouterAllowance?.lt(amountIn) ? (
                   <SwapRouterApproveButton
                     routerAddress={
-                      chainProperties["arbitrumGoerli"]["routerAddress"]
+                      chainProperties[networkName]["routerAddress"]
                     }
                     approveToken={tokenIn.address}
                     tokenSymbol={tokenIn.symbol}
                     amount={amountIn}
                   />
-                ) : tradePoolData.id != ZERO_ADDRESS ? (
+                ) : tradePoolData?.id != ZERO_ADDRESS ? (
                   <LimitSwapButton
                     routerAddress={
-                      chainProperties["arbitrumGoerli"]["routerAddress"]
+                      chainProperties[networkName]["routerAddress"]
                     }
                     disabled={mintGasLimit.eq(BN_ZERO)}
-                    poolAddress={tradePoolData.id}
+                    poolAddress={tradePoolData?.id}
                     to={address}
                     amount={amountIn}
                     mintPercent={parseUnits("1", 24)}
@@ -1289,6 +1303,7 @@ export default function Trade() {
                     closeModal={() => {}}
                     zeroForOne={tokenIn.callId == 0}
                     gasLimit={mintGasLimit}
+                    resetAfterSwap={resetAfterSwap}
                   />
                 ) : (
                   <LimitCreateAndMintButton
@@ -1378,11 +1393,11 @@ export default function Trade() {
                     <UserLimitPool
                       limitPosition={allLimitPosition}
                       limitFilledAmount={limitFilledAmountList.length > 0 ?
-                        parseFloat(ethers.utils.formatEther(limitFilledAmountList[index])) :
+                        parseFloat(ethers.utils.formatUnits(limitFilledAmountList[index] ?? '0', allLimitPosition.tokenOut.decimals)) :
                         parseFloat("0.00")}
                       address={address}
                       href={"/limit/view"}
-                      key={allLimitPosition.positionId}
+                      key={allLimitPosition.id}
                     />
                   );
                 }
@@ -1394,7 +1409,7 @@ export default function Trade() {
                 if (allLimitPosition.positionId != undefined) {
                   return (
                     <tr className="text-right text-xs md:text-sm bg-black hover:bg-dark cursor-pointer"
-                        key={allLimitPosition.positionId}
+                        key={allLimitPosition.id}
                     >
                       <td className="py-3 pl-3">
                         <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
@@ -1426,8 +1441,8 @@ export default function Trade() {
                           <span className="text-grey1">1 {allLimitPosition.tokenIn.symbol} = </span> 
                             {
                               getAveragePrice(
-                                tokenIn,
-                                tokenOut,
+                                allLimitPosition.tokenOut,
+                                allLimitPosition.tokenIn,
                                 parseInt(allLimitPosition.min), 
                                 parseInt(allLimitPosition.max), 
                                 allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
@@ -1448,7 +1463,7 @@ export default function Trade() {
                                     parseInt(allLimitPosition.max),
                                     allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0,
                                     BigNumber.from(allLimitPosition.amountIn)
-                                ), tokenOut.decimals
+                                ), allLimitPosition.tokenOut.decimals
                               ))).toFixed(2)}% Filled
                           </span>
                           <div className="h-full bg-grey/60 w-[0%] absolute left-0" />

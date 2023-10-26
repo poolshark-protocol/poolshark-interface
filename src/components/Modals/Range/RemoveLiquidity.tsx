@@ -12,6 +12,7 @@ import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { useAccount, useSigner } from "wagmi";
 import { gasEstimateRangeBurn } from "../../../utils/gas";
 import { parseUnits } from "../../../utils/math/valueMath";
+import { formatUnits } from "ethers/lib/utils.js";
 
 export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
   const [
@@ -57,17 +58,33 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
     setAmounts(JSBI.BigInt(tokenAmountToBurn), true);
   }, [sliderValue, rangePositionData.liquidity]);
 
+  const [sliderDisplay, setSliderDisplay] = useState(50);
+  const [sliderLastValue, setSliderLastValue] = useState(50);
+  const [sliderController, setSliderController] = useState(false);
+
   const handleChange = (event: any) => {
-    if (Number(event.target.value) != 0) {
-      setSliderValue(event.target.value);
-    } else {
-      setSliderValue(0);
-    }
+    setSliderDisplay(event.target.value);
   };
 
   const handleSliderButton = (percent: number) => {
-    setSliderValue(percent);
+    setSliderDisplay(percent);
   };
+
+  useEffect(() => {
+    setSliderLastValue(sliderDisplay);
+    if (!sliderController) {
+      setSliderController(true);
+      setTimeout(() => {
+        setSliderController(false);
+      }, 1000);
+    }
+  }, [sliderDisplay]);
+
+  useEffect(() => {
+    if (!sliderController) {
+      setSliderValue(sliderLastValue);
+    }
+  }, [sliderLastValue, sliderController]);
 
   function setAmounts(liquidity: JSBI, changeDisplay = false) {
     try {
@@ -88,7 +105,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
             Number(
               ethers.utils.formatUnits(
                 tokenOrder ? amount0Bn : amount1Bn,
-                tokenIn.decimals
+                tokenOrder ? tokenIn.decimals : tokenOut.decimals
               )
             ).toPrecision(6)
           );
@@ -103,7 +120,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
   //////////////////Slider
 
   useEffect(() => {
-    setSliderValue(50);
+    setSliderDisplay(50);
   }, [router.isReady]);
 
   ////////////////////////////////Gas Fees Estimation
@@ -115,13 +132,19 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
       signer &&
       address &&
       rangePositionData.poolId &&
-      rangePositionData.positionId &&
+      rangePositionData.positionId != undefined &&
       burnPercent.gt(BN_ZERO)
     ) {
-
       updateGasFee();
     }
-  }, [sliderValue, rangePositionData.poolId, rangePositionData.positionId, signer, address]);
+  }, [
+    sliderValue,
+    rangePositionData.poolId,
+    rangePositionData.positionId,
+    signer,
+    address,
+    burnPercent,
+  ]);
 
   async function updateGasFee() {
     const newBurnGasFee = await gasEstimateRangeBurn(
@@ -131,8 +154,13 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
       burnPercent,
       signer
     );
-    setBurnGasFee(newBurnGasFee.formattedPrice);
-    setBurnGasLimit(newBurnGasFee.gasUnits.mul(250).div(100));
+    if (
+      newBurnGasFee.gasUnits.gt(BN_ZERO) &&
+      !newBurnGasFee.gasUnits.mul(250).div(100).eq(burnGasLimit)
+    ) {
+      setBurnGasFee(newBurnGasFee.formattedPrice);
+      setBurnGasLimit(newBurnGasFee.gasUnits.mul(250).div(100));
+    }
   }
 
   ////////////////////////////////Mint Button Handler
@@ -181,7 +209,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
                 </div>
                 <div className="w-full  bg-[#0C0C0C] border border-[#1C1C1C] gap-4 px-4 py-4 rounded-[4px] mt-6 mb-6">
                   <div className="flex justify-between items-center">
-                    <div className="text-3xl ">{sliderValue}%</div>
+                    <div className="text-3xl ">{sliderDisplay}%</div>
                     <div className="md:flex items-center hidden md:text-base text-sm gap-x-4">
                       <button
                         onClick={() => handleSliderButton(25)}
@@ -214,7 +242,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
                     type="range"
                     min="1"
                     max="100"
-                    value={sliderValue}
+                    value={sliderDisplay}
                     onChange={handleChange}
                     className="w-full styled-slider slider-progress bg-transparent mt-6"
                   />
@@ -223,25 +251,12 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
                   <div className="flex items-end justify-between text-[11px] text-grey1">
                     <span>
                       ~$
-                      {tokenOrder
-                        ? Number(
-                            tokenIn.USDPrice *
-                              parseFloat(
-                                ethers.utils.formatUnits(
-                                  amount0,
-                                  tokenIn.decimals
-                                )
-                              )
-                          ).toFixed(2)
-                        : Number(
-                            tokenOut.USDPrice *
-                              parseFloat(
-                                ethers.utils.formatUnits(
-                                  amount1,
-                                  tokenIn.decimals
-                                )
-                              )
-                          ).toFixed(2)}
+                      {Number(
+                        tokenIn.USDPrice *
+                          parseFloat(
+                            ethers.utils.formatUnits(amount0, tokenIn.decimals)
+                          )
+                      ).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex items-end justify-between mt-2 mb-3">
@@ -266,33 +281,18 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
                   <div className="flex items-end justify-between text-[11px] text-grey1">
                     <span>
                       ~$
-                      {tokenOrder
-                        ? Number(
-                            tokenOut.USDPrice *
-                              parseFloat(
-                                ethers.utils.formatUnits(
-                                  amount1,
-                                  tokenIn.decimals
-                                )
-                              )
-                          ).toFixed(2)
-                        : Number(
-                            tokenIn.USDPrice *
-                              parseFloat(
-                                ethers.utils.formatUnits(
-                                  amount0,
-                                  tokenIn.decimals
-                                )
-                              )
-                          ).toFixed(2)}
+                      {(
+                        tokenOut.USDPrice *
+                        parseFloat(
+                          ethers.utils.formatUnits(amount1, tokenOut.decimals)
+                        )
+                      ).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex items-end justify-between mt-2 mb-3">
                     <span className="text-3xl">
                       {Number(
-                        tokenOrder
-                          ? ethers.utils.formatUnits(amount1, tokenIn.decimals)
-                          : ethers.utils.formatUnits(amount0, tokenIn.decimals)
+                        ethers.utils.formatUnits(amount1, tokenOut.decimals)
                       ).toPrecision(5)}
                     </span>
                     <div className="flex items-center gap-x-2">

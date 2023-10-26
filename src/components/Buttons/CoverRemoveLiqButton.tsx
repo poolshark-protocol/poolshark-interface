@@ -35,10 +35,9 @@ export default function CoverRemoveLiqButton({
     ]
   );
 
-  const [
-    chainId
-  ] = useConfigStore((state) => [
+  const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
+    state.networkName,
   ]);
 
   const [errorDisplay, setErrorDisplay] = useState(false);
@@ -59,6 +58,7 @@ export default function CoverRemoveLiqButton({
       },
     ],
     chainId: chainId,
+    enabled: positionId != undefined,
     overrides: {
       gasLimit: gasLimit,
     },
@@ -70,18 +70,11 @@ export default function CoverRemoveLiqButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
-      setTimeout(() => {
-        setNeedsRefetch(true);
-        setNeedsPosRefetch(true);
-        setIsOpen(false);
-        closeModal();
-      }, 1000);
-      if (burnPercent.eq(parseUnits("1", 38))) {
-        setNeedsRefetch(true);
-      }
-      setNeedsBalance(true);
+      setNeedsRefetch(true);
       setNeedsPosRefetch(true);
+      setNeedsBalance(true);
       setIsOpen(false);
+      closeModal();
     },
     onError() {
       setErrorDisplay(true);
@@ -97,7 +90,7 @@ export default function CoverRemoveLiqButton({
           address ? write?.() : null;
         }}
       >
-       {gasLimit.lte(BN_ZERO) ? <Loader/> : "Remove Liquidity"}
+        {gasLimit.lte(BN_ZERO) ? <Loader /> : "Remove Liquidity"}
       </button>
       <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay && (

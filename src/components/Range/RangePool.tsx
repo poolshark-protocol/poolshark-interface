@@ -9,17 +9,20 @@ export default function RangePool({ rangePool, href }) {
     setRangeTokenOut,
     setRangePoolFromFeeTier,
     resetMintParams,
+    resetPoolData,
   ] = useRangeLimitStore((state) => [
     state.setTokenIn,
     state.setTokenOut,
     state.setRangePoolFromFeeTier,
     state.resetMintParams,
+    state.resetPoolData
   ]);
 
   const router = useRouter();
 
   const chooseRangePool = () => {
     resetMintParams();
+    resetPoolData();
     const tokenIn = {
       name: rangePool.tokenZero.symbol,
       address: rangePool.tokenZero.id,
@@ -34,9 +37,9 @@ export default function RangePool({ rangePool, href }) {
       symbol: rangePool.tokenOne.symbol,
       decimals: rangePool.tokenOne.decimals
     };
-    setRangeTokenIn(tokenOut, tokenIn);
-    setRangeTokenOut(tokenIn, tokenOut);
-    setRangePoolFromFeeTier(tokenIn, tokenOut, rangePool.feeTier);
+    setRangeTokenIn(tokenOut, tokenIn, '0', true);
+    setRangeTokenOut(tokenIn, tokenOut, '0', false);
+    // setRangePoolFromFeeTier(tokenIn, tokenOut, rangePool.feeTier);
     router.push({
       pathname: href,
       query: {

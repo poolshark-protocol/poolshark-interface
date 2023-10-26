@@ -33,9 +33,13 @@ export default function LimitRemoveLiqButton({
   const { data: signer } = useSigner();
 
   const [
-    chainId
+    chainId,
+    networkName,
+    limitSubgraph
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName,
+    state.limitSubgraph
   ]);
 
   const [
@@ -68,7 +72,8 @@ export default function LimitRemoveLiqButton({
       Number(upper),
       Boolean(zeroForOne),
       Number(epochLast),
-      false
+      false,
+      limitSubgraph
     );
 
     console.log(tick, "claim tick after update")

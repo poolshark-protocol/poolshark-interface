@@ -1,7 +1,7 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import RangeCompoundButton from "../../components/Buttons/RangeCompoundButton";
-import { useAccount, useSigner } from "wagmi";
+import { useAccount, useProvider, useSigner } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
@@ -20,9 +20,16 @@ import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import RangeCollectButton from "../../components/Buttons/RangeCollectButton";
 import router from "next/router";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { ZERO_ADDRESS } from "../../utils/math/constants";
+import { chainProperties, supportedNetworkNames } from "../../utils/chains";
 
 export default function ViewRange() {
-  const [chainId] = useConfigStore((state) => [state.chainId]);
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph] = useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
+    state.limitSubgraph,
+    state.setLimitSubgraph,
+  ]);
 
   const [
     rangePoolAddress,
@@ -128,24 +135,45 @@ export default function ViewRange() {
   ////////////////////////Pool Data
 
   useEffect(() => {
-    setRangePoolFromFeeTier(tokenIn, tokenOut, router.query.feeTier);
+    setRangePoolFromFeeTier(
+      tokenIn,
+      tokenOut,
+      router.query.feeTier,
+      limitSubgraph
+    );
   }, [router.query.feeTier]);
 
   useEffect(() => {
-    getRangePoolRatios();
-  }, [amount0, amount1, amount0Fees, amount1Fees]);
+    setUsdValues();
+  }, [
+    amount0,
+    amount1,
+    amount0Fees,
+    amount1Fees,
+    tokenIn,
+    tokenOut,
+    rangePositionData,
+  ]);
 
-  const getRangePoolRatios = () => {
+  const setUsdValues = () => {
     try {
       if (rangePoolData != undefined) {
-        setAmount0Usd(parseFloat((amount0 * tokenIn.USDPrice).toPrecision(6)));
-        setAmount1Usd(parseFloat((amount1 * tokenOut.USDPrice).toPrecision(6)));
-        setAmount0FeesUsd(
-          parseFloat((amount0Fees * tokenIn.USDPrice).toPrecision(3))
-        );
-        setAmount1FeesUsd(
-          parseFloat((amount1Fees * tokenOut.USDPrice).toPrecision(3))
-        );
+        if (!isNaN(tokenIn.USDPrice)) {
+          setAmount0Usd(
+            parseFloat((amount0 * tokenIn.USDPrice).toPrecision(6))
+          );
+          setAmount0FeesUsd(
+            parseFloat((amount0Fees * tokenIn.USDPrice).toFixed(2))
+          );
+        }
+        if (!isNaN(tokenOut.USDPrice)) {
+          setAmount1Usd(
+            parseFloat((amount1 * tokenOut.USDPrice).toPrecision(6))
+          );
+          setAmount1FeesUsd(
+            parseFloat((amount1Fees * tokenOut.USDPrice).toFixed(2))
+          );
+        }
       }
     } catch (error) {
       console.log(error);
@@ -153,7 +181,12 @@ export default function ViewRange() {
   };
 
   ////////////////////////////////Position Data
+
   useEffect(() => {
+    const chainConstants = chainProperties[networkName]
+      ? chainProperties[networkName]
+      : chainProperties["arbitrumGoerli"];
+    setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
     if (
       rangePositionData.positionId == undefined ||
       needsPosRefetch ||
@@ -176,7 +209,8 @@ export default function ViewRange() {
   async function getUserRangePositionData() {
     setIsLoading(true);
     try {
-      const data = await fetchRangePositions(address);
+      const data = await fetchRangePositions(limitSubgraph, address);
+      console.log(data);
       if (data["data"].rangePositions) {
         const mappedPositions = mapUserRangePositions(
           data["data"].rangePositions
@@ -216,7 +250,7 @@ export default function ViewRange() {
         );
       }
     }
-  }, []);
+  }, [rangePoolData?.token0, rangePoolData?.token1]);
 
   useEffect(() => {
     if (rangePositionData.min && rangePositionData.max) {
@@ -295,9 +329,12 @@ export default function ViewRange() {
     args: [rangePositionData.positionId],
     chainId: chainId,
     watch: true,
-    enabled: isConnected && rangePositionData.positionId != undefined,
+    enabled:
+      isConnected &&
+      rangePositionData.positionId != undefined &&
+      rangePoolAddress != ZERO_ADDRESS,
     onError(error) {
-      //console.log("Error snapshot Range", error);
+      console.log("Error snapshot Range", error);
     },
   });
 
@@ -309,12 +346,11 @@ export default function ViewRange() {
     try {
       if (feesOwed) {
         const fees0 = parseFloat(
-          ethers.utils.formatUnits(feesOwed[2], tokenIn.decimals)
+          ethers.utils.formatUnits(feesOwed[2] ?? "0", tokenIn.decimals)
         );
         const fees1 = parseFloat(
-          ethers.utils.formatUnits(feesOwed[3], tokenIn.decimals)
+          ethers.utils.formatUnits(feesOwed[3] ?? "0", tokenOut.decimals)
         );
-
         setAmount0Fees(fees0);
         setAmount1Fees(fees1);
       }
@@ -327,7 +363,7 @@ export default function ViewRange() {
 
   useEffect(() => {
     setMintButtonState();
-  }, [tokenIn, rangeMintParams.tokenInAmount]);
+  }, [tokenIn, rangeMintParams?.tokenInAmount]);
 
   ////////////////////////////////Return
 
@@ -480,17 +516,9 @@ export default function ViewRange() {
                   onClick={() => setPriceOrder(!priceOrder)}
                   className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
                 >
-                  {priceOrder ? (
-                    <>{tokenOut.symbol}</>
-                  ) : (
-                    <>{tokenIn.symbol}</>
-                  )}{" "}
+                  {priceOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>}{" "}
                   per{" "}
-                  {priceOrder ? (
-                    <>{tokenIn.symbol}</>
-                  ) : (
-                    <>{tokenOut.symbol}</>
-                  )}{" "}
+                  {priceOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>}{" "}
                   <DoubleArrowIcon />
                 </div>
               </div>
@@ -501,12 +529,17 @@ export default function ViewRange() {
                     <span className="text-white text-2xl md:text-3xl">
                       {isLoading ? (
                         <div className="h-9 w-36 bg-grey/60 animate-pulse rounded-[4px]" />
-                      ) : invertPrice(priceOrder ? lowerPrice : upperPrice, priceOrder)}
+                      ) : (
+                        invertPrice(
+                          priceOrder ? lowerPrice : upperPrice,
+                          priceOrder
+                        )
+                      )}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
                       Your position will be 100%{" "}
-                      {priceOrder ? tokenIn.symbol : tokenOut.symbol} at
-                      this price.
+                      {priceOrder ? tokenIn.symbol : tokenOut.symbol} at this
+                      price.
                     </span>
                   </div>
                   <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
@@ -514,12 +547,17 @@ export default function ViewRange() {
                     <span className="text-white text-2xl md:text-3xl">
                       {isLoading ? (
                         <div className="h-9 w-36 bg-grey/60 animate-pulse rounded-[4px]" />
-                      ) : invertPrice(priceOrder ? upperPrice : lowerPrice, priceOrder)}
+                      ) : (
+                        invertPrice(
+                          priceOrder ? upperPrice : lowerPrice,
+                          priceOrder
+                        )
+                      )}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
                       Your position will be 100%{" "}
-                      {priceOrder ? tokenOut.symbol : tokenIn.symbol} at
-                      this price.
+                      {priceOrder ? tokenOut.symbol : tokenIn.symbol} at this
+                      price.
                     </span>
                   </div>
                 </div>

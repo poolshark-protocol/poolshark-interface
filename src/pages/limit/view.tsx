@@ -20,12 +20,17 @@ import { gasEstimateBurnLimit } from "../../utils/gas";
 import { getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { parseUnits } from "../../utils/math/valueMath";
+import { formatUnits } from "ethers/lib/utils.js";
 
 export default function ViewLimit() {
   const [
-    chainId
+    chainId,
+    networkName,
+    limitSubgraph
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName,
+    state.limitSubgraph
   ]);
 
   const [
@@ -168,14 +173,11 @@ export default function ViewLimit() {
   useEffect(() => {
     if (filledAmount) {
       setLimitFilledAmount(
-        ethers.utils.formatUnits(filledAmount[0], tokenIn.decimals)
+        ethers.utils.formatUnits(filledAmount[0], tokenOut.decimals)
       );
-
       setCurrentAmountOut(
-        ethers.utils.formatUnits(filledAmount[1], tokenOut.decimals)
+        ethers.utils.formatUnits(filledAmount[1], tokenIn.decimals)
       )
-
-      console.log("filled amount", filledAmount[1].toString());
     }
   }, [filledAmount]);
 
@@ -200,7 +202,8 @@ export default function ViewLimit() {
       Number(limitPositionData.max),
       tokenIn.callId == 0,
       Number(limitPositionData.epochLast),
-      false
+      false,
+      limitSubgraph
     );
 
     setClaimTick(aux);
@@ -209,7 +212,7 @@ export default function ViewLimit() {
 
   async function getUserLimitPositionData() {
     try {
-      const data = await fetchLimitPositions(address.toLowerCase());
+      const data = await fetchLimitPositions(limitSubgraph, address.toLowerCase());
       if (data["data"]) {
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
@@ -471,8 +474,8 @@ export default function ViewLimit() {
           <div className="border bg-dark border-grey rounded-[4px] lg:w-1/2 w-full p-5 h-min">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">Filled Liquidity</h1>
-              {!isNaN(limitPositionData.amountIn) && !isNaN(Number(limitFilledAmount)) ? (
-                <span className="text-grey1">${Number(limitFilledAmount).toFixed(2)}
+              {!isNaN(Number(limitPositionData?.amountIn)) && !isNaN(Number(limitFilledAmount)) ? (
+                <span className="text-grey1">{Number(limitFilledAmount).toFixed(2)}
                   <span className="text-grey">
                     /
                     {(parseFloat(ethers.utils.formatUnits(
@@ -482,12 +485,12 @@ export default function ViewLimit() {
                         tokenIn.callId == 0,
                         BigNumber.from(limitPositionData.amountIn)
                       )
-                    )) * tokenOut.USDPrice).toFixed(2)}
+                    , tokenOut.decimals)) * tokenOut.USDPrice).toFixed(2)}
                   </span>
                 </span>) : (
-                  <span className="text-grey1">$0.00
+                  <span className="text-grey1">{formatUnits(limitFilledAmount, tokenOut.decimals)}
                     <span className="text-grey">
-                      /0.00
+                      /{0.00}
                     </span>
                   </span>)
               }

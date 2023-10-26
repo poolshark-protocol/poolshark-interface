@@ -1,6 +1,7 @@
 //eventually this functions should merge into one
 
 import { fetchTokenPrice } from "./queries";
+import { LimitSubgraph } from "./types";
 
 export const logoMap = {
   USDC: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
@@ -40,10 +41,11 @@ export const fetchCoverTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
 
 export const getLimitTokenUsdPrice = async (
   tokenAddress: string,
-  setTokenUSDPrice
+  setTokenUSDPrice,
+  client: LimitSubgraph,
 ) => {
   try {
-    const tokenData = await fetchTokenPrice(tokenAddress);
+    const tokenData = await fetchTokenPrice(client, tokenAddress);
     const tokenUsdPrice = tokenData["data"]["tokens"]["0"]["usdPrice"];
     setTokenUSDPrice(tokenUsdPrice);
   } catch (error) {

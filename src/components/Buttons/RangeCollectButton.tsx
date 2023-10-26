@@ -18,9 +18,11 @@ export default function RangeCollectButton({ poolAddress, address, positionId })
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [
@@ -35,6 +37,7 @@ export default function RangeCollectButton({ poolAddress, address, positionId })
       address: poolAddress,
       abi: rangePoolABI,
       functionName: "burnRange",
+      enabled: positionId != undefined,
       args:[[
           address,
           positionId,

@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from "ethers";
-import { tokenRangeLimit } from "../utils/types";
+import { LimitSubgraph, token, tokenRangeLimit } from "../utils/types";
 import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
   tokenOneAddress,
@@ -10,6 +10,7 @@ import {
   getLimitPoolFromFactory,
   getRangePoolFromFactory,
 } from "../utils/queries";
+import { parseUnits } from "../utils/math/valueMath";
 
 type RangeLimitState = {
   //rangePoolAddress for current token pairs
@@ -82,13 +83,13 @@ type RangeLimitAction = {
   //
   setPairSelected: (pairSelected: boolean) => void;
   //
-  setTokenIn: (tokenOut: any, newToken: any) => void;
+  setTokenIn: (tokenOut: any, newToken: any, amount: string, isAmountIn: boolean) => void;
   setTokenInAmount: (amount: BigNumber) => void;
   setTokenInRangeUSDPrice: (price: number) => void;
   setTokenInRangeAllowance: (allowance: BigNumber) => void;
   setTokenInBalance: (balance: string) => void;
   //
-  setTokenOut: (tokenIn: any, newToken: any) => void;
+  setTokenOut: (tokenIn: any, newToken: any, amount: string, isAmountIn: boolean) => void;
   setTokenOutAmount: (amount: BigNumber) => void;
   setTokenOutRangeUSDPrice: (price: number) => void;
   setTokenOutRangeAllowance: (allowance: BigNumber) => void;
@@ -105,17 +106,22 @@ type RangeLimitAction = {
   //
   switchDirection: () => void;
   setRangePoolFromFeeTier: (
-    tokenIn: any,
-    tokenOut: any,
-    volatility: any
+    tokenIn: token,
+    tokenOut: token,
+    volatility: any,
+    client: LimitSubgraph,
+    poolPrice?: any,
+    tickAtPrice?: any
   ) => void;
   setLimitPoolFromVolatility: (
     tokenIn: any,
     tokenOut: any,
-    volatility: any
+    volatility: any,
+    client: LimitSubgraph
   ) => void;
   resetRangeLimitParams: () => void;
   resetMintParams: () => void;
+  resetPoolData: () => void;
   //
   setMintButtonState: () => void;
   //
@@ -162,8 +168,6 @@ const initialRangeLimitState: RangeLimitState = {
     disabled: true,
     buttonMessage: "",
   },
-  //
-  //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: false,
   //
   tokenIn: {
@@ -254,39 +258,82 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         pairSelected: pairSelected,
       }));
     },
-    setTokenIn: (tokenOut, newToken: tokenRangeLimit) => {
+    setTokenIn: (tokenOut, newTokenIn: tokenRangeLimit, amount: string, isAmountIn: boolean) => {
       //if tokenOut is selected
-      if (
-        tokenOut.address != initialRangeLimitState.tokenOut.address ||
-        tokenOut.symbol != "Select Token"
-      ) {
+      if (tokenOut.symbol != "Select Token") {
         //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
-        if (newToken.address == tokenOut.address) {
-          set(() => ({
+        if (newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase()) {
+          set((state) => ({
             tokenIn: {
-              callId: 0,
-              ...newToken,
+              callId: state.tokenOut.callId,
+              name: state.tokenOut.name,
+              symbol: state.tokenOut.symbol,
+              logoURI: state.tokenOut.logoURI,
+              address: state.tokenOut.address,
+              decimals: state.tokenOut.decimals,
+              USDPrice: state.tokenOut.USDPrice,
+              userBalance: state.tokenOut.userBalance,
+              userRouterAllowance: state.tokenOut.userRouterAllowance,
             },
-            tokenOut: initialRangeLimitState.tokenOut,
-            pairSelected: false,
+            tokenOut: {
+              callId: state.tokenIn.callId,
+              name: state.tokenIn.name,
+              symbol: state.tokenIn.symbol,
+              logoURI: state.tokenIn.logoURI,
+              address: state.tokenIn.address,
+              decimals: state.tokenIn.decimals,
+              USDPrice: state.tokenIn.USDPrice,
+              userBalance: state.tokenIn.userBalance,
+              userRouterAllowance: state.tokenIn.userRouterAllowance,
+            },
+            rangeMintParams: {
+              ...state.rangeMintParams,
+              tokenInAmount: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.rangeMintParams.tokenInAmount,
+              tokenOutAmount: isAmountIn ? state.rangeMintParams.tokenOutAmount : parseUnits(amount, state.tokenIn.decimals),
+            },
+            limitMintParams: {
+              ...state.limitMintParams,
+              tokenInAmount: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.limitMintParams.tokenInAmount,
+              tokenOutAmount: isAmountIn ? state.limitMintParams.tokenOutAmount : parseUnits(amount, state.tokenIn.decimals),
+            },
+            needsAllowanceIn: true,
+            needsAllowanceOut: true,
           }));
         } else {
           //if tokens are different
-          set(() => ({
+          set((state) => ({
             tokenIn: {
               callId:
-                newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
-              ...newToken,
+                newTokenIn.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
+              ...newTokenIn,
+            },
+            tokenOut: {
+              callId:
+                tokenOut.address.localeCompare(newTokenIn.address) < 0 ? 0 : 1,
+              ...tokenOut,
             },
             pairSelected: true,
+            rangeMintParams: {
+              ...state.rangeMintParams,
+              tokenInAmount: isAmountIn ? parseUnits(amount, newTokenIn.decimals) : state.rangeMintParams.tokenInAmount,
+            },
+            limitMintParams: {
+              ...state.limitMintParams,
+              tokenInAmount: isAmountIn ? parseUnits(amount, newTokenIn.decimals) : state.limitMintParams.tokenInAmount,
+            },
+            needsAllowanceIn: true,
           }));
         }
       } else {
         //if tokenOut its not selected
         set(() => ({
           tokenIn: {
+            callId: 1,
+            ...newTokenIn,
+          },
+          tokenOut: {
             callId: 0,
-            ...newToken,
+            ...tokenOut,
           },
           pairSelected: false,
         }));
@@ -320,34 +367,80 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         tokenOut: { ...state.tokenOut, USDPrice: newPrice },
       }));
     },
-    setTokenOut: (tokenIn, newToken: tokenRangeLimit) => {
+    setTokenOut: (tokenIn, newTokenOut: tokenRangeLimit, amount: string, isAmountIn: boolean) => {
       //if tokenIn exists
       if (
         tokenIn.address != initialRangeLimitState.tokenOut.address ||
         tokenIn.symbol != "Select Token"
       ) {
         //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
-        if (newToken.address == tokenIn.address) {
-          set(() => ({
-            tokenOut: { callId: 0, ...newToken },
-            tokenIn: initialRangeLimitState.tokenOut,
-            pairSelected: false,
+        if (newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase()) {
+          set((state) => ({
+            tokenIn: {
+              callId: state.tokenOut.callId,
+              name: state.tokenOut.name,
+              symbol: state.tokenOut.symbol,
+              logoURI: state.tokenOut.logoURI,
+              address: state.tokenOut.address,
+              decimals: state.tokenOut.decimals,
+              USDPrice: state.tokenOut.USDPrice,
+              userBalance: state.tokenOut.userBalance,
+              userRouterAllowance: state.tokenOut.userRouterAllowance,
+            },
+            tokenOut: {
+              callId: state.tokenIn.callId,
+              name: state.tokenIn.name,
+              symbol: state.tokenIn.symbol,
+              logoURI: state.tokenIn.logoURI,
+              address: state.tokenIn.address,
+              decimals: state.tokenIn.decimals,
+              USDPrice: state.tokenIn.USDPrice,
+              userBalance: state.tokenIn.userBalance,
+              userRouterAllowance: state.tokenIn.userRouterAllowance,
+            },
+            rangeMintParams: {
+              ...state.rangeMintParams,
+              tokenInAmount: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.rangeMintParams.tokenInAmount,
+              tokenOutAmount: isAmountIn ? state.rangeMintParams.tokenOutAmount : parseUnits(amount, state.tokenIn.decimals),
+            },
+            limitMintParams: {
+              ...state.limitMintParams,
+              tokenInAmount: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.limitMintParams.tokenInAmount,
+              tokenOutAmount: isAmountIn ? state.limitMintParams.tokenOutAmount : parseUnits(amount, state.tokenIn.decimals),
+            },
+            needsAllowanceIn: true,
+            needsAllowanceOut: true
           }));
         } else {
           //if tokens are different
-          set(() => ({
+          set((state) => ({
+            tokenIn: {
+              callId:
+                tokenIn.address.localeCompare(newTokenOut.address) < 0 ? 0 : 1,
+              ...tokenIn,
+            },
             tokenOut: {
               callId:
-                newToken.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
-              ...newToken,
+                newTokenOut.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
+              ...newTokenOut,
+            },
+            rangeMintParams: {
+              ...state.rangeMintParams,
+              tokenOutAmount: isAmountIn ? state.rangeMintParams.tokenOutAmount : parseUnits(amount, newTokenOut.decimals),
+            },
+            limitMintParams: {
+              ...state.limitMintParams,
+              tokenOutAmount: isAmountIn ? state.limitMintParams.tokenOutAmount : parseUnits(amount, newTokenOut.decimals),
             },
             pairSelected: true,
+            needsAllowanceOut: true
           }));
         }
       } else {
         //if tokenIn its not selected
         set(() => ({
-          tokenOut: { callId: 0, ...newToken },
+          tokenIn: { callId: 0, ...tokenIn},
+          tokenOut: { callId: 1, ...newTokenOut},
           pairSelected: false,
         }));
       }
@@ -568,24 +661,27 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       }));
     },
     setRangePoolFromFeeTier: async (
-      tokenIn,
-      tokenOut,
+      tokenIn: token,
+      tokenOut: token,
       volatility: any,
+      client: LimitSubgraph,
       poolPrice?: any,
       tickAtPrice?: any
     ) => {
       try {
         const pool = await getRangePoolFromFactory(
+          client,
           tokenIn.address,
           tokenOut.address
         );
         const dataLength = pool["data"]["limitPools"].length;
-        let poolFound = false
+        let poolFound = false;
         for (let i = 0; i < dataLength; i++) {
           if (
             pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
           ) {
-            poolFound = true
+            console.log('pool found', volatility, pool["data"]["limitPools"][i])
+            poolFound = true;
             set(() => ({
               rangePoolAddress: pool["data"]["limitPools"][i]["id"],
               rangePoolData: pool["data"]["limitPools"][i],
@@ -604,9 +700,10 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         console.log(error);
       }
     },
-    setLimitPoolFromVolatility: async (tokenIn, tokenOut, volatility: any) => {
+    setLimitPoolFromVolatility: async (tokenIn, tokenOut, volatility: any, client: LimitSubgraph) => {
       try {
         const pool = await getLimitPoolFromFactory(
+          client,
           tokenIn.address,
           tokenOut.address
         );
@@ -687,5 +784,10 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         limitMintParams: initialRangeLimitState.limitMintParams,
       }));
     },
+    resetPoolData: () =>  {
+      set((state) => ({
+        rangePoolData: initialRangeLimitState.rangePoolData,
+      }));
+    }
   })
 );

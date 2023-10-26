@@ -8,10 +8,19 @@ import CreateCover from "../../components/Cover/CreateCover";
 import CoverExistingPool from "../../components/Cover/CoverExistingPool";
 import { fetchCoverPositions } from "../../utils/queries";
 import { mapUserCoverPositions } from "../../utils/maps";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function CoverCreate() {
   const { address, isConnected, isDisconnected } = useAccount();
   const router = useRouter();
+
+  const [
+    limitSubgraph,
+    coverSubgraph
+  ] = useConfigStore((state) => [
+    state.limitSubgraph,
+    state.coverSubgraph
+  ]);
 
   const [isOpen, setIsOpen] = useState(false);
   const [pool, setPool] = useState(router.query ?? undefined);
@@ -38,10 +47,10 @@ export default function CoverCreate() {
   }
 
   async function getUserCoverPositionData() {
-    const data = await fetchCoverPositions(address);
+    const data = await fetchCoverPositions(coverSubgraph, address);
     if (data["data"]) {
       const positions = data["data"].positions;
-      const positionData = mapUserCoverPositions(positions);
+      const positionData = mapUserCoverPositions(positions, coverSubgraph);
       setAllCoverPositions(positionData);
     }
   }
