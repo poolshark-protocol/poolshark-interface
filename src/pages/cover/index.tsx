@@ -19,12 +19,9 @@ import { tokenCover } from "../../utils/types";
 import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function Cover() {
-  const [
-    limitSubgraph,
-    coverSubgraph
-  ] = useConfigStore((state) => [
+  const [limitSubgraph, coverSubgraph] = useConfigStore((state) => [
     state.limitSubgraph,
-    state.coverSubgraph
+    state.coverSubgraph,
   ]);
 
   const [
@@ -32,7 +29,9 @@ export default function Cover() {
     setCoverTokenOut,
     setCoverPoolFromVolatility,
     needsRefetch,
+    needsPosRefetch,
     setNeedsRefetch,
+    setNeedsPosRefetch,
     tokenIn,
     tokenOut,
   ] = useCoverStore((state) => [
@@ -40,7 +39,9 @@ export default function Cover() {
     state.setTokenOut,
     state.setCoverPoolFromVolatility,
     state.needsRefetch,
+    state.needsPosRefetch,
     state.setNeedsRefetch,
+    state.setNeedsPosRefetch,
     state.tokenIn,
     state.tokenOut,
   ]);
@@ -66,11 +67,9 @@ export default function Cover() {
   }, []);
 
   useEffect(() => {
-    if (address && needsRefetch) {
-      getUserCoverPositionData();
-      setNeedsRefetch(false);
-    }
-  }, [needsRefetch, router.isReady]);
+    getUserCoverPositionData();
+    setNeedsPosRefetch(false);
+  }, [needsPosRefetch, router.isReady]);
 
   async function getUserCoverPositionData() {
     setIsPositionsLoading(true);
@@ -87,7 +86,8 @@ export default function Cover() {
 
   useEffect(() => {
     getCoverPoolData();
-  }, []);
+    setNeedsRefetch(false);
+  }, [needsRefetch, router.isReady]);
 
   async function getCoverPoolData() {
     setIsPoolsLoading(true);
@@ -147,8 +147,8 @@ export default function Cover() {
                   logoURI: logoMap[allCoverPools[0].tokenOne.symbol],
                   symbol: allCoverPools[0].tokenOne.symbol,
                 } as tokenCover;
-                setCoverTokenIn(tokenOut, tokenIn, '0', true);
-                setCoverTokenOut(tokenIn, tokenOut, '0', false);
+                setCoverTokenIn(tokenOut, tokenIn, "0", true);
+                setCoverTokenOut(tokenIn, tokenOut, "0", false);
                 setCoverPoolFromVolatility(
                   tokenIn,
                   tokenOut,
