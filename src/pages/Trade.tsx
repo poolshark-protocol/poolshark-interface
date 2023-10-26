@@ -15,6 +15,7 @@ import { BigNumber, ethers } from "ethers";
 import {
   chainIdsToNamesForGitTokenList,
   chainProperties,
+  supportedNetworkNames,
 } from "../utils/chains";
 import SwapRouterApproveButton from "../components/Buttons/SwapRouterApproveButton";
 import {
@@ -58,11 +59,13 @@ export default function Trade() {
   const [
     chainId,
     networkName,
-    limitSubgraph
+    limitSubgraph,
+    setLimitSubgraph
   ] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
-    state.limitSubgraph
+    state.limitSubgraph,
+    state.setLimitSubgraph
   ]);
 
   const [
@@ -456,13 +459,9 @@ export default function Trade() {
 
   useEffect(() => {
     if (address) {
-      getUserLimitPositionData();
-      setNeedsRefetch(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (address && needsRefetch === true) {
+      const chainConstants = chainProperties[networkName] ? chainProperties[networkName]
+                                                          : chainProperties['arbitrumGoerli'];
+      setLimitSubgraph(chainConstants['limitSubgraphUrl']);
       getUserLimitPositionData();
       setNeedsRefetch(false);
     }
@@ -1287,7 +1286,7 @@ export default function Trade() {
                       chainProperties[networkName]["routerAddress"]
                     }
                     disabled={mintGasLimit.eq(BN_ZERO)}
-                    poolAddress={tradePoolData.id}
+                    poolAddress={tradePoolData?.id}
                     to={address}
                     amount={amountIn}
                     mintPercent={parseUnits("1", 24)}
@@ -1385,7 +1384,7 @@ export default function Trade() {
                     <UserLimitPool
                       limitPosition={allLimitPosition}
                       limitFilledAmount={limitFilledAmountList.length > 0 ?
-                        parseFloat(ethers.utils.formatUnits(limitFilledAmountList[index], allLimitPosition.tokenOut.decimals)) :
+                        parseFloat(ethers.utils.formatUnits(limitFilledAmountList[index] ?? '0', allLimitPosition.tokenOut.decimals)) :
                         parseFloat("0.00")}
                       address={address}
                       href={"/limit/view"}
