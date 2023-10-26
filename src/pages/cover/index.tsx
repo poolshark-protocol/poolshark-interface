@@ -20,7 +20,8 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties, supportedNetworkNames } from "../../utils/chains";
 
 export default function Cover() {
-  const [coverSubgraph, setCoverSubgraph] = useConfigStore((state) => [
+  const [networkName, coverSubgraph, setCoverSubgraph] = useConfigStore((state) => [
+    state.networkName,
     state.coverSubgraph,
     state.setCoverSubgraph,
   ]);
@@ -30,7 +31,9 @@ export default function Cover() {
     setCoverTokenOut,
     setCoverPoolFromVolatility,
     needsRefetch,
+    needsPosRefetch,
     setNeedsRefetch,
+    setNeedsPosRefetch,
     tokenIn,
     tokenOut,
   ] = useCoverStore((state) => [
@@ -38,16 +41,15 @@ export default function Cover() {
     state.setTokenOut,
     state.setCoverPoolFromVolatility,
     state.needsRefetch,
+    state.needsPosRefetch,
     state.setNeedsRefetch,
+    state.setNeedsPosRefetch,
     state.tokenIn,
     state.tokenOut,
   ]);
 
   const router = useRouter();
   const { address, isDisconnected } = useAccount();
-  const {
-    network: { chainId, name },
-  } = useProvider();
 
   const [selectedPool, setSelectedPool] = useState(router.query ?? undefined);
   const [state, setState] = useState(router.query.state ?? "initial");
@@ -62,7 +64,6 @@ export default function Cover() {
 
   useEffect(() => {
     if (address) {
-      const networkName = supportedNetworkNames[name] ?? "unknownNetwork";
       const chainConstants = chainProperties[networkName]
         ? chainProperties[networkName]
         : chainProperties["arbitrumGoerli"];
@@ -72,11 +73,9 @@ export default function Cover() {
   }, []);
 
   useEffect(() => {
-    if (address && needsRefetch) {
-      getUserCoverPositionData();
-      setNeedsRefetch(false);
-    }
-  }, [needsRefetch, router.isReady]);
+    getUserCoverPositionData();
+    setNeedsPosRefetch(false);
+  }, [needsPosRefetch, router.isReady]);
 
   async function getUserCoverPositionData() {
     setIsPositionsLoading(true);
@@ -93,7 +92,8 @@ export default function Cover() {
 
   useEffect(() => {
     getCoverPoolData();
-  }, []);
+    setNeedsRefetch(false);
+  }, [needsRefetch, router.isReady]);
 
   async function getCoverPoolData() {
     setIsPoolsLoading(true);

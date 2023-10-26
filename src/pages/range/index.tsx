@@ -27,7 +27,9 @@ export default function Range() {
   const [isPositionsLoading, setIsPositionsLoading] = useState(false);
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
 
-  const [limitSubgraph, setLimitSubgraph] = useConfigStore((state) => [
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph] = useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
     state.limitSubgraph,
     state.setLimitSubgraph,
   ]);
@@ -50,10 +52,6 @@ export default function Range() {
 
   const router = useRouter();
 
-  const {
-    network: { chainId, name },
-  } = useProvider();
-
   //////////////////////Get Pools Data
   useEffect(() => {
     getRangePoolData();
@@ -71,7 +69,6 @@ export default function Range() {
 
   useEffect(() => {
     if (address) {
-      const networkName = supportedNetworkNames[name] ?? "unknownNetwork";
       const chainConstants = chainProperties[networkName]
         ? chainProperties[networkName]
         : chainProperties["arbitrumGoerli"];
