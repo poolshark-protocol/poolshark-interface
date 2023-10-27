@@ -767,6 +767,7 @@ const whitelist = [
   '0x98479E6D18580052E1Ed593d5fB2F3353c10f10A',
   '0x0ab4Dcd5e3C1b918F34A13B475fE20AF1147E8cf',
   '0x2b7403bdB196fa5fc0e4f779600A084bE0D8422E',
+  '0xa4b20e47a3ce58f34e08C465a99B6A94B8C675Ae'
 ]
 
 function MyApp({ Component, pageProps }) {
