@@ -133,7 +133,7 @@ export default function ViewLimit() {
         );
       }
     }
-  }, [limitPoolAddress, tokenIn.address, tokenOut.address]);
+  }, [limitFilledAmount, tokenIn.address, tokenOut.address]);
 
   useEffect(() => {
     console.log('limit pool address', limitPoolAddress)
@@ -298,7 +298,8 @@ export default function ViewLimit() {
   async function updateCollectFee() {
     console.log("collect zeroForOne", tokenIn.callId == 0);
 
-    if (signer && (claimTick != (tokenIn.callId == 0 ? Number(limitPositionData.max) : Number(limitPositionData.min)))) {
+    if (signer && claimTick >= limitPositionData.min &&
+      claimTick <= limitPositionData.max) {
       await gasEstimateBurnLimit(
         limitPoolAddress,
         address,
