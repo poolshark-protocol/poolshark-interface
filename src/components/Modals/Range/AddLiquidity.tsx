@@ -453,7 +453,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                       <div className="flex items-center gap-x-2">
                         {isConnected && stateChainName === networkName ? (
                           <button
-                            onClick={() => maxBalance(tokenIn.userBalance, "0", tokenIn)}
+                            // onClick={handleInput1({target: {value: tokenIn.userBalance.toString(), name: "tokenIn"}})}
                             className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
                           >
                             MAX
