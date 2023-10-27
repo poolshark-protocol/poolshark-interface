@@ -45,7 +45,7 @@ export const getClaimTick = async (
           }
         }
       }
-    } else {
+    } else if (claimTickDataLength != undefined) {
       claimTick = isCover ? maxLimit : minLimit
     }
   } else {
@@ -74,7 +74,7 @@ export const getClaimTick = async (
           }
         }
       }
-    } else {
+    } else if (claimTickDataLength != undefined) {
       claimTick = isCover ? minLimit : maxLimit
     }
   }
@@ -209,8 +209,10 @@ export function mapUserLimitPositions(limitPositions) {
   const mappedLimitPositions = [];
   limitPositions?.map((limitPosition) => {
     const limitPositionData = {
+      id: limitPosition.id,
       timestamp: limitPosition.createdAtTimestamp,
       positionId: limitPosition.positionId,
+      pool: limitPosition.pool,
       poolId: limitPosition.pool.id,
       amountIn: limitPosition.amountIn,
       amountFilled: limitPosition.amountFilled,

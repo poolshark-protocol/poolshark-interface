@@ -224,7 +224,7 @@ export const gasEstimateBurnLimit = async (
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
 
-    if (!limitPoolRoute || !provider || signer == undefined) {
+    if (!limitPoolRoute || !provider || signer == undefined || positionId == undefined) {
       setBurnGasFee("$0.00");
       setBurnGasLimit(BN_ZERO);
     }
@@ -259,7 +259,7 @@ export const gasEstimateBurnLimit = async (
   } catch (error) {
     console.log(
       "gas error limit burn",
-      positionId.toString(),
+      positionId?.toString(),
       claim.toString(),
       error
     );

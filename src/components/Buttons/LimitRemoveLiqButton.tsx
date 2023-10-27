@@ -125,6 +125,7 @@ export default function LimitRemoveLiqButton({
         sync: true,
       },
     ],
+    enabled: positionId != undefined,
     chainId: chainId,
     overrides: {
       gasLimit: gasLimit,

@@ -15,18 +15,20 @@ import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import JSBI from "jsbi";
-import { BN_ZERO } from "../../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { gasEstimateBurnLimit } from "../../utils/gas";
 import { getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { parseUnits } from "../../utils/math/valueMath";
 import { formatUnits } from "ethers/lib/utils.js";
+import { chainProperties } from "../../utils/chains";
 
 export default function ViewLimit() {
-  const [chainId, networkName, limitSubgraph] = useConfigStore((state) => [
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
     state.limitSubgraph,
+    state.setLimitSubgraph
   ]);
 
   const [
@@ -41,10 +43,12 @@ export default function ViewLimit() {
     claimTick,
     needsSnapshot,
     currentAmountOut,
+    setLimitPoolAddress,
     setNeedsSnapshot,
     setNeedsRefetch,
     setNeedsPosRefetch,
     setLimitPositionData,
+    setLimitPoolFromVolatility,
     setTokenInLimitUSDPrice,
     setTokenOutLimitUSDPrice,
     setClaimTick,
@@ -61,10 +65,12 @@ export default function ViewLimit() {
     state.claimTick,
     state.needsSnapshot,
     state.currentAmountOut,
+    state.setLimitPoolAddress,
     state.setNeedsSnapshot,
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
     state.setLimitPositionData,
+    state.setLimitPoolFromVolatility,
     state.setTokenInRangeUSDPrice,
     state.setTokenOutRangeUSDPrice,
     state.setClaimTick,
@@ -121,7 +127,29 @@ export default function ViewLimit() {
         );
       }
     }
-  }, []);
+  }, [limitFilledAmount, tokenIn.address, tokenOut.address]);
+
+  useEffect(() => {
+    if (limitPoolAddress) {
+      setPoolDisplay(
+        limitPoolAddress.toString().substring(0, 6) +
+            "..." +
+            limitPoolAddress
+              .toString()
+              .substring(
+                limitPoolAddress.toString().length - 4,
+                limitPoolAddress.toString().length
+              )
+      )
+      setLimitPoolFromVolatility(
+        tokenIn,
+        tokenOut,
+        limitPositionData.feeTier,
+        limitSubgraph
+      );
+      setNeedsSnapshot(true)
+    }
+  }, [limitPoolAddress]);
 
   ////////////////////////////////Filled Amount
   const { data: filledAmount } = useContractRead({
@@ -138,12 +166,12 @@ export default function ViewLimit() {
       ],
     ],
     chainId: chainId,
-    watch: needsSnapshot,
+    watch: true,
     enabled:
-      BigNumber.from(claimTick).lt(BigNumber.from("887272")) &&
       isConnected &&
-      limitPoolAddress.toString() != "" &&
-      needsSnapshot == true,
+      limitPositionData.positionId != undefined &&
+      claimTick >= limitPositionData.min &&
+      claimTick <= limitPositionData.max,
     onSuccess(data) {
       console.log("Success price filled amount", data);
       setNeedsSnapshot(false);
@@ -154,8 +182,8 @@ export default function ViewLimit() {
         "claim tick snapshot args",
         address,
         BigNumber.from("0").toString(),
-        limitPositionData.min.toString(),
-        limitPositionData.max.toString(),
+        limitPositionData?.min?.toString(),
+        limitPositionData?.max?.toString(),
         claimTick.toString(),
         tokenIn.callId == 0,
         router.isReady
@@ -185,74 +213,82 @@ export default function ViewLimit() {
   }, []);
 
   useEffect(() => {
-    setTimeout(() => {
-      updateClaimTick();
-    }, 3000);
-    updateCollectFee();
-  }, [claimTick]);
+    if (BigNumber.from(claimTick).lt(BigNumber.from("887272"))) {
+      setNeedsSnapshot(true)
+      setTimeout(() => {
+        updateClaimTick();
+      }, 3000);
+      updateCollectFee();
+    }
+  }, [claimTick, limitPoolAddress]);
 
   async function updateClaimTick() {
-    const aux = await getClaimTick(
-      limitPoolAddress.toString(),
-      Number(limitPositionData.min),
-      Number(limitPositionData.max),
-      tokenIn.callId == 0,
-      Number(limitPositionData.epochLast),
-      false,
-      limitSubgraph
-    );
-
-    setClaimTick(aux);
-    console.log("claim tick", aux);
+    if (limitPositionData.min != undefined &&
+        limitPositionData.max != undefined &&
+        limitPositionData.epochLast != undefined)
+    {
+      const aux = await getClaimTick(
+        limitPoolAddress.toString(),
+        Number(limitPositionData.min),
+        Number(limitPositionData.max),
+        tokenIn.callId == 0,
+        Number(limitPositionData.epochLast),
+        false,
+        limitSubgraph
+      );
+        
+      setClaimTick(aux);
+      console.log("claim tick", aux);
+    }  
   }
 
   async function getUserLimitPositionData() {
     try {
-      const data = await fetchLimitPositions(
-        limitSubgraph,
-        address.toLowerCase()
-      );
-      if (data["data"]) {
-        setAllLimitPositions(
-          mapUserLimitPositions(data["data"].limitPositions)
+      const data = await fetchLimitPositions(limitSubgraph, address.toLowerCase());
+      if (data["data"].limitPositions) {
+        const mappedPositions = mapUserLimitPositions(
+          data["data"].limitPositions
+        )
+        setAllLimitPositions(mappedPositions);
+        const positionId = limitPositionData.id ?? router.query.id;
+        const position = mappedPositions.find(
+          (position) => position.id == positionId
         );
+        if (position != undefined) {
+          setLimitPoolAddress(position.poolId)
+          setNeedsSnapshot(true);
+          setLimitPositionData(position);
+        }
       }
+      setIsLoading(false);
     } catch (error) {
       console.log("limit error", error);
     }
   }
 
   useEffect(() => {
-    setTimeout(() => {
-      if (needsRefetch == true || needsPosRefetch == true) {
-        getUserLimitPositionData();
-
-        const positionId = limitPositionData.positionId;
-        const position = allLimitPositions.find(
-          (position) => position.positionId == positionId
-        );
-        console.log("new position", position);
-
-        if (position != undefined) {
-          setLimitPositionData(position);
-        }
-
-        setNeedsRefetch(false);
-        setNeedsPosRefetch(false);
-      }
-    }, 2000);
-  }, [needsRefetch, needsPosRefetch]);
+    const chainConstants = chainProperties[networkName]
+    ? chainProperties[networkName]
+    : chainProperties["arbitrumGoerli"];
+    setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
+    if ( limitPositionData.positionId == undefined ||
+         needsRefetch ||
+         needsPosRefetch
+    ) {
+      getUserLimitPositionData();
+      setNeedsRefetch(false);
+      setNeedsPosRefetch(false);
+    } else {
+      setIsLoading(false);
+    }
+  }, [needsRefetch, needsPosRefetch, limitPositionData.positionId, router.query.id]);
 
   ////////////////////////////////Collect Gas
   async function updateCollectFee() {
-    console.log("collect zeroForOne", tokenIn.callId == 0);
-
     if (
       signer &&
-      claimTick !=
-        (tokenIn.callId == 0
-          ? Number(limitPositionData.max)
-          : Number(limitPositionData.min))
+      claimTick >= limitPositionData.min &&
+      claimTick <= limitPositionData.max
     ) {
       await gasEstimateBurnLimit(
         limitPoolAddress,
@@ -525,13 +561,13 @@ export default function ViewLimit() {
                       ) * tokenOut.USDPrice
                     ).toFixed(2)}
                   </span>
-                </span>
-              ) : (
-                <span className="text-grey1">
-                  {formatUnits(limitFilledAmount, tokenOut.decimals)}
-                  <span className="text-grey">/{0.0}</span>
-                </span>
-              )}
+                </span>) : (
+                  <span className="text-grey1">{limitFilledAmount}
+                    <span className="text-grey">
+                      /{0.00}
+                    </span>
+                  </span>)
+              }
             </div>
             <div className="flex flex-col gap-y-3 mt-2">
               <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">

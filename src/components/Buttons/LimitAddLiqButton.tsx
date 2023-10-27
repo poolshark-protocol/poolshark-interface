@@ -68,6 +68,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
         }]
       ],
       chainId: chainId,
+      enabled: positionId != undefined,
       overrides: {
         gasLimit: gasLimit,
       },
