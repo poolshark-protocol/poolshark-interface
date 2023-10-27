@@ -20,7 +20,6 @@ export const fetchRangeTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
 };
 
 export const fetchLimitTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
-  console.log('limit pool data', poolData.token0)
   try {
     setTokenUSDPrice(
       token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice

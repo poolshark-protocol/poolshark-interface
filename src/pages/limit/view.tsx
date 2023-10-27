@@ -254,7 +254,6 @@ export default function ViewLimit() {
         const position = mappedPositions.find(
           (position) => position.id == positionId
         );
-        console.log('position id check', positionId, limitPositionData.id, router.query.id)
         if (position != undefined) {
           setLimitPoolAddress(position.poolId)
           setNeedsSnapshot(true);
@@ -276,7 +275,6 @@ export default function ViewLimit() {
          needsRefetch ||
          needsPosRefetch
     ) {
-        console.log('fetching position data', limitPositionData.positionId)
       getUserLimitPositionData();
       setNeedsRefetch(false);
       setNeedsPosRefetch(false);
@@ -287,8 +285,6 @@ export default function ViewLimit() {
 
   ////////////////////////////////Collect Gas
   async function updateCollectFee() {
-    console.log("collect zeroForOne", tokenIn.callId == 0);
-
     if (
       signer &&
       claimTick >= limitPositionData.min &&
