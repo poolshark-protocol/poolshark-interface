@@ -99,14 +99,14 @@ export default function UserLimitPool({
         router.push({
             pathname: href,
             query: {
-                positionId: limitPosition.positionId,
+                id: limitPosition.id,
             },
         });
     }
 
     return (
         <tr className="text-right text-xs md:text-sm bg-black hover:bg-dark cursor-pointer"
-            key={limitPosition.positionId}
+            key={limitPosition.id}
             onClick={choosePosition}
         >
             <td className="py-3 pl-3">
