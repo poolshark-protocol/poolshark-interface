@@ -1,7 +1,11 @@
 import { useEffect } from "react";
 import { getClaimTick } from "../../utils/maps";
 import { BigNumber, ethers } from "ethers";
-import { getAveragePrice, getExpectedAmountOut, getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
+import {
+  getAveragePrice,
+  getExpectedAmountOut,
+  getExpectedAmountOutFromInput,
+} from "../../utils/math/priceMath";
 import LimitSwapBurnButton from "../Buttons/LimitSwapBurnButton";
 import { tokenRangeLimit } from "../../utils/types";
 import router from "next/router";
@@ -13,62 +17,56 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { invertPrice } from "../../utils/math/tickMath";
 
 export default function UserLimitPool({
-    limitPosition,
-    limitFilledAmount,
-    address,
-    href,
+  limitPosition,
+  limitFilledAmount,
+  address,
+  href,
 }) {
-    const [
-        limitSubgraph,
-        coverSubgraph
-    ] = useConfigStore((state) => [
-        state.limitSubgraph,
-        state.coverSubgraph
-    ]);
+  const [limitSubgraph] = useConfigStore((state) => [state.limitSubgraph]);
 
-    const [
-        tokenIn,
-        tokenOut,
-        setLimitPositionData,
-        setLimitPoolAddress,
-        setTokenIn,
-        setTokenOut,
-        setClaimTick,
-        setLimitPoolFromVolatility,
-        setNeedsAllowanceIn,
-        setNeedsBalanceIn,
-    ] = useRangeLimitStore((state) => [
-        state.tokenIn,
-        state.tokenOut,
-        state.setLimitPositionData,
-        state.setLimitPoolAddress,
-        state.setTokenIn,
-        state.setTokenOut,
-        state.setClaimTick,
-        state.setLimitPoolFromVolatility,
-        state.setNeedsAllowanceIn,
-        state.setNeedsBalanceIn,
-    ]);
+  const [
+    tokenIn,
+    tokenOut,
+    setLimitPositionData,
+    setLimitPoolAddress,
+    setTokenIn,
+    setTokenOut,
+    setClaimTick,
+    setLimitPoolFromVolatility,
+    setNeedsAllowanceIn,
+    setNeedsBalanceIn,
+  ] = useRangeLimitStore((state) => [
+    state.tokenIn,
+    state.tokenOut,
+    state.setLimitPositionData,
+    state.setLimitPoolAddress,
+    state.setTokenIn,
+    state.setTokenOut,
+    state.setClaimTick,
+    state.setLimitPoolFromVolatility,
+    state.setNeedsAllowanceIn,
+    state.setNeedsBalanceIn,
+  ]);
 
-    ///////////////////////////Claim Tick
-    useEffect(() => {
-        updateClaimTick();
-    }, [limitPosition]);
+  ///////////////////////////Claim Tick
+  useEffect(() => {
+    updateClaimTick();
+  }, [limitPosition]);
 
-    const updateClaimTick = async () => {
-        const tick = await getClaimTick(
-            limitPosition.poolId,
-            Number(limitPosition.min),
-            Number(limitPosition.max),
-            tokenIn.callId == 0,
-            Number(limitPosition.epochLast),
-            false,
-            limitSubgraph
-        );
-        setClaimTick(tick);
-    };
+  const updateClaimTick = async () => {
+    const tick = await getClaimTick(
+      limitPosition.poolId,
+      Number(limitPosition.min),
+      Number(limitPosition.max),
+      tokenIn.callId == 0,
+      Number(limitPosition.epochLast),
+      false,
+      limitSubgraph
+    );
+    setClaimTick(tick);
+  };
 
-    //////////////////////////Set Position when selected
+  //////////////////////////Set Position when selected
 
     async function choosePosition() {
         setLimitPositionData(limitPosition);
@@ -99,14 +97,14 @@ export default function UserLimitPool({
         router.push({
             pathname: href,
             query: {
-                positionId: limitPosition.positionId,
+                id: limitPosition.id,
             },
         });
     }
 
     return (
         <tr className="text-right text-xs md:text-sm bg-black hover:bg-dark cursor-pointer"
-            key={limitPosition.positionId}
+            key={limitPosition.id}
             onClick={choosePosition}
         >
             <td className="py-3 pl-3">
@@ -171,7 +169,7 @@ export default function UserLimitPool({
             </td>
             <td className="text-grey1 text-left pl-3 text-xs md:table-cell hidden">{timeDifference(limitPosition.timestamp)}</td>
             <td className="text-sm text-grey1 md:table-cell hidden">
-                <LimitSwapBurnButton
+                {/* <LimitSwapBurnButton
                     poolAddress={limitPosition.poolId}
                     address={address}
                     positionId={BigNumber.from(limitPosition.positionId)}
@@ -180,8 +178,8 @@ export default function UserLimitPool({
                     lower={BigNumber.from(limitPosition.min)}
                     upper={BigNumber.from(limitPosition.max)}
                     burnPercent={parseUnits("1", 38)}
-                />
-            </td>
-        </tr>
-    );
+                /> */}
+      </td>
+    </tr>
+  );
 }

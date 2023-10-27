@@ -47,6 +47,7 @@ export default function LimitCollectButton({ poolAddress, address, positionId, c
           zeroForOne
       ]],
       chainId: chainId,
+      enabled: positionId != undefined,
       overrides: {
           gasLimit: gasLimit
       },

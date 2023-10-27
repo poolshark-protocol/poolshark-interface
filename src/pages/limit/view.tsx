@@ -15,22 +15,20 @@ import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import JSBI from "jsbi";
-import { BN_ZERO } from "../../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { gasEstimateBurnLimit } from "../../utils/gas";
 import { getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { parseUnits } from "../../utils/math/valueMath";
 import { formatUnits } from "ethers/lib/utils.js";
+import { chainProperties } from "../../utils/chains";
 
 export default function ViewLimit() {
-  const [
-    chainId,
-    networkName,
-    limitSubgraph
-  ] = useConfigStore((state) => [
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
-    state.limitSubgraph
+    state.limitSubgraph,
+    state.setLimitSubgraph
   ]);
 
   const [
@@ -45,10 +43,12 @@ export default function ViewLimit() {
     claimTick,
     needsSnapshot,
     currentAmountOut,
+    setLimitPoolAddress,
     setNeedsSnapshot,
     setNeedsRefetch,
     setNeedsPosRefetch,
     setLimitPositionData,
+    setLimitPoolFromVolatility,
     setTokenInLimitUSDPrice,
     setTokenOutLimitUSDPrice,
     setClaimTick,
@@ -65,10 +65,12 @@ export default function ViewLimit() {
     state.claimTick,
     state.needsSnapshot,
     state.currentAmountOut,
+    state.setLimitPoolAddress,
     state.setNeedsSnapshot,
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
     state.setLimitPositionData,
+    state.setLimitPoolFromVolatility,
     state.setTokenInRangeUSDPrice,
     state.setTokenOutRangeUSDPrice,
     state.setClaimTick,
@@ -125,7 +127,29 @@ export default function ViewLimit() {
         );
       }
     }
-  }, []);
+  }, [limitFilledAmount, tokenIn.address, tokenOut.address]);
+
+  useEffect(() => {
+    if (limitPoolAddress) {
+      setPoolDisplay(
+        limitPoolAddress.toString().substring(0, 6) +
+            "..." +
+            limitPoolAddress
+              .toString()
+              .substring(
+                limitPoolAddress.toString().length - 4,
+                limitPoolAddress.toString().length
+              )
+      )
+      setLimitPoolFromVolatility(
+        tokenIn,
+        tokenOut,
+        limitPositionData.feeTier,
+        limitSubgraph
+      );
+      setNeedsSnapshot(true)
+    }
+  }, [limitPoolAddress]);
 
   ////////////////////////////////Filled Amount
   const { data: filledAmount } = useContractRead({
@@ -142,15 +166,15 @@ export default function ViewLimit() {
       ],
     ],
     chainId: chainId,
-    watch: needsSnapshot,
+    watch: true,
     enabled:
-      BigNumber.from(claimTick).lt(BigNumber.from("887272")) &&
       isConnected &&
-      limitPoolAddress.toString() != "" &&
-      needsSnapshot == true,
+      limitPositionData.positionId != undefined &&
+      claimTick >= limitPositionData.min &&
+      claimTick <= limitPositionData.max,
     onSuccess(data) {
       console.log("Success price filled amount", data);
-      setNeedsSnapshot(false)
+      setNeedsSnapshot(false);
     },
     onError(error) {
       console.log("Error price Limit", error);
@@ -158,8 +182,8 @@ export default function ViewLimit() {
         "claim tick snapshot args",
         address,
         BigNumber.from("0").toString(),
-        limitPositionData.min.toString(),
-        limitPositionData.max.toString(),
+        limitPositionData?.min?.toString(),
+        limitPositionData?.max?.toString(),
         claimTick.toString(),
         tokenIn.callId == 0,
         router.isReady
@@ -177,7 +201,7 @@ export default function ViewLimit() {
       );
       setCurrentAmountOut(
         ethers.utils.formatUnits(filledAmount[1], tokenIn.decimals)
-      )
+      );
     }
   }, [filledAmount]);
 
@@ -189,66 +213,83 @@ export default function ViewLimit() {
   }, []);
 
   useEffect(() => {
-    setTimeout(() => {
-      updateClaimTick();
-    }, 3000);
-    updateCollectFee();
-  }, [claimTick]);
+    if (BigNumber.from(claimTick).lt(BigNumber.from("887272"))) {
+      setNeedsSnapshot(true)
+      setTimeout(() => {
+        updateClaimTick();
+      }, 3000);
+      updateCollectFee();
+    }
+  }, [claimTick, limitPoolAddress]);
 
   async function updateClaimTick() {
-    const aux = await getClaimTick(
-      limitPoolAddress.toString(),
-      Number(limitPositionData.min),
-      Number(limitPositionData.max),
-      tokenIn.callId == 0,
-      Number(limitPositionData.epochLast),
-      false,
-      limitSubgraph
-    );
-
-    setClaimTick(aux);
-    console.log("claim tick", aux);
+    if (limitPositionData.min != undefined &&
+        limitPositionData.max != undefined &&
+        limitPositionData.epochLast != undefined)
+    {
+      const aux = await getClaimTick(
+        limitPoolAddress.toString(),
+        Number(limitPositionData.min),
+        Number(limitPositionData.max),
+        tokenIn.callId == 0,
+        Number(limitPositionData.epochLast),
+        false,
+        limitSubgraph
+      );
+        
+      setClaimTick(aux);
+      console.log("claim tick", aux);
+    }  
   }
 
   async function getUserLimitPositionData() {
     try {
       const data = await fetchLimitPositions(limitSubgraph, address.toLowerCase());
-      if (data["data"]) {
-        setAllLimitPositions(
-          mapUserLimitPositions(data["data"].limitPositions)
+      if (data["data"].limitPositions) {
+        const mappedPositions = mapUserLimitPositions(
+          data["data"].limitPositions
+        )
+        setAllLimitPositions(mappedPositions);
+        const positionId = limitPositionData.id ?? router.query.id;
+        const position = mappedPositions.find(
+          (position) => position.id == positionId
         );
+        if (position != undefined) {
+          setLimitPoolAddress(position.poolId)
+          setNeedsSnapshot(true);
+          setLimitPositionData(position);
+        }
       }
+      setIsLoading(false);
     } catch (error) {
-      console.log('limit error', error);
+      console.log("limit error", error);
     }
   }
 
   useEffect(() => {
-    setTimeout(() => {
-      if (needsRefetch == true || needsPosRefetch == true) {
-        getUserLimitPositionData();
-
-        const positionId = limitPositionData.positionId;
-        const position = allLimitPositions.find(
-          (position) => position.positionId == positionId
-        );
-        console.log("new position", position);
-
-        if (position != undefined) {
-          setLimitPositionData(position);
-        }
-
-        setNeedsRefetch(false);
-        setNeedsPosRefetch(false);
-      }
-    }, 2000);
-  }, [needsRefetch, needsPosRefetch]);
+    const chainConstants = chainProperties[networkName]
+    ? chainProperties[networkName]
+    : chainProperties["arbitrumGoerli"];
+    setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
+    if ( limitPositionData.positionId == undefined ||
+         needsRefetch ||
+         needsPosRefetch
+    ) {
+      getUserLimitPositionData();
+      setNeedsRefetch(false);
+      setNeedsPosRefetch(false);
+    } else {
+      setIsLoading(false);
+    }
+  }, [needsRefetch, needsPosRefetch, limitPositionData.positionId, router.query.id]);
 
   ////////////////////////////////Collect Gas
   async function updateCollectFee() {
-    console.log("collect zeroForOne", tokenIn.callId == 0);
-
-    if (signer && (claimTick != (tokenIn.callId == 0 ? Number(limitPositionData.max) : Number(limitPositionData.min)))) {
+    if (
+      signer &&
+      claimTick >= limitPositionData.min &&
+      claimTick <= limitPositionData.max
+    ) {
       await gasEstimateBurnLimit(
         limitPoolAddress,
         address,
@@ -258,16 +299,16 @@ export default function ViewLimit() {
         tokenIn.callId == 0,
         signer,
         setCollectGasFee,
-        setCollectGasLimit,
+        setCollectGasLimit
       );
     }
   }
 
   return (
-    <div className="bg-black min-h-screen  ">
+    <div className="bg-black min-h-screen">
       <Navbar />
       <div className="flex flex-col pt-10 pb-32 md:pb-0 text-white relative min-h-[calc(100vh-76px)] container mx-auto md:px-0 px-3">
-      <div className="flex md:flex-row flex-col justify-between w-full items-start md:items-center gap-y-5">
+        <div className="flex md:flex-row flex-col justify-between w-full items-start md:items-center gap-y-5">
           <div className="flex items-center gap-x-3">
             <div className="flex items-center">
               <img height="50" width="50" src={tokenIn.logoURI} />
@@ -302,22 +343,26 @@ export default function ViewLimit() {
                   {Number(limitPositionData.feeTier) / 10000}%
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
-                {TickMath.getPriceStringAtTick(
-                            Number(limitPositionData.min),
-                            tokenIn, tokenOut
-                          )} {tokenOut.symbol}
+                  {TickMath.getPriceStringAtTick(
+                    Number(limitPositionData.min),
+                    tokenIn,
+                    tokenOut
+                  )}{" "}
+                  {tokenOut.symbol}
                   <DoubleArrowIcon />
                   {TickMath.getPriceStringAtTick(
-                            Number(limitPositionData.max),
-                            tokenIn, tokenOut
-                          )} {tokenOut.symbol}
+                    Number(limitPositionData.max),
+                    tokenIn,
+                    tokenOut
+                  )}{" "}
+                  {tokenOut.symbol}
                 </div>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-x-4 w-full md:w-auto">
             <button
-               className="bg-main1 w-full border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
+              className="bg-main1 w-full border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
               onClick={() => setIsAddOpen(true)}
             >
               Add Liquidity
@@ -331,30 +376,25 @@ export default function ViewLimit() {
           </div>
         </div>
         <div className="flex flex-col lg:flex-row justify-between w-full mt-8  gap-10">
-        <div className="border border-grey rounded-[4px] lg:w-1/2 w-full p-5">
+          <div className="border border-grey rounded-[4px] lg:w-1/2 w-full p-5">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">Remaining Liquidity</h1>
             </div>
             <div className="flex flex-col gap-y-3 mt-2">
-            <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+              <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
                   <span>
-                  ~$
-                    {!isNaN(Number(currentAmountOut)) && !isNaN(tokenOut.USDPrice) ? (
-                      (
-                        Number(
-                            currentAmountOut
-                        ) * tokenIn.USDPrice
-                      ).toFixed(2)
-                    ) : ("0.00")}
+                    ~$
+                    {!isNaN(Number(currentAmountOut)) &&
+                    !isNaN(tokenOut.USDPrice)
+                      ? (Number(currentAmountOut) * tokenIn.USDPrice).toFixed(2)
+                      : "0.00"}
                   </span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {Number(
-                      currentAmountOut
-                  ).toFixed(2)}
+                  {Number(currentAmountOut).toFixed(2)}
                   <div className="flex items-center gap-x-2">
-                  <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
+                    <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenIn.logoURI} />
                       {tokenIn.symbol}
                     </div>
@@ -363,54 +403,61 @@ export default function ViewLimit() {
               </div>
               <div className="flex justify-between items-center mt-8">
                 <div className="flex items-center gap-x-4">
-                <h1 className="uppercase text-white md:block hidden">Price Range</h1>
+                  <h1 className="uppercase text-white md:block hidden">
+                    Price Range
+                  </h1>
                   {limitPositionData.min &&
                   limitPositionData.max &&
                   limitPoolData.poolPrice ? (
                     parseFloat(
-                    TickMath.getPriceStringAtSqrtPrice(
-                      JSBI.BigInt(Number(limitPoolData.poolPrice)),
-                      tokenIn, tokenOut
-                    )
-                  ) <
-                    parseFloat(
-                      TickMath.getPriceStringAtTick(
-                        Number(limitPositionData.min),
-                        tokenIn, tokenOut
+                      TickMath.getPriceStringAtSqrtPrice(
+                        JSBI.BigInt(Number(limitPoolData.poolPrice)),
+                        tokenIn,
+                        tokenOut
                       )
-                    ) ||
-                  parseFloat(
-                    TickMath.getPriceStringAtSqrtPrice(
-                      JSBI.BigInt(Number(limitPoolData.poolPrice)),
-                      tokenIn, tokenOut
-                    )
-                  ) >=
+                    ) <
+                      parseFloat(
+                        TickMath.getPriceStringAtTick(
+                          Number(limitPositionData.min),
+                          tokenIn,
+                          tokenOut
+                        )
+                      ) ||
                     parseFloat(
-                      TickMath.getPriceStringAtTick(
-                        Number(limitPositionData.max),
-                        tokenIn, tokenOut
+                      TickMath.getPriceStringAtSqrtPrice(
+                        JSBI.BigInt(Number(limitPoolData.poolPrice)),
+                        tokenIn,
+                        tokenOut
                       )
-                    ) ? (
-                    <span className="text-yellow-600 text-xs bg-yellow-900/30 px-4 py-1 rounded-[4px]">
-                      OUT OF RANGE
-                    </span>
-                  ) : (
-                    <span className="text-green-600 text-xs bg-green-900/30 px-4 py-1 rounded-[4px]">
-                      IN RANGE
-                    </span>
-                  )) : null}
+                    ) >=
+                      parseFloat(
+                        TickMath.getPriceStringAtTick(
+                          Number(limitPositionData.max),
+                          tokenIn,
+                          tokenOut
+                        )
+                      ) ? (
+                      <span className="text-yellow-600 text-xs bg-yellow-900/30 px-4 py-1 rounded-[4px]">
+                        OUT OF RANGE
+                      </span>
+                    ) : (
+                      <span className="text-green-600 text-xs bg-green-900/30 px-4 py-1 rounded-[4px]">
+                        IN RANGE
+                      </span>
+                    )
+                  ) : null}
                 </div>
                 <div
                   onClick={() => setPriceDirection(!priceDirection)}
                   className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
                 >
                   {(tokenIn.callId == 0) == priceDirection
-                      ? tokenOut.symbol
-                      : tokenIn.symbol}{" "}
+                    ? tokenOut.symbol
+                    : tokenIn.symbol}{" "}
                   per{" "}
                   {(tokenIn.callId == 0) == priceDirection
-                      ? tokenIn.symbol
-                      : tokenOut.symbol}
+                    ? tokenIn.symbol
+                    : tokenOut.symbol}
                   <DoubleArrowIcon />
                 </div>
               </div>
@@ -421,10 +468,18 @@ export default function ViewLimit() {
                     <span className="text-white text-2xl md:text-3xl">
                       {limitPositionData.min === undefined
                         ? ""
-                        : invertPrice(TickMath.getPriceStringAtTick(
-                            Number(priceDirection ? limitPositionData.min : limitPositionData.max),
-                            tokenIn, tokenOut
-                          ), priceDirection)}
+                        : invertPrice(
+                            TickMath.getPriceStringAtTick(
+                              Number(
+                                priceDirection
+                                  ? limitPositionData.min
+                                  : limitPositionData.max
+                              ),
+                              tokenIn,
+                              tokenOut
+                            ),
+                            priceDirection
+                          )}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
                       Your position will be 100%{" "}
@@ -443,10 +498,18 @@ export default function ViewLimit() {
                     <span className="text-white text-2xl md:text-3xl">
                       {limitPositionData.max === undefined
                         ? ""
-                        : invertPrice(TickMath.getPriceStringAtTick(
-                          Number(priceDirection ? limitPositionData.max : limitPositionData.min),
-                          tokenIn, tokenOut
-                        ), priceDirection)}
+                        : invertPrice(
+                            TickMath.getPriceStringAtTick(
+                              Number(
+                                priceDirection
+                                  ? limitPositionData.max
+                                  : limitPositionData.min
+                              ),
+                              tokenIn,
+                              tokenOut
+                            ),
+                            priceDirection
+                          )}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
                       Your position will be 100%{" "}
@@ -460,12 +523,16 @@ export default function ViewLimit() {
                 <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                   <span className="text-grey1 text-xs">CURRENT PRICE</span>
                   <span className="text-white text-3xl text-grey1">
-                    {limitPoolData?.poolPrice ?
-                      invertPrice(TickMath.getPriceStringAtSqrtPrice(
+                    {limitPoolData?.poolPrice
+                      ? invertPrice(
+                          TickMath.getPriceStringAtSqrtPrice(
                             JSBI.BigInt(Number(limitPoolData.poolPrice)),
-                            tokenIn, tokenOut
-                          ), priceDirection)
-                        : "0.00"}
+                            tokenIn,
+                            tokenOut
+                          ),
+                          priceDirection
+                        )
+                      : "0.00"}
                   </span>
                 </div>
               </div>
@@ -474,21 +541,28 @@ export default function ViewLimit() {
           <div className="border bg-dark border-grey rounded-[4px] lg:w-1/2 w-full p-5 h-min">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">Filled Liquidity</h1>
-              {!isNaN(Number(limitPositionData?.amountIn)) && !isNaN(Number(limitFilledAmount)) ? (
-                <span className="text-grey1">{Number(limitFilledAmount).toFixed(2)}
+              {!isNaN(Number(limitPositionData?.amountIn)) &&
+              !isNaN(Number(limitFilledAmount)) ? (
+                <span className="text-grey1">
+                  {Number(limitFilledAmount).toFixed(2)}
                   <span className="text-grey">
                     /
-                    {(parseFloat(ethers.utils.formatUnits(
-                      getExpectedAmountOutFromInput(
-                        limitPositionData.min,
-                        limitPositionData.max,
-                        tokenIn.callId == 0,
-                        BigNumber.from(limitPositionData.amountIn)
-                      )
-                    , tokenOut.decimals)) * tokenOut.USDPrice).toFixed(2)}
+                    {(
+                      parseFloat(
+                        ethers.utils.formatUnits(
+                          getExpectedAmountOutFromInput(
+                            limitPositionData.min,
+                            limitPositionData.max,
+                            tokenIn.callId == 0,
+                            BigNumber.from(limitPositionData.amountIn)
+                          ),
+                          tokenOut.decimals
+                        )
+                      ) * tokenOut.USDPrice
+                    ).toFixed(2)}
                   </span>
                 </span>) : (
-                  <span className="text-grey1">{formatUnits(limitFilledAmount, tokenOut.decimals)}
+                  <span className="text-grey1">{limitFilledAmount}
                     <span className="text-grey">
                       /{0.00}
                     </span>
@@ -498,22 +572,22 @@ export default function ViewLimit() {
             <div className="flex flex-col gap-y-3 mt-2">
               <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
-                  {!isNaN(Number(limitFilledAmount)) && !isNaN(tokenOut.USDPrice) ? (
+                  {!isNaN(Number(limitFilledAmount)) &&
+                  !isNaN(tokenOut.USDPrice) ? (
                     <span>
                       ~$
-                      {(
-                        Number(limitFilledAmount) * tokenOut.USDPrice
-                      ).toFixed(2)}
-                    </span>) :
-                    <span>
-                      ~$0.00
+                      {(Number(limitFilledAmount) * tokenOut.USDPrice).toFixed(
+                        2
+                      )}
                     </span>
-                  }
+                  ) : (
+                    <span>~$0.00</span>
+                  )}
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                   {Number(limitFilledAmount).toFixed(2)}
                   <div className="flex items-center gap-x-2">
-                  <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
+                    <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenOut.logoURI} />
                       {tokenOut.symbol}
                     </div>
@@ -535,19 +609,20 @@ export default function ViewLimit() {
           </div>
         </div>
       </div>
-      {limitPositionData.amountIn ?
+      {limitPositionData.amountIn ? (
         <>
-        <RemoveLiquidity
-          isOpen={isRemoveOpen}
-          setIsOpen={setIsRemoveOpen}
-          address={address}
-        />
-        <AddLiquidity
-          isOpen={isAddOpen}
-          setIsOpen={setIsAddOpen}
-          address={address}
-        />
-        </> : null}
+          <RemoveLiquidity
+            isOpen={isRemoveOpen}
+            setIsOpen={setIsRemoveOpen}
+            address={address}
+          />
+          <AddLiquidity
+            isOpen={isAddOpen}
+            setIsOpen={setIsAddOpen}
+            address={address}
+          />
+        </>
+      ) : null}
     </div>
   );
 }
