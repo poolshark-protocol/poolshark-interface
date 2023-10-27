@@ -111,7 +111,6 @@ export default function ViewLimit() {
 
   ////////////////////////////////Fetch Pool Data
   useEffect(() => {
-    console.log('limit pool address', limitPoolAddress)
     if (limitPoolData.token0 && limitPoolData.token1) {
       if (tokenIn.address) {
         fetchLimitTokenUSDPrice(
@@ -131,7 +130,6 @@ export default function ViewLimit() {
   }, [limitFilledAmount, tokenIn.address, tokenOut.address]);
 
   useEffect(() => {
-    console.log('limit pool address', limitPoolAddress)
     if (limitPoolAddress) {
       setPoolDisplay(
         limitPoolAddress.toString().substring(0, 6) +
@@ -201,7 +199,6 @@ export default function ViewLimit() {
       setLimitFilledAmount(
         ethers.utils.formatUnits(filledAmount[0], tokenOut.decimals)
       );
-      console.log('amount out', filledAmount[1])
       setCurrentAmountOut(
         ethers.utils.formatUnits(filledAmount[1], tokenIn.decimals)
       );
@@ -259,7 +256,6 @@ export default function ViewLimit() {
         );
         console.log('position id check', positionId, limitPositionData.id, router.query.id)
         if (position != undefined) {
-          console.log('position found', position.pool)
           setLimitPoolAddress(position.poolId)
           setNeedsSnapshot(true);
           setLimitPositionData(position);
