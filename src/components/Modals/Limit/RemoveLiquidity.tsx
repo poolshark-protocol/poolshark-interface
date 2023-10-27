@@ -214,7 +214,7 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
                   upper={BigNumber.from(limitPositionData.max)}
                   closeModal={() => {
                     if (burnPercent.eq(parseUnits("1", 38))) {
-                      router.push("/pool");
+                      router.push("/");
                     }
                   }}
                   setIsOpen={setIsOpen}
