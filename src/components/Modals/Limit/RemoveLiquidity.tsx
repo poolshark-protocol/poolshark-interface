@@ -28,41 +28,57 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
 
   const router = useRouter();
 
-  const [burnPercent, setBurnPercent] = useState(
-    parseUnits("5", 37)
-  );
+  const [burnPercent, setBurnPercent] = useState(parseUnits("5", 37));
+
   const [sliderValue, setSliderValue] = useState(1);
   const [sliderOutput, setSliderOutput] = useState("1");
+  const [sliderDisplay, setSliderDisplay] = useState(50);
+  const [sliderLastValue, setSliderLastValue] = useState(50);
+  const [sliderController, setSliderController] = useState(false);
 
   useEffect(() => {
+    console.log("amounts", sliderValue);
     setBurnPercent(parseUnits(String(sliderValue), 36));
     setSliderOutput(
-      (
-        (parseFloat(
-            currentAmountOut
-        ) *
-          sliderValue) /
-        100
-      ).toPrecision(6)
+      ((parseFloat(currentAmountOut) * sliderValue) / 100).toPrecision(6)
     );
   }, [currentAmountOut, sliderValue]);
 
   useEffect(() => {
     setMintButtonState();
-    console.log(limitMintParams.disabled, "disabled");
   }, [burnPercent]);
 
   const handleChange = (event: any) => {
     if (Number(event.target.value) != 0) {
-      setSliderValue(event.target.value);
+      setSliderDisplay(event.target.value);
     } else {
-      setSliderValue(1);
+      setSliderDisplay(1);
     }
   };
 
   const handleSliderButton = (percent: number) => {
-    setSliderValue(percent);
+    setSliderDisplay(percent);
   };
+
+  useEffect(() => {
+    setSliderLastValue(sliderDisplay);
+    if (!sliderController) {
+      setSliderController(true);
+      setTimeout(() => {
+        setSliderController(false);
+      }, 1000);
+    }
+  }, [sliderDisplay]);
+
+  useEffect(() => {
+    if (!sliderController) {
+      setSliderValue(sliderLastValue);
+    }
+  }, [sliderLastValue, sliderController]);
+
+  useEffect(() => {
+    setSliderDisplay(50);
+  }, [router.isReady]);
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -104,7 +120,7 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
                 </div>
                 <div className="w-full  bg-[#0C0C0C] border border-[#1C1C1C] gap-4 px-4 py-4 rounded-xl mt-6 mb-6">
                   <div className="flex justify-between items-center">
-                    <div className="text-3xl ">{sliderValue}%</div>
+                    <div className="text-3xl ">{sliderDisplay}%</div>
                     <div className="flex items-center gap-x-4">
                       <button
                         onClick={() => handleSliderButton(25)}
@@ -137,7 +153,7 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
                     type="range"
                     min="1"
                     max="100"
-                    value={sliderValue}
+                    value={sliderDisplay}
                     onChange={handleChange}
                     className="w-full styled-slider slider-progress bg-transparent mt-6"
                   />
@@ -155,11 +171,12 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
                     <div className="flex">
                       <div className="flex text-xs text-[#4C4C4C]">
                         $
-                        {!isNaN(tokenIn.USDPrice) && !isNaN(parseFloat(sliderOutput)) ?
-                          (
-                            tokenIn.USDPrice * parseFloat(sliderOutput)
-                          ).toFixed(2) :
-                        "0.00"}
+                        {!isNaN(tokenIn.USDPrice) &&
+                        !isNaN(parseFloat(sliderOutput))
+                          ? (
+                              tokenIn.USDPrice * parseFloat(sliderOutput)
+                            ).toFixed(2)
+                          : "0.00"}
                       </div>
                     </div>
                   </div>
@@ -197,7 +214,7 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
                   upper={BigNumber.from(limitPositionData.max)}
                   closeModal={() => {
                     if (burnPercent.eq(parseUnits("1", 38))) {
-                      router.push("/pool");
+                      router.push("/");
                     }
                   }}
                   setIsOpen={setIsOpen}
@@ -210,5 +227,3 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
     </Transition>
   );
 }
-
-
