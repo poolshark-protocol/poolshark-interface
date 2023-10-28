@@ -1234,6 +1234,8 @@ const whitelist = [
   '0xeba1bfc8964c427cd4f191adec4db865b77038c9',
   '0x56ebc608fd6b8f8cef2775a3ee0dddaec01a7000',
   '0xe7a9d4dedcccce1b4ad558c635c6d50663e97335',
+  '0x4dc3c54c635ee185343b3c3feb4ee4d8025d4ce7',
+  '0xb42fe2285b7b7f775f9b21117fb95fd25a66c22c'
 ]
 
 function MyApp({ Component, pageProps }) {
