@@ -105,7 +105,7 @@ function MyApp({ Component, pageProps }) {
         <RainbowKitProvider chains={chains} initialChain={arbitrumGoerli}>
           <ApolloProvider client={apolloClient}>
             <>
-            { _isConnected ? (whitelist.includes(address) ? (
+            { _isConnected ? (whitelist.includes(address?.toLowerCase()) ? (
               <div className="font-Jetbrains"><Component  {...pageProps} /></div>
             )
             : 
