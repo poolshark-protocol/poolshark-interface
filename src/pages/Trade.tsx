@@ -482,7 +482,7 @@ export default function Trade() {
 
   async function getUserLimitPositionData() {
     try {
-      const data = await fetchLimitPositions(limitSubgraph, address.toLowerCase());
+      const data = await fetchLimitPositions(limitSubgraph, address?.toLowerCase());
       if (data["data"]) {
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
