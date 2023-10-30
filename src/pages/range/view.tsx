@@ -12,7 +12,7 @@ import { useContractRead } from "wagmi";
 import RemoveLiquidity from "../../components/Modals/Range/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Range/AddLiquidity";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice, logoMap } from "../../utils/tokens";
 import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
@@ -22,14 +22,16 @@ import router from "next/router";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { ZERO_ADDRESS } from "../../utils/math/constants";
 import { chainProperties, supportedNetworkNames } from "../../utils/chains";
+import { tokenRangeLimit } from "../../utils/types";
 
 export default function ViewRange() {
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-    state.limitSubgraph,
-    state.setLimitSubgraph,
-  ]);
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph] =
+    useConfigStore((state) => [
+      state.chainId,
+      state.networkName,
+      state.limitSubgraph,
+      state.setLimitSubgraph,
+    ]);
 
   const [
     rangePoolAddress,
@@ -37,7 +39,9 @@ export default function ViewRange() {
     rangePositionData,
     rangeMintParams,
     tokenIn,
+    setTokenIn,
     tokenOut,
+    setTokenOut,
     priceOrder,
     setPriceOrder,
     setTokenInRangeUSDPrice,
@@ -55,7 +59,9 @@ export default function ViewRange() {
     state.rangePositionData,
     state.rangeMintParams,
     state.tokenIn,
+    state.setTokenIn,
     state.tokenOut,
+    state.setTokenOut,
     state.priceOrder,
     state.setPriceOrder,
     state.setTokenInRangeUSDPrice,
@@ -222,6 +228,23 @@ export default function ViewRange() {
           (position) => position.positionId == positionId
         );
         if (position != undefined) {
+          console.log(position, "position");
+          const tokenInNew = {
+            name: position.tokenZero.name,
+            symbol: position.tokenZero.symbol,
+            logoURI: logoMap[position.tokenZero.symbol],
+            address: position.tokenZero.id,
+            decimals: position.tokenZero.decimals,
+          } as tokenRangeLimit;
+          const tokenOutNew = {
+            name: position.tokenOne.name,
+            symbol: position.tokenOne.symbol,
+            logoURI: logoMap[position.tokenOne.symbol],
+            address: position.tokenOne.id,
+            decimals: position.tokenOne.decimals,
+          } as tokenRangeLimit;
+          setTokenIn(tokenOutNew, tokenInNew, "0", true);
+          setTokenOut(tokenInNew, tokenOutNew, "0", false);
           setRangePositionData(position);
         }
       }
