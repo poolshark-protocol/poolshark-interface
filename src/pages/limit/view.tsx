@@ -135,7 +135,6 @@ export default function ViewLimit() {
 
   useEffect(() => {
     if (limitPoolAddress != undefined && limitPositionData.tokenIn != undefined) {
-      console.log('fetching limit pool', limitPoolAddress, limitPositionData.id)
       setPoolDisplay(
         limitPoolAddress.toString().substring(0, 6) +
             "..." +
@@ -262,7 +261,6 @@ export default function ViewLimit() {
         const position = mappedPositions.find(
           (position) => position.id == positionId
         );
-        console.log('position found', positionId)
         if (position != undefined) {
           setLimitPoolAddress(position.poolId)
           setNeedsSnapshot(true);
@@ -286,7 +284,6 @@ export default function ViewLimit() {
          needsRefetch ||
          needsPosRefetch
     ) {
-      console.log('fetching position data', router.query?.id)
       getUserLimitPositionData();
       setNeedsRefetch(false);
       setNeedsPosRefetch(false);
@@ -297,9 +294,6 @@ export default function ViewLimit() {
 
   ////////////////////////////////Collect Gas
   async function updateCollectFee() {
-    console.log('collect gas estimate',  claimTick, limitPositionData.min,  signer,   signer &&
-    claimTick >= limitPositionData.min &&
-    claimTick <= limitPositionData.max)
     if (
       signer != undefined &&
       claimTick >= Number(limitPositionData.min) &&

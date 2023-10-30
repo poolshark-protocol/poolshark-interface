@@ -76,7 +76,6 @@ describe('TickMath tests', () => {
     const upperTick = 0
     const price = getAveragePrice(lowerTick, upperTick, false, BigNumber.from('20051041647900280328782'), parseUnits('100', 18))
     // check price
-    console.log('average price', price)
     expect(price).toStrictEqual(0.99503)
   });
 
