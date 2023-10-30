@@ -246,6 +246,12 @@ export default function ViewRange() {
           setTokenIn(tokenOutNew, tokenInNew, "0", true);
           setTokenOut(tokenInNew, tokenOutNew, "0", false);
           setRangePositionData(position);
+          setRangePoolFromFeeTier(
+            tokenInNew,
+            tokenOutNew,
+            position.pool.feeTier.feeAmount,
+            limitSubgraph
+          );
         }
       }
       setIsLoading(false);
