@@ -213,19 +213,20 @@ export default function ViewLimit() {
   }, []);
 
   useEffect(() => {
-    if (BigNumber.from(claimTick).lt(BigNumber.from("887272"))) {
+    if (limitPoolAddress != undefined) {
       setNeedsSnapshot(true)
       setTimeout(() => {
         updateClaimTick();
       }, 3000);
       updateCollectFee();
     }
-  }, [claimTick, limitPoolAddress]);
+  }, [claimTick, limitPoolAddress, limitPositionData]);
 
   async function updateClaimTick() {
     if (limitPositionData.min != undefined &&
         limitPositionData.max != undefined &&
-        limitPositionData.epochLast != undefined)
+        limitPositionData.epochLast != undefined &&
+        limitPoolAddress != undefined)
     {
       const aux = await getClaimTick(
         limitPoolAddress.toString(),
@@ -285,11 +286,15 @@ export default function ViewLimit() {
 
   ////////////////////////////////Collect Gas
   async function updateCollectFee() {
+    console.log('collect gas estimate',  claimTick, limitPositionData.min,  signer,   signer &&
+    claimTick >= limitPositionData.min &&
+    claimTick <= limitPositionData.max)
     if (
-      signer &&
-      claimTick >= limitPositionData.min &&
-      claimTick <= limitPositionData.max
+      signer != undefined &&
+      claimTick >= Number(limitPositionData.min) &&
+      claimTick <= Number(limitPositionData.max)
     ) {
+
       await gasEstimateBurnLimit(
         limitPoolAddress,
         address,
@@ -558,7 +563,7 @@ export default function ViewLimit() {
                           ),
                           tokenOut.decimals
                         )
-                      ) * tokenOut.USDPrice
+                      )
                     ).toFixed(2)}
                   </span>
                 </span>) : (
