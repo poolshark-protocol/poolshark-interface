@@ -6,6 +6,7 @@ import {
   getCoverTickIfZeroForOne,
 } from "./queries";
 import { CoverSubgraph, LimitSubgraph } from "./types";
+import { logoMap } from "./tokens";
 
 export const getClaimTick = async (
   poolAddress: string,
@@ -226,11 +227,13 @@ export function mapUserLimitPositions(limitPositions) {
       epochLast: limitPosition.epochLast,
       tokenIn: {
         ...limitPosition.tokenIn,
-        address: limitPosition.tokenIn.id
+        address: limitPosition.tokenIn.id,
+        logoURI: logoMap[limitPosition.tokenIn.symbol],
       },
       tokenOut: {
         ...limitPosition.tokenOut,
-        address: limitPosition.tokenOut.id
+        address: limitPosition.tokenOut.id,
+        logoURI: logoMap[limitPosition.tokenOut.symbol],
       },
       price0: limitPosition.pool.price0,
       price1: limitPosition.pool.price1,

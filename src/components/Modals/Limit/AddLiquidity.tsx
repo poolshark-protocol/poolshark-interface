@@ -242,7 +242,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                           <button
                             className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
                             onClick={() => {
-                              maxBalance(tokenIn.userBalance.toString(), "0", tokenIn);
+                              maxBalance(tokenIn.userBalance.toString(), "0", tokenIn.decimals);
                             }}
                           >
                             Max

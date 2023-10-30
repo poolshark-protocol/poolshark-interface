@@ -17,7 +17,7 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import JSBI from "jsbi";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { gasEstimateBurnLimit } from "../../utils/gas";
-import { getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
+import { getExpectedAmountOut, getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { parseUnits } from "../../utils/math/valueMath";
 import { formatUnits } from "ethers/lib/utils.js";
@@ -43,6 +43,8 @@ export default function ViewLimit() {
     claimTick,
     needsSnapshot,
     currentAmountOut,
+    setTokenIn,
+    setTokenOut,
     setLimitPoolAddress,
     setNeedsSnapshot,
     setNeedsRefetch,
@@ -65,6 +67,8 @@ export default function ViewLimit() {
     state.claimTick,
     state.needsSnapshot,
     state.currentAmountOut,
+    state.setTokenIn,
+    state.setTokenOut,
     state.setLimitPoolAddress,
     state.setNeedsSnapshot,
     state.setNeedsRefetch,
@@ -130,7 +134,7 @@ export default function ViewLimit() {
   }, [limitFilledAmount, tokenIn.address, tokenOut.address]);
 
   useEffect(() => {
-    if (limitPoolAddress) {
+    if (limitPoolAddress != undefined && limitPositionData.tokenIn != undefined) {
       setPoolDisplay(
         limitPoolAddress.toString().substring(0, 6) +
             "..." +
@@ -141,15 +145,16 @@ export default function ViewLimit() {
                 limitPoolAddress.toString().length
               )
       )
+      setNeedsSnapshot(true)
       setLimitPoolFromVolatility(
-        tokenIn,
-        tokenOut,
+        limitPositionData.tokenIn,
+        limitPositionData.tokenOut,
         limitPositionData.feeTier,
         limitSubgraph
       );
-      setNeedsSnapshot(true)
+
     }
-  }, [limitPoolAddress]);
+  }, [limitPositionData.tokenIn]);
 
   ////////////////////////////////Filled Amount
   const { data: filledAmount } = useContractRead({
@@ -170,8 +175,8 @@ export default function ViewLimit() {
     enabled:
       isConnected &&
       limitPositionData.positionId != undefined &&
-      claimTick >= limitPositionData.min &&
-      claimTick <= limitPositionData.max,
+      claimTick >= Number(limitPositionData.min) &&
+      claimTick <= Number(limitPositionData.max),
     onSuccess(data) {
       console.log("Success price filled amount", data);
       setNeedsSnapshot(false);
@@ -213,19 +218,20 @@ export default function ViewLimit() {
   }, []);
 
   useEffect(() => {
-    if (BigNumber.from(claimTick).lt(BigNumber.from("887272"))) {
+    if (limitPoolAddress != undefined) {
       setNeedsSnapshot(true)
       setTimeout(() => {
         updateClaimTick();
       }, 3000);
       updateCollectFee();
     }
-  }, [claimTick, limitPoolAddress]);
+  }, [claimTick, limitPoolAddress, limitPositionData]);
 
   async function updateClaimTick() {
     if (limitPositionData.min != undefined &&
         limitPositionData.max != undefined &&
-        limitPositionData.epochLast != undefined)
+        limitPositionData.epochLast != undefined &&
+        limitPoolAddress != undefined)
     {
       const aux = await getClaimTick(
         limitPoolAddress.toString(),
@@ -251,6 +257,7 @@ export default function ViewLimit() {
         )
         setAllLimitPositions(mappedPositions);
         const positionId = limitPositionData.id ?? router.query.id;
+        if (positionId == undefined) return
         const position = mappedPositions.find(
           (position) => position.id == positionId
         );
@@ -258,6 +265,8 @@ export default function ViewLimit() {
           setLimitPoolAddress(position.poolId)
           setNeedsSnapshot(true);
           setLimitPositionData(position);
+          setTokenIn(position.tokenOut, position.tokenIn, '0', true)
+          setTokenOut(position.tokenIn, position.tokenOut, '0', false)
         }
       }
       setIsLoading(false);
@@ -286,10 +295,11 @@ export default function ViewLimit() {
   ////////////////////////////////Collect Gas
   async function updateCollectFee() {
     if (
-      signer &&
-      claimTick >= limitPositionData.min &&
-      claimTick <= limitPositionData.max
+      signer != undefined &&
+      claimTick >= Number(limitPositionData.min) &&
+      claimTick <= Number(limitPositionData.max)
     ) {
+
       await gasEstimateBurnLimit(
         limitPoolAddress,
         address,
@@ -386,7 +396,7 @@ export default function ViewLimit() {
                   <span>
                     ~$
                     {!isNaN(Number(currentAmountOut)) &&
-                    !isNaN(tokenOut.USDPrice)
+                    !isNaN(tokenIn.USDPrice)
                       ? (Number(currentAmountOut) * tokenIn.USDPrice).toFixed(2)
                       : "0.00"}
                   </span>
@@ -550,15 +560,15 @@ export default function ViewLimit() {
                     {(
                       parseFloat(
                         ethers.utils.formatUnits(
-                          getExpectedAmountOutFromInput(
+                          getExpectedAmountOut(
                             limitPositionData.min,
                             limitPositionData.max,
-                            tokenIn.callId == 0,
-                            BigNumber.from(limitPositionData.amountIn)
+                            limitPositionData.tokenIn.id.localeCompare(limitPositionData.tokenOut.id) < 0,
+                            BigNumber.from(limitPositionData.liquidity)
                           ),
-                          tokenOut.decimals
+                          limitPositionData.tokenOut.decimals
                         )
-                      ) * tokenOut.USDPrice
+                      )
                     ).toFixed(2)}
                   </span>
                 </span>) : (

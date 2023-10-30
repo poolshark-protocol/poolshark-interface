@@ -51,7 +51,7 @@ import { useConfigStore } from "../hooks/useConfigStore";
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
   const { data: signer } = useSigner();
-  const { inputBox: inputBoxIn, display: displayIn, setDisplay: setDisplayIn, maxBalance } =
+  const { inputBox: inputBoxIn, display: displayIn, setDisplay: setDisplayIn } =
     useInputBox();
   const { inputBox: inputBoxOut, display: displayOut, setDisplay: setDisplayOut } =
     useInputBox();
@@ -1000,7 +1000,7 @@ export default function Trade() {
                   {isConnected && stateChainName === networkName ? (
                     <button
                       onClick={() => {
-                        maxBalance(tokenIn.userBalance, "1", tokenIn);
+                        handleInputBox({target: {value: tokenIn.userBalance.toString(), name: "tokenIn"}})
                       }}
                       className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
                     >

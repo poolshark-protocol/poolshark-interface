@@ -153,7 +153,7 @@ export default function UserLimitPool({
             <td className="md:table-cell hidden">
                 <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
                     <span className="z-50 px-3">
-                    {(limitFilledAmount /
+                    {(limitFilledAmount * 100 /
                          parseFloat(
                            ethers.utils.formatUnits(
                              getExpectedAmountOutFromInput(
@@ -162,7 +162,7 @@ export default function UserLimitPool({
                                limitPosition.tokenIn.id.localeCompare(limitPosition.tokenOut.id) < 0,
                                BigNumber.from(limitPosition.amountIn)
                            ), limitPosition.tokenOut.decimals
-                         ))).toFixed(2)}% Filled
+                         ))).toFixed(1)}% Filled
                     </span>
                     <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
                 </div>
