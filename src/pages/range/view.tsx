@@ -216,7 +216,6 @@ export default function ViewRange() {
     setIsLoading(true);
     try {
       const data = await fetchRangePositions(limitSubgraph, address);
-      console.log(data);
       if (data["data"].rangePositions) {
         const mappedPositions = mapUserRangePositions(
           data["data"].rangePositions
@@ -228,7 +227,6 @@ export default function ViewRange() {
           (position) => position.positionId == positionId
         );
         if (position != undefined) {
-          console.log(position, "position");
           const tokenInNew = {
             name: position.tokenZero.name,
             symbol: position.tokenZero.symbol,
