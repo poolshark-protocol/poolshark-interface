@@ -42,7 +42,14 @@ import JSBI from "jsbi";
 import LimitCreateAndMintButton from "../components/Buttons/LimitCreateAndMintButton";
 import { fetchLimitPositions } from "../utils/queries";
 import { getClaimTick, mapUserLimitPositions } from "../utils/maps";
-import { displayPoolPrice, getAveragePrice, getExpectedAmountInFromOutput, getExpectedAmountOut, getExpectedAmountOutFromInput, getMarketPriceAboveBelowString } from "../utils/math/priceMath";
+import {
+  displayPoolPrice,
+  getAveragePrice,
+  getExpectedAmountInFromOutput,
+  getExpectedAmountOut,
+  getExpectedAmountOutFromInput,
+  getMarketPriceAboveBelowString,
+} from "../utils/math/priceMath";
 import timeDifference from "../utils/time";
 import { inputHandler, parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
@@ -51,22 +58,24 @@ import { useConfigStore } from "../hooks/useConfigStore";
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
   const { data: signer } = useSigner();
-  const { inputBox: inputBoxIn, display: displayIn, setDisplay: setDisplayIn } =
-    useInputBox();
-  const { inputBox: inputBoxOut, display: displayOut, setDisplay: setDisplayOut } =
-    useInputBox();
+  const {
+    inputBox: inputBoxIn,
+    display: displayIn,
+    setDisplay: setDisplayIn,
+  } = useInputBox();
+  const {
+    inputBox: inputBoxOut,
+    display: displayOut,
+    setDisplay: setDisplayOut,
+  } = useInputBox();
 
-  const [
-    chainId,
-    networkName,
-    limitSubgraph,
-    setLimitSubgraph
-  ] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-    state.limitSubgraph,
-    state.setLimitSubgraph
-  ]);
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph] =
+    useConfigStore((state) => [
+      state.chainId,
+      state.networkName,
+      state.limitSubgraph,
+      state.setLimitSubgraph,
+    ]);
 
   const [
     tradePoolAddress,
@@ -179,107 +188,106 @@ export default function Trade() {
   const [swapParams, setSwapParams] = useState<any[]>([]);
 
   //market display variables
-  const [exactIn, setExactIn] = useState(true)
+  const [exactIn, setExactIn] = useState(true);
 
   const resetAfterSwap = () => {
-    setDisplayIn('')
-    setDisplayOut('')
-    setAmountIn(BN_ZERO)
-    setAmountOut(BN_ZERO)
-  }
+    setDisplayIn("");
+    setDisplayOut("");
+    setAmountIn(BN_ZERO);
+    setAmountOut(BN_ZERO);
+  };
 
   const handleInputBox = (e) => {
     if (e.target.name === "tokenIn") {
-      const [value, bnValue] = inputHandler(e, tokenIn)
+      const [value, bnValue] = inputHandler(e, tokenIn);
       if (!pairSelected) {
-        setDisplayIn(value)
-        setDisplayOut('')
-        setAmountIn(bnValue)
+        setDisplayIn(value);
+        setDisplayOut("");
+        setAmountIn(bnValue);
       }
       if (!bnValue.eq(amountIn)) {
-        setDisplayIn(value)
-        setAmountIn(bnValue)
-        setAmounts(bnValue, true)
+        setDisplayIn(value);
+        setAmountIn(bnValue);
+        setAmounts(bnValue, true);
       } else {
-        setDisplayIn(value)
+        setDisplayIn(value);
         if (bnValue.eq(BN_ZERO)) {
-          setDisplayOut(value)
+          setDisplayOut(value);
         }
       }
-      setExactIn(true)
+      setExactIn(true);
     } else if (e.target.name === "tokenOut") {
-      const [value, bnValue] = inputHandler(e, tokenOut)
+      const [value, bnValue] = inputHandler(e, tokenOut);
       if (!pairSelected) {
-        setDisplayOut(value)
-        setDisplayIn('')
-        setAmountOut(bnValue)
+        setDisplayOut(value);
+        setDisplayIn("");
+        setAmountOut(bnValue);
       } else if (!bnValue.eq(amountOut)) {
-        setDisplayOut(value)
-        setAmountOut(bnValue)
-        setAmounts(bnValue, false)
+        setDisplayOut(value);
+        setAmountOut(bnValue);
+        setAmounts(bnValue, false);
       } else {
-        setDisplayOut(value)
+        setDisplayOut(value);
         if (bnValue.eq(BN_ZERO)) {
-          setDisplayIn(value)
+          setDisplayIn(value);
         }
       }
-      setExactIn(false)
+      setExactIn(false);
     }
   };
 
-  const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) =>  {
+  const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
     if (isAmountIn) {
       if (bnValue.gt(BN_ZERO)) {
-        if (!limitTabSelected)
-          updatePools(bnValue, true)
+        if (!limitTabSelected) updatePools(bnValue, true);
         else {
           const tokenOutAmount = getExpectedAmountOutFromInput(
             Number(lowerTick),
             Number(upperTick),
             tokenIn.callId == 0,
             bnValue
-          )
+          );
           const tokenOutAmountDisplay = parseFloat(
             ethers.utils.formatUnits(
               tokenOutAmount.toString(),
-              tokenOut.decimals)
-          ).toPrecision(6)
-          setDisplayOut(tokenOutAmountDisplay)
-          setAmountOut(tokenOutAmount)
+              tokenOut.decimals
+            )
+          ).toPrecision(6);
+          setDisplayOut(tokenOutAmountDisplay);
+          setAmountOut(tokenOutAmount);
         }
       } else {
-        setDisplayOut('')
-        setAmountOut(BN_ZERO)
+        setDisplayOut("");
+        setAmountOut(BN_ZERO);
       }
     } else {
       if (bnValue.gt(BN_ZERO)) {
-        if (!limitTabSelected)
-          updatePools(bnValue, false)
+        if (!limitTabSelected) updatePools(bnValue, false);
         else {
           const tokenInAmount = getExpectedAmountInFromOutput(
             Number(lowerTick),
             Number(upperTick),
             tokenIn.callId == 0,
             bnValue
-          )
+          );
           const tokenInAmountDisplay = parseFloat(
-            ethers.utils.formatUnits(
-              tokenInAmount.toString(),
-              tokenIn.decimals)
-          ).toPrecision(6)
-          setDisplayIn(tokenInAmountDisplay)
-          setAmountIn(tokenInAmount)
+            ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
+          ).toPrecision(6);
+          setDisplayIn(tokenInAmountDisplay);
+          setAmountIn(tokenInAmount);
         }
       } else {
-        setDisplayIn('')
-        setAmountIn(BN_ZERO)
+        setDisplayIn("");
+        setAmountIn(BN_ZERO);
       }
     }
-  }
+  };
 
   //log addresses and ids
   const [limitPoolAddressList, setLimitPoolAddressList] = useState([]);
-  const [limitPositionSnapshotList, setLimitPositionSnapshotList] = useState<any[]>([]);
+  const [limitPositionSnapshotList, setLimitPositionSnapshotList] = useState<
+    any[]
+  >([]);
 
   //log amount in and out
   const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
@@ -287,7 +295,11 @@ export default function Trade() {
 
   useEffect(() => {
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address === ZERO_ADDRESS) {
-      getLimitTokenUsdPrice(tokenIn.address, setTokenInTradeUSDPrice, limitSubgraph);
+      getLimitTokenUsdPrice(
+        tokenIn.address,
+        setTokenInTradeUSDPrice,
+        limitSubgraph
+      );
     }
   }, [tokenIn.address]);
 
@@ -297,23 +309,28 @@ export default function Trade() {
       updatePools(exactIn ? amountIn : amountOut, exactIn);
       if (exactIn) {
         if (!isNaN(parseFloat(displayIn))) {
-          const bnValue = parseUnits(displayIn, tokenIn.decimals)
-          setAmountIn(bnValue)
-          setAmounts(bnValue, true)
+          const bnValue = parseUnits(displayIn, tokenIn.decimals);
+          setAmountIn(bnValue);
+          setAmounts(bnValue, true);
         }
       } else {
         if (!isNaN(parseFloat(displayOut))) {
-          const bnValue = parseUnits(displayOut, tokenOut.decimals)
-          setAmountOut(bnValue)
-          setAmounts(bnValue, false)
+          const bnValue = parseUnits(displayOut, tokenOut.decimals);
+          setAmountOut(bnValue);
+          setAmounts(bnValue, false);
         }
       }
-      setNeedsAllowanceIn(true)
+      setNeedsAllowanceIn(true);
     }
   }, [tokenIn.address, tokenOut.address]);
 
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
-    const pools = await getSwapPools(limitSubgraph, tokenIn, tokenOut, setTradePoolData);
+    const pools = await getSwapPools(
+      limitSubgraph,
+      tokenIn,
+      tokenOut,
+      setTradePoolData
+    );
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
     if (pools) {
@@ -353,25 +370,25 @@ export default function Trade() {
     if (!limitTabSelected) {
       if (poolQuotes && poolQuotes[0]) {
         if (exactIn) {
-          setAmountOut(
-            poolQuotes[0].amountOut
-          );
+          setAmountOut(poolQuotes[0].amountOut);
           setDisplayOut(
-            parseFloat(ethers.utils.formatUnits(
-              poolQuotes[0].amountOut.toString(),
-              tokenOut.decimals
-            )).toPrecision(6)
-          )
+            parseFloat(
+              ethers.utils.formatUnits(
+                poolQuotes[0].amountOut.toString(),
+                tokenOut.decimals
+              )
+            ).toPrecision(6)
+          );
         } else {
-          setAmountIn(
-            poolQuotes[0].amountIn
-          )
+          setAmountIn(poolQuotes[0].amountIn);
           setDisplayIn(
-            parseFloat(ethers.utils.formatUnits(
-              poolQuotes[0].amountIn.toString(),
-              tokenIn.decimals
-            )).toPrecision(6)
-          )
+            parseFloat(
+              ethers.utils.formatUnits(
+                poolQuotes[0].amountIn.toString(),
+                tokenIn.decimals
+              )
+            ).toPrecision(6)
+          );
         }
         updateSwapParams(poolQuotes);
       }
@@ -382,29 +399,42 @@ export default function Trade() {
     const poolAddresses: string[] = [];
     const paramsList: SwapParams[] = [];
     for (let i = 0; i < poolQuotes.length; i++) {
-      if(poolQuotes[i].pool != ZERO_ADDRESS) {
+      if (poolQuotes[i].pool != ZERO_ADDRESS) {
         // push pool address for swap
         poolAddresses.push(poolQuotes[i].pool);
 
         // set base price from quote
         const basePrice: number = parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(poolQuotes[i].priceAfter, tokenIn, tokenOut)
-        );
-        
-        // set price impact
-        if(poolQuotes[i].pool.toLowerCase() == tradePoolData.id) {
-          const currentPrice: number = parseFloat(
-            TickMath.getPriceStringAtSqrtPrice(tradePoolData.poolPrice, tokenIn, tokenOut)
+          TickMath.getPriceStringAtSqrtPrice(
+            poolQuotes[i].priceAfter,
+            tokenIn,
+            tokenOut
           )
-          setPriceImpact((Math.abs(basePrice - currentPrice) * 100 / currentPrice).toFixed(2))
+        );
+
+        // set price impact
+        if (poolQuotes[i].pool.toLowerCase() == tradePoolData.id) {
+          const currentPrice: number = parseFloat(
+            TickMath.getPriceStringAtSqrtPrice(
+              tradePoolData.poolPrice,
+              tokenIn,
+              tokenOut
+            )
+          );
+          setPriceImpact(
+            ((Math.abs(basePrice - currentPrice) * 100) / currentPrice).toFixed(
+              2
+            )
+          );
         }
 
         const priceDiff = basePrice * (parseFloat(tradeSlippage) / 100);
-        const limitPrice = tokenIn.callId == 0 ? basePrice - priceDiff
-                                               : basePrice + priceDiff;
+        const limitPrice =
+          tokenIn.callId == 0 ? basePrice - priceDiff : basePrice + priceDiff;
         const limitPriceJsbi: JSBI = TickMath.getSqrtPriceAtPriceString(
           limitPrice.toString(),
-          tokenIn, tokenOut
+          tokenIn,
+          tokenOut
         );
         const priceLimitBn = BigNumber.from(String(limitPriceJsbi));
         const params: SwapParams = {
@@ -424,24 +454,18 @@ export default function Trade() {
 
   ////////////////////////////////Filled Amount
   const { data: filledAmountList } = useContractRead({
-    address: chainProperties[networkName]['routerAddress'],
+    address: chainProperties[networkName]["routerAddress"],
     abi: poolsharkRouterABI,
     functionName: "multiSnapshotLimit",
-    args: [
-      limitPoolAddressList,
-      limitPositionSnapshotList,
-    ],
+    args: [limitPoolAddressList, limitPositionSnapshotList],
     chainId: chainId,
     watch: needsSnapshot,
-    enabled:
-      isConnected &&
-      limitPoolAddressList.length > 0 &&
-      needsSnapshot,
+    enabled: isConnected && limitPoolAddressList.length > 0 && needsSnapshot,
     onSuccess(data) {
       // console.log("Success price filled amount", data);
       // console.log("snapshot address list", limitPoolAddressList);
       // console.log("snapshot params list", limitPositionSnapshotList);
-      setNeedsSnapshot(false)
+      setNeedsSnapshot(false);
     },
     onError(error) {
       console.log("Error price Limit", error);
@@ -450,13 +474,9 @@ export default function Trade() {
 
   useEffect(() => {
     if (filledAmountList) {
-      setLimitFilledAmountList(
-        filledAmountList[0]
-      );
+      setLimitFilledAmountList(filledAmountList[0]);
 
-      setCurrentAmountOutList(
-        filledAmountList[1]
-      )
+      setCurrentAmountOutList(filledAmountList[1]);
     }
   }, [filledAmountList]);
 
@@ -466,9 +486,10 @@ export default function Trade() {
 
   useEffect(() => {
     if (address) {
-      const chainConstants = chainProperties[networkName] ? chainProperties[networkName]
-                                                          : chainProperties['arbitrumGoerli'];
-      setLimitSubgraph(chainConstants['limitSubgraphUrl']);
+      const chainConstants = chainProperties[networkName]
+        ? chainProperties[networkName]
+        : chainProperties["arbitrumGoerli"];
+      setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
       getUserLimitPositionData();
       setNeedsRefetch(false);
     }
@@ -482,14 +503,17 @@ export default function Trade() {
 
   async function getUserLimitPositionData() {
     try {
-      const data = await fetchLimitPositions(limitSubgraph, address?.toLowerCase());
+      const data = await fetchLimitPositions(
+        limitSubgraph,
+        address?.toLowerCase()
+      );
       if (data["data"]) {
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
         );
       }
     } catch (error) {
-      console.log('limit error', error);
+      console.log("limit error", error);
     }
   }
 
@@ -503,24 +527,32 @@ export default function Trade() {
           mappedLimitSnapshotParams[i] = [];
           mappedLimitSnapshotParams[i][0] = address;
           mappedLimitSnapshotParams[i][1] = parseUnits("1", 38);
-          mappedLimitSnapshotParams[i][2] = BigNumber.from(allLimitPositions[i].positionId);
-          mappedLimitSnapshotParams[i][3] = BigNumber.from(await getClaimTick(
-            allLimitPositions[i].poolId.toString(),
-            Number(allLimitPositions[i].min),
-            Number(allLimitPositions[i].max),
-            allLimitPositions[i].tokenIn.id.localeCompare(allLimitPositions[i].tokenOut.id) < 0,
-            Number(allLimitPositions[i].epochLast),
-            false,
-            limitSubgraph
-          ));
-          mappedLimitSnapshotParams[i][4] = allLimitPositions[i].tokenIn.id
-            .localeCompare(allLimitPositions[i].tokenOut.id) < 0;
+          mappedLimitSnapshotParams[i][2] = BigNumber.from(
+            allLimitPositions[i].positionId
+          );
+          mappedLimitSnapshotParams[i][3] = BigNumber.from(
+            await getClaimTick(
+              allLimitPositions[i].poolId.toString(),
+              Number(allLimitPositions[i].min),
+              Number(allLimitPositions[i].max),
+              allLimitPositions[i].tokenIn.id.localeCompare(
+                allLimitPositions[i].tokenOut.id
+              ) < 0,
+              Number(allLimitPositions[i].epochLast),
+              false,
+              limitSubgraph
+            )
+          );
+          mappedLimitSnapshotParams[i][4] =
+            allLimitPositions[i].tokenIn.id.localeCompare(
+              allLimitPositions[i].tokenOut.id
+            ) < 0;
         }
-        setLimitPoolAddressList(mappedLimitPoolAddresses)
-        setLimitPositionSnapshotList(mappedLimitSnapshotParams)
+        setLimitPoolAddressList(mappedLimitPoolAddresses);
+        setLimitPositionSnapshotList(mappedLimitSnapshotParams);
       }
     } catch (error) {
-      console.log('limit error', error);
+      console.log("limit error", error);
     }
   }
 
@@ -581,16 +613,16 @@ export default function Trade() {
   useEffect(() => {
     if (isConnected) {
       setTokenInBalance(
-        !isNaN(parseFloat(tokenInBal?.formatted.toString())) ?
-          parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
-        : '0'
+        !isNaN(parseFloat(tokenInBal?.formatted.toString()))
+          ? parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+          : "0"
       );
     }
     if (tokenOutBal) {
       setTokenOutBalance(
-        !isNaN(parseFloat(tokenOutBal?.formatted.toString())) ?
-          parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
-        : '0'
+        !isNaN(parseFloat(tokenOutBal?.formatted.toString()))
+          ? parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
+          : "0"
       );
     }
   }, [tokenInBal, tokenOutBal]);
@@ -621,7 +653,7 @@ export default function Trade() {
   }, [allowanceInRouter]);
 
   ////////////////////////////////FeeTiers and Slippage
-  const [priceImpact, setPriceImpact] = useState("0.00")
+  const [priceImpact, setPriceImpact] = useState("0.00");
 
   //i receive the price afte from the multiquote and then i will add and subtract the slippage from it
 
@@ -639,10 +671,11 @@ export default function Trade() {
 
   useEffect(() => {
     if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
-
-      var newPrice = (limitPriceOrder == (tokenIn.callId == 0)
-                                      ? (tokenIn.USDPrice / tokenOut.USDPrice)
-                                      : (tokenOut.USDPrice / tokenIn.USDPrice))
+      var newPrice = (
+        limitPriceOrder == (tokenIn.callId == 0)
+          ? tokenIn.USDPrice / tokenOut.USDPrice
+          : tokenOut.USDPrice / tokenIn.USDPrice
+      )
         .toPrecision(6)
         .toString();
       setLimitPriceString(newPrice);
@@ -653,29 +686,47 @@ export default function Trade() {
     if (priceRangeSelected) {
       const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
       if (!isNaN(parseFloat(lowerPriceString))) {
-        if (limitPriceOrder) {}
-        const priceLower = invertPrice(limitPriceOrder ? lowerPriceString 
-                                                      : upperPriceString,
-                                      limitPriceOrder)
-        
+        if (limitPriceOrder) {
+        }
+        const priceLower = invertPrice(
+          limitPriceOrder ? lowerPriceString : upperPriceString,
+          limitPriceOrder
+        );
+
         setLowerTick(
           BigNumber.from(
-            TickMath.getTickAtPriceString(priceLower, tokenIn, tokenOut, tickSpacing)
+            TickMath.getTickAtPriceString(
+              priceLower,
+              tokenIn,
+              tokenOut,
+              tickSpacing
+            )
           )
         );
       }
       if (!isNaN(parseFloat(upperPriceString))) {
-        const priceUpper = invertPrice(limitPriceOrder ? upperPriceString 
-                                                      : lowerPriceString,
-                                      limitPriceOrder)
+        const priceUpper = invertPrice(
+          limitPriceOrder ? upperPriceString : lowerPriceString,
+          limitPriceOrder
+        );
         setUpperTick(
           BigNumber.from(
-            TickMath.getTickAtPriceString(priceUpper, tokenIn, tokenOut, tickSpacing)
+            TickMath.getTickAtPriceString(
+              priceUpper,
+              tokenIn,
+              tokenOut,
+              tickSpacing
+            )
           )
         );
       }
     }
-  }, [lowerPriceString, upperPriceString, priceRangeSelected, limitTabSelected]);
+  }, [
+    lowerPriceString,
+    upperPriceString,
+    priceRangeSelected,
+    limitTabSelected,
+  ]);
 
   ////////////////////////////////Limit Ticks
   const [lowerTick, setLowerTick] = useState(BN_ZERO);
@@ -694,59 +745,52 @@ export default function Trade() {
   }, [limitPriceString, tradeSlippage, priceRangeSelected, limitTabSelected]);
 
   useEffect(() => {
-    if (
-      limitTabSelected &&
-      tradeSlippage
-    ) {
-        if (exactIn) {
-          if (!isNaN(parseFloat(limitPriceString))) {
-            const tokenOutAmount = getExpectedAmountOutFromInput(
-              Number(lowerTick),
-              Number(upperTick),
-              tokenIn.callId == 0,
-              amountIn
+    if (limitTabSelected && tradeSlippage) {
+      if (exactIn) {
+        if (!isNaN(parseFloat(limitPriceString))) {
+          const tokenOutAmount = getExpectedAmountOutFromInput(
+            Number(lowerTick),
+            Number(upperTick),
+            tokenIn.callId == 0,
+            amountIn
+          );
+          const tokenOutAmountDisplay = parseFloat(
+            ethers.utils.formatUnits(
+              tokenOutAmount.toString(),
+              tokenOut.decimals
             )
-            const tokenOutAmountDisplay = parseFloat(
-              ethers.utils.formatUnits(
-                tokenOutAmount.toString(),
-                tokenOut.decimals)
-            ).toPrecision(6)
-            setDisplayOut(tokenOutAmountDisplay)
-            setAmountOut(tokenOutAmount)
-          } else {
-            setDisplayOut('')
-            setAmountOut(BN_ZERO)
-          }
+          ).toPrecision(6);
+          setDisplayOut(tokenOutAmountDisplay);
+          setAmountOut(tokenOutAmount);
         } else {
-          if (!isNaN(parseFloat(limitPriceString))) {
-            const tokenInAmount = getExpectedAmountInFromOutput(
-              Number(lowerTick),
-              Number(upperTick),
-              tokenIn.callId == 0,
-              amountOut
-            )
-            const tokenInAmountDisplay = parseFloat(
-              ethers.utils.formatUnits(
-                tokenInAmount.toString(),
-                tokenIn.decimals)
-            ).toPrecision(6)
-            setDisplayIn(tokenInAmountDisplay)
-            setAmountIn(tokenInAmount)
-          } else {
-            setDisplayIn('')
-            setAmountIn(BN_ZERO)
-          }
+          setDisplayOut("");
+          setAmountOut(BN_ZERO);
         }
+      } else {
+        if (!isNaN(parseFloat(limitPriceString))) {
+          const tokenInAmount = getExpectedAmountInFromOutput(
+            Number(lowerTick),
+            Number(upperTick),
+            tokenIn.callId == 0,
+            amountOut
+          );
+          const tokenInAmountDisplay = parseFloat(
+            ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
+          ).toPrecision(6);
+          setDisplayIn(tokenInAmountDisplay);
+          setAmountIn(tokenInAmount);
+        } else {
+          setDisplayIn("");
+          setAmountIn(BN_ZERO);
+        }
+      }
     }
   }, [lowerTick, upperTick, tokenIn.address, tokenOut.address]);
 
   function updateLimitTicks() {
     const tickSpacing = tradePoolData.feeTier.tickSpacing;
-    const priceString = invertPrice(limitPriceString, limitPriceOrder)
-    if (
-      isFinite(parseFloat(limitPriceString)) &&
-      parseFloat(priceString) > 0
-    ) {
+    const priceString = invertPrice(limitPriceString, limitPriceOrder);
+    if (isFinite(parseFloat(limitPriceString)) && parseFloat(priceString) > 0) {
       if (
         parseFloat(tradeSlippage) * 100 > tickSpacing &&
         parseFloat(priceString) > 0
@@ -756,51 +800,87 @@ export default function Trade() {
             parseFloat((parseFloat(tradeSlippage) * 100).toFixed(6))) /
           10000;
         if (tokenIn.callId == 0) {
-          const endPrice =
-            parseFloat(priceString) - -limitPriceTolerance;
+          const endPrice = parseFloat(priceString) - -limitPriceTolerance;
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(priceString, tokenIn, tokenOut, tickSpacing)
+              TickMath.getTickAtPriceString(
+                priceString,
+                tokenIn,
+                tokenOut,
+                tickSpacing
+              )
             )
           );
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(String(endPrice), tokenIn, tokenOut, tickSpacing)
+              TickMath.getTickAtPriceString(
+                String(endPrice),
+                tokenIn,
+                tokenOut,
+                tickSpacing
+              )
             )
           );
         } else {
-          const endPrice =
-            parseFloat(priceString) - limitPriceTolerance;
+          const endPrice = parseFloat(priceString) - limitPriceTolerance;
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(String(endPrice), tokenIn, tokenOut, tickSpacing)
+              TickMath.getTickAtPriceString(
+                String(endPrice),
+                tokenIn,
+                tokenOut,
+                tickSpacing
+              )
             )
           );
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(priceString, tokenIn, tokenOut, tickSpacing)
+              TickMath.getTickAtPriceString(
+                priceString,
+                tokenIn,
+                tokenOut,
+                tickSpacing
+              )
             )
           );
         }
       } else {
         if (tokenIn.callId == 0) {
           const endTick =
-            TickMath.getTickAtPriceString(priceString, tokenIn, tokenOut, tickSpacing) -
-            -tickSpacing;
+            TickMath.getTickAtPriceString(
+              priceString,
+              tokenIn,
+              tokenOut,
+              tickSpacing
+            ) - -tickSpacing;
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(priceString, tokenIn, tokenOut, tickSpacing)
+              TickMath.getTickAtPriceString(
+                priceString,
+                tokenIn,
+                tokenOut,
+                tickSpacing
+              )
             )
           );
           setUpperTick(BigNumber.from(String(endTick)));
         } else {
           const endTick =
-            TickMath.getTickAtPriceString(priceString, tokenIn, tokenOut, tickSpacing) -
-            tickSpacing;
+            TickMath.getTickAtPriceString(
+              priceString,
+              tokenIn,
+              tokenOut,
+              tickSpacing
+            ) - tickSpacing;
           setLowerTick(BigNumber.from(String(endTick)));
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(priceString, tokenIn, tokenOut, tickSpacing)
+              TickMath.getTickAtPriceString(
+                priceString,
+                tokenIn,
+                tokenOut,
+                tickSpacing
+              )
             )
           );
         }
@@ -825,7 +905,6 @@ export default function Trade() {
 
   async function updateGasFee() {
     if (tokenIn.userRouterAllowance?.gte(amountIn)) {
-
       await gasEstimateSwap(
         chainProperties[networkName]["routerAddress"],
         swapPoolAddresses,
@@ -837,15 +916,13 @@ export default function Trade() {
         setSwapGasFee,
         setSwapGasLimit
       );
-    }
-    else {
-      setSwapGasLimit(BN_ZERO)
+    } else {
+      setSwapGasLimit(BN_ZERO);
     }
   }
 
   async function updateMintFee() {
-    if (tokenIn.userRouterAllowance?.gte(amountIn) &&
-        lowerTick?.lt(upperTick))
+    if (tokenIn.userRouterAllowance?.gte(amountIn) && lowerTick?.lt(upperTick))
       await gasEstimateMintLimit(
         tradePoolData.id,
         address,
@@ -884,7 +961,12 @@ export default function Trade() {
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
             <div className="ml-auto text-xs">
               {pairSelected
-                ? parseFloat(ethers.utils.formatUnits(amountOut ?? BN_ZERO, tokenOut.decimals)).toPrecision(6)
+                ? parseFloat(
+                    ethers.utils.formatUnits(
+                      amountOut ?? BN_ZERO,
+                      tokenOut.decimals
+                    )
+                  ).toPrecision(6)
                 : "Select Token"}
             </div>
           </div>
@@ -901,7 +983,15 @@ export default function Trade() {
               <div className="text-xs text-[#4C4C4C]">
                 Minimum received after slippage ({tradeSlippage}%)
               </div>
-              <div className="ml-auto text-xs">{(parseFloat(ethers.utils.formatUnits(amountOut, tokenOut.decimals)) * (100 - parseFloat(tradeSlippage)) / 100).toPrecision(6)}</div>
+              <div className="ml-auto text-xs">
+                {(
+                  (parseFloat(
+                    ethers.utils.formatUnits(amountOut, tokenOut.decimals)
+                  ) *
+                    (100 - parseFloat(tradeSlippage))) /
+                  100
+                ).toPrecision(6)}
+              </div>
             </div>
           ) : (
             <></>
@@ -963,15 +1053,18 @@ export default function Trade() {
           <div className="p-4">
             <div className="flex items-center justify-between w-full">
               <span className="text-[11px] text-grey1">FROM</span>
-              <div className="cursor-pointer" onClick={() => setIsSettingsOpen(true)}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="w-5 h-5 hover:opacity-60"
+              <div
+                className="cursor-pointer"
+                onClick={() => setIsSettingsOpen(true)}
               >
-                <path d="M10 3.75a2 2 0 10-4 0 2 2 0 004 0zM17.25 4.5a.75.75 0 000-1.5h-5.5a.75.75 0 000 1.5h5.5zM5 3.75a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75zM4.25 17a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zM17.25 17a.75.75 0 000-1.5h-5.5a.75.75 0 000 1.5h5.5zM9 10a.75.75 0 01-.75.75h-5.5a.75.75 0 010-1.5h5.5A.75.75 0 019 10zM17.25 10.75a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zM14 10a2 2 0 10-4 0 2 2 0 004 0zM10 16.25a2 2 0 10-4 0 2 2 0 004 0z" />
-              </svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="w-5 h-5 hover:opacity-60"
+                >
+                  <path d="M10 3.75a2 2 0 10-4 0 2 2 0 004 0zM17.25 4.5a.75.75 0 000-1.5h-5.5a.75.75 0 000 1.5h5.5zM5 3.75a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75zM4.25 17a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zM17.25 17a.75.75 0 000-1.5h-5.5a.75.75 0 000 1.5h5.5zM9 10a.75.75 0 01-.75.75h-5.5a.75.75 0 010-1.5h5.5A.75.75 0 019 10zM17.25 10.75a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zM14 10a2 2 0 10-4 0 2 2 0 004 0zM10 16.25a2 2 0 10-4 0 2 2 0 004 0z" />
+                </svg>
               </div>
             </div>
 
@@ -980,17 +1073,18 @@ export default function Trade() {
                 <span>
                   {" "}
                   ~$
-                  {!isNaN(parseInt(amountIn.toString())) && 
-                   !isNaN(tokenIn.decimals) &&
-                   !isNaN(tokenOut.USDPrice) ? (
-                    (
-                      parseFloat(
-                        ethers.utils.formatUnits(amountIn ?? BN_ZERO, tokenIn.decimals)
-                      ) * tokenIn.USDPrice
-                    ).toFixed(2)
-                  ) : (
-                    (0).toFixed(2)
-                  )}
+                  {!isNaN(parseInt(amountIn.toString())) &&
+                  !isNaN(tokenIn.decimals) &&
+                  !isNaN(tokenOut.USDPrice)
+                    ? (
+                        parseFloat(
+                          ethers.utils.formatUnits(
+                            amountIn ?? BN_ZERO,
+                            tokenIn.decimals
+                          )
+                        ) * tokenIn.USDPrice
+                      ).toFixed(2)
+                    : (0).toFixed(2)}
                 </span>
                 <span>BALANCE: {tokenIn.userBalance}</span>
               </div>
@@ -1000,7 +1094,12 @@ export default function Trade() {
                   {isConnected && stateChainName === networkName ? (
                     <button
                       onClick={() => {
-                        handleInputBox({target: {value: tokenIn.userBalance.toString(), name: "tokenIn"}})
+                        handleInputBox({
+                          target: {
+                            value: tokenIn.userBalance.toString(),
+                            name: "tokenIn",
+                          },
+                        });
                       }}
                       className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
                     >
@@ -1061,7 +1160,10 @@ export default function Trade() {
                   !isNaN(tokenOut.USDPrice) ? (
                     (
                       parseFloat(
-                        ethers.utils.formatUnits(amountOut ?? BN_ZERO, tokenOut.decimals)
+                        ethers.utils.formatUnits(
+                          amountOut ?? BN_ZERO,
+                          tokenOut.decimals
+                        )
                       ) * tokenOut.USDPrice
                     ).toFixed(2)
                   ) : (
@@ -1073,9 +1175,11 @@ export default function Trade() {
                 </span>
               </div>
               <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                {(
-                    <div>{inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)}</div>
-                  )}
+                {
+                  <div>
+                    {inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)}
+                  </div>
+                }
                 <div className="flex items-center gap-x-2">
                   <SelectToken
                     key={"out"}
@@ -1197,22 +1301,25 @@ export default function Trade() {
                   <div className="bg-dark py-3 px-5 border border-grey rounded-[4px] mt-4">
                     <div className="flex items-end justify-between text-[11px] text-grey1">
                       <span>
-                        {getMarketPriceAboveBelowString(limitPriceString, pairSelected, limitPriceOrder, tokenIn, tokenOut)}
+                        {getMarketPriceAboveBelowString(
+                          limitPriceString,
+                          pairSelected,
+                          limitPriceOrder,
+                          tokenIn,
+                          tokenOut
+                        )}
                       </span>
                     </div>
                     <input
                       autoComplete="off"
                       className="bg-dark outline-none text-3xl my-3 w-60 md:w-auto"
                       placeholder="0"
-                      value={
-                        limitPriceString
-                      }
+                      value={limitPriceString}
                       type="text"
                       onChange={(e) => {
                         if (e.target.value !== "" && e.target.value !== "0") {
                           setLimitPriceString(inputFilter(e.target.value));
-                        }
-                        else {
+                        } else {
                           setLimitPriceString("0");
                         }
                       }}
@@ -1229,10 +1336,15 @@ export default function Trade() {
                 onClick={() => setExpanded(!expanded)}
               >
                 <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                  {'1 ' + tokenIn.symbol} ={" "}
-                  {displayPoolPrice(pairSelected, tradePoolData?.poolPrice, tokenIn, tokenOut) +
-                      " " +
-                      tokenOut.symbol}
+                  {"1 " + tokenIn.symbol} ={" "}
+                  {displayPoolPrice(
+                    pairSelected,
+                    tradePoolData?.poolPrice,
+                    tokenIn,
+                    tokenOut
+                  ) +
+                    " " +
+                    tokenOut.symbol}
                 </div>
                 <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
                   <button>
@@ -1264,7 +1376,11 @@ export default function Trade() {
                     </div>
                   ) : (
                     <SwapRouterButton
-                      disabled={tradeParams.disabled || needsAllowanceIn || swapGasLimit.eq(BN_ZERO)}
+                      disabled={
+                        tradeParams.disabled ||
+                        needsAllowanceIn ||
+                        swapGasLimit.eq(BN_ZERO)
+                      }
                       routerAddress={
                         chainProperties[networkName]["routerAddress"]
                       }
@@ -1308,8 +1424,10 @@ export default function Trade() {
                 ) : (
                   <LimitCreateAndMintButton
                     disabled={mintGasLimit.eq(BN_ZERO)}
-                    routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
-                    poolTypeId={limitPoolTypeIds['constant-product']}
+                    routerAddress={
+                      chainProperties["arbitrumGoerli"]["routerAddress"]
+                    }
+                    poolTypeId={limitPoolTypeIds["constant-product"]}
                     token0={tokenIn}
                     token1={tokenOut}
                     feeTier={3000} // default 0.3% fee
@@ -1355,20 +1473,26 @@ export default function Trade() {
           </div>
         </div>
         <div className="overflow-hidden rounded-[4px] mt-3 bg-dark  border border-grey">
-        <table className="w-full table-auto rounded-[4px]">
-          <thead className={`h-10 ${allLimitPositions.length === 0 && "hidden"}`}>
-            <tr className="text-[11px] text-grey1/90 mb-3 leading-normal">
-              <th className="text-left pl-3 uppercase">Sell</th>
-              <th className="text-left uppercase">Buy</th>
-              <th className="text-left uppercase">Avg. Price</th>
-              <th className="text-left md:table-cell hidden uppercase">Status</th>
-              <th className="text-left md:table-cell hidden pl-2 uppercase">Age</th>
-            </tr>
-          </thead>
-          {allLimitPositions.length === 0  ? (
-          <tbody>
-            <tr>
-              <td className="text-grey1 text-xs w-full  py-10 text-center col-span-5">
+          <table className="w-full table-auto rounded-[4px]">
+            <thead
+              className={`h-10 ${allLimitPositions.length === 0 && "hidden"}`}
+            >
+              <tr className="text-[11px] text-grey1/90 mb-3 leading-normal">
+                <th className="text-left pl-3 uppercase">Sell</th>
+                <th className="text-left uppercase">Buy</th>
+                <th className="text-left uppercase">Avg. Price</th>
+                <th className="text-left md:table-cell hidden uppercase">
+                  Status
+                </th>
+                <th className="text-left md:table-cell hidden pl-2 uppercase">
+                  Age
+                </th>
+              </tr>
+            </thead>
+            {allLimitPositions.length === 0 ? (
+              <tbody>
+                <tr>
+                  <td className="text-grey1 text-xs w-full  py-10 text-center col-span-5">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 20 20"
@@ -1382,103 +1506,141 @@ export default function Trade() {
                       />
                     </svg>
                     Your limit orders will appear here.
-              </td>
-            </tr>
-          </tbody>) : (
-          activeOrdersSelected ? (
-            <tbody className="divide-y divide-grey/70">
-              {allLimitPositions.map((allLimitPosition, index) => {
-                if (allLimitPosition.id != undefined) {
-                  return (
-                    <UserLimitPool
-                      limitPosition={allLimitPosition}
-                      limitFilledAmount={limitFilledAmountList.length > 0 ?
-                        parseFloat(ethers.utils.formatUnits(limitFilledAmountList[index] ?? '0', allLimitPosition.tokenOut.decimals)) :
-                        parseFloat("0.00")}
-                      address={address}
-                      href={"/limit/view"}
-                      key={allLimitPosition.id}
-                    />
-                  );
-                }
-              })}
-            </tbody>
-          ) : (
-            <tbody className="divide-y divide-grey/70">
-              {allLimitPositions.map((allLimitPosition, index) => {
-                if (allLimitPosition.positionId != undefined) {
-                  return (
-                    <tr className="text-right text-xs md:text-sm bg-black hover:bg-dark cursor-pointer"
+                  </td>
+                </tr>
+              </tbody>
+            ) : activeOrdersSelected ? (
+              <tbody className="divide-y divide-grey/70">
+                {allLimitPositions.map((allLimitPosition, index) => {
+                  if (allLimitPosition.id != undefined) {
+                    return (
+                      <UserLimitPool
+                        limitPosition={allLimitPosition}
+                        limitFilledAmount={
+                          limitFilledAmountList.length > 0
+                            ? parseFloat(
+                                ethers.utils.formatUnits(
+                                  limitFilledAmountList[index] ?? "0",
+                                  allLimitPosition.tokenOut.decimals
+                                )
+                              )
+                            : parseFloat("0.00")
+                        }
+                        address={address}
+                        href={"/limit/view"}
                         key={allLimitPosition.id}
-                    >
-                      <td className="py-3 pl-3">
-                        <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
-                          <img
-                            className="w-[23px] h-[23px]"
-                            src={logoMap[allLimitPosition.tokenIn.symbol]}
-                          />
-                          {parseFloat(ethers.utils.formatEther(allLimitPosition.amountIn)).toFixed(3) + " " + allLimitPosition.tokenIn.symbol}
-                        </div>
-                      </td>
-                      <td className="">
-                        <div className="flex items-center text-xs text-white gap-x-2 text-left">
-                          <img
-                            className="w-[23px] h-[23px]"
-                            src={logoMap[allLimitPosition.tokenOut.symbol]}
-                          />
-                          {parseFloat(ethers.utils.formatEther(
-                            getExpectedAmountOut(
-                              parseInt(allLimitPosition.min), 
-                              parseInt(allLimitPosition.max), 
-                              allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
-                              BigNumber.from(allLimitPosition.liquidity))
-                          )).toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
-                        </div>
-                      </td>
-                      <td className="text-left text-xs">
-                        <div className="flex flex-col">
-                          <span>
-                          <span className="text-grey1">1 {allLimitPosition.tokenIn.symbol} = </span> 
-                            {
-                              getAveragePrice(
+                      />
+                    );
+                  }
+                })}
+              </tbody>
+            ) : (
+              <tbody className="divide-y divide-grey/70">
+                {allLimitPositions.map((allLimitPosition, index) => {
+                  if (allLimitPosition.positionId != undefined) {
+                    return (
+                      <tr
+                        className="text-right text-xs md:text-sm bg-black hover:bg-dark cursor-pointer"
+                        key={allLimitPosition.id}
+                      >
+                        <td className="py-3 pl-3">
+                          <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
+                            <img
+                              className="w-[23px] h-[23px]"
+                              src={logoMap[allLimitPosition.tokenIn.symbol]}
+                            />
+                            {parseFloat(
+                              ethers.utils.formatEther(
+                                allLimitPosition.amountIn
+                              )
+                            ).toFixed(3) +
+                              " " +
+                              allLimitPosition.tokenIn.symbol}
+                          </div>
+                        </td>
+                        <td className="">
+                          <div className="flex items-center text-xs text-white gap-x-2 text-left">
+                            <img
+                              className="w-[23px] h-[23px]"
+                              src={logoMap[allLimitPosition.tokenOut.symbol]}
+                            />
+                            {parseFloat(
+                              ethers.utils.formatEther(
+                                getExpectedAmountOut(
+                                  parseInt(allLimitPosition.min),
+                                  parseInt(allLimitPosition.max),
+                                  allLimitPosition.tokenIn.id.localeCompare(
+                                    allLimitPosition.tokenOut.id
+                                  ) < 0,
+                                  BigNumber.from(allLimitPosition.liquidity)
+                                )
+                              )
+                            ).toFixed(3) +
+                              " " +
+                              allLimitPosition.tokenOut.symbol}
+                          </div>
+                        </td>
+                        <td className="text-left text-xs">
+                          <div className="flex flex-col">
+                            <span>
+                              <span className="text-grey1">
+                                1 {allLimitPosition.tokenIn.symbol} ={" "}
+                              </span>
+                              {getAveragePrice(
                                 allLimitPosition.tokenOut,
                                 allLimitPosition.tokenIn,
-                                parseInt(allLimitPosition.min), 
-                                parseInt(allLimitPosition.max), 
-                                allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
+                                parseInt(allLimitPosition.min),
+                                parseInt(allLimitPosition.max),
+                                allLimitPosition.tokenIn.id.localeCompare(
+                                  allLimitPosition.tokenOut.id
+                                ) < 0,
                                 BigNumber.from(allLimitPosition.liquidity),
                                 BigNumber.from(allLimitPosition.amountIn)
-                              ).toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
-                          </span>          
-                        </div>
-                      </td>
-                      <td className="md:table-cell hidden">
-                        <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
-                          <span className="z-50 px-3">
-                            {(parseFloat(ethers.utils.formatEther(limitFilledAmountList[index])) /
-                              parseFloat(
-                                ethers.utils.formatUnits(
-                                  getExpectedAmountOutFromInput(
-                                    parseInt(allLimitPosition.min),
-                                    parseInt(allLimitPosition.max),
-                                    allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0,
-                                    BigNumber.from(allLimitPosition.amountIn)
-                                ), allLimitPosition.tokenOut.decimals
-                              ))).toFixed(2)}% Filled
-                          </span>
-                          <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
-                        </div>
-                      </td>
-                      <td className="text-grey1 text-left pl-3 text-xs md:table-cell hidden">{timeDifference(allLimitPosition.timestamp)}</td>
-                      <td className="w-[39px] h-1 md:table-cell hidden"></td>
-                    </tr>
-                  );
-                }
-              })}
-            </tbody>
-          )
-          )}
-        </table>
+                              ).toFixed(3) +
+                                " " +
+                                allLimitPosition.tokenOut.symbol}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="md:table-cell hidden">
+                          <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
+                            <span className="z-50 px-3">
+                              {(
+                                parseFloat(
+                                  ethers.utils.formatEther(
+                                    limitFilledAmountList[index]
+                                  )
+                                ) /
+                                parseFloat(
+                                  ethers.utils.formatUnits(
+                                    getExpectedAmountOutFromInput(
+                                      parseInt(allLimitPosition.min),
+                                      parseInt(allLimitPosition.max),
+                                      allLimitPosition.tokenIn.id.localeCompare(
+                                        allLimitPosition.tokenOut.id
+                                      ) < 0,
+                                      BigNumber.from(allLimitPosition.amountIn)
+                                    ),
+                                    allLimitPosition.tokenOut.decimals
+                                  )
+                                )
+                              ).toFixed(2)}
+                              % Filled
+                            </span>
+                            <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
+                          </div>
+                        </td>
+                        <td className="text-grey1 text-left pl-3 text-xs md:table-cell hidden">
+                          {timeDifference(allLimitPosition.timestamp)}
+                        </td>
+                        <td className="w-[39px] h-1 md:table-cell hidden"></td>
+                      </tr>
+                    );
+                  }
+                })}
+              </tbody>
+            )}
+          </table>
         </div>
       </div>
       <Transition appear show={isSettingsOpen} as={Fragment}>
@@ -1498,7 +1660,7 @@ export default function Trade() {
           >
             <div className="fixed inset-0 bg-black bg-opacity-50" />
           </Transition.Child>
-  
+
           <div className="fixed inset-0 overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4 text-center">
               <Transition.Child
@@ -1520,22 +1682,52 @@ export default function Trade() {
                   </div>
                   <div className="flex md:flex-row flex-col items-center gap-3">
                     <div className="relative">
-                  <input value={tradeSlippage} onChange={(e) => setTradeSlippage(inputFilter(e.target.value))} className="bg-dark md:w-auto w-full border-grey border h-10 outline-none px-2 text-sm" placeholder="0.1"/>
-                  <span className="absolute mt-2 -ml-8">%</span>
+                      <input
+                        value={tradeSlippage}
+                        onChange={(e) =>
+                          setTradeSlippage(inputFilter(e.target.value))
+                        }
+                        className="bg-dark md:w-auto w-full border-grey border h-10 outline-none px-2 text-sm"
+                        placeholder="0.1"
+                      />
+                      <span className="absolute mt-2 -ml-8">%</span>
+                    </div>
+                    <div className="flex flex-row items-center gap-x-3 w-full">
+                      <div
+                        onClick={() => {
+                          setTradeSlippage("0.1");
+                          setIsSettingsOpen(false);
+                        }}
+                        className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer"
+                      >
+                        0.1%
+                      </div>
+                      <div
+                        onClick={() => {
+                          setTradeSlippage("0.5");
+                          setIsSettingsOpen(false);
+                        }}
+                        className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer"
+                      >
+                        0.5%
+                      </div>
+                      <div
+                        onClick={() => {
+                          setTradeSlippage("1");
+                          setIsSettingsOpen(false);
+                        }}
+                        className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer"
+                      >
+                        1%
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex flex-row items-center gap-x-3 w-full">
-                  <div onClick={() => {setTradeSlippage("0.1"); setIsSettingsOpen(false)}} className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer">
-                    0.1%
-                  </div>
-                  <div onClick={() => {setTradeSlippage("0.5"); setIsSettingsOpen(false)}} className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer">
-                    0.5%
-                  </div>
-                  <div onClick={() => {setTradeSlippage("1"); setIsSettingsOpen(false)}} className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer">
-                    1%
-                  </div>
-                  </div>
-                  </div>
-                  <button onClick={() => setIsSettingsOpen(false)} className="w-full mt-8 py-2 disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80">{"Confirm"}</button>
+                  <button
+                    onClick={() => setIsSettingsOpen(false)}
+                    className="w-full mt-8 py-2 disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
+                  >
+                    {"Confirm"}
+                  </button>
                 </Dialog.Panel>
               </Transition.Child>
             </div>
