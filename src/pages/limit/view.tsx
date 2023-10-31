@@ -64,6 +64,7 @@ export default function ViewLimit() {
     setTokenOutLimitUSDPrice,
     setClaimTick,
     setCurrentAmountOut,
+    setLimitAddLiqDisabled,
   ] = useRangeLimitStore((state) => [
     state.limitPoolAddress,
     state.limitPositionData,
@@ -88,6 +89,7 @@ export default function ViewLimit() {
     state.setTokenOutRangeUSDPrice,
     state.setClaimTick,
     state.setCurrentAmountOut,
+    state.setLimitAddLiqDisabled,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -227,14 +229,16 @@ export default function ViewLimit() {
   }, []);
 
   useEffect(() => {
+    console.log('liq button disabled', limitPositionData?.addLiqDisabled)
     if (limitPoolAddress != undefined) {
       setNeedsSnapshot(true)
       setTimeout(() => {
+        console.log('updating claim tick')
         updateClaimTick();
       }, 1500);
       updateCollectFee();
     }
-  }, [claimTick, limitPoolAddress, limitPositionData]);
+  }, [limitPoolAddress, limitPositionData]);
 
   async function updateClaimTick() {
     if (limitPositionData.min != undefined &&
@@ -249,7 +253,8 @@ export default function ViewLimit() {
         tokenIn.callId == 0,
         Number(limitPositionData.epochLast),
         false,
-        limitSubgraph
+        limitSubgraph,
+        setLimitAddLiqDisabled
       );
         
       setClaimTick(aux);
@@ -276,7 +281,11 @@ export default function ViewLimit() {
         if (position != undefined) {
           setLimitPoolAddress(position.poolId)
           setNeedsSnapshot(true);
-          setLimitPositionData(position);
+          setLimitPositionData({
+            ...position,
+            addLiqDisabled: limitPositionData.addLiqDisabled ?? false
+          });
+          console.log('setting position data', limitPositionData.addLiqDisabled)
           setTokenIn(position.tokenOut, position.tokenIn, '0', true)
           setTokenOut(position.tokenIn, position.tokenOut, '0', false)
         } else {
@@ -387,18 +396,24 @@ export default function ViewLimit() {
             </div>
           </div>
           <div className="flex items-center gap-x-4 w-full md:w-auto">
+            {!limitPositionData.addLiqDisabled ? (
+              <>
+                <button
+                  className="bg-main1 w-full border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
+                  onClick={() => setIsAddOpen(true)}
+                >
+                  Add Liquidity
+                </button></>) : (<></>)
+            }
             <button
-              className="bg-main1 w-full border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
-              onClick={() => setIsAddOpen(true)}
-            >
-              Add Liquidity
-            </button>
-            <button
-              className="bg-black whitespace-nowrap w-full border border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
+              className={!limitPositionData.addLiqDisabled ? "bg-black whitespace-nowrap w-full border border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
+                                                           : "bg-main1 whitespace-nowrap w-full border border-main transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-main2"
+              }
               onClick={() => setIsRemoveOpen(true)}
             >
               Remove Liquidity
             </button>
+
           </div>
         </div>
         <div className="flex flex-col lg:flex-row justify-between w-full mt-8  gap-10">

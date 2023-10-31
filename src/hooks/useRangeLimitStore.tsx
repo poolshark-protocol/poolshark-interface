@@ -11,6 +11,7 @@ import {
   getRangePoolFromFactory,
 } from "../utils/queries";
 import { parseUnits } from "../utils/math/valueMath";
+import LimitAddLiqButton from "../components/Buttons/LimitAddLiqButton";
 
 type RangeLimitState = {
   //rangePoolAddress for current token pairs
@@ -137,6 +138,7 @@ type RangeLimitAction = {
   setClaimTick: (claimTick: number) => void;
   //
   setCurrentAmountOut: (currentAmountOut: string) => void;
+  setLimitAddLiqDisabled: (limitAddLiqDisabled: boolean) => void;
 };
 
 const initialRangeLimitState: RangeLimitState = {
@@ -209,6 +211,7 @@ const initialRangeLimitState: RangeLimitState = {
   claimTick: 0,
   //
   currentAmountOut: "0",
+  
 };
 
 export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
@@ -528,6 +531,14 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       set(() => ({
         limitPositionData: limitPositionData,
       }));
+    },
+    setLimitAddLiqDisabled: (limitAddLiqDisabled: boolean) => {
+      set((state) => ({
+        limitPositionData: {
+          ...state.limitPositionData,
+          addLiqDisabled: limitAddLiqDisabled
+        }
+      }))
     },
     setLimitGasFee: (gasFee: string) => {
       set((state) => ({

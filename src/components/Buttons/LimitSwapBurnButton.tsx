@@ -63,7 +63,8 @@ export default function LimitSwapBurnButton({
       Boolean(zeroForOne),
       Number(epochLast),
       false,
-      limitSubgraph
+      limitSubgraph,
+      undefined
     );
 
     console.log(tick, "claim tick after update");

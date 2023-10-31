@@ -16,7 +16,8 @@ export const getClaimTick = async (
   epochLast: number,
   isCover: boolean,
   client: LimitSubgraph | CoverSubgraph,
-  latestTick?: number
+  setAddLiqDisabled: any,
+  latestTick?: number,
 ) => {
   // default to start tick
   let claimTick: number;
@@ -31,6 +32,10 @@ export const getClaimTick = async (
       : claimTickQuery["data"]["limitTicks"].length;
     // set claim tick if found
     if (claimTickDataLength > 0) {
+      if (setAddLiqDisabled != undefined) {
+        console.log('disabling add liquidity')
+        setAddLiqDisabled(true)
+      }
       claimTick = isCover
         ? claimTickQuery["data"]["ticks"][0]["index"]
         : claimTickQuery["data"]["limitTicks"][0]["index"];
@@ -47,6 +52,9 @@ export const getClaimTick = async (
         }
       }
     } else if (claimTickDataLength != undefined) {
+      if (setAddLiqDisabled != undefined) {
+        setAddLiqDisabled(false)
+      }
       claimTick = isCover ? maxLimit : minLimit
     }
   } else {
@@ -180,6 +188,7 @@ export function mapUserCoverPositions(coverPositions, coverSubgraph: CoverSubgra
       coverPosition.epochLast,
       true,
       coverSubgraph,
+      undefined
     );
   });
   return mappedCoverPositions;

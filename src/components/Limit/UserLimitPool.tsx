@@ -62,7 +62,8 @@ export default function UserLimitPool({
       tokenIn.callId == 0,
       Number(limitPosition.epochLast),
       false,
-      limitSubgraph
+      limitSubgraph,
+      undefined
     );
     setClaimTick(tick);
   };
