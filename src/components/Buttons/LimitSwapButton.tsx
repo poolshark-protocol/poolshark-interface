@@ -25,26 +25,25 @@ export default function LimitSwapButton({
   zeroForOne,
   closeModal,
   gasLimit,
-  resetAfterSwap
+  resetAfterSwap,
 }) {
-  const [
-    chainId,
-    networkName
-  ] = useConfigStore((state) => [
+  const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
   ]);
 
   const [
     setNeedsRefetch,
-    setNeedsAllowanceIn, 
+    setNeedsAllowanceIn,
     setNeedsBalanceIn,
     setNeedsSnapshot,
+    setNeedsPosRefetch,
   ] = useTradeStore((state) => [
     state.setNeedsRefetch,
     state.setNeedsAllowanceIn,
     state.setNeedsBalanceIn,
     state.setNeedsSnapshot,
+    state.setNeedsPosRefetch,
   ]);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -57,16 +56,18 @@ export default function LimitSwapButton({
     functionName: "multiMintLimit",
     args: [
       [poolAddress],
-      [{
-        to: to,
-        amount: amount,
-        mintPercent: mintPercent,
-        positionId: BN_ZERO,
-        lower: lower,
-        upper: upper,
-        zeroForOne: zeroForOne,
-        callbackData: ethers.utils.formatBytes32String('')
-      }]
+      [
+        {
+          to: to,
+          amount: amount,
+          mintPercent: mintPercent,
+          positionId: BN_ZERO,
+          lower: lower,
+          upper: upper,
+          zeroForOne: zeroForOne,
+          callbackData: ethers.utils.formatBytes32String(""),
+        },
+      ],
     ],
     chainId: chainId,
     enabled: poolAddress != undefined && poolAddress != ZERO_ADDRESS,
@@ -83,12 +84,16 @@ export default function LimitSwapButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
+      console.log("success");
       setSuccessDisplay(true);
       resetAfterSwap();
       setNeedsAllowanceIn(true);
       setNeedsBalanceIn(true);
       setNeedsSnapshot(true);
-      setNeedsRefetch(true);
+      setTimeout(() => {
+        setNeedsRefetch(true);
+        setNeedsPosRefetch(true);
+      }, 1000);
       closeModal();
     },
     onError() {

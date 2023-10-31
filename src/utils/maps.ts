@@ -211,13 +211,13 @@ export function mapUserLimitPositions(limitPositions) {
   limitPositions?.map((limitPosition) => {
     const limitPositionData = {
       id: limitPosition.id,
-      timestamp: limitPosition.createdAtTimestamp,
       positionId: limitPosition.positionId,
       pool: limitPosition.pool,
       poolId: limitPosition.pool.id,
       amountIn: limitPosition.amountIn,
       amountFilled: limitPosition.amountFilled,
       claimPriceLast: limitPosition.claimPriceLast,
+      timestamp: limitPosition.createdAtTimestamp,
       liquidity: limitPosition.liquidity,
       poolLiquidity: limitPosition.pool.liquidity,
       poolLiquidityGlobal: limitPosition.pool.liquidityGlobal,

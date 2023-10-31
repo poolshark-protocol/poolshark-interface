@@ -591,6 +591,7 @@ export default function AddLiquidity({}) {
               <div className="flex items-center gap-x-2">
                 <button
                   onClick={() => handleBalanceMax(true)}
+                  disabled={amountInDisabled}
                   className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden"
                 >
                   MAX
@@ -642,6 +643,7 @@ export default function AddLiquidity({}) {
               <div className="flex items-center gap-x-2 ">
                 <button
                   onClick={() => handleBalanceMax(false)}
+                  disabled={amountOutDisabled}
                   className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden"
                 >
                   MAX
