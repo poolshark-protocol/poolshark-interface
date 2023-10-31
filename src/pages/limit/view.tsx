@@ -17,7 +17,7 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import JSBI from "jsbi";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { gasEstimateBurnLimit } from "../../utils/gas";
-import { getExpectedAmountOut, getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
+import { getExpectedAmountIn, getExpectedAmountOut, getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { parseUnits } from "../../utils/math/valueMath";
 import { formatUnits } from "ethers/lib/utils.js";
@@ -35,7 +35,7 @@ export default function ViewLimit() {
   const [
     setNeedsTradeSnapshot,
     setNeedsTradePosRefetch
-  ] = useRangeLimitStore((state) => [
+  ] = useTradeStore((state) => [
     state.setNeedsSnapshot,
     state.setNeedsPosRefetch
   ]);
@@ -101,6 +101,7 @@ export default function ViewLimit() {
   const [priceDirection, setPriceDirection] = useState(tokenIn.callId == 0);
   const [limitFilledAmount, setLimitFilledAmount] = useState("");
   const [allLimitPositions, setAllLimitPositions] = useState([]);
+  const [isFullSpacingClaim, setIsFullSpacingClaim] = useState(false) 
 
   //Display and copy flags
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -161,7 +162,6 @@ export default function ViewLimit() {
         limitPositionData.feeTier,
         limitSubgraph
       );
-
     }
   }, [limitPositionData.tokenIn]);
 
@@ -173,21 +173,21 @@ export default function ViewLimit() {
     args: [
       [
         address,
-        parseUnits("0", 38),
+        parseUnits("1", 38),
         Number(limitPositionData.positionId),
         BigNumber.from(claimTick),
         tokenIn.callId == 0,
       ],
     ],
     chainId: chainId,
-    watch: true,
+    watch: needsSnapshot,
     enabled:
       isConnected &&
       limitPositionData.positionId != undefined &&
       claimTick >= Number(limitPositionData.min) &&
       claimTick <= Number(limitPositionData.max),
     onSuccess(data) {
-      console.log("Success price filled amount", data);
+      // console.log("Success price filled amount", data);
       setNeedsSnapshot(false);
     },
     onError(error) {
@@ -253,7 +253,10 @@ export default function ViewLimit() {
       );
         
       setClaimTick(aux);
-      console.log("claim tick", aux);
+      setIsFullSpacingClaim(
+        Boolean(limitPositionData.zeroForOne) ? claimTick - parseInt(limitPositionData.min) > parseInt(limitPositionData.tickSpacing)
+                                              : parseInt(limitPositionData.max) - claimTick > parseInt(limitPositionData.tickSpacing)
+      )
     }  
   }
 
@@ -410,12 +413,13 @@ export default function ViewLimit() {
                     ~$
                     {!isNaN(Number(currentAmountOut)) &&
                     !isNaN(tokenIn.USDPrice)
-                      ? (Number(currentAmountOut) * tokenIn.USDPrice).toFixed(2)
+                    ? (parseFloat(currentAmountOut) * tokenIn.USDPrice).toFixed(2)
                       : "0.00"}
                   </span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {Number(currentAmountOut).toFixed(2)}
+                  {!isNaN(Number(currentAmountOut)) ? (parseFloat(currentAmountOut)).toFixed(2)
+                      : "0.00"}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenIn.logoURI} />
@@ -596,7 +600,7 @@ export default function ViewLimit() {
               <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
                   {!isNaN(Number(limitFilledAmount)) &&
-                  !isNaN(tokenOut.USDPrice) ? (
+                  !isNaN(tokenOut.USDPrice) && isFullSpacingClaim ? (
                     <span>
                       ~$
                       {(Number(limitFilledAmount) * tokenOut.USDPrice).toFixed(
@@ -608,7 +612,7 @@ export default function ViewLimit() {
                   )}
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {Number(limitFilledAmount).toFixed(2)}
+                  {isFullSpacingClaim ? Number(limitFilledAmount).toFixed(2) : '0.00'}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenOut.logoURI} />
@@ -626,6 +630,7 @@ export default function ViewLimit() {
                 zeroForOne={tokenIn.callId == 0}
                 gasLimit={collectGasLimit}
                 gasFee={collectGasFee}
+                disabled={!isFullSpacingClaim || isNaN(parseFloat(limitFilledAmount)) || parseFloat(limitFilledAmount) == 0}
               />
               {/*TO-DO: add positionOwner ternary again*/}
             </div>

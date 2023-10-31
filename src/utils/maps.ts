@@ -219,6 +219,7 @@ export function mapUserLimitPositions(limitPositions) {
       claimPriceLast: limitPosition.claimPriceLast,
       timestamp: limitPosition.createdAtTimestamp,
       liquidity: limitPosition.liquidity,
+      zeroForOne: limitPosition.zeroForOne,
       poolLiquidity: limitPosition.pool.liquidity,
       poolLiquidityGlobal: limitPosition.pool.liquidityGlobal,
       min: limitPosition.lower,

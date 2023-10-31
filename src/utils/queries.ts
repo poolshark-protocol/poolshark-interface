@@ -515,6 +515,7 @@ export const fetchLimitPositions = (client: LimitSubgraph, address: string) => {
                 createdAtTimestamp
                 amountIn
                 amountFilled
+                zeroForOne
                 tokenIn{
                     id
                     name
