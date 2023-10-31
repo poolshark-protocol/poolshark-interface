@@ -454,6 +454,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         {isConnected && stateChainName === networkName ? (
                           <button
                             onClick={() => {handleInput1({target: {value: tokenIn.userBalance.toString(), name: "tokenIn"}})}}
+                            disabled={amountInDisabled}
                             className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
                           >
                             MAX
@@ -493,6 +494,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                       {isConnected && stateChainName === networkName ? (
                           <button
                             onClick={() => {handleInput1({target: {value: tokenOut.userBalance.toString(), name: "tokenOut"}})}}
+                            disabled={amountOutDisabled}
                             className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
                           >
                             MAX
