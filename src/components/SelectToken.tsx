@@ -7,17 +7,24 @@ import {
 import { Transition, Dialog } from "@headlessui/react";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
-import { useAccount } from "wagmi";
+import { useAccount, useToken } from "wagmi";
 import { chainIdsToNamesForGitTokenList } from "../utils/chains";
 import axios from "axios";
 import { coinsList } from "../utils/types";
 import { useConfigStore } from "../hooks/useConfigStore";
+import { ZERO_ADDRESS } from "../utils/math/constants";
+import tokenOne from "../../public/static/images/one.png";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
-  const [inputVal, setInputVal] = useState("");
-  const [rawCoinList, setRawCoinList] = useState([]);
+  const [customInput, setCustomInput] = useState('');
+  const [customAddress, setCustomAddress] = useState(ZERO_ADDRESS as `0x${string}`)
+  const [displayTokenList, setDisplayTokenList] = useState([]);
+  const [listedTokenList, setListedTokenList] = useState([]);
+  const [searchTokenList, setSearchTokenList] = useState([]);
+  const [tokenInfo, setTokenInfo] = useState(undefined);
+  const [needsTokenInfo, setNeedsTokenInfo] = useState(false);
 
   const [
     chainId,
@@ -26,6 +33,33 @@ export default function SelectToken(props) {
     state.chainId,
     state.networkName
   ]);
+
+  const { data: tokenData, isError, isLoading, refetch } = useToken({
+    address: customInput as `0x${string}`,
+    onSuccess() {
+      console.log('token info fetched')
+      setNeedsTokenInfo(false)
+      setTokenInfo(tokenData)
+    },
+  })
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (tokenInfo != undefined) {
+        const customToken = {
+          id: tokenInfo.address,
+          name: tokenInfo.name,
+          address: tokenInfo.address,
+          symbol: tokenInfo.symbol,
+          logoURI: tokenOne,
+          decimals: tokenInfo.decimals,
+        };
+        setDisplayTokenList([customToken])
+        console.log('token info', customToken)
+      }
+    };
+    fetch();
+  }, [tokenInfo]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -41,9 +75,14 @@ export default function SelectToken(props) {
             listed_tokens: response.data.listed_tokens,
             search_tokens: response.data.search_tokens,
           } as coinsList;
-          for (let i = 0; i < coins.listed_tokens.length; i++) {
+          for (let i = 0; i < coins.listed_tokens?.length; i++) {
             coins.listed_tokens[i].address = coins.listed_tokens[i].id;
-            setRawCoinList(coins.listed_tokens);
+            setListedTokenList(coins.listed_tokens);
+            setDisplayTokenList(coins.listed_tokens);
+          }
+          for (let i = 0; i < coins.search_tokens?.length; i++) {
+            coins.search_tokens[i].address = coins.search_tokens[i].id;
+            setSearchTokenList(coins.search_tokens);
           }
         })
         .catch(function (error) {
@@ -52,6 +91,25 @@ export default function SelectToken(props) {
     };
     fetch();
   }, [chainId, address]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      // validate address
+      const tokenAddressRegex = /^0x[a-fA-F0-9]{40}$/;
+      if(customInput.match(tokenAddressRegex)?.length == 1 && customInput.length == 42) {
+        console.log('valid custom address')
+        // if not in listed tokens or search tokens we need to fetch data from the chain
+        setNeedsTokenInfo(true)
+        refetch()
+      } else {
+        console.log('invalid custom address')
+        setCustomAddress(ZERO_ADDRESS as `0x${string}`)
+        setNeedsTokenInfo(false)
+        setDisplayTokenList(listedTokenList)
+      }
+    };
+    fetch();
+  }, [customInput]);
 
   const chooseToken = (coin) => {
     coin = {
@@ -151,11 +209,11 @@ export default function SelectToken(props) {
                       className="border border-grey bg-dark outline-none py-2.5 pl-12 rounded-lg w-full placeholder:text-grey placeholder:font-regular text-white text-sm"
                       placeholder="Search name or paste address"
                       // when inputVal is changed and set to a valid address we should fetch token info and populate the list with that item
-                      value={inputVal}
-                      onChange={(e) => setInputVal(e.target.value)}
+                      value={customInput}
+                      onChange={(e) => setCustomInput(e.target.value)}
                     ></input>
                     <div className="flex justify-between flex-wrap mt-4 gap-y-2">
-                      {rawCoinList.map((coin) => {
+                      {displayTokenList.map((coin) => {
                         return (
                           <CoinListButton
                             key={coin.symbol + "top"}
@@ -167,7 +225,7 @@ export default function SelectToken(props) {
                     </div>
                   </div>
                   <div>
-                    {rawCoinList
+                    {displayTokenList
                       .sort((a, b) => b.balance - a.balance)
                       .map((coin) => {
                         return (
