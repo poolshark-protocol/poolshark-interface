@@ -150,6 +150,7 @@ export default function SelectToken(props) {
                       autoComplete="off"
                       className="border border-grey bg-dark outline-none py-2.5 pl-12 rounded-lg w-full placeholder:text-grey placeholder:font-regular text-white text-sm"
                       placeholder="Search name or paste address"
+                      // when inputVal is changed and set to a valid address we should fetch token info and populate the list with that item
                       value={inputVal}
                       onChange={(e) => setInputVal(e.target.value)}
                     ></input>
