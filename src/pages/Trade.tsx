@@ -490,7 +490,6 @@ export default function Trade() {
 
   useEffect(() => {
     if (address) {
-      console.log("refetchinggggg");
       const chainConstants = chainProperties[networkName]
         ? chainProperties[networkName]
         : chainProperties["arbitrumGoerli"];
@@ -512,7 +511,6 @@ export default function Trade() {
         limitSubgraph,
         address?.toLowerCase()
       );
-      console.log("limit data", data);
       if (data["data"]) {
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
@@ -1518,7 +1516,7 @@ export default function Trade() {
             ) : activeOrdersSelected ? (
               <tbody className="divide-y divide-grey/70">
                 {allLimitPositions.map((allLimitPosition, index) => {
-                  if (allLimitPosition.positionId != undefined) {
+                  if (allLimitPosition.id != undefined) {
                     return (
                       <UserLimitPool
                         limitPosition={allLimitPosition}

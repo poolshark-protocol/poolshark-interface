@@ -1,7 +1,7 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import router from "next/router";
-import { useAccount, useContractRead, useProvider, useSigner } from "wagmi";
+import { useAccount, useContractRead, useSigner } from "wagmi";
 import CoverCollectButton from "../../components/Buttons/CoverCollectButton";
 import { BigNumber, ethers } from "ethers";
 import { TickMath } from "../../utils/math/tickMath";
@@ -15,9 +15,8 @@ import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import { fetchCoverPositions } from "../../utils/queries";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
-import { useCopyElementUseEffect } from "../../utils/misc";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { chainProperties, supportedNetworkNames } from "../../utils/chains";
+import { chainProperties } from "../../utils/chains";
 
 export default function ViewCover() {
   const [chainId, networkName, coverSubgraph, setCoverSubgraph] = useConfigStore((state) => [
@@ -287,9 +286,9 @@ export default function ViewCover() {
         const positionData = mapUserCoverPositions(positions, coverSubgraph);
         setAllCoverPositions(positionData);
         const positionId =
-          coverPositionData.positionId ?? router.query.positionId;
+          coverPositionData.id ?? router.query.id;
         const position = positionData.find(
-          (position) => position.positionId == positionId
+          (position) => position.id == positionId
         );
         setCoverPoolFromVolatility(
           tokenIn,
