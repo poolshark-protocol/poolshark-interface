@@ -1388,7 +1388,7 @@ export default function Trade() {
           activeOrdersSelected ? (
             <tbody className="divide-y divide-grey/70">
               {allLimitPositions.map((allLimitPosition, index) => {
-                if (allLimitPosition.positionId != undefined) {
+                if (allLimitPosition.id != undefined) {
                   return (
                     <UserLimitPool
                       limitPosition={allLimitPosition}

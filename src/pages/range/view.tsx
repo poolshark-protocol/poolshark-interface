@@ -222,7 +222,7 @@ export default function ViewRange() {
         );
         setAllRangePositions(mappedPositions);
         const positionId =
-          rangePositionData.positionId ?? router.query.id;
+          rangePositionData.id ?? router.query.id;
         const position = mappedPositions.find(
           (position) => position.id == positionId
         );
