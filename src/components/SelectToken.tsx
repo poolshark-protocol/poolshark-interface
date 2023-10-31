@@ -12,8 +12,7 @@ import { chainIdsToNamesForGitTokenList } from "../utils/chains";
 import axios from "axios";
 import { coinsList } from "../utils/types";
 import { useConfigStore } from "../hooks/useConfigStore";
-import { ZERO_ADDRESS } from "../utils/math/constants";
-import tokenOne from "../../public/static/images/one.png";
+import { defaultTokenLogo } from "../utils/tokens";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
@@ -48,7 +47,7 @@ export default function SelectToken(props) {
           name: tokenInfo.name,
           address: tokenInfo.address,
           symbol: tokenInfo.symbol,
-          logoURI: tokenOne,
+          logoURI: defaultTokenLogo,
           decimals: tokenInfo.decimals,
         };
         setDisplayTokenList([customToken])
