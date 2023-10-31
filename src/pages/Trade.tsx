@@ -115,6 +115,8 @@ export default function Trade() {
     setMintButtonState,
     needsRefetch,
     setNeedsRefetch,
+    needsPosRefetch,
+    setNeedsPosRefetch,
     needsSnapshot,
     setNeedsSnapshot,
   ] = useTradeStore((s) => [
@@ -155,6 +157,8 @@ export default function Trade() {
     s.setMintButtonState,
     s.needsRefetch,
     s.setNeedsRefetch,
+    s.needsPosRefetch,
+    s.setNeedsPosRefetch,
     s.needsSnapshot,
     s.setNeedsSnapshot,
   ]);
@@ -493,7 +497,7 @@ export default function Trade() {
       getUserLimitPositionData();
       setNeedsRefetch(false);
     }
-  }, [needsRefetch]);
+  }, [needsRefetch, needsPosRefetch, address, networkName]);
 
   useEffect(() => {
     if (allLimitPositions.length > 0) {
