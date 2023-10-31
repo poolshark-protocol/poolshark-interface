@@ -142,7 +142,7 @@ export default function UserCoverPool({
     router.push({
       pathname: href,
       query: {
-        positionId: coverPosition.positionId,
+        id: coverPosition.id,
       },
     });
   }

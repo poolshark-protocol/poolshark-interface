@@ -227,7 +227,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     router.push({
       pathname: href,
       query: {
-        positionId: rangePosition.positionId,
+        id: rangePosition.id,
         feeTier: rangePosition.pool.feeTier.feeAmount,
         state: router.pathname.includes("/cover") && "range-cover",
       },

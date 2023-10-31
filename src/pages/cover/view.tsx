@@ -287,9 +287,9 @@ export default function ViewCover() {
         const positionData = mapUserCoverPositions(positions, coverSubgraph);
         setAllCoverPositions(positionData);
         const positionId =
-          coverPositionData.positionId ?? router.query.positionId;
+          coverPositionData.positionId ?? router.query.id;
         const position = positionData.find(
-          (position) => position.positionId == positionId
+          (position) => position.id == positionId
         );
         setCoverPoolFromVolatility(
           tokenIn,
