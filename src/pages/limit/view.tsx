@@ -222,7 +222,7 @@ export default function ViewLimit() {
       setNeedsSnapshot(true)
       setTimeout(() => {
         updateClaimTick();
-      }, 3000);
+      }, 1500);
       updateCollectFee();
     }
   }, [claimTick, limitPoolAddress, limitPositionData]);
