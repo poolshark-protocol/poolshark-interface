@@ -19,12 +19,10 @@ export default function SelectToken(props) {
   const { address } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
   const [customInput, setCustomInput] = useState('');
-  const [customAddress, setCustomAddress] = useState(ZERO_ADDRESS as `0x${string}`)
   const [displayTokenList, setDisplayTokenList] = useState([]);
   const [listedTokenList, setListedTokenList] = useState([]);
   const [searchTokenList, setSearchTokenList] = useState([]);
   const [tokenInfo, setTokenInfo] = useState(undefined);
-  const [needsTokenInfo, setNeedsTokenInfo] = useState(false);
 
   const [
     chainId,
@@ -34,11 +32,10 @@ export default function SelectToken(props) {
     state.networkName
   ]);
 
-  const { data: tokenData, isError, isLoading, refetch } = useToken({
+  const { data: tokenData, isError, isLoading, refetch: refetchTokenInfo } = useToken({
     address: customInput as `0x${string}`,
     onSuccess() {
       console.log('token info fetched')
-      setNeedsTokenInfo(false)
       setTokenInfo(tokenData)
     },
   })
@@ -99,12 +96,9 @@ export default function SelectToken(props) {
       if(customInput.match(tokenAddressRegex)?.length == 1 && customInput.length == 42) {
         console.log('valid custom address')
         // if not in listed tokens or search tokens we need to fetch data from the chain
-        setNeedsTokenInfo(true)
-        refetch()
+        refetchTokenInfo()
       } else {
         console.log('invalid custom address')
-        setCustomAddress(ZERO_ADDRESS as `0x${string}`)
-        setNeedsTokenInfo(false)
         setDisplayTokenList(listedTokenList)
       }
     };
