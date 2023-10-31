@@ -22,6 +22,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { parseUnits } from "../../utils/math/valueMath";
 import { formatUnits } from "ethers/lib/utils.js";
 import { chainProperties } from "../../utils/chains";
+import { useTradeStore } from "../../hooks/useTradeStore";
 
 export default function ViewLimit() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph] = useConfigStore((state) => [
@@ -29,6 +30,14 @@ export default function ViewLimit() {
     state.networkName,
     state.limitSubgraph,
     state.setLimitSubgraph
+  ]);
+
+  const [
+    setNeedsTradeSnapshot,
+    setNeedsTradePosRefetch
+  ] = useRangeLimitStore((state) => [
+    state.setNeedsSnapshot,
+    state.setNeedsPosRefetch
   ]);
 
   const [
@@ -267,6 +276,10 @@ export default function ViewLimit() {
           setLimitPositionData(position);
           setTokenIn(position.tokenOut, position.tokenIn, '0', true)
           setTokenOut(position.tokenIn, position.tokenOut, '0', false)
+        } else {
+          setNeedsTradeSnapshot(true);
+          setNeedsTradePosRefetch(true);
+          router.push("/");
         }
       }
       setIsLoading(false);
