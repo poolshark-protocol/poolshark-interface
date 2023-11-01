@@ -33,7 +33,6 @@ export const getClaimTick = async (
     // set claim tick if found
     if (claimTickDataLength > 0) {
       if (setAddLiqDisabled != undefined) {
-        console.log('disabling add liquidity')
         setAddLiqDisabled(true)
       }
       claimTick = isCover

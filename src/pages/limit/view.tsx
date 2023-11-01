@@ -229,11 +229,9 @@ export default function ViewLimit() {
   }, []);
 
   useEffect(() => {
-    console.log('liq button disabled', limitPositionData?.addLiqDisabled)
     if (limitPoolAddress != undefined) {
       setNeedsSnapshot(true)
       setTimeout(() => {
-        console.log('updating claim tick')
         updateClaimTick();
       }, 1500);
       updateCollectFee();
@@ -285,7 +283,6 @@ export default function ViewLimit() {
             ...position,
             addLiqDisabled: limitPositionData.addLiqDisabled ?? false
           });
-          console.log('setting position data', limitPositionData.addLiqDisabled)
           setTokenIn(position.tokenOut, position.tokenIn, '0', true)
           setTokenOut(position.tokenIn, position.tokenOut, '0', false)
         } else {
