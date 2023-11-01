@@ -66,8 +66,6 @@ export default function LimitSwapBurnButton({
       limitSubgraph,
       undefined
     );
-
-    console.log(tick, "claim tick after update");
     setClaimTick(tick);
   };
 

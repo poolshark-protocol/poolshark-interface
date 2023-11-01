@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useAccount, useContractRead, useSigner } from "wagmi";
 import LimitCollectButton from "../../components/Buttons/LimitCollectButton";
 import { BigNumber, ethers } from "ethers";
-import { TickMath, invertPrice } from "../../utils/math/tickMath";
+import { TickMath, invertPrice, roundDown, roundTick, roundUp } from "../../utils/math/tickMath";
 import { limitPoolABI } from "../../abis/evm/limitPool";
 import { getClaimTick, mapUserLimitPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Limit/RemoveLiquidity";
@@ -229,11 +229,9 @@ export default function ViewLimit() {
   }, []);
 
   useEffect(() => {
-    console.log('liq button disabled', limitPositionData?.addLiqDisabled)
     if (limitPoolAddress != undefined) {
       setNeedsSnapshot(true)
       setTimeout(() => {
-        console.log('updating claim tick')
         updateClaimTick();
       }, 1500);
       updateCollectFee();
@@ -279,13 +277,13 @@ export default function ViewLimit() {
           (position) => position.id == positionId
         );
         if (position != undefined) {
+          console.log('round back negative', roundDown(-755, 10), roundUp(-755, 10))
           setLimitPoolAddress(position.poolId)
           setNeedsSnapshot(true);
           setLimitPositionData({
             ...position,
             addLiqDisabled: limitPositionData.addLiqDisabled ?? false
           });
-          console.log('setting position data', limitPositionData.addLiqDisabled)
           setTokenIn(position.tokenOut, position.tokenIn, '0', true)
           setTokenOut(position.tokenIn, position.tokenOut, '0', false)
         } else {
@@ -618,7 +616,19 @@ export default function ViewLimit() {
                   !isNaN(tokenOut.USDPrice) && isFullSpacingClaim ? (
                     <span>
                       ~$
-                      {(Number(limitFilledAmount) * tokenOut.USDPrice).toFixed(
+                      {((
+                      parseFloat(
+                        ethers.utils.formatUnits(
+                          getExpectedAmountOut(
+                            limitPositionData.zeroForOne ? limitPositionData.min : roundUp(claimTick, limitPositionData.tickSpacing),
+                            limitPositionData.zeroForOne ? roundDown(claimTick, limitPositionData.tickSpacing) : limitPositionData.max,
+                            limitPositionData.zeroForOne,
+                            BigNumber.from(limitPositionData.liquidity)
+                          ),
+                          limitPositionData.tokenOut.decimals
+                        )
+                      )
+                    ) * tokenOut.USDPrice).toFixed(
                         2
                       )}
                     </span>
@@ -627,7 +637,19 @@ export default function ViewLimit() {
                   )}
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {isFullSpacingClaim ? Number(limitFilledAmount).toFixed(2) : '0.00'}
+                  {isFullSpacingClaim ? ((
+                      parseFloat(
+                        ethers.utils.formatUnits(
+                          getExpectedAmountOut(
+                            limitPositionData.zeroForOne ? limitPositionData.min : roundUp(claimTick, limitPositionData.tickSpacing),
+                            limitPositionData.zeroForOne ? roundDown(claimTick, limitPositionData.tickSpacing) : limitPositionData.max,
+                            limitPositionData.zeroForOne,
+                            BigNumber.from(limitPositionData.liquidity)
+                          ),
+                          limitPositionData.tokenOut.decimals
+                        )
+                      )
+                    )).toFixed(2) : '0.00'}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenOut.logoURI} />

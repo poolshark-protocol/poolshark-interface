@@ -76,8 +76,6 @@ export default function LimitRemoveLiqButton({
       limitSubgraph,
       undefined
     );
-
-    console.log(tick, "claim tick after update")
     setClaimTick(tick);
   };
 
