@@ -11,6 +11,7 @@ import {
   getRangePoolFromFactory,
 } from "../utils/queries";
 import { parseUnits } from "../utils/math/valueMath";
+import { getRangeMintButtonDisabled, getRangeMintButtonMessage } from "../utils/buttons";
 
 type RangeLimitState = {
   //rangePoolAddress for current token pairs
@@ -68,6 +69,8 @@ type RangeLimitState = {
   claimTick: number;
   //Expected output
   currentAmountOut: string;
+  //Start price for pool creation
+  startPrice: string;
 };
 
 type RangeLimitAction = {
@@ -137,6 +140,7 @@ type RangeLimitAction = {
   setClaimTick: (claimTick: number) => void;
   //
   setCurrentAmountOut: (currentAmountOut: string) => void;
+  setStartPrice: (startPrice: string) => void;
 };
 
 const initialRangeLimitState: RangeLimitState = {
@@ -209,6 +213,7 @@ const initialRangeLimitState: RangeLimitState = {
   claimTick: 0,
   //
   currentAmountOut: "0",
+  startPrice: "",
 };
 
 export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
@@ -252,6 +257,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     claimTick: initialRangeLimitState.claimTick,
     //expected output
     currentAmountOut: initialRangeLimitState.currentAmountOut,
+    //start price for pool creation
+    startPrice: initialRangeLimitState.startPrice,
     //actions
     setPairSelected: (pairSelected: boolean) => {
       set(() => ({
@@ -546,55 +553,26 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       }));
     },
     setMintButtonState: () => {
+      // pass to a utils function to set buttonMessage and disabled
       set((state) => ({
         rangeMintParams: {
           ...state.rangeMintParams,
-          buttonMessage:
-            state.tokenIn.userBalance <
-            parseFloat(
-              ethers.utils.formatUnits(
-                String(state.rangeMintParams.tokenInAmount),
-                state.tokenIn.decimals
-              )
-            )
-              ? "Insufficient Token Balance"
-              : parseFloat(
-                  ethers.utils.formatUnits(
-                    String(state.rangeMintParams.tokenInAmount),
-                    state.tokenIn.decimals
-                  )
-                ) == 0 &&
-                parseFloat(
-                  ethers.utils.formatUnits(
-                    String(state.rangeMintParams.tokenOutAmount),
-                    state.tokenOut.decimals
-                  )
-                ) == 0
-              ? "Enter Amount"
-              : "Mint Range Position",
-          disabled:
-            state.tokenIn.userBalance <
-            parseFloat(
-              ethers.utils.formatUnits(
-                String(state.rangeMintParams.tokenInAmount),
-                state.tokenIn.decimals
-              )
-            )
-              ? true
-              : parseFloat(
-                  ethers.utils.formatUnits(
-                    String(state.rangeMintParams.tokenInAmount),
-                    state.tokenIn.decimals
-                  )
-                ) == 0 &&
-                parseFloat(
-                  ethers.utils.formatUnits(
-                    String(state.rangeMintParams.tokenOutAmount),
-                    state.tokenOut.decimals
-                  )
-                ) == 0
-              ? true
-              : false,
+          buttonMessage: getRangeMintButtonMessage(
+            state.rangeMintParams.tokenInAmount,
+            state.rangeMintParams.tokenOutAmount,
+            state.tokenIn,
+            state.tokenOut,
+            state.rangePoolAddress,
+            state.startPrice,
+          ),
+          disabled: getRangeMintButtonDisabled(
+            state.rangeMintParams.tokenInAmount,
+            state.rangeMintParams.tokenOutAmount,
+            state.tokenIn,
+            state.tokenOut,
+            state.rangePoolAddress,
+            state.startPrice
+          ),
         },
       }));
     },
@@ -735,6 +713,11 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       set(() => ({
         needsSnapshot: needsSnapshot,
       }));
+    },
+    setStartPrice: (startPrice: string) =>  {
+      set(() => ({
+        startPrice: startPrice
+      }))
     },
     resetRangeLimitParams: () => {
       set({
