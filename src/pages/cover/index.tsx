@@ -20,11 +20,9 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties, supportedNetworkNames } from "../../utils/chains";
 
 export default function Cover() {
-  const [networkName, coverSubgraph, setCoverSubgraph] = useConfigStore((state) => [
-    state.networkName,
-    state.coverSubgraph,
-    state.setCoverSubgraph,
-  ]);
+  const [networkName, coverSubgraph, setCoverSubgraph] = useConfigStore(
+    (state) => [state.networkName, state.coverSubgraph, state.setCoverSubgraph]
+  );
 
   const [
     setCoverTokenIn,

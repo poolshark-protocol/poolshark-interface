@@ -19,12 +19,13 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 
 export default function ViewCover() {
-  const [chainId, networkName, coverSubgraph, setCoverSubgraph] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-    state.coverSubgraph,
-    state.setCoverSubgraph,
-  ]);
+  const [chainId, networkName, coverSubgraph, setCoverSubgraph] =
+    useConfigStore((state) => [
+      state.chainId,
+      state.networkName,
+      state.coverSubgraph,
+      state.setCoverSubgraph,
+    ]);
 
   const [
     coverPoolAddress,
@@ -285,8 +286,7 @@ export default function ViewCover() {
         const positions = data["data"].positions;
         const positionData = mapUserCoverPositions(positions, coverSubgraph);
         setAllCoverPositions(positionData);
-        const positionId =
-          coverPositionData.id ?? router.query.id;
+        const positionId = coverPositionData.id ?? router.query.id;
         const position = positionData.find(
           (position) => position.id == positionId
         );
@@ -298,6 +298,10 @@ export default function ViewCover() {
         );
         if (position != undefined) {
           setCoverPositionData(position);
+        } else {
+          //setNeedsCoverSnapshot(true);
+          setNeedsPosRefetch(true);
+          router.push("/");
         }
       }
       setIsLoading(false);
