@@ -139,6 +139,7 @@ export default function Range() {
                   address: allRangePools[0].tokenOne.id,
                   logoURI: logoMap[allRangePools[0].tokenOne.symbol],
                   symbol: allRangePools[0].tokenOne.symbol,
+                  decimals: allRangePools[0].tokenOne.decimals,
                 } as tokenRangeLimit;
                 setTokenIn(tokenOut, tokenIn, "0", true);
                 setTokenOut(tokenIn, tokenOut, "0", false);
