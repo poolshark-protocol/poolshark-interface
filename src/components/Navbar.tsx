@@ -73,8 +73,11 @@ export default function Navbar({ create, setCreate }: NavOptions) {
               </Link>
             </div>
           </div>
-
           <div className=" flex justify-end items-center gap-x-4">
+          <Link href="/bond" >
+            <span className="text-white hover:underline text-sm cursor-pointer">BOND $FIN</span>
+         
+          </Link>
             <ConnectWalletButton />
           </div>
         </div>
