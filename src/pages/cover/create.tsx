@@ -59,7 +59,7 @@ export default function CoverCreate() {
     setState(router.query.state)
   }, [router.query.state]);
 
-  const handleDiselectPool = (state) => {
+  const handleDeselectPool = (state) => {
     setState(state);
     setSelectedPool(undefined);
   };
@@ -119,14 +119,14 @@ export default function CoverCreate() {
             </div>
           )}
           {state === "custom" && (
-            <CreateCover query={router.query} goBack={handleDiselectPool} />
+            <CreateCover query={router.query} goBack={handleDeselectPool} />
           )}
           {state === "range-cover" && (
             <CoverExistingPool goBack={setIsShifted} />
           )}
           {/*}
           {selectedPool != undefined && state == "existing" ? (
-            <CreateCover query={router.query} goBack={handleDiselectPool} />
+            <CreateCover query={router.query} goBack={handleDeselectPool} />
           ) : shifted === "initial" ? (
             <div className="text-white relative">
               <div className="absolute opacity-50 w-full h-full bg-black top-0 left-0" />

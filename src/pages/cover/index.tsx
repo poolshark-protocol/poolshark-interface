@@ -117,7 +117,7 @@ export default function Cover() {
     setSearchTerm(event.target.value);
   };
 
-  const handleDiselectPool = (state) => {
+  const handleDeselectPool = (state) => {
     setState(state);
     setSelectedPool(undefined);
   };

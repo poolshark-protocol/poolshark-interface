@@ -566,7 +566,7 @@ export default function CreateCover(props: any) {
                 parseFloat(
                   ethers.utils.formatUnits(bnInput, tokenIn.decimals)
                 ) * tokenIn.coverUSDPrice
-              ).toPrecision(6)}
+              ).toFixed(2)}
             </span>
             <span>BALANCE: {tokenIn.userBalance ?? 0}</span>
           </div>
@@ -621,7 +621,7 @@ export default function CreateCover(props: any) {
                     tokenOut.decimals
                   )
                 ) * tokenOut.coverUSDPrice
-              ).toPrecision(6)}
+              ).toFixed(2)}
             </span>
           </div>
           <div className="flex items-end justify-between mt-2 mb-3 text-3xl">

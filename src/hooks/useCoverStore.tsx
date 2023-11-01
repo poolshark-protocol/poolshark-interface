@@ -499,6 +499,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   },
   setCoverPoolFromVolatility: async (tokenIn, tokenOut, volatility: any, client: CoverSubgraph) => {
     try {
+      console.log('fetching pool')
       const pool = await getCoverPoolFromFactory(
         client,
         tokenIn.address,
@@ -511,6 +512,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
           pool["data"]["coverPools"][i]["volatilityTier"]["feeAmount"] ==
           volatility
         ) {
+          console.log('pool found')
           matchedVolatility = true;
           set(() => ({
             coverPoolAddress: pool["data"]["coverPools"][i]["id"],
@@ -519,23 +521,36 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         }
       }
       dataLength = pool["data"]["volatilityTiers"].length;
-      if (!matchedVolatility && dataLength > 0)
+      if (!matchedVolatility && dataLength != undefined) {
+        console.log('no pool found', volatility, dataLength)
+        // set(() => ({
+        //   coverPoolAddress: ZERO_ADDRESS as `0x${string}`,
+        //   coverPoolData: {
+        //     volatilityTier: {
+        //       feeAmount: pool["data"]["volatilityTiers"]["feeAmount"],
+        //       tickSpread: pool["data"]["volatilityTiers"]["tickSpread"],
+        //       twapLength: pool["data"]["volatilityTiers"]["twapLength"],
+        //     },
+        //   },
+        // }));
         for (let idx = 0; idx < dataLength; idx++) {
           if (
-            pool["data"]["volatilityTiers"]["feeAmount"] == Number(volatility)
+            pool["data"]["volatilityTiers"][idx]["feeAmount"] == Number(volatility)
           ) {
+            console.log('tier matched')
             set(() => ({
               coverPoolAddress: ZERO_ADDRESS as `0x${string}`,
               coverPoolData: {
                 volatilityTier: {
-                  feeAmount: pool["data"]["volatilityTiers"]["feeAmount"],
-                  tickSpread: pool["data"]["volatilityTiers"]["tickSpread"],
-                  twapLength: pool["data"]["volatilityTiers"]["twapLength"],
+                  feeAmount: pool["data"]["volatilityTiers"][idx]["feeAmount"],
+                  tickSpread: pool["data"]["volatilityTiers"][idx]["tickSpread"],
+                  twapLength: pool["data"]["volatilityTiers"][idx]["twapLength"],
                 },
               },
             }));
           }
         }
+      }
     } catch (error) {
       console.log(error);
     }
