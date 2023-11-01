@@ -9,6 +9,8 @@ export const logoMap = {
   DAI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
 };
 
+export const defaultTokenLogo = "https://raw.githubusercontent.com/poolshark-protocol/token-metadata/master/blockchains/arbitrum-goerli/tokenZero.png"
+
 export const fetchRangeTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
   try {
     setTokenUSDPrice(
