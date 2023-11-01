@@ -10,6 +10,7 @@ import JSBI from "jsbi";
 import { getRangePoolFromFactory } from "../../utils/queries";
 import router from "next/router";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { formatUsdValue } from "../../utils/math/valueMath";
 
 export default function UserRangePool({ rangePosition, href, isModal }) {
   const [
@@ -307,7 +308,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
               </span>
             </div>
             <div className="text-right text-white text-xs lg:block hidden">
-              {!isModal && <span>${totalUsdValue}</span>}
+              {!isModal && <span>${formatUsdValue(totalUsdValue.toString())}</span>}
             </div>
           </div>
         </div>
