@@ -35,7 +35,7 @@ export function roundTick(tick: number, tickSpacing: number): number {
   return tick;
 }
 
-export function roundBack(tick: number, tickSpacing: number): number {
+export function roundDown(tick: number, tickSpacing: number): number {
   let minTick = Math.round(TickMath.MIN_TICK / tickSpacing) * tickSpacing
   let maxTick = Math.round(TickMath.MAX_TICK / tickSpacing) * tickSpacing
   if (minTick < TickMath.MIN_TICK) minTick -= -tickSpacing;
@@ -46,6 +46,22 @@ export function roundBack(tick: number, tickSpacing: number): number {
     if (roundedDown > maxTick) return maxTick
     if (roundedDown > tick) return roundedDown += -tickSpacing;
     return roundedDown
+  }
+  return tick;
+}
+
+export function roundUp(tick: number, tickSpacing: number): number {
+  let minTick = Math.round(TickMath.MIN_TICK / tickSpacing) * tickSpacing
+  let maxTick = Math.round(TickMath.MAX_TICK / tickSpacing) * tickSpacing
+  if (minTick < TickMath.MIN_TICK) minTick -= -tickSpacing;
+  if (maxTick > TickMath.MAX_TICK) maxTick -= tickSpacing;
+  if (tick % tickSpacing != 0) {
+    let roundedUp = Math.round(tick / tickSpacing) * tickSpacing;
+    if (roundedUp < minTick) return minTick
+    if (roundedUp > maxTick) return maxTick
+    console.log('rounded up', roundedUp, tick)
+    if (roundedUp < tick) return roundedUp -= -tickSpacing;
+    return roundedUp
   }
   return tick;
 }

@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useAccount, useContractRead, useSigner } from "wagmi";
 import LimitCollectButton from "../../components/Buttons/LimitCollectButton";
 import { BigNumber, ethers } from "ethers";
-import { TickMath, invertPrice, roundBack, roundTick } from "../../utils/math/tickMath";
+import { TickMath, invertPrice, roundDown, roundTick, roundUp } from "../../utils/math/tickMath";
 import { limitPoolABI } from "../../abis/evm/limitPool";
 import { getClaimTick, mapUserLimitPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Limit/RemoveLiquidity";
@@ -277,6 +277,7 @@ export default function ViewLimit() {
           (position) => position.id == positionId
         );
         if (position != undefined) {
+          console.log('round back negative', roundDown(-755, 10), roundUp(-755, 10))
           setLimitPoolAddress(position.poolId)
           setNeedsSnapshot(true);
           setLimitPositionData({
@@ -619,8 +620,8 @@ export default function ViewLimit() {
                       parseFloat(
                         ethers.utils.formatUnits(
                           getExpectedAmountOut(
-                            limitPositionData.zeroForOne ? limitPositionData.min : roundBack(claimTick, limitPositionData.tickSpacing),
-                            limitPositionData.zeroForOne ? roundBack(claimTick, limitPositionData.tickSpacing) : limitPositionData.max,
+                            limitPositionData.zeroForOne ? limitPositionData.min : roundUp(claimTick, limitPositionData.tickSpacing),
+                            limitPositionData.zeroForOne ? roundDown(claimTick, limitPositionData.tickSpacing) : limitPositionData.max,
                             limitPositionData.zeroForOne,
                             BigNumber.from(limitPositionData.liquidity)
                           ),
@@ -640,8 +641,8 @@ export default function ViewLimit() {
                       parseFloat(
                         ethers.utils.formatUnits(
                           getExpectedAmountOut(
-                            limitPositionData.zeroForOne ? limitPositionData.min : roundBack(claimTick, limitPositionData.tickSpacing),
-                            limitPositionData.zeroForOne ? roundBack(claimTick, limitPositionData.tickSpacing) : limitPositionData.max,
+                            limitPositionData.zeroForOne ? limitPositionData.min : roundUp(claimTick, limitPositionData.tickSpacing),
+                            limitPositionData.zeroForOne ? roundDown(claimTick, limitPositionData.tickSpacing) : limitPositionData.max,
                             limitPositionData.zeroForOne,
                             BigNumber.from(limitPositionData.liquidity)
                           ),
