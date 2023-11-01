@@ -34,7 +34,6 @@ export default function SelectToken(props) {
   const { data: tokenData, isError, isLoading, refetch: refetchTokenInfo } = useToken({
     address: customInput as `0x${string}`,
     onSuccess() {
-      console.log('token info fetched')
       setTokenInfo(tokenData)
     },
   })
@@ -51,7 +50,6 @@ export default function SelectToken(props) {
           decimals: tokenInfo.decimals,
         };
         setDisplayTokenList([customToken])
-        console.log('token info', customToken)
       }
     };
     fetch();
@@ -73,11 +71,15 @@ export default function SelectToken(props) {
           } as coinsList;
           for (let i = 0; i < coins.listed_tokens?.length; i++) {
             coins.listed_tokens[i].address = coins.listed_tokens[i].id;
+          }
+          if (coins.listed_tokens != undefined) {
             setListedTokenList(coins.listed_tokens);
             setDisplayTokenList(coins.listed_tokens);
           }
           for (let i = 0; i < coins.search_tokens?.length; i++) {
             coins.search_tokens[i].address = coins.search_tokens[i].id;
+          }
+          if (coins.search_tokens != undefined) {
             setSearchTokenList(coins.search_tokens);
           }
         })
@@ -93,11 +95,9 @@ export default function SelectToken(props) {
       // validate address
       const tokenAddressRegex = /^0x[a-fA-F0-9]{40}$/;
       if(customInput.match(tokenAddressRegex)?.length == 1 && customInput.length == 42) {
-        console.log('valid custom address')
         // if not in listed tokens or search tokens we need to fetch data from the chain
         refetchTokenInfo()
       } else {
-        console.log('invalid custom address')
         setDisplayTokenList(listedTokenList)
       }
     };
