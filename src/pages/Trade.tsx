@@ -544,7 +544,8 @@ export default function Trade() {
               ) < 0,
               Number(allLimitPositions[i].epochLast),
               false,
-              limitSubgraph
+              limitSubgraph,
+              undefined
             )
           );
           mappedLimitSnapshotParams[i][4] =

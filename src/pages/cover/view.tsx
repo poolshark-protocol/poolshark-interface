@@ -382,6 +382,7 @@ export default function ViewCover() {
       Number(coverPositionData.epochLast),
       true,
       coverSubgraph,
+      undefined,
       latestTick
     );
     setClaimTick(aux);
