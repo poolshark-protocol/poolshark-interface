@@ -55,6 +55,7 @@ export default function AddLiquidity({}) {
     setTokenOutAmount,
     setTokenOutRangeUSDPrice,
     setTokenOutBalance,
+    startPrice,
     pairSelected,
     setPairSelected,
     setMintButtonState,
@@ -68,6 +69,7 @@ export default function AddLiquidity({}) {
     setNeedsBalanceIn,
     setNeedsBalanceOut,
     setRangePoolData,
+    setStartPrice,
   ] = useRangeLimitStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
@@ -86,6 +88,7 @@ export default function AddLiquidity({}) {
     state.setTokenOutAmount,
     state.setTokenOutRangeUSDPrice,
     state.setTokenOutBalance,
+    state.startPrice,
     state.pairSelected,
     state.setPairSelected,
     state.setMintButtonState,
@@ -99,6 +102,7 @@ export default function AddLiquidity({}) {
     state.setNeedsBalanceIn,
     state.setNeedsBalanceOut,
     state.setRangePoolData,
+    state.setStartPrice,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -427,7 +431,6 @@ export default function AddLiquidity({}) {
 
   const [minInput, setMinInput] = useState("");
   const [maxInput, setMaxInput] = useState("");
-  const [startPrice, setStartPrice] = useState("");
 
   const handlePriceSwitch = () => {
     setPriceOrder(!priceOrder);

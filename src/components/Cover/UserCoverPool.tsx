@@ -65,7 +65,8 @@ export default function UserCoverPool({
       Boolean(coverPosition.zeroForOne),
       Number(coverPosition.epochLast),
       true,
-      coverSubgraph
+      coverSubgraph,
+      undefined
     );
     setClaimTick(tick);
     setClaimPrice(parseFloat(TickMath.getPriceStringAtTick(tick, tokenIn, tokenOut)));

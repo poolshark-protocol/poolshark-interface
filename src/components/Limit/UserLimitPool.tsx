@@ -3,6 +3,7 @@ import { getClaimTick } from "../../utils/maps";
 import { BigNumber, ethers } from "ethers";
 import {
   getAveragePrice,
+  getExpectedAmountIn,
   getExpectedAmountOut,
   getExpectedAmountOutFromInput,
 } from "../../utils/math/priceMath";
@@ -61,7 +62,8 @@ export default function UserLimitPool({
       tokenIn.callId == 0,
       Number(limitPosition.epochLast),
       false,
-      limitSubgraph
+      limitSubgraph,
+      undefined
     );
     setClaimTick(tick);
   };
@@ -113,7 +115,13 @@ export default function UserLimitPool({
                         className="w-[23px] h-[23px]"
                         src={logoMap[limitPosition.tokenIn.symbol]}
                     />
-                    {parseFloat(ethers.utils.formatUnits(limitPosition.amountIn, limitPosition.tokenIn.decimals)).toFixed(3) + " " + limitPosition.tokenIn.symbol}
+                    {parseFloat(ethers.utils.formatUnits(
+                        getExpectedAmountIn(
+                            parseInt(limitPosition.min),
+                            parseInt(limitPosition.max),
+                            limitPosition.tokenIn.id.localeCompare(limitPosition.tokenOut.id) < 0,
+                            BigNumber.from(limitPosition.liquidity)
+                        ), limitPosition.tokenIn.decimals)).toFixed(3) + " " + limitPosition.tokenIn.symbol}
                 </div>
             </td>
             <td className="">
@@ -145,7 +153,12 @@ export default function UserLimitPool({
                                 parseInt(limitPosition.max),
                                 limitPosition.tokenIn.id.localeCompare(limitPosition.tokenOut.id) < 0,
                                 BigNumber.from(limitPosition.liquidity),
-                                BigNumber.from(limitPosition.amountIn)
+                                getExpectedAmountIn(
+                                    parseInt(limitPosition.min),
+                                    parseInt(limitPosition.max),
+                                    limitPosition.tokenIn.id.localeCompare(limitPosition.tokenOut.id) < 0,
+                                    BigNumber.from(limitPosition.liquidity)
+                                )
                             ).toPrecision(6), limitPosition.tokenIn.id.localeCompare(limitPosition.tokenOut.id) < 0) + " " + limitPosition.tokenOut.symbol}
                     </span>
                 </div>
@@ -160,7 +173,12 @@ export default function UserLimitPool({
                                parseInt(limitPosition.min),
                                parseInt(limitPosition.max),
                                limitPosition.tokenIn.id.localeCompare(limitPosition.tokenOut.id) < 0,
-                               BigNumber.from(limitPosition.amountIn)
+                               getExpectedAmountIn(
+                                parseInt(limitPosition.min),
+                                parseInt(limitPosition.max),
+                                limitPosition.tokenIn.id.localeCompare(limitPosition.tokenOut.id) < 0,
+                                BigNumber.from(limitPosition.liquidity)
+                               )
                            ), limitPosition.tokenOut.decimals
                          ))).toFixed(1)}% Filled
                     </span>

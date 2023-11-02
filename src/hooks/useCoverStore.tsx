@@ -90,6 +90,7 @@ type CoverAction = {
     client: CoverSubgraph
   ) => void;
   setMintButtonState: () => void;
+  setCoverAddLiqDisabled: (coverAddLiqDisabled: boolean) => void;
 };
 
 const initialCoverState: CoverState = {
@@ -579,6 +580,14 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
             ? true
             : false,
       },
+    }));
+  },
+  setCoverAddLiqDisabled: (coverAddLiqDisabled: boolean) => {
+    set((state) => ({
+      coverPositionData: {
+        ...state.coverPositionData,
+        addLiqDisabled: coverAddLiqDisabled
+      }
     }));
   },
 }));

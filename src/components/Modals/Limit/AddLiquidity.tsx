@@ -146,7 +146,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   }, [bnInput]);
 
   async function updateMintFee() {
-    if (bnInput.gt(BN_ZERO) && signer) {
+    if (bnInput.gt(BN_ZERO) && signer && !limitPositionData.addLiqDisabled) {
       await gasEstimateMintLimit(
         limitPoolAddress,
         address,
@@ -262,7 +262,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                     />
                   ) : (
                     <LimitAddLiqButton
-                      disabled={disabled || mintGasFee == "$0.00"}
+                      disabled={disabled || mintGasLimit.lte(BN_ZERO)}
                       to={address}
                       poolAddress={limitPoolAddress}
                       routerAddress={chainProperties[networkName]["routerAddress"]}

@@ -22,6 +22,7 @@ export default function LimitCollectButton({
   zeroForOne,
   gasLimit,
   gasFee,
+  disabled,
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -77,12 +78,12 @@ export default function LimitCollectButton({
     <>
       <button
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer flex items-center justify-center text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
-        disabled={gasLimit.lte(BN_ZERO)}
+        disabled={gasLimit.lte(BN_ZERO) || disabled}
         onClick={() => {
           address ? write?.() : null;
         }}
       >
-        {gasLimit.lte(BN_ZERO) ? <Loader /> : "Collect position"}
+        {gasLimit.lte(BN_ZERO) ? <Loader /> : disabled ? "Nothing to collect" : "Collect position"}
       </button>
       <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay && (
