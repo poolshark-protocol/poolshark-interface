@@ -213,31 +213,31 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                     ) : (
                       <div className="pb-3 lg:pb-0">
                         <div className="w-auto space-y-2">
-                          {allRangePositions.map((allLimitPosition) => {
+                          {allRangePositions.map((allRangePosition) => {
                             if (
-                              allLimitPosition.tokenZero.name.toLowerCase() ===
+                              allRangePosition.tokenZero.name.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
-                              allLimitPosition.tokenZero.name
+                              allRangePosition.tokenZero.name
                                 .toLowerCase()
                                 .includes(searchTerm.toLowerCase()) ||
-                              allLimitPosition.tokenOne.name.toLowerCase() ===
+                              allRangePosition.tokenOne.name.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
-                              allLimitPosition.tokenOne.name
+                              allRangePosition.tokenOne.name
                                 .toLowerCase()
                                 .includes(searchTerm.toLowerCase()) ||
-                              allLimitPosition.tokenZero.symbol.toLowerCase() ===
+                              allRangePosition.tokenZero.symbol.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
-                              allLimitPosition.tokenZero.symbol
+                              allRangePosition.tokenZero.symbol
                                 .toLowerCase()
                                 .includes(searchTerm.toLowerCase()) ||
-                              allLimitPosition.tokenOne.symbol.toLowerCase() ===
+                              allRangePosition.tokenOne.symbol.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
-                              allLimitPosition.tokenOne.symbol
+                              allRangePosition.tokenOne.symbol
                                 .toLowerCase()
                                 .includes(searchTerm.toLowerCase()) ||
-                              allLimitPosition.tokenZero.id.toLowerCase() ===
+                              allRangePosition.tokenZero.id.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
-                              allLimitPosition.tokenOne.id.toLowerCase() ===
+                              allRangePosition.tokenOne.id.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
                               tokenList.find(
                                 (element) =>
@@ -251,13 +251,13 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                                   onClick={() => {
                                     setIsOpen(false);
                                     //prefill('exisingPool')
-                                    setParams(allLimitPosition);
+                                    setParams(allRangePosition);
                                   }}
-                                  key={allLimitPosition.id}
+                                  key={allRangePosition.id}
                                 >
                                   <UserRangePool
-                                    key={allLimitPosition.id}
-                                    rangePosition={allLimitPosition}
+                                    key={allRangePosition.id}
+                                    rangePosition={allRangePosition}
                                     href={"/cover/create"}
                                     isModal={true}
                                   />
