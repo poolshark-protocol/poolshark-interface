@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 import { LimitSubgraph, token, tokenRangeLimit } from "../utils/types";
 import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
@@ -12,7 +12,6 @@ import {
 } from "../utils/queries";
 import { parseUnits } from "../utils/math/valueMath";
 import { getRangeMintButtonDisabled, getRangeMintButtonMessage } from "../utils/buttons";
-import LimitAddLiqButton from "../components/Buttons/LimitAddLiqButton";
 
 type RangeLimitState = {
   //rangePoolAddress for current token pairs
