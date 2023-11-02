@@ -507,6 +507,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       );
       let dataLength = pool["data"]["coverPools"].length;
       let matchedVolatility = false;
+      console.log('data length pools', dataLength)
       for (let i = 0; i < dataLength; i++) {
         if (
           pool["data"]["coverPools"][i]["volatilityTier"]["feeAmount"] ==
@@ -521,31 +522,18 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         }
       }
       dataLength = pool["data"]["volatilityTiers"].length;
+      console.log('data length vol tiers', dataLength)
       if (!matchedVolatility && dataLength != undefined) {
-        console.log('no pool found', volatility, dataLength)
-        // set(() => ({
-        //   coverPoolAddress: ZERO_ADDRESS as `0x${string}`,
-        //   coverPoolData: {
-        //     volatilityTier: {
-        //       feeAmount: pool["data"]["volatilityTiers"]["feeAmount"],
-        //       tickSpread: pool["data"]["volatilityTiers"]["tickSpread"],
-        //       twapLength: pool["data"]["volatilityTiers"]["twapLength"],
-        //     },
-        //   },
-        // }));
+        console.log('no pool found', volatility, dataLength, volatility)
         for (let idx = 0; idx < dataLength; idx++) {
           if (
             pool["data"]["volatilityTiers"][idx]["feeAmount"] == Number(volatility)
           ) {
-            console.log('tier matched')
+            console.log('tier matched', pool["data"]["volatilityTiers"][idx])
             set(() => ({
               coverPoolAddress: ZERO_ADDRESS as `0x${string}`,
               coverPoolData: {
-                volatilityTier: {
-                  feeAmount: pool["data"]["volatilityTiers"][idx]["feeAmount"],
-                  tickSpread: pool["data"]["volatilityTiers"][idx]["tickSpread"],
-                  twapLength: pool["data"]["volatilityTiers"][idx]["twapLength"],
-                },
+                volatilityTier: pool["data"]["volatilityTiers"][idx]
               },
             }));
           }

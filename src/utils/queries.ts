@@ -111,6 +111,7 @@ export const getCoverPoolFromFactory = (
                 tickSpread
                 auctionLength
                 feeAmount
+                twapLength
               }
               token0 {
                 id
@@ -131,6 +132,7 @@ export const getCoverPoolFromFactory = (
               tickSpread
               auctionLength
               feeAmount
+              twapLength
             }
           }
          `;

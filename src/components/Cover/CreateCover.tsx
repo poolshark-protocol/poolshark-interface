@@ -27,19 +27,21 @@ import {
   gasEstimateCoverCreateAndMint,
   gasEstimateCoverMint,
 } from "../../utils/gas";
-import { volatilityTiers } from "../../utils/pools";
+import { coverPoolTypes, volatilityTiers } from "../../utils/pools";
 import router from "next/router";
 import CoverCreateAndMintButton from "../Buttons/CoverCreateAndMintButton";
 import { coverPoolABI } from "../../abis/evm/coverPool";
 import { getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
 import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 
 export default function CreateCover(props: any) {
-  const [chainId, networkName, coverSubgraph] = useConfigStore((state) => [
+  const [chainId, networkName, coverSubgraph, coverFactoryAddress] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
     state.coverSubgraph,
+    state.coverFactoryAddress,
   ]);
 
   const [
@@ -152,6 +154,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (allowanceInCover) {
+      console.log('setting token in allowance', allowanceInCover.toString())
       setTokenInCoverAllowance(allowanceInCover.toString());
     }
   }, [allowanceInCover]);
@@ -180,24 +183,36 @@ export default function CreateCover(props: any) {
   ////////////////////////////////Latest Tick
 
   const { data: newLatestTick } = useContractRead({
-    address: coverPoolAddress,
-    abi: coverPoolABI,
+    address: coverFactoryAddress,
+    abi: coverPoolFactoryABI,
     functionName: "syncLatestTick",
+    args: [
+      {
+        poolType: coverPoolTypes['constant-product']['poolshark'],
+        tokenIn: tokenIn.address,
+        tokenOut: tokenOut.address,
+        feeTier: coverPoolData.volatilityTier?.feeAmount,
+        tickSpread: coverPoolData.volatilityTier?.tickSpread,
+        twapLength: coverPoolData.volatilityTier?.twapLength
+      }
+    ],
     chainId: chainId,
-    enabled: coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS,
+    enabled: coverPoolData.volatilityTier != undefined,
     watch: needsLatestTick,
     onSuccess(data) {
       setNeedsLatestTick(false);
+      console.log('Success syncLatestTick', newLatestTick, coverPoolAddress)
     },
     onError(error) {
-      console.log("Error syncLatestTick", error);
+      console.log("Error syncLatestTick", tokenIn.address, tokenOut.address, coverPoolData.volatilityTier.feeAmount, coverPoolData.volatilityTier.tickSpread, coverPoolData.volatilityTier.twapLength, error);
     },
     onSettled(data, error) {},
   });
 
   useEffect(() => {
     if (newLatestTick) {
-      setLatestTick(parseInt(newLatestTick.toString()));
+      console.log('setting latest tick', newLatestTick[0], newLatestTick[1], newLatestTick[2])
+      setLatestTick(parseInt(newLatestTick[0].toString()));
     }
   }, [newLatestTick]);
 
@@ -851,7 +866,7 @@ export default function CreateCover(props: any) {
         ) : (
           <CoverCreateAndMintButton
             routerAddress={chainProperties[networkName]["routerAddress"]}
-            poolType={"PSHARK-CPROD"}
+            poolType={coverPoolTypes['constant-product']['poolshark']}
             tokenIn={tokenIn}
             tokenOut={tokenOut}
             volTier={

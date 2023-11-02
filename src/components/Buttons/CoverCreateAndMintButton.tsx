@@ -63,7 +63,7 @@ export default function CoverCreateAndMintButton({
     functionName: "createCoverPoolAndMint",
     args: [
       {
-        poolType: ethers.utils.formatBytes32String(poolType),
+        poolType: poolType,
         tokenIn: tokenIn.address,
         tokenOut: tokenOut.address,
         feeTier: volTier.feeAmount,

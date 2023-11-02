@@ -538,6 +538,7 @@ export const gasEstimateCoverCreateAndMint = async (
     );
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     const amountIn = BigNumber.from(String(inAmount));
+    console.log('create cover pool params', networkName, volatilityTier, tokenIn.address, tokenOut.address)
     const gasUnits: BigNumber = await routerContract
       .connect(signer)
       .estimateGas.createCoverPoolAndMint(
@@ -550,17 +551,18 @@ export const gasEstimateCoverCreateAndMint = async (
           twapLength: volatilityTier.twapLength,
         }, // pool params
         [
-          {
-            to: address,
-            amount: inAmount,
-            positionId: BN_ZERO,
-            lower: lowerTick,
-            upper: upperTick,
-            zeroForOne: zeroForOne,
-            callbackData: ethers.utils.formatBytes32String(""),
-          },
+          // {
+          //   to: address,
+          //   amount: inAmount,
+          //   positionId: BN_ZERO,
+          //   lower: lowerTick,
+          //   upper: upperTick,
+          //   zeroForOne: zeroForOne,
+          //   callbackData: ethers.utils.formatBytes32String(""),
+          // },
         ] // cover positions
       );
+    console.log('gas units create and mint', gasUnits.toString())
     const price = await fetchEthPrice();
     const gasPrice = await provider.getGasPrice();
     const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);
@@ -574,7 +576,7 @@ export const gasEstimateCoverCreateAndMint = async (
 
     return { formattedPrice, gasUnits };
   } catch (error) {
-    console.log("gas error", error);
+    console.log("gas error Create and Mint", error);
     return { formattedPrice: "Unable to Estimate Gas", gasUnits: BN_ZERO };
   }
 };
