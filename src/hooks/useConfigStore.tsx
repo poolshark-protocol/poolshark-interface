@@ -3,10 +3,11 @@ import { CoverSubgraph, LimitSubgraph } from "../utils/types";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 
 type ConfigState = {
-  chainId: number
-  networkName: string
-  limitSubgraph: LimitSubgraph
-  coverSubgraph: CoverSubgraph
+  chainId: number;
+  networkName: string;
+  limitSubgraph: LimitSubgraph;
+  coverSubgraph: CoverSubgraph;
+  tokenList: any;
 };
 
 type ConfigAction = {
@@ -15,14 +16,16 @@ type ConfigAction = {
   setNetworkName: (networkName: string) => void;
   setLimitSubgraph: (limitSubgraphUrl: string) => void;
   setCoverSubgraph: (coverSubgraphUrl: string) => void;
+  setTokenList: (tokenList: any) => void;
 };
 
 const initialConfigState: ConfigState = {
   //
   chainId: 0,
-  networkName: '',
+  networkName: "",
   limitSubgraph: undefined,
   coverSubgraph: undefined,
+  tokenList: undefined,
 };
 
 export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
@@ -31,6 +34,7 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
   networkName: initialConfigState.networkName,
   limitSubgraph: initialConfigState.limitSubgraph,
   coverSubgraph: initialConfigState.coverSubgraph,
+  tokenList: initialConfigState.tokenList,
   setChainId: (chainId: number) => {
     set(() => ({
       chainId: chainId,
@@ -55,6 +59,11 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
         cache: new InMemoryCache(),
         uri: coverSubgraphUrl,
       }),
+    }));
+  },
+  setTokenList: (tokenList: any) => {
+    set(() => ({
+      tokenList: tokenList,
     }));
   },
 }));
