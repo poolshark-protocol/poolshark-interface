@@ -301,7 +301,7 @@ export default function ViewCover() {
         } else {
           //setNeedsCoverSnapshot(true);
           setNeedsPosRefetch(true);
-          router.push("/");
+          router.push("/cover");
         }
       }
       setIsLoading(false);
