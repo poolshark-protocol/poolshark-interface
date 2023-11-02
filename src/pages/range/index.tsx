@@ -269,18 +269,20 @@ export default function Range() {
                               .includes(searchTerm.toLowerCase()) ||
                             allRangePosition.tokenZero.symbol.toLowerCase() ===
                               searchTerm.toLowerCase() ||
+                            allRangePosition.tokenZero.symbol
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
                             allRangePosition.tokenOne.symbol.toLowerCase() ===
                               searchTerm.toLowerCase() ||
+                            allRangePosition.tokenOne.symbol
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
                             allRangePosition.tokenZero.id.toLowerCase() ===
                               searchTerm.toLowerCase() ||
                             allRangePosition.tokenOne.id.toLowerCase() ===
                               searchTerm.toLowerCase() ||
                             searchTerm === "")
                         ) {
-                          console.log(
-                            allRangePosition.tokenOne.name.toLowerCase()
-                          );
-                          console.log(searchTerm.toLowerCase());
                           return (
                             <UserRangePool
                               key={allRangePosition.id}
@@ -335,12 +337,24 @@ export default function Range() {
                         if (
                           allRangePool.tokenZero.name.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                          allRangePool.tokenZero.name
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
                           allRangePool.tokenOne.name.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                          allRangePool.tokenOne.name
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
                           allRangePool.tokenZero.symbol.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                          allRangePool.tokenZero.symbol
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
                           allRangePool.tokenOne.symbol.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                          allRangePool.tokenOne.symbol
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
                           allRangePool.tokenZero.id.toLowerCase() ===
                             searchTerm.toLowerCase() ||
                           allRangePool.tokenOne.id.toLowerCase() ===

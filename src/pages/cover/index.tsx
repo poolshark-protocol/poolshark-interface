@@ -20,11 +20,9 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties, supportedNetworkNames } from "../../utils/chains";
 
 export default function Cover() {
-  const [networkName, coverSubgraph, setCoverSubgraph] = useConfigStore((state) => [
-    state.networkName,
-    state.coverSubgraph,
-    state.setCoverSubgraph,
-  ]);
+  const [networkName, coverSubgraph, setCoverSubgraph] = useConfigStore(
+    (state) => [state.networkName, state.coverSubgraph, state.setCoverSubgraph]
+  );
 
   const [
     setCoverTokenIn,
@@ -273,12 +271,24 @@ export default function Cover() {
                               address?.toLowerCase() &&
                             (allCoverPosition.tokenZero.name.toLowerCase() ===
                               searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenZero.name
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
                               allCoverPosition.tokenOne.name.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenOne.name
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
                               allCoverPosition.tokenZero.symbol.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenZero.symbol
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
                               allCoverPosition.tokenOne.symbol.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenOne.symbol
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
                               allCoverPosition.tokenZero.id.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
                               allCoverPosition.tokenOne.id.toLowerCase() ===
@@ -351,12 +361,24 @@ export default function Cover() {
                         if (
                           allCoverPool.tokenZero.name.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                          allCoverPool.tokenZero.name
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
                           allCoverPool.tokenOne.name.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                          allCoverPool.tokenOne.name
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
                           allCoverPool.tokenZero.symbol.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                          allCoverPool.tokenZero.symbol
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
                           allCoverPool.tokenOne.symbol.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                          allCoverPool.tokenOne.symbol
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
                           allCoverPool.tokenZero.id.toLowerCase() ===
                             searchTerm.toLowerCase() ||
                           allCoverPool.tokenOne.id.toLowerCase() ===
