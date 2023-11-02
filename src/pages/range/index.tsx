@@ -27,12 +27,14 @@ export default function Range() {
   const [isPositionsLoading, setIsPositionsLoading] = useState(false);
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
 
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-    state.limitSubgraph,
-    state.setLimitSubgraph,
-  ]);
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph, tokenList] =
+    useConfigStore((state) => [
+      state.chainId,
+      state.networkName,
+      state.limitSubgraph,
+      state.setLimitSubgraph,
+      state.tokenList,
+    ]);
 
   const [
     setTokenIn,
@@ -258,16 +260,33 @@ export default function Range() {
                           allRangePosition.id != undefined &&
                           (allRangePosition.tokenZero.name.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                            allRangePosition.tokenZero.name
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
                             allRangePosition.tokenOne.name.toLowerCase() ===
                               searchTerm.toLowerCase() ||
+                            allRangePosition.tokenOne.name
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
                             allRangePosition.tokenZero.symbol.toLowerCase() ===
                               searchTerm.toLowerCase() ||
+                            allRangePosition.tokenZero.symbol
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
                             allRangePosition.tokenOne.symbol.toLowerCase() ===
                               searchTerm.toLowerCase() ||
+                            allRangePosition.tokenOne.symbol
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
                             allRangePosition.tokenZero.id.toLowerCase() ===
                               searchTerm.toLowerCase() ||
                             allRangePosition.tokenOne.id.toLowerCase() ===
                               searchTerm.toLowerCase() ||
+                            tokenList.find(
+                              (element) =>
+                                element.address.toLowerCase() ===
+                                searchTerm.toLowerCase()
+                            ) != undefined ||
                             searchTerm === "")
                         ) {
                           return (
@@ -324,12 +343,24 @@ export default function Range() {
                         if (
                           allRangePool.tokenZero.name.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                          allRangePool.tokenZero.name
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
                           allRangePool.tokenOne.name.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                          allRangePool.tokenOne.name
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
                           allRangePool.tokenZero.symbol.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                          allRangePool.tokenZero.symbol
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
                           allRangePool.tokenOne.symbol.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                          allRangePool.tokenOne.symbol
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
                           allRangePool.tokenZero.id.toLowerCase() ===
                             searchTerm.toLowerCase() ||
                           allRangePool.tokenOne.id.toLowerCase() ===

@@ -21,12 +21,10 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
     setSearchTerm(event.target.value);
   };
 
-  const [
-    limitSubgraph,
-    coverSubgraph
-  ] = useConfigStore((state) => [
+  const [limitSubgraph, coverSubgraph, tokenList] = useConfigStore((state) => [
     state.limitSubgraph,
-    state.coverSubgraph
+    state.coverSubgraph,
+    state.tokenList,
   ]);
 
   const [limitPositions, setLimitPositions] = useState([]);
@@ -215,32 +213,51 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                     ) : (
                       <div className="pb-3 lg:pb-0">
                         <div className="w-auto space-y-2">
-                          {allRangePositions.map((allLimitPosition) => {
+                          {allRangePositions.map((allRangePosition) => {
                             if (
-                              allLimitPosition.userOwnerAddress ===
-                                address?.toLowerCase() &&
-                              (allLimitPosition.tokenZero.name === searchTerm ||
-                                allLimitPosition.tokenOne.name === searchTerm ||
-                                allLimitPosition.tokenZero.symbol ===
-                                  searchTerm ||
-                                allLimitPosition.tokenOne.symbol ===
-                                  searchTerm ||
-                                allLimitPosition.tokenZero.id === searchTerm ||
-                                allLimitPosition.tokenOne.id === searchTerm ||
-                                searchTerm === "")
+                              allRangePosition.tokenZero.name.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allRangePosition.tokenZero.name
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
+                              allRangePosition.tokenOne.name.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allRangePosition.tokenOne.name
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
+                              allRangePosition.tokenZero.symbol.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allRangePosition.tokenZero.symbol
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
+                              allRangePosition.tokenOne.symbol.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allRangePosition.tokenOne.symbol
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
+                              allRangePosition.tokenZero.id.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allRangePosition.tokenOne.id.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              tokenList.find(
+                                (element) =>
+                                  element.address.toLowerCase() ===
+                                  searchTerm.toLowerCase()
+                              ) != undefined ||
+                              searchTerm === ""
                             ) {
                               return (
                                 <div
                                   onClick={() => {
                                     setIsOpen(false);
                                     //prefill('exisingPool')
-                                    setParams(allLimitPosition);
+                                    setParams(allRangePosition);
                                   }}
-                                  key={allLimitPosition.id}
+                                  key={allRangePosition.id}
                                 >
                                   <UserRangePool
-                                    key={allLimitPosition.id}
-                                    rangePosition={allLimitPosition}
+                                    key={allRangePosition.id}
+                                    rangePosition={allRangePosition}
                                     href={"/cover/create"}
                                     isModal={true}
                                   />
