@@ -27,12 +27,13 @@ export default function Range() {
   const [isPositionsLoading, setIsPositionsLoading] = useState(false);
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
 
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-    state.limitSubgraph,
-    state.setLimitSubgraph,
-  ]);
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph] =
+    useConfigStore((state) => [
+      state.chainId,
+      state.networkName,
+      state.limitSubgraph,
+      state.setLimitSubgraph,
+    ]);
 
   const [
     setTokenIn,
@@ -258,8 +259,14 @@ export default function Range() {
                           allRangePosition.id != undefined &&
                           (allRangePosition.tokenZero.name.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                            allRangePosition.tokenZero.name
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
                             allRangePosition.tokenOne.name.toLowerCase() ===
                               searchTerm.toLowerCase() ||
+                            allRangePosition.tokenOne.name
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
                             allRangePosition.tokenZero.symbol.toLowerCase() ===
                               searchTerm.toLowerCase() ||
                             allRangePosition.tokenOne.symbol.toLowerCase() ===
@@ -270,6 +277,10 @@ export default function Range() {
                               searchTerm.toLowerCase() ||
                             searchTerm === "")
                         ) {
+                          console.log(
+                            allRangePosition.tokenOne.name.toLowerCase()
+                          );
+                          console.log(searchTerm.toLowerCase());
                           return (
                             <UserRangePool
                               key={allRangePosition.id}
