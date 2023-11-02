@@ -17,26 +17,29 @@ import { defaultTokenLogo } from "../utils/tokens";
 export default function SelectToken(props) {
   const { address } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
-  const [customInput, setCustomInput] = useState('');
+  const [customInput, setCustomInput] = useState("");
   const [displayTokenList, setDisplayTokenList] = useState([]);
   const [listedTokenList, setListedTokenList] = useState([]);
   const [searchTokenList, setSearchTokenList] = useState([]);
   const [tokenInfo, setTokenInfo] = useState(undefined);
 
-  const [
-    chainId,
-    networkName
-  ] = useConfigStore((state) => [
+  const [chainId, networkName, setTokenList] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
+    state.setTokenList,
   ]);
 
-  const { data: tokenData, isError, isLoading, refetch: refetchTokenInfo } = useToken({
+  const {
+    data: tokenData,
+    isError,
+    isLoading,
+    refetch: refetchTokenInfo,
+  } = useToken({
     address: customInput as `0x${string}`,
     onSuccess() {
-      setTokenInfo(tokenData)
+      setTokenInfo(tokenData);
     },
-  })
+  });
 
   useEffect(() => {
     const fetch = async () => {
@@ -49,7 +52,7 @@ export default function SelectToken(props) {
           logoURI: defaultTokenLogo,
           decimals: tokenInfo.decimals,
         };
-        setDisplayTokenList([customToken])
+        setDisplayTokenList([customToken]);
       }
     };
     fetch();
@@ -75,6 +78,7 @@ export default function SelectToken(props) {
           if (coins.listed_tokens != undefined) {
             setListedTokenList(coins.listed_tokens);
             setDisplayTokenList(coins.listed_tokens);
+            setTokenList(coins.listed_tokens);
           }
           for (let i = 0; i < coins.search_tokens?.length; i++) {
             coins.search_tokens[i].address = coins.search_tokens[i].id;
@@ -94,11 +98,14 @@ export default function SelectToken(props) {
     const fetch = async () => {
       // validate address
       const tokenAddressRegex = /^0x[a-fA-F0-9]{40}$/;
-      if(customInput.match(tokenAddressRegex)?.length == 1 && customInput.length == 42) {
+      if (
+        customInput.match(tokenAddressRegex)?.length == 1 &&
+        customInput.length == 42
+      ) {
         // if not in listed tokens or search tokens we need to fetch data from the chain
-        refetchTokenInfo()
+        refetchTokenInfo();
       } else {
-        setDisplayTokenList(listedTokenList)
+        setDisplayTokenList(listedTokenList);
       }
     };
     fetch();
@@ -114,21 +121,31 @@ export default function SelectToken(props) {
     };
     if (props.amount != undefined && props.isAmountIn != undefined) {
       if (props.type === "in") {
-        props.setTokenIn(props.tokenOut, {
-          name: coin?.name,
-          address: coin?.address,
-          symbol: coin?.symbol,
-          logoURI: coin?.logoURI,
-          decimals: coin?.decimals,
-        }, props.amount, props.isAmountIn);
+        props.setTokenIn(
+          props.tokenOut,
+          {
+            name: coin?.name,
+            address: coin?.address,
+            symbol: coin?.symbol,
+            logoURI: coin?.logoURI,
+            decimals: coin?.decimals,
+          },
+          props.amount,
+          props.isAmountIn
+        );
       } else {
-        props.setTokenOut(props.tokenIn, {
-          name: coin?.name,
-          address: coin?.address,
-          symbol: coin?.symbol,
-          logoURI: coin?.logoURI,
-          decimals: coin?.decimals,
-        }, props.amount, props.isAmountIn);
+        props.setTokenOut(
+          props.tokenIn,
+          {
+            name: coin?.name,
+            address: coin?.address,
+            symbol: coin?.symbol,
+            logoURI: coin?.logoURI,
+            decimals: coin?.decimals,
+          },
+          props.amount,
+          props.isAmountIn
+        );
       }
     } else {
       if (props.type === "in") {
@@ -252,7 +269,9 @@ export default function SelectToken(props) {
           ) : (
             <></>
           )}
-          <span className="text-xs uppercase">{props.displayToken?.symbol}</span>
+          <span className="text-xs uppercase">
+            {props.displayToken?.symbol}
+          </span>
         </div>
         <ChevronDownIcon className="w-6" />
       </button>
