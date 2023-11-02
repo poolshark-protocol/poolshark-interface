@@ -21,12 +21,10 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
     setSearchTerm(event.target.value);
   };
 
-  const [
-    limitSubgraph,
-    coverSubgraph
-  ] = useConfigStore((state) => [
+  const [limitSubgraph, coverSubgraph, tokenList] = useConfigStore((state) => [
     state.limitSubgraph,
-    state.coverSubgraph
+    state.coverSubgraph,
+    state.tokenList,
   ]);
 
   const [limitPositions, setLimitPositions] = useState([]);
@@ -217,17 +215,36 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                         <div className="w-auto space-y-2">
                           {allRangePositions.map((allLimitPosition) => {
                             if (
-                              allLimitPosition.userOwnerAddress ===
-                                address?.toLowerCase() &&
-                              (allLimitPosition.tokenZero.name === searchTerm ||
-                                allLimitPosition.tokenOne.name === searchTerm ||
-                                allLimitPosition.tokenZero.symbol ===
-                                  searchTerm ||
-                                allLimitPosition.tokenOne.symbol ===
-                                  searchTerm ||
-                                allLimitPosition.tokenZero.id === searchTerm ||
-                                allLimitPosition.tokenOne.id === searchTerm ||
-                                searchTerm === "")
+                              allLimitPosition.tokenZero.name.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allLimitPosition.tokenZero.name
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
+                              allLimitPosition.tokenOne.name.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allLimitPosition.tokenOne.name
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
+                              allLimitPosition.tokenZero.symbol.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allLimitPosition.tokenZero.symbol
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
+                              allLimitPosition.tokenOne.symbol.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allLimitPosition.tokenOne.symbol
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
+                              allLimitPosition.tokenZero.id.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allLimitPosition.tokenOne.id.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              tokenList.find(
+                                (element) =>
+                                  element.address.toLowerCase() ===
+                                  searchTerm.toLowerCase()
+                              ) != undefined ||
+                              searchTerm === ""
                             ) {
                               return (
                                 <div
