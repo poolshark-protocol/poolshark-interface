@@ -87,8 +87,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     state.setMintButtonState,
   ]);
 
-  const { bnInput, maxBalance, inputBox, setDisplay } = useInputBox();
-  const { bnInput: bnInput2, maxBalance: maxBalance2, inputBox: inputBox2, setDisplay: setDisplay2 } = useInputBox();
+  const { bnInput, inputBox, setDisplay } = useInputBox();
+  const { bnInput: bnInput2, inputBox: inputBox2, setDisplay: setDisplay2 } = useInputBox();
   const router = useRouter();
   const provider = useProvider();
   const { address } = useAccount();
@@ -453,7 +453,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                       <div className="flex items-center gap-x-2">
                         {isConnected && stateChainName === networkName ? (
                           <button
-                            onClick={() => maxBalance(tokenIn.userBalance, "0", tokenIn)}
+                            onClick={() => {handleInput1({target: {value: tokenIn.userBalance.toString(), name: "tokenIn"}})}}
+                            disabled={amountInDisabled}
                             className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
                           >
                             MAX
@@ -490,6 +491,15 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         {inputBox2("0", tokenOut, "tokenOut", handleInput1, amountOutDisabled)}
                       </span>
                       <div className="flex items-center gap-x-2">
+                      {isConnected && stateChainName === networkName ? (
+                          <button
+                            onClick={() => {handleInput1({target: {value: tokenOut.userBalance.toString(), name: "tokenOut"}})}}
+                            disabled={amountOutDisabled}
+                            className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
+                          >
+                            MAX
+                          </button>
+                        ) : null}
                         <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
                           <img height="28" width="25" src={tokenOut.logoURI} />
                           {tokenOut.symbol}

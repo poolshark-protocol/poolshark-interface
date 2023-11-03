@@ -6,6 +6,7 @@ import {
   getCoverTickIfZeroForOne,
 } from "./queries";
 import { CoverSubgraph, LimitSubgraph } from "./types";
+import { logoMap } from "./tokens";
 
 export const getClaimTick = async (
   poolAddress: string,
@@ -15,7 +16,8 @@ export const getClaimTick = async (
   epochLast: number,
   isCover: boolean,
   client: LimitSubgraph | CoverSubgraph,
-  latestTick?: number
+  setAddLiqDisabled: any,
+  latestTick?: number,
 ) => {
   // default to start tick
   let claimTick: number;
@@ -30,6 +32,9 @@ export const getClaimTick = async (
       : claimTickQuery["data"]["limitTicks"].length;
     // set claim tick if found
     if (claimTickDataLength > 0) {
+      if (setAddLiqDisabled != undefined) {
+        setAddLiqDisabled(true)
+      }
       claimTick = isCover
         ? claimTickQuery["data"]["ticks"][0]["index"]
         : claimTickQuery["data"]["limitTicks"][0]["index"];
@@ -46,6 +51,9 @@ export const getClaimTick = async (
         }
       }
     } else if (claimTickDataLength != undefined) {
+      if (setAddLiqDisabled != undefined) {
+        setAddLiqDisabled(false)
+      }
       claimTick = isCover ? maxLimit : minLimit
     }
   } else {
@@ -179,6 +187,7 @@ export function mapUserCoverPositions(coverPositions, coverSubgraph: CoverSubgra
       coverPosition.epochLast,
       true,
       coverSubgraph,
+      undefined
     );
   });
   return mappedCoverPositions;
@@ -210,14 +219,15 @@ export function mapUserLimitPositions(limitPositions) {
   limitPositions?.map((limitPosition) => {
     const limitPositionData = {
       id: limitPosition.id,
-      timestamp: limitPosition.createdAtTimestamp,
       positionId: limitPosition.positionId,
       pool: limitPosition.pool,
       poolId: limitPosition.pool.id,
       amountIn: limitPosition.amountIn,
       amountFilled: limitPosition.amountFilled,
       claimPriceLast: limitPosition.claimPriceLast,
+      timestamp: limitPosition.createdAtTimestamp,
       liquidity: limitPosition.liquidity,
+      zeroForOne: limitPosition.zeroForOne,
       poolLiquidity: limitPosition.pool.liquidity,
       poolLiquidityGlobal: limitPosition.pool.liquidityGlobal,
       min: limitPosition.lower,
@@ -226,11 +236,13 @@ export function mapUserLimitPositions(limitPositions) {
       epochLast: limitPosition.epochLast,
       tokenIn: {
         ...limitPosition.tokenIn,
-        address: limitPosition.tokenIn.id
+        address: limitPosition.tokenIn.id,
+        logoURI: logoMap[limitPosition.tokenIn.symbol],
       },
       tokenOut: {
         ...limitPosition.tokenOut,
-        address: limitPosition.tokenOut.id
+        address: limitPosition.tokenOut.id,
+        logoURI: logoMap[limitPosition.tokenOut.symbol],
       },
       price0: limitPosition.pool.price0,
       price1: limitPosition.pool.price1,

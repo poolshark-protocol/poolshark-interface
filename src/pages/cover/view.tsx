@@ -1,7 +1,7 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import router from "next/router";
-import { useAccount, useContractRead, useProvider, useSigner } from "wagmi";
+import { useAccount, useContractRead, useSigner } from "wagmi";
 import CoverCollectButton from "../../components/Buttons/CoverCollectButton";
 import { BigNumber, ethers } from "ethers";
 import { TickMath } from "../../utils/math/tickMath";
@@ -15,17 +15,17 @@ import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import { fetchCoverPositions } from "../../utils/queries";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
-import { useCopyElementUseEffect } from "../../utils/misc";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { chainProperties, supportedNetworkNames } from "../../utils/chains";
+import { chainProperties } from "../../utils/chains";
 
 export default function ViewCover() {
-  const [chainId, networkName, coverSubgraph, setCoverSubgraph] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-    state.coverSubgraph,
-    state.setCoverSubgraph,
-  ]);
+  const [chainId, networkName, coverSubgraph, setCoverSubgraph] =
+    useConfigStore((state) => [
+      state.chainId,
+      state.networkName,
+      state.coverSubgraph,
+      state.setCoverSubgraph,
+    ]);
 
   const [
     coverPoolAddress,
@@ -46,6 +46,7 @@ export default function ViewCover() {
     setLatestTick,
     setClaimTick,
     setCoverPoolFromVolatility,
+    setCoverAddLiqDisabled,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -65,6 +66,7 @@ export default function ViewCover() {
     state.setLatestTick,
     state.setClaimTick,
     state.setCoverPoolFromVolatility,
+    state.setCoverAddLiqDisabled,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -286,10 +288,9 @@ export default function ViewCover() {
         const positions = data["data"].positions;
         const positionData = mapUserCoverPositions(positions, coverSubgraph);
         setAllCoverPositions(positionData);
-        const positionId =
-          coverPositionData.positionId ?? router.query.positionId;
+        const positionId = coverPositionData.id ?? router.query.id;
         const position = positionData.find(
-          (position) => position.positionId == positionId
+          (position) => position.id == positionId
         );
         setCoverPoolFromVolatility(
           tokenIn,
@@ -298,7 +299,14 @@ export default function ViewCover() {
           coverSubgraph
         );
         if (position != undefined) {
-          setCoverPositionData(position);
+          setCoverPositionData({
+            ...position,
+            addLiqDisabled: coverPositionData.addLiqDisabled,
+          });
+        } else {
+          //setNeedsCoverSnapshot(true);
+          setNeedsPosRefetch(true);
+          router.push("/cover");
         }
       }
       setIsLoading(false);
@@ -383,6 +391,7 @@ export default function ViewCover() {
       Number(coverPositionData.epochLast),
       true,
       coverSubgraph,
+      setCoverAddLiqDisabled,
       latestTick
     );
     setClaimTick(aux);
@@ -397,18 +406,32 @@ export default function ViewCover() {
         <div className="flex md:flex-row flex-col justify-between w-full items-start md:items-center gap-y-5">
           <div className="flex items-center gap-x-3">
             <div className="flex items-center">
-              <img height="50" width="50" src={tokenIn.logoURI} />
-              <img
-                height="50"
-                width="50"
-                className="ml-[-12px]"
-                src={tokenOut.logoURI}
-              />
+              {isLoading ? (
+                <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
+              ) : (
+                <img height="50" width="50" src={tokenIn.logoURI} />
+              )}
+              {isLoading ? (
+                <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
+              ) : (
+                <img
+                  height="50"
+                  width="50"
+                  className="ml-[-12px]"
+                  src={tokenOut.logoURI}
+                />
+              )}
             </div>
             <div className="flex flex-col gap-y-2">
               <div className="flex items-center text-white">
                 <h1>
-                  {tokenIn.symbol}-{tokenOut.symbol}
+                  {isLoading ? (
+                    <div className="h-5 w-20 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    <div>
+                      {tokenIn.symbol}-{tokenOut.symbol}
+                    </div>
+                  )}
                 </h1>
                 <a
                   href={
@@ -425,14 +448,18 @@ export default function ViewCover() {
                 </a>
               </div>
               <div className="flex items-center gap-x-5">
-                <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {
+              {isLoading ? (
+                  <div className="h-5 w-14 bg-grey/60 animate-pulse rounded-[4px]" />
+                ) : (
+                  <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
+                    {
                     volTierMap.get(
                       coverPoolData.volatilityTier?.feeAmount?.toString()
                     )?.volatility
                   }
                   %
-                </span>
+                  </span>
+                )}
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
                   {isLoading ? (
                     <div className="h-4 w-14 bg-grey/60 animate-pulse rounded-[4px]" />
@@ -466,14 +493,24 @@ export default function ViewCover() {
             </div>
           </div>
           <div className="flex items-center gap-x-4 w-full md:w-auto">
+            {!coverPositionData.addLiqDisabled ? (
+              <>
+                <button
+                  className="bg-main1 w-full border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
+                  onClick={() => setIsAddOpen(true)}
+                >
+                  Add Liquidity
+                </button>
+              </>
+            ) : (
+              <></>
+            )}
             <button
-              className="bg-main1 w-full border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
-              onClick={() => setIsAddOpen(true)}
-            >
-              Add Liquidity
-            </button>
-            <button
-              className="bg-black whitespace-nowrap w-full border border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
+              className={
+                !coverPositionData.addLiqDisabled
+                  ? "bg-black whitespace-nowrap w-full border border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
+                  : "bg-main1 whitespace-nowrap w-full border border-main transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-main2"
+              }
               onClick={() => setIsRemoveOpen(true)}
             >
               Remove Liquidity
@@ -517,8 +554,16 @@ export default function ViewCover() {
                   )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
-                      <img height="28" width="25" src={tokenIn.logoURI} />
-                      {tokenIn.symbol}
+                      {isLoading ? (
+                        <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
+                      ) : (
+                        <img height="25" width="25" src={tokenIn.logoURI} />
+                      )}
+                      {isLoading ? (
+                        <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
+                      ) : (
+                        tokenIn.symbol
+                      )}
                     </div>
                   </div>
                 </div>
@@ -711,8 +756,16 @@ export default function ViewCover() {
                   )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
-                      <img height="28" width="25" src={tokenOut.logoURI} />
-                      {tokenOut.symbol}
+                    {isLoading ? (
+                        <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
+                      ) : (
+                        <img height="25" width="25" src={tokenOut.logoURI} />
+                      )}
+                      {isLoading ? (
+                        <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
+                      ) : (
+                        tokenOut.symbol
+                      )}
                     </div>
                   </div>
                 </div>
