@@ -356,7 +356,11 @@ export const fetchCoverPositions = (client: CoverSubgraph, address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
       query($owner: String) {
-          positions(where: {owner:"${address}"}) {
+          positions(
+            where: {owner:"${address}"}
+            orderBy: liquidity,
+            orderDirection: desc
+          ) {
                 id
                 positionId
                 lower
@@ -431,7 +435,7 @@ export const fetchCoverPools = (client: CoverSubgraph) => {
   return new Promise(function (resolve) {
     const poolsQuery = `
             query($id: String) {
-                coverPools(id: $id) {
+                coverPools(orderBy: totalValueLockedUsd, orderDirection: desc) {
                     id
                     inputPool
                     token0{
