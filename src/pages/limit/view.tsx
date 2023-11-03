@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useAccount, useContractRead, useSigner } from "wagmi";
 import LimitCollectButton from "../../components/Buttons/LimitCollectButton";
 import { BigNumber, ethers } from "ethers";
-import { TickMath, invertPrice } from "../../utils/math/tickMath";
+import { TickMath, invertPrice, roundDown, roundTick, roundUp } from "../../utils/math/tickMath";
 import { limitPoolABI } from "../../abis/evm/limitPool";
 import { getClaimTick, mapUserLimitPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Limit/RemoveLiquidity";
@@ -17,7 +17,7 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import JSBI from "jsbi";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { gasEstimateBurnLimit } from "../../utils/gas";
-import { getExpectedAmountOut, getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
+import { getExpectedAmountIn, getExpectedAmountOut, getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { parseUnits } from "../../utils/math/valueMath";
 import { formatUnits } from "ethers/lib/utils.js";
@@ -35,7 +35,7 @@ export default function ViewLimit() {
   const [
     setNeedsTradeSnapshot,
     setNeedsTradePosRefetch
-  ] = useRangeLimitStore((state) => [
+  ] = useTradeStore((state) => [
     state.setNeedsSnapshot,
     state.setNeedsPosRefetch
   ]);
@@ -64,6 +64,7 @@ export default function ViewLimit() {
     setTokenOutLimitUSDPrice,
     setClaimTick,
     setCurrentAmountOut,
+    setLimitAddLiqDisabled,
   ] = useRangeLimitStore((state) => [
     state.limitPoolAddress,
     state.limitPositionData,
@@ -88,6 +89,7 @@ export default function ViewLimit() {
     state.setTokenOutRangeUSDPrice,
     state.setClaimTick,
     state.setCurrentAmountOut,
+    state.setLimitAddLiqDisabled,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -101,6 +103,7 @@ export default function ViewLimit() {
   const [priceDirection, setPriceDirection] = useState(tokenIn.callId == 0);
   const [limitFilledAmount, setLimitFilledAmount] = useState("");
   const [allLimitPositions, setAllLimitPositions] = useState([]);
+  const [isFullSpacingClaim, setIsFullSpacingClaim] = useState(false) 
 
   //Display and copy flags
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -161,7 +164,6 @@ export default function ViewLimit() {
         limitPositionData.feeTier,
         limitSubgraph
       );
-
     }
   }, [limitPositionData.tokenIn]);
 
@@ -173,21 +175,21 @@ export default function ViewLimit() {
     args: [
       [
         address,
-        parseUnits("0", 38),
+        parseUnits("1", 38),
         Number(limitPositionData.positionId),
         BigNumber.from(claimTick),
         tokenIn.callId == 0,
       ],
     ],
     chainId: chainId,
-    watch: true,
+    watch: needsSnapshot,
     enabled:
       isConnected &&
       limitPositionData.positionId != undefined &&
       claimTick >= Number(limitPositionData.min) &&
       claimTick <= Number(limitPositionData.max),
     onSuccess(data) {
-      console.log("Success price filled amount", data);
+      // console.log("Success price filled amount", data);
       setNeedsSnapshot(false);
     },
     onError(error) {
@@ -234,7 +236,7 @@ export default function ViewLimit() {
       }, 1500);
       updateCollectFee();
     }
-  }, [claimTick, limitPoolAddress, limitPositionData]);
+  }, [limitPoolAddress, limitPositionData]);
 
   async function updateClaimTick() {
     if (limitPositionData.min != undefined &&
@@ -249,11 +251,15 @@ export default function ViewLimit() {
         tokenIn.callId == 0,
         Number(limitPositionData.epochLast),
         false,
-        limitSubgraph
+        limitSubgraph,
+        setLimitAddLiqDisabled
       );
         
       setClaimTick(aux);
-      console.log("claim tick", aux);
+      setIsFullSpacingClaim(
+        Boolean(limitPositionData.zeroForOne) ? claimTick - parseInt(limitPositionData.min) > parseInt(limitPositionData.tickSpacing)
+                                              : parseInt(limitPositionData.max) - claimTick > parseInt(limitPositionData.tickSpacing)
+      )
     }  
   }
 
@@ -271,9 +277,13 @@ export default function ViewLimit() {
           (position) => position.id == positionId
         );
         if (position != undefined) {
+          console.log('round back negative', roundDown(-755, 10), roundUp(-755, 10))
           setLimitPoolAddress(position.poolId)
           setNeedsSnapshot(true);
-          setLimitPositionData(position);
+          setLimitPositionData({
+            ...position,
+            addLiqDisabled: limitPositionData.addLiqDisabled ?? false
+          });
           setTokenIn(position.tokenOut, position.tokenIn, '0', true)
           setTokenOut(position.tokenIn, position.tokenOut, '0', false)
         } else {
@@ -384,18 +394,24 @@ export default function ViewLimit() {
             </div>
           </div>
           <div className="flex items-center gap-x-4 w-full md:w-auto">
+            {!limitPositionData.addLiqDisabled ? (
+              <>
+                <button
+                  className="bg-main1 w-full border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
+                  onClick={() => setIsAddOpen(true)}
+                >
+                  Add Liquidity
+                </button></>) : (<></>)
+            }
             <button
-              className="bg-main1 w-full border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
-              onClick={() => setIsAddOpen(true)}
-            >
-              Add Liquidity
-            </button>
-            <button
-              className="bg-black whitespace-nowrap w-full border border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
+              className={!limitPositionData.addLiqDisabled ? "bg-black whitespace-nowrap w-full border border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
+                                                           : "bg-main1 whitespace-nowrap w-full border border-main transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-main2"
+              }
               onClick={() => setIsRemoveOpen(true)}
             >
               Remove Liquidity
             </button>
+
           </div>
         </div>
         <div className="flex flex-col lg:flex-row justify-between w-full mt-8  gap-10">
@@ -410,12 +426,13 @@ export default function ViewLimit() {
                     ~$
                     {!isNaN(Number(currentAmountOut)) &&
                     !isNaN(tokenIn.USDPrice)
-                      ? (Number(currentAmountOut) * tokenIn.USDPrice).toFixed(2)
+                    ? (parseFloat(currentAmountOut) * tokenIn.USDPrice).toFixed(2)
                       : "0.00"}
                   </span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {Number(currentAmountOut).toFixed(2)}
+                  {!isNaN(Number(currentAmountOut)) ? (parseFloat(currentAmountOut)).toFixed(2)
+                      : "0.00"}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenIn.logoURI} />
@@ -596,10 +613,22 @@ export default function ViewLimit() {
               <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
                   {!isNaN(Number(limitFilledAmount)) &&
-                  !isNaN(tokenOut.USDPrice) ? (
+                  !isNaN(tokenOut.USDPrice) && isFullSpacingClaim ? (
                     <span>
                       ~$
-                      {(Number(limitFilledAmount) * tokenOut.USDPrice).toFixed(
+                      {((
+                      parseFloat(
+                        ethers.utils.formatUnits(
+                          getExpectedAmountOut(
+                            limitPositionData.zeroForOne ? limitPositionData.min : roundUp(claimTick, limitPositionData.tickSpacing),
+                            limitPositionData.zeroForOne ? roundDown(claimTick, limitPositionData.tickSpacing) : limitPositionData.max,
+                            limitPositionData.zeroForOne,
+                            BigNumber.from(limitPositionData.liquidity)
+                          ),
+                          limitPositionData.tokenOut.decimals
+                        )
+                      )
+                    ) * tokenOut.USDPrice).toFixed(
                         2
                       )}
                     </span>
@@ -608,7 +637,19 @@ export default function ViewLimit() {
                   )}
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {Number(limitFilledAmount).toFixed(2)}
+                  {isFullSpacingClaim ? ((
+                      parseFloat(
+                        ethers.utils.formatUnits(
+                          getExpectedAmountOut(
+                            limitPositionData.zeroForOne ? limitPositionData.min : roundUp(claimTick, limitPositionData.tickSpacing),
+                            limitPositionData.zeroForOne ? roundDown(claimTick, limitPositionData.tickSpacing) : limitPositionData.max,
+                            limitPositionData.zeroForOne,
+                            BigNumber.from(limitPositionData.liquidity)
+                          ),
+                          limitPositionData.tokenOut.decimals
+                        )
+                      )
+                    )).toFixed(2) : '0.00'}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenOut.logoURI} />
@@ -626,6 +667,7 @@ export default function ViewLimit() {
                 zeroForOne={tokenIn.callId == 0}
                 gasLimit={collectGasLimit}
                 gasFee={collectGasFee}
+                disabled={!isFullSpacingClaim || isNaN(parseFloat(limitFilledAmount)) || parseFloat(limitFilledAmount) == 0}
               />
               {/*TO-DO: add positionOwner ternary again*/}
             </div>

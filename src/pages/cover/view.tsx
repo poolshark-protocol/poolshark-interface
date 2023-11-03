@@ -45,6 +45,7 @@ export default function ViewCover() {
     setLatestTick,
     setClaimTick,
     setCoverPoolFromVolatility,
+    setCoverAddLiqDisabled,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -64,6 +65,7 @@ export default function ViewCover() {
     state.setLatestTick,
     state.setClaimTick,
     state.setCoverPoolFromVolatility,
+    state.setCoverAddLiqDisabled,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -297,7 +299,10 @@ export default function ViewCover() {
           coverSubgraph
         );
         if (position != undefined) {
-          setCoverPositionData(position);
+          setCoverPositionData({
+            ...position,
+            addLiqDisabled: coverPositionData.addLiqDisabled
+          });
         }
       }
       setIsLoading(false);
@@ -382,6 +387,7 @@ export default function ViewCover() {
       Number(coverPositionData.epochLast),
       true,
       coverSubgraph,
+      setCoverAddLiqDisabled,
       latestTick
     );
     setClaimTick(aux);
@@ -465,14 +471,19 @@ export default function ViewCover() {
             </div>
           </div>
           <div className="flex items-center gap-x-4 w-full md:w-auto">
+            {!coverPositionData.addLiqDisabled ? (
+              <>
+                <button
+                  className="bg-main1 w-full border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
+                  onClick={() => setIsAddOpen(true)}
+                >
+                  Add Liquidity
+                </button></>) : (<></>)
+            }
             <button
-              className="bg-main1 w-full border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
-              onClick={() => setIsAddOpen(true)}
-            >
-              Add Liquidity
-            </button>
-            <button
-              className="bg-black whitespace-nowrap w-full border border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
+              className={!coverPositionData.addLiqDisabled ? "bg-black whitespace-nowrap w-full border border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
+                                                           : "bg-main1 whitespace-nowrap w-full border border-main transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-main2"
+              }
               onClick={() => setIsRemoveOpen(true)}
             >
               Remove Liquidity
