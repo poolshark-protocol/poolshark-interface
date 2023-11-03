@@ -221,7 +221,7 @@ export default function CreateCover(props: any) {
     if (newLatestTick) {
       console.log('setting latest tick', newLatestTick[0], newLatestTick[1], newLatestTick[2]);
       // if underlying pool does not exist
-      if (!newLatestTick[1]) {
+      if (!newLatestTick[1] || !newLatestTick[2]) {
         setBnInput(BN_ZERO)
         setDisplay('')
         setLowerPrice('')
@@ -259,12 +259,13 @@ export default function CreateCover(props: any) {
   ////////////////////////////////Init Position Data
 
   useEffect(() => {
-    if (latestTick != undefined && coverPoolData.volatilityTier && inputPoolExists) {
+    if (latestTick != undefined && coverPoolData.volatilityTier && inputPoolExists && twapReady) {
       updatePositionData();
     }
-  }, [tokenIn.address, tokenOut.address, coverPoolData, latestTick, inputPoolExists]);
+  }, [tokenIn.address, tokenOut.address, coverPoolData, latestTick, inputPoolExists, twapReady]);
 
   async function updatePositionData() {
+    console.log('updating position data')
     const tickAtPrice = Number(latestTick);
     const tickSpread = Number(coverPoolData.volatilityTier.tickSpread);
     const priceLower = TickMath.getPriceStringAtTick(
@@ -340,9 +341,7 @@ export default function CreateCover(props: any) {
 
   // set amount in
   useEffect(() => {
-    if (!bnInput.eq(BN_ZERO)) {
-      setTokenInAmount(bnInput);
-    }
+    setTokenInAmount(bnInput);
   }, [bnInput, tokenIn.address]);
 
   useEffect(() => {
@@ -435,16 +434,20 @@ export default function CreateCover(props: any) {
       !needsLatestTick &&
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
-      coverPositionData.lowerPrice > 0 &&
-      coverPositionData.upperPrice > 0 &&
       coverPoolData.volatilityTier &&
       coverMintParams.tokenInAmount &&
       tokenIn.userRouterAllowance &&
       tokenIn.userRouterAllowance >= parseInt(bnInput.toString()) &&
-      (coverPoolAddress != ZERO_ADDRESS ? twapReady        // twap must be ready if pool exists
+      (coverPoolAddress != ZERO_ADDRESS ? twapReady &&
+                                          bnInput.gt(BN_ZERO) &&
+                                          coverPositionData.lowerPrice > 0 &&
+                                          coverPositionData.upperPrice > 0 // twap must be ready if pool exists
                                         : inputPoolExists) // input pool must exist to create pool
     )
       updateGasFee();
+    else {
+      console.log('not updating gas fee', coverPoolAddress)
+    }
   }, [
     coverPoolAddress,
     coverPositionData.lowerPrice,
@@ -534,7 +537,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     setMintButtonState();
-  }, [coverMintParams.tokenInAmount, coverMintParams.tokenOutAmount, twapReady, inputPoolExists]);
+  }, [coverMintParams.tokenInAmount, coverMintParams.tokenOutAmount, twapReady, inputPoolExists, coverPoolAddress]);
 
   ////////////////////// Expanded Option
   const [expanded, setExpanded] = useState(false);
@@ -605,7 +608,7 @@ export default function CreateCover(props: any) {
             <span>BALANCE: {tokenIn.userBalance ?? 0}</span>
           </div>
           <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-            {inputBox("0", tokenIn, undefined, undefined, !inputPoolExists)}
+            {inputBox("0", tokenIn, undefined, undefined, !inputPoolExists || !twapReady)}
             <div className="flex items-center gap-x-2">
               <SelectToken
                 index="0"
@@ -734,7 +737,7 @@ export default function CreateCover(props: any) {
                     placeholder="0"
                     id="minInput"
                     type="text"
-                    disabled={!inputPoolExists}
+                    disabled={!inputPoolExists || !twapReady}
                     value={lowerPrice}
                     onChange={(e) => setLowerPrice(inputFilter(e.target.value))}
                   />
@@ -751,7 +754,7 @@ export default function CreateCover(props: any) {
                     placeholder="0"
                     id="maxInput"
                     type="text"
-                    disabled={!inputPoolExists}
+                    disabled={!inputPoolExists || !twapReady}
                     value={upperPrice}
                     onChange={(e) => setUpperPrice(inputFilter(e.target.value))}
                   />

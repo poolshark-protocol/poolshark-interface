@@ -74,7 +74,7 @@ export function getCoverMintButtonMessage(
     inputPoolExists: boolean,
     twapReady: boolean
   ): string {
-    console.log('button message:', coverPoolAddress, inputPoolExists, twapReady)
+    console.log('button message:', tokenIn.address)
     if (tokenIn.userBalance <
         parseFloat(
           formatUnits(
@@ -85,8 +85,9 @@ export function getCoverMintButtonMessage(
     ) {
         return "Insufficient Token Balance"
     } else if (
-        tokenInAmount.eq(BN_ZERO) && inputPoolExists
+        tokenInAmount.eq(BN_ZERO) && inputPoolExists && twapReady
     ) {
+        console.log('enter amount')
         return "Enter Amount"
     } else if (coverPoolAddress == ZERO_ADDRESS && !inputPoolExists) {
         return "No Pool for TWAP Data"
@@ -116,7 +117,7 @@ export function getCoverMintButtonDisabled(
     ) {
         return true
     } else if (
-        tokenInAmount.eq(BN_ZERO) && inputPoolExists
+        tokenInAmount.eq(BN_ZERO) && inputPoolExists && twapReady
     ) {
         return true
     } else if (coverPoolAddress == ZERO_ADDRESS && !inputPoolExists) {

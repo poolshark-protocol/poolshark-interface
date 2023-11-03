@@ -534,6 +534,7 @@ export const gasEstimateCoverCreateAndMint = async (
     // if input pool exists, we can create
     // if cover pool exists, we will not enter here
     // if twap not ready and cover pool exists, don't do mint gas estimate
+    console.log('gas estimate create')
     const routerAddress = chainProperties[networkName]["routerAddress"];
     const routerContract = new ethers.Contract(
       routerAddress,

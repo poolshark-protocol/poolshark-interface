@@ -47,8 +47,6 @@ export default function CoverCreateAndMintButton({
     state.networkName
   ]);
 
-  console.log('cover create and mint button', disabled)
-
   const [setNeedsRefetch, setNeedsAllowance, setNeedsBalance, twapReady] = useCoverStore(
     (state) => [
       state.setNeedsRefetch,
