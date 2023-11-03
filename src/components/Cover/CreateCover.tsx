@@ -116,7 +116,7 @@ export default function CreateCover(props: any) {
 
   const { data: signer } = useSigner();
   const { address, isConnected, isDisconnected } = useAccount();
-  const { bnInput, inputBox, display } = useInputBox();
+  const { setBnInput, bnInput, inputBox, setDisplay, display } = useInputBox();
   const [loadingPrices, setLoadingPrices] = useState(true);
 
   // for mint modal
@@ -220,7 +220,10 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     if (newLatestTick) {
       console.log('setting latest tick', newLatestTick[0], newLatestTick[1], newLatestTick[2]);
+      // if underlying pool does not exist
       if (!newLatestTick[1]) {
+        setBnInput(BN_ZERO)
+        setDisplay('')
         setLowerPrice('')
         setUpperPrice('')
       } else {
@@ -651,7 +654,7 @@ export default function CreateCover(props: any) {
                     ),
                     tokenOut.decimals
                   )
-                ) * tokenOut.coverUSDPrice
+                ) * (!isNaN(tokenOut.coverUSDPrice) ? tokenOut.coverUSDPrice : 0)
               ).toFixed(2)}
             </span>
           </div>

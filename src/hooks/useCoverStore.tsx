@@ -10,6 +10,7 @@ import { getCoverPoolFromFactory } from "../utils/queries";
 import { volatilityTiers } from "../utils/pools";
 import { parseUnits } from "../utils/math/valueMath";
 import { formatUnits } from "ethers/lib/utils.js";
+import { getCoverMintButtonDisabled, getCoverMintButtonMessage } from "../utils/buttons";
 
 type CoverState = {
   //poolAddress for current token pairs
@@ -568,40 +569,20 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     set((state) => ({
       coverMintParams: {
         ...state.coverMintParams,
-        buttonMessage:
-          state.tokenIn.userBalance <
-          parseFloat(
-            ethers.utils.formatUnits(
-              String(state.coverMintParams.tokenInAmount),
-              state.tokenIn.decimals
-            )
-          )
-            ? "Insufficient Token Balance"
-            : parseFloat(
-                ethers.utils.formatUnits(
-                  String(state.coverMintParams.tokenInAmount),
-                  state.tokenIn.decimals
-                )
-              ) == 0
-            ? "Enter Amount"
-            : "Mint Cover Position",
-        disabled:
-          state.tokenIn.userBalance <
-          parseFloat(
-            ethers.utils.formatUnits(
-              String(state.coverMintParams.tokenInAmount),
-              state.tokenIn.decimals
-            )
-          )
-            ? true
-            : parseFloat(
-                ethers.utils.formatUnits(
-                  String(state.coverMintParams.tokenInAmount),
-                  state.tokenIn.decimals
-                )
-              ) == 0
-            ? true
-            : false,
+        buttonMessage: getCoverMintButtonMessage(
+          state.coverMintParams.tokenInAmount,
+          state.tokenIn,
+          state.coverPoolAddress,
+          state.inputPoolExists,
+          state.twapReady
+        ),
+        disabled: getCoverMintButtonDisabled(
+          state.coverMintParams.tokenInAmount,
+          state.tokenIn,
+          state.coverPoolAddress,
+          state.inputPoolExists,
+          state.twapReady
+        )
       },
     }));
   },
