@@ -786,6 +786,7 @@ export default function CoverExistingPool({ goBack }) {
                     placeholder="0"
                     id="minInput"
                     type="text"
+                    disabled={!inputPoolExists || !twapReady}
                     value={lowerPrice}
                     onChange={(e) => setLowerPrice(inputFilter(e.target.value))}
                   />
@@ -802,6 +803,7 @@ export default function CoverExistingPool({ goBack }) {
                     placeholder="0"
                     id="maxInput"
                     type="text"
+                    disabled={!inputPoolExists || !twapReady}
                     value={upperPrice}
                     onChange={(e) => setUpperPrice(inputFilter(e.target.value))}
                   />
@@ -821,7 +823,7 @@ export default function CoverExistingPool({ goBack }) {
                   : tokenOut.symbol}{" "}
                 =
                 {" " +
-                  parseFloat(
+                  (twapReady ? parseFloat(
                     invertPrice(
                       TickMath.getPriceStringAtTick(
                         latestTick,
@@ -830,7 +832,8 @@ export default function CoverExistingPool({ goBack }) {
                       ),
                       priceOrder
                     )
-                  ).toPrecision(5) +
+                  ).toPrecision(5)
+                : '?.??') +
                   " " +
                   (priceOrder == (tokenIn.callId == 0)
                     ? tokenOut.symbol
