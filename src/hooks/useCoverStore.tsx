@@ -26,6 +26,8 @@ type CoverState = {
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
   latestTick: number;
+  inputPoolExists: boolean;
+  twapReady: boolean;
   coverMintParams: {
     tokenInAmount: BigNumber;
     tokenOutAmount: BigNumber;
@@ -66,6 +68,10 @@ type CoverAction = {
   //setCoverAmountOut: (amount: JSBI) => void;
   //Latest tick
   setLatestTick: (tick: number) => void;
+  //Underlying pool exists
+  setInputPoolExists: (inputPoolExists: boolean) => void;
+  //Twap has enough samples
+  setTwapReady: (twapReady: boolean) => void;
   //Claim tick
   setClaimTick: (tick: number) => void;
   setMinTick: (coverPositionData, tick: BigNumber) => void;
@@ -132,6 +138,8 @@ const initialCoverState: CoverState = {
     coverUSDPrice: 0.0,
   } as tokenCover,
   latestTick: 0,
+  inputPoolExists: false,
+  twapReady: false,
   //
   claimTick: 0,
   //
@@ -164,6 +172,8 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   tokenOut: initialCoverState.tokenOut,
   //tick
   latestTick: initialCoverState.latestTick,
+  inputPoolExists: initialCoverState.inputPoolExists,
+  twapReady: initialCoverState.twapReady,
   claimTick: initialCoverState.claimTick,
   coverMintParams: initialCoverState.coverMintParams,
   needsRefetch: initialCoverState.needsRefetch,
@@ -404,6 +414,16 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   setLatestTick: (latestTick: number) => {
     set(() => ({
       latestTick: latestTick,
+    }));
+  },
+  setInputPoolExists: (inputPoolExists: boolean) => {
+    set(() => ({
+      inputPoolExists: inputPoolExists,
+    }));
+  },
+  setTwapReady: (twapReady: boolean) => {
+    set(() => ({
+      twapReady: twapReady,
     }));
   },
   setClaimTick: (claimTick: number) => {

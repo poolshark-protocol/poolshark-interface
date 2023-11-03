@@ -521,6 +521,7 @@ export const gasEstimateCoverCreateAndMint = async (
   inAmount: BigNumber,
   signer,
   networkName: string,
+  twapReady: boolean,
   positionId?: number
 ): Promise<gasEstimateResult> => {
   try {
@@ -530,6 +531,9 @@ export const gasEstimateCoverCreateAndMint = async (
     if (!provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
+    // if input pool exists, we can create
+    // if cover pool exists, we will not enter here
+    // if twap not ready and cover pool exists, don't do mint gas estimate
     const routerAddress = chainProperties[networkName]["routerAddress"];
     const routerContract = new ethers.Contract(
       routerAddress,
@@ -538,29 +542,30 @@ export const gasEstimateCoverCreateAndMint = async (
     );
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     const amountIn = BigNumber.from(String(inAmount));
-    console.log('create cover pool params', networkName, volatilityTier, tokenIn.address, tokenOut.address)
+    console.log('create cover pool params', ethers.utils.formatBytes32String('CONSTANT-PRODUCT'), networkName, volatilityTier, tokenIn.address, tokenOut.address)
     const gasUnits: BigNumber = await routerContract
       .connect(signer)
       .estimateGas.createCoverPoolAndMint(
         {
-          poolType: ethers.utils.formatBytes32String(poolType),
+          poolType: poolType,
           tokenIn: tokenIn.address,
           tokenOut: tokenOut.address,
           feeTier: volatilityTier.feeAmount,
           tickSpread: volatilityTier.tickSpread,
           twapLength: volatilityTier.twapLength,
         }, // pool params
-        [
-          // {
-          //   to: address,
-          //   amount: inAmount,
-          //   positionId: BN_ZERO,
-          //   lower: lowerTick,
-          //   upper: upperTick,
-          //   zeroForOne: zeroForOne,
-          //   callbackData: ethers.utils.formatBytes32String(""),
-          // },
-        ] // cover positions
+        twapReady ? [
+          {
+            to: address,
+            amount: inAmount,
+            positionId: BN_ZERO,
+            lower: lowerTick,
+            upper: upperTick,
+            zeroForOne: zeroForOne,
+            callbackData: ethers.utils.formatBytes32String(""),
+          },
+        ] 
+        : [] // skip mint if !twapReady
       );
     console.log('gas units create and mint', gasUnits.toString())
     const price = await fetchEthPrice();

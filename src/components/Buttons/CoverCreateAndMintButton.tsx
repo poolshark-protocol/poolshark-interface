@@ -47,13 +47,15 @@ export default function CoverCreateAndMintButton({
     state.networkName
   ]);
 
-  const [setNeedsRefetch, setNeedsAllowance, setNeedsBalance] = useCoverStore(
+  const [setNeedsRefetch, setNeedsAllowance, setNeedsBalance, twapReady] = useCoverStore(
     (state) => [
       state.setNeedsRefetch,
       state.setNeedsAllowance,
       state.setNeedsBalance,
+      state.twapReady
     ]
   );
+  
 
   const newPositionId = 0;
 
@@ -70,7 +72,7 @@ export default function CoverCreateAndMintButton({
         tickSpread: volTier.tickSpread,
         twapLength: volTier.twapLength,
       }, // pool params
-      [
+      twapReady ? [
         {
           to: to,
           amount: amount,
@@ -80,7 +82,7 @@ export default function CoverCreateAndMintButton({
           zeroForOne: zeroForOne,
           callbackData: ethers.utils.formatBytes32String(""),
         },
-      ], // cover positions
+      ] : [], // cover positions
     ],
     overrides: {
       gasLimit: gasLimit,

@@ -18,7 +18,7 @@ import useInputBox from "../../hooks/useInputBox";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
@@ -62,6 +62,10 @@ export default function CreateCover(props: any) {
     //setCoverAmountOut,
     latestTick,
     setLatestTick,
+    inputPoolExists,
+    setInputPoolExists,
+    twapReady,
+    setTwapReady,
     pairSelected,
     switchDirection,
     setCoverPoolFromVolatility,
@@ -92,6 +96,10 @@ export default function CreateCover(props: any) {
     //state.setCoverAmountOut,
     state.latestTick,
     state.setLatestTick,
+    state.inputPoolExists,
+    state.setInputPoolExists,
+    state.twapReady,
+    state.setTwapReady,
     state.pairSelected,
     state.switchDirection,
     state.setCoverPoolFromVolatility,
@@ -201,7 +209,7 @@ export default function CreateCover(props: any) {
     watch: needsLatestTick,
     onSuccess(data) {
       setNeedsLatestTick(false);
-      console.log('Success syncLatestTick', newLatestTick, coverPoolAddress)
+      console.log('Success syncLatestTick', newLatestTick, tokenIn.address, tokenOut.address, coverPoolData.volatilityTier)
     },
     onError(error) {
       console.log("Error syncLatestTick", tokenIn.address, tokenOut.address, coverPoolData.volatilityTier.feeAmount, coverPoolData.volatilityTier.tickSpread, coverPoolData.volatilityTier.twapLength, error);
@@ -211,8 +219,15 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (newLatestTick) {
-      console.log('setting latest tick', newLatestTick[0], newLatestTick[1], newLatestTick[2])
-      setLatestTick(parseInt(newLatestTick[0].toString()));
+      console.log('setting latest tick', newLatestTick[0], newLatestTick[1], newLatestTick[2]);
+      if (!newLatestTick[1]) {
+        setLowerPrice('')
+        setUpperPrice('')
+      } else {
+        setLatestTick(parseInt(newLatestTick[0].toString()));
+      }
+      setInputPoolExists(newLatestTick[1]);
+      setTwapReady(newLatestTick[2]);
     }
   }, [newLatestTick]);
 
@@ -241,10 +256,10 @@ export default function CreateCover(props: any) {
   ////////////////////////////////Init Position Data
 
   useEffect(() => {
-    if (latestTick != undefined && coverPoolData.volatilityTier) {
+    if (latestTick != undefined && coverPoolData.volatilityTier && inputPoolExists) {
       updatePositionData();
     }
-  }, [tokenIn.address, tokenOut.address, coverPoolData, latestTick]);
+  }, [tokenIn.address, tokenOut.address, coverPoolData, latestTick, inputPoolExists]);
 
   async function updatePositionData() {
     const tickAtPrice = Number(latestTick);
@@ -422,7 +437,9 @@ export default function CreateCover(props: any) {
       coverPoolData.volatilityTier &&
       coverMintParams.tokenInAmount &&
       tokenIn.userRouterAllowance &&
-      tokenIn.userRouterAllowance >= parseInt(bnInput.toString())
+      tokenIn.userRouterAllowance >= parseInt(bnInput.toString()) &&
+      (coverPoolAddress != ZERO_ADDRESS ? twapReady        // twap must be ready if pool exists
+                                        : inputPoolExists) // input pool must exist to create pool
     )
       updateGasFee();
   }, [
@@ -463,10 +480,8 @@ export default function CreateCover(props: any) {
             networkName
           )
         : await gasEstimateCoverCreateAndMint(
-            "PSHARK-CPROD",
-            coverPoolData.volatilityTier
-              ? coverPoolData.volatilityTier
-              : volatilityTiers[0],
+            coverPoolTypes['constant-product']['poolshark'],
+            coverPoolData.volatilityTier,
             address,
             TickMath.getTickAtPriceString(
               coverPositionData.upperPrice,
@@ -484,7 +499,8 @@ export default function CreateCover(props: any) {
             tokenOut,
             coverMintParams.tokenInAmount,
             signer,
-            networkName
+            networkName,
+            twapReady
           );
 
     if (!newMintGasFee.gasUnits.mul(120).div(100).eq(mintGasLimit)) {
@@ -515,7 +531,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     setMintButtonState();
-  }, [coverMintParams.tokenInAmount, coverMintParams.tokenOutAmount]);
+  }, [coverMintParams.tokenInAmount, coverMintParams.tokenOutAmount, twapReady, inputPoolExists]);
 
   ////////////////////// Expanded Option
   const [expanded, setExpanded] = useState(false);
@@ -586,7 +602,7 @@ export default function CreateCover(props: any) {
             <span>BALANCE: {tokenIn.userBalance ?? 0}</span>
           </div>
           <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-            {inputBox("0", tokenIn)}
+            {inputBox("0", tokenIn, undefined, undefined, !inputPoolExists)}
             <div className="flex items-center gap-x-2">
               <SelectToken
                 index="0"
@@ -715,6 +731,7 @@ export default function CreateCover(props: any) {
                     placeholder="0"
                     id="minInput"
                     type="text"
+                    disabled={!inputPoolExists}
                     value={lowerPrice}
                     onChange={(e) => setLowerPrice(inputFilter(e.target.value))}
                   />
@@ -731,6 +748,7 @@ export default function CreateCover(props: any) {
                     placeholder="0"
                     id="maxInput"
                     type="text"
+                    disabled={!inputPoolExists}
                     value={upperPrice}
                     onChange={(e) => setUpperPrice(inputFilter(e.target.value))}
                   />
@@ -750,7 +768,7 @@ export default function CreateCover(props: any) {
                   : tokenOut.symbol}{" "}
                 =
                 {" " +
-                  parseFloat(
+                  (twapReady ? parseFloat(
                     invertPrice(
                       TickMath.getPriceStringAtTick(
                         latestTick,
@@ -759,7 +777,8 @@ export default function CreateCover(props: any) {
                       ),
                       priceOrder
                     )
-                  ).toPrecision(5) +
+                  ).toPrecision(5)
+                : '?.??') +
                   " " +
                   (priceOrder == (tokenIn.callId == 0)
                     ? tokenOut.symbol
