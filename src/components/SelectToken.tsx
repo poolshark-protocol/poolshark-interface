@@ -7,25 +7,56 @@ import {
 import { Transition, Dialog } from "@headlessui/react";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
-import { useAccount } from "wagmi";
+import { useAccount, useToken } from "wagmi";
 import { chainIdsToNamesForGitTokenList } from "../utils/chains";
 import axios from "axios";
 import { coinsList } from "../utils/types";
 import { useConfigStore } from "../hooks/useConfigStore";
+import { defaultTokenLogo } from "../utils/tokens";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
-  const [inputVal, setInputVal] = useState("");
-  const [rawCoinList, setRawCoinList] = useState([]);
+  const [customInput, setCustomInput] = useState("");
+  const [displayTokenList, setDisplayTokenList] = useState([]);
+  const [listedTokenList, setListedTokenList] = useState([]);
+  const [searchTokenList, setSearchTokenList] = useState([]);
+  const [tokenInfo, setTokenInfo] = useState(undefined);
 
-  const [
-    chainId,
-    networkName
-  ] = useConfigStore((state) => [
+  const [chainId, networkName, setTokenList] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
+    state.setTokenList,
   ]);
+
+  const {
+    data: tokenData,
+    isError,
+    isLoading,
+    refetch: refetchTokenInfo,
+  } = useToken({
+    address: customInput as `0x${string}`,
+    onSuccess() {
+      setTokenInfo(tokenData);
+    },
+  });
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (tokenInfo != undefined) {
+        const customToken = {
+          id: tokenInfo.address,
+          name: tokenInfo.name,
+          address: tokenInfo.address,
+          symbol: tokenInfo.symbol,
+          logoURI: defaultTokenLogo,
+          decimals: tokenInfo.decimals,
+        };
+        setDisplayTokenList([customToken]);
+      }
+    };
+    fetch();
+  }, [tokenInfo]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -41,9 +72,19 @@ export default function SelectToken(props) {
             listed_tokens: response.data.listed_tokens,
             search_tokens: response.data.search_tokens,
           } as coinsList;
-          for (let i = 0; i < coins.listed_tokens.length; i++) {
+          for (let i = 0; i < coins.listed_tokens?.length; i++) {
             coins.listed_tokens[i].address = coins.listed_tokens[i].id;
-            setRawCoinList(coins.listed_tokens);
+          }
+          if (coins.listed_tokens != undefined) {
+            setListedTokenList(coins.listed_tokens);
+            setDisplayTokenList(coins.listed_tokens);
+            setTokenList(coins.listed_tokens);
+          }
+          for (let i = 0; i < coins.search_tokens?.length; i++) {
+            coins.search_tokens[i].address = coins.search_tokens[i].id;
+          }
+          if (coins.search_tokens != undefined) {
+            setSearchTokenList(coins.search_tokens);
           }
         })
         .catch(function (error) {
@@ -52,6 +93,23 @@ export default function SelectToken(props) {
     };
     fetch();
   }, [chainId, address]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      // validate address
+      const tokenAddressRegex = /^0x[a-fA-F0-9]{40}$/;
+      if (
+        customInput.match(tokenAddressRegex)?.length == 1 &&
+        customInput.length == 42
+      ) {
+        // if not in listed tokens or search tokens we need to fetch data from the chain
+        refetchTokenInfo();
+      } else {
+        setDisplayTokenList(listedTokenList);
+      }
+    };
+    fetch();
+  }, [customInput]);
 
   const chooseToken = (coin) => {
     coin = {
@@ -63,21 +121,31 @@ export default function SelectToken(props) {
     };
     if (props.amount != undefined && props.isAmountIn != undefined) {
       if (props.type === "in") {
-        props.setTokenIn(props.tokenOut, {
-          name: coin?.name,
-          address: coin?.address,
-          symbol: coin?.symbol,
-          logoURI: coin?.logoURI,
-          decimals: coin?.decimals,
-        }, props.amount, props.isAmountIn);
+        props.setTokenIn(
+          props.tokenOut,
+          {
+            name: coin?.name,
+            address: coin?.address,
+            symbol: coin?.symbol,
+            logoURI: coin?.logoURI,
+            decimals: coin?.decimals,
+          },
+          props.amount,
+          props.isAmountIn
+        );
       } else {
-        props.setTokenOut(props.tokenIn, {
-          name: coin?.name,
-          address: coin?.address,
-          symbol: coin?.symbol,
-          logoURI: coin?.logoURI,
-          decimals: coin?.decimals,
-        }, props.amount, props.isAmountIn);
+        props.setTokenOut(
+          props.tokenIn,
+          {
+            name: coin?.name,
+            address: coin?.address,
+            symbol: coin?.symbol,
+            logoURI: coin?.logoURI,
+            decimals: coin?.decimals,
+          },
+          props.amount,
+          props.isAmountIn
+        );
       }
     } else {
       if (props.type === "in") {
@@ -150,32 +218,61 @@ export default function SelectToken(props) {
                       autoComplete="off"
                       className="border border-grey bg-dark outline-none py-2.5 pl-12 rounded-lg w-full placeholder:text-grey placeholder:font-regular text-white text-sm"
                       placeholder="Search name or paste address"
-                      value={inputVal}
-                      onChange={(e) => setInputVal(e.target.value)}
+                      // when inputVal is changed and set to a valid address we should fetch token info and populate the list with that item
+                      value={customInput}
+                      onChange={(e) => setCustomInput(e.target.value)}
                     ></input>
                     <div className="flex justify-between flex-wrap mt-4 gap-y-2">
-                      {rawCoinList.map((coin) => {
-                        return (
-                          <CoinListButton
-                            key={coin.symbol + "top"}
-                            coin={coin}
-                            chooseToken={chooseToken}
-                          />
-                        );
+                      {displayTokenList.map((coin) => {
+                        if (
+                          customInput.toLowerCase() == "" ||
+                          customInput.toLowerCase() == " " ||
+                          coin.symbol
+                            .toLowerCase()
+                            .includes(customInput.toLowerCase()) ||
+                          coin.name
+                            .toLowerCase()
+                            .includes(customInput.toLowerCase()) ||
+                          coin.address
+                            .toLowerCase()
+                            .includes(customInput.toLowerCase())
+                        ) {
+                          return (
+                            <CoinListButton
+                              key={coin.symbol + "top"}
+                              coin={coin}
+                              chooseToken={chooseToken}
+                            />
+                          );
+                        }
                       })}
                     </div>
                   </div>
                   <div>
-                    {rawCoinList
+                    {displayTokenList
                       .sort((a, b) => b.balance - a.balance)
                       .map((coin) => {
-                        return (
-                          <CoinListItem
-                            key={coin.symbol}
-                            coin={coin}
-                            chooseToken={chooseToken}
-                          />
-                        );
+                        if (
+                          customInput.toLowerCase() == "" ||
+                          customInput.toLowerCase() == " " ||
+                          coin.symbol
+                            .toLowerCase()
+                            .includes(customInput.toLowerCase()) ||
+                          coin.name
+                            .toLowerCase()
+                            .includes(customInput.toLowerCase()) ||
+                          coin.address
+                            .toLowerCase()
+                            .includes(customInput.toLowerCase())
+                        ) {
+                          return (
+                            <CoinListItem
+                              key={coin.symbol}
+                              coin={coin}
+                              chooseToken={chooseToken}
+                            />
+                          );
+                        }
                       })}
                   </div>
                 </Dialog.Panel>
@@ -200,7 +297,9 @@ export default function SelectToken(props) {
           ) : (
             <></>
           )}
-          <span className="text-xs uppercase">{props.displayToken?.symbol}</span>
+          <span className="text-xs uppercase">
+            {props.displayToken?.symbol}
+          </span>
         </div>
         <ChevronDownIcon className="w-6" />
       </button>

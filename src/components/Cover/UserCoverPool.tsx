@@ -8,6 +8,7 @@ import ArrowRightIcon from "../Icons/ArrowRightIcon";
 import router from "next/router";
 import { ethers } from "ethers";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { formatUsdValue } from "../../utils/math/valueMath";
 
 export default function UserCoverPool({
   coverPosition,
@@ -65,7 +66,8 @@ export default function UserCoverPool({
       Boolean(coverPosition.zeroForOne),
       Number(coverPosition.epochLast),
       true,
-      coverSubgraph
+      coverSubgraph,
+      undefined
     );
     setClaimTick(tick);
     setClaimPrice(parseFloat(TickMath.getPriceStringAtTick(tick, tokenIn, tokenOut)));
@@ -142,7 +144,7 @@ export default function UserCoverPool({
     router.push({
       pathname: href,
       query: {
-        positionId: coverPosition.positionId,
+        id: coverPosition.id,
       },
     });
   }
@@ -198,7 +200,7 @@ export default function UserCoverPool({
               </div>
             </div>
             <div className="text-right text-white text-xs lg:block hidden">
-              <span>${positionUSDPrice}</span>
+              <span>${formatUsdValue(positionUSDPrice.toString())}</span>
             </div>
           </div>
         </div>

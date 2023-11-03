@@ -12,7 +12,7 @@ import { useContractRead } from "wagmi";
 import RemoveLiquidity from "../../components/Modals/Range/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Range/AddLiquidity";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice, logoMap } from "../../utils/tokens";
 import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
@@ -22,14 +22,16 @@ import router from "next/router";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { ZERO_ADDRESS } from "../../utils/math/constants";
 import { chainProperties, supportedNetworkNames } from "../../utils/chains";
+import { tokenRangeLimit } from "../../utils/types";
 
 export default function ViewRange() {
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-    state.limitSubgraph,
-    state.setLimitSubgraph,
-  ]);
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph] =
+    useConfigStore((state) => [
+      state.chainId,
+      state.networkName,
+      state.limitSubgraph,
+      state.setLimitSubgraph,
+    ]);
 
   const [
     rangePoolAddress,
@@ -37,7 +39,9 @@ export default function ViewRange() {
     rangePositionData,
     rangeMintParams,
     tokenIn,
+    setTokenIn,
     tokenOut,
+    setTokenOut,
     priceOrder,
     setPriceOrder,
     setTokenInRangeUSDPrice,
@@ -55,7 +59,9 @@ export default function ViewRange() {
     state.rangePositionData,
     state.rangeMintParams,
     state.tokenIn,
+    state.setTokenIn,
     state.tokenOut,
+    state.setTokenOut,
     state.priceOrder,
     state.setPriceOrder,
     state.setTokenInRangeUSDPrice,
@@ -210,19 +216,39 @@ export default function ViewRange() {
     setIsLoading(true);
     try {
       const data = await fetchRangePositions(limitSubgraph, address);
-      console.log(data);
       if (data["data"].rangePositions) {
         const mappedPositions = mapUserRangePositions(
           data["data"].rangePositions
         );
         setAllRangePositions(mappedPositions);
-        const positionId =
-          rangePositionData.positionId ?? router.query.positionId;
+        const positionId = rangePositionData.id ?? router.query.id;
         const position = mappedPositions.find(
-          (position) => position.positionId == positionId
+          (position) => position.id == positionId
         );
         if (position != undefined) {
+          const tokenInNew = {
+            name: position.tokenZero.name,
+            symbol: position.tokenZero.symbol,
+            logoURI: logoMap[position.tokenZero.symbol],
+            address: position.tokenZero.id,
+            decimals: position.tokenZero.decimals,
+          } as tokenRangeLimit;
+          const tokenOutNew = {
+            name: position.tokenOne.name,
+            symbol: position.tokenOne.symbol,
+            logoURI: logoMap[position.tokenOne.symbol],
+            address: position.tokenOne.id,
+            decimals: position.tokenOne.decimals,
+          } as tokenRangeLimit;
+          setTokenIn(tokenOutNew, tokenInNew, "0", true);
+          setTokenOut(tokenInNew, tokenOutNew, "0", false);
           setRangePositionData(position);
+          setRangePoolFromFeeTier(
+            tokenInNew,
+            tokenOutNew,
+            position.pool.feeTier.feeAmount,
+            limitSubgraph
+          );
         }
       }
       setIsLoading(false);
@@ -374,18 +400,32 @@ export default function ViewRange() {
         <div className="flex md:flex-row flex-col justify-between w-full items-start md:items-center gap-y-5">
           <div className="flex items-center gap-x-3">
             <div className="flex items-center">
-              <img height="50" width="50" src={tokenIn.logoURI} />
-              <img
-                height="50"
-                width="50"
-                className="ml-[-12px]"
-                src={tokenOut.logoURI}
-              />
+              {isLoading ? (
+                <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
+              ) : (
+                <img height="50" width="50" src={tokenIn.logoURI} />
+              )}
+              {isLoading ? (
+                <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
+              ) : (
+                <img
+                  height="50"
+                  width="50"
+                  className="ml-[-12px]"
+                  src={tokenOut.logoURI}
+                />
+              )}
             </div>
             <div className="flex flex-col gap-y-2">
               <div className="flex items-center text-white">
                 <h1>
-                  {tokenIn.symbol}-{tokenOut.symbol}
+                  {isLoading ? (
+                    <div className="h-5 w-20 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    <div>
+                      {tokenIn.symbol}-{tokenOut.symbol}
+                    </div>
+                  )}
                 </h1>
                 <a
                   href={
@@ -464,8 +504,16 @@ export default function ViewRange() {
 
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
-                      <img height="28" width="25" src={tokenIn.logoURI} />
-                      {tokenIn.symbol}
+                      {isLoading ? (
+                        <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
+                      ) : (
+                        <img height="25" width="25" src={tokenIn.logoURI} />
+                      )}
+                      {isLoading ? (
+                        <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
+                      ) : (
+                        tokenIn.symbol
+                      )}
                     </div>
                   </div>
                 </div>
@@ -486,8 +534,16 @@ export default function ViewRange() {
                   )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
-                      <img height="28" width="25" src={tokenOut.logoURI} />
-                      {tokenOut.symbol}
+                      {isLoading ? (
+                        <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
+                      ) : (
+                        <img height="25" width="25" src={tokenOut.logoURI} />
+                      )}
+                      {isLoading ? (
+                        <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
+                      ) : (
+                        tokenOut.symbol
+                      )}
                     </div>
                   </div>
                 </div>
@@ -609,8 +665,16 @@ export default function ViewRange() {
                   )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
-                      <img height="28" width="25" src={tokenIn.logoURI} />
-                      {tokenIn.symbol}
+                      {isLoading ? (
+                        <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
+                      ) : (
+                        <img height="25" width="25" src={tokenIn.logoURI} />
+                      )}
+                      {isLoading ? (
+                        <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
+                      ) : (
+                        tokenIn.symbol
+                      )}
                     </div>
                   </div>
                 </div>
@@ -631,8 +695,16 @@ export default function ViewRange() {
                   )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
-                      <img height="28" width="25" src={tokenOut.logoURI} />
-                      {tokenOut.symbol}
+                      {isLoading ? (
+                        <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
+                      ) : (
+                        <img height="25" width="25" src={tokenOut.logoURI} />
+                      )}
+                      {isLoading ? (
+                        <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
+                      ) : (
+                        tokenOut.symbol
+                      )}
                     </div>
                   </div>
                 </div>

@@ -16,6 +16,7 @@ import { gasEstimateBurnLimit } from "../../utils/gas";
 import { BN_ZERO } from "../../utils/math/constants";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { parseUnits } from "../../utils/math/valueMath";
+import { useRouter } from "next/router";
 
 export default function LimitSwapBurnButton({
   poolAddress,
@@ -29,35 +30,31 @@ export default function LimitSwapBurnButton({
 }) {
   const { data: signer } = useSigner();
 
-  const [
-    chainId,
-    networkName,
-    limitSubgraph
-  ] = useConfigStore((state) => [
+  const [chainId, networkName, limitSubgraph] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
-    state.limitSubgraph
+    state.limitSubgraph,
   ]);
 
+  const router = useRouter();
+
   const [
-    setNeedsRefetch, 
-    setNeedsBalanceIn, 
+    setNeedsRefetch,
+    setNeedsBalanceIn,
     setNeedsBalanceOut,
     setNeedsSnapshot,
-  ] = useTradeStore(
-    (state) => [
-      state.setNeedsRefetch,
-      state.setNeedsBalanceIn,
-      state.setNeedsBalanceOut,
-      state.setNeedsSnapshot,
-    ]
-  );
+  ] = useTradeStore((state) => [
+    state.setNeedsRefetch,
+    state.setNeedsBalanceIn,
+    state.setNeedsBalanceOut,
+    state.setNeedsSnapshot,
+  ]);
   const [claimTick, setClaimTick] = useState(0);
   const [gasFee, setGasFee] = useState("$0.00");
   const [gasLimit, setGasLimit] = useState(BN_ZERO);
 
   const updateClaimTick = async () => {
-    console.log(Number(epochLast), "epochLast")
+    console.log(Number(epochLast), "epochLast");
 
     const tick = await getClaimTick(
       poolAddress,
@@ -66,10 +63,9 @@ export default function LimitSwapBurnButton({
       Boolean(zeroForOne),
       Number(epochLast),
       false,
-      limitSubgraph
+      limitSubgraph,
+      undefined
     );
-
-    console.log(tick, "claim tick after update")
     setClaimTick(tick);
   };
 
@@ -83,18 +79,18 @@ export default function LimitSwapBurnButton({
       zeroForOne,
       signer,
       setGasFee,
-      setGasLimit,
+      setGasLimit
     );
   };
 
   useEffect(() => {
-    if(poolAddress && positionId && address && signer) {
+    if (poolAddress && positionId && address && signer) {
       updateClaimTick();
     }
   }, []);
 
   useEffect(() => {
-    if(claimTick > 0 && signer) {
+    if (claimTick > 0 && signer) {
       getGasLimit();
     }
   }, [claimTick, signer]);
@@ -131,10 +127,9 @@ export default function LimitSwapBurnButton({
       setNeedsSnapshot(true);
       setNeedsBalanceIn(true);
       setNeedsBalanceOut(true);
+      setNeedsRefetch(true);
       if (burnPercent.eq(parseUnits("1", 38))) {
-        setTimeout(() => {
-          setNeedsRefetch(true);
-        }, 1000);
+        router.push("/");
       }
     },
     onError() {
@@ -144,33 +139,33 @@ export default function LimitSwapBurnButton({
 
   return (
     <>
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="w-7 text-red-600 bg-red-900/30 p-1 rounded-full cursor-pointer "
-            onClick={() => {
-                address ? write?.() : null;
-            }}
-        >
-          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-        </svg>
-        <div className="fixed bottom-4 right-4 flex flex-col space-y-2">
-            {errorDisplay && (
-              <ErrorToast
-                hash={data?.hash}
-                errorDisplay={errorDisplay}
-                setErrorDisplay={setErrorDisplay}
-              />
-            )}
-            {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-            {successDisplay && (
-              <SuccessToast
-                hash={data?.hash}
-                successDisplay={successDisplay}
-                setSuccessDisplay={setSuccessDisplay}
-              />
-            )}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        className="w-7 text-red-600 bg-red-900/30 p-1 rounded-full cursor-pointer "
+        onClick={() => {
+          address ? write?.() : null;
+        }}
+      >
+        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+      </svg>
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2">
+        {errorDisplay && (
+          <ErrorToast
+            hash={data?.hash}
+            errorDisplay={errorDisplay}
+            setErrorDisplay={setErrorDisplay}
+          />
+        )}
+        {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
+        {successDisplay && (
+          <SuccessToast
+            hash={data?.hash}
+            successDisplay={successDisplay}
+            setSuccessDisplay={setSuccessDisplay}
+          />
+        )}
       </div>
     </>
   );

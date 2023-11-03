@@ -358,9 +358,9 @@ export default function CoverExistingPool({ goBack }) {
     const data = await fetchRangePositions(limitSubgraph, address);
     if (data["data"]) {
       const positions = mapUserRangePositions(data["data"].rangePositions);
-      const positionId = router.query.positionId;
+      const positionId = router.query.id;
       const position = positions.find(
-        (position) => position.positionId == positionId
+        (position) => position.id == positionId
       );
       if (position) {
         setRangePositionData(position);
