@@ -1,5 +1,5 @@
 import { useState, useEffect, Fragment } from "react";
-import { ChevronDownIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { ChevronDownIcon, XMarkIcon, ArrowLongRightIcon } from "@heroicons/react/20/solid";
 import SelectToken from "../components/SelectToken";
 import useInputBox from "../hooks/useInputBox";
 import { Transition, Dialog } from "@headlessui/react";
@@ -54,6 +54,7 @@ import timeDifference from "../utils/time";
 import { inputHandler, parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
 import { useConfigStore } from "../hooks/useConfigStore";
+import Range from "../components/Icons/RangeIcon";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -1026,7 +1027,7 @@ export default function Trade() {
   return (
     <div className="min-h-[calc(100vh-160px)] w-[48rem] px-3 md:px-0">
       <div className="flex w-full mt-[10vh] justify-center mb-20 ">
-        <div className="bg-black font-regular border border-grey rounded-[4px]">
+        <div className="bg-black font-regular border border-grey rounded-[4px] max-w-2xl">
           <div className="flex text-xs">
             <button
               onClick={() => setLimitTabSelected(false)}
@@ -1360,6 +1361,9 @@ export default function Trade() {
               <div className="flex-wrap w-full break-normal transition ">
                 <Option />
               </div>
+            </div>
+            <div className="flex gap-x-5 rounded-[4px] items-center text-xs p-2 border bg-dark border-grey mb-5">
+            <Range className="text-main2"/> <span className="text-grey3 flex flex-col gap-y-[-2px]">There are currently no pools for this token pair. <a className=" hover:underline text-main2 cursor-pointer">Click here to create a range pool</a></span>
             </div>
             {isDisconnected ? (
               <ConnectWalletButton xl={true} />
