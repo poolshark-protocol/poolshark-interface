@@ -162,10 +162,27 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (allowanceInCover) {
-      console.log('setting token in allowance', allowanceInCover.toString())
       setTokenInCoverAllowance(allowanceInCover.toString());
     }
   }, [allowanceInCover]);
+
+  ////////////////////////////////Token Balances
+
+  const { data: tokenInBal } = useBalance({
+    address: address,
+    token: tokenIn.address,
+    enabled: tokenIn.address != undefined && needsBalance,
+    watch: needsBalance,
+    onSuccess(data) {
+      setNeedsBalance(false);
+    },
+  });
+
+  useEffect(() => {
+    if (isConnected) {
+      setTokenInBalance(parseFloat(tokenInBal?.formatted).toFixed(2));
+    }
+  }, [tokenInBal]);
 
   ////////////////////////////////Token Prices
 
@@ -345,10 +362,10 @@ export default function CreateCover(props: any) {
   }, [bnInput, tokenIn.address]);
 
   useEffect(() => {
-    changeCoverAmounts();
+    setCoverAmounts();
   }, [tokenIn.address, coverPositionData]);
 
-  function changeCoverAmounts() {
+  function setCoverAmounts() {
     if (
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
@@ -437,7 +454,8 @@ export default function CreateCover(props: any) {
       coverPoolData.volatilityTier &&
       coverMintParams.tokenInAmount &&
       tokenIn.userRouterAllowance &&
-      tokenIn.userRouterAllowance >= parseInt(bnInput.toString()) &&
+      tokenIn.userRouterAllowance >= 
+        parseInt(bnInput.toString()) &&
       (coverPoolAddress != ZERO_ADDRESS ? twapReady &&
                                           bnInput.gt(BN_ZERO) &&
                                           coverPositionData.lowerPrice > 0 &&
@@ -515,29 +533,11 @@ export default function CreateCover(props: any) {
     }
   }
 
-  ////////////////////////////////Token Balances
-
-  const { data: tokenInBal } = useBalance({
-    address: address,
-    token: tokenIn.address,
-    enabled: tokenIn.address != undefined && needsBalance,
-    watch: needsBalance,
-    onSuccess(data) {
-      setNeedsBalance(false);
-    },
-  });
-
-  useEffect(() => {
-    if (isConnected) {
-      setTokenInBalance(parseFloat(tokenInBal?.formatted).toFixed(2));
-    }
-  }, [tokenInBal]);
-
   ////////////////////////////////Mint Button Handler
 
   useEffect(() => {
     setMintButtonState();
-  }, [coverMintParams.tokenInAmount, coverMintParams.tokenOutAmount, twapReady, inputPoolExists, coverPoolAddress]);
+  }, [tokenIn, coverMintParams.tokenInAmount, coverMintParams.tokenOutAmount, twapReady, inputPoolExists, coverPoolAddress]);
 
   ////////////////////// Expanded Option
   const [expanded, setExpanded] = useState(false);
@@ -553,7 +553,7 @@ export default function CreateCover(props: any) {
                 parseFloat(
                   ethers.utils.formatUnits(
                     String(coverMintParams.tokenOutAmount),
-                    18
+                    tokenOut.decimals
                   )
                 ) *
                 (1 - coverPoolData.volatilityTier.tickSpread / 10000)
