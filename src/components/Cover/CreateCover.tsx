@@ -504,7 +504,6 @@ export default function CreateCover(props: any) {
             networkName
           )
         : await gasEstimateCoverCreateAndMint(
-            coverPoolTypes['constant-product']['poolshark'],
             coverPoolData.volatilityTier,
             address,
             TickMath.getTickAtPriceString(

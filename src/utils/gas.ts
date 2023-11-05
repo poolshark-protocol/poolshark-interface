@@ -10,6 +10,8 @@ import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { chainProperties } from "./chains";
 import JSBI from "jsbi";
 import { parseUnits } from "./math/valueMath";
+import { formatBytes32String } from "ethers/lib/utils.js";
+import { coverPoolTypes } from "./pools";
 
 export interface gasEstimateResult {
   formattedPrice: string;
@@ -522,7 +524,6 @@ export const gasEstimateCoverMint = async (
 };
 
 export const gasEstimateCoverCreateAndMint = async (
-  poolType: string,
   volatilityTier: any,
   address: string,
   upperTick: number,
@@ -533,7 +534,6 @@ export const gasEstimateCoverCreateAndMint = async (
   signer,
   networkName: string,
   twapReady: boolean,
-  positionId?: number
 ): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
@@ -559,7 +559,7 @@ export const gasEstimateCoverCreateAndMint = async (
       .connect(signer)
       .estimateGas.createCoverPoolAndMint(
         {
-          poolType: poolType,
+          poolType: coverPoolTypes['constant-product']['poolshark'],
           tokenIn: tokenIn.address,
           tokenOut: tokenOut.address,
           feeTier: volatilityTier.feeAmount,

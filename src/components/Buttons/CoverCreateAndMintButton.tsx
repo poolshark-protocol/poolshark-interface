@@ -17,6 +17,8 @@ import { BN_ZERO } from "../../utils/math/constants";
 import Loader from "../Icons/Loader";
 import { useEffect } from "react";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { formatBytes32String } from "ethers/lib/utils.js";
+import { coverPoolTypes } from "../../utils/pools";
 
 export default function CoverCreateAndMintButton({
   routerAddress,
@@ -64,7 +66,7 @@ export default function CoverCreateAndMintButton({
     functionName: "createCoverPoolAndMint",
     args: [
       {
-        poolType: poolType,
+        poolType: coverPoolTypes['constant-product']['poolshark'],
         tokenIn: tokenIn.address,
         tokenOut: tokenOut.address,
         feeTier: volTier.feeAmount,

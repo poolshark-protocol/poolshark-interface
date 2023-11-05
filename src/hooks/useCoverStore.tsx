@@ -521,7 +521,6 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   },
   setCoverPoolFromVolatility: async (tokenIn, tokenOut, volatility: any, client: CoverSubgraph) => {
     try {
-      console.log('fetching pool')
       const pool = await getCoverPoolFromFactory(
         client,
         tokenIn.address,
@@ -529,13 +528,11 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       );
       let dataLength = pool["data"]["coverPools"].length;
       let matchedVolatility = false;
-      console.log('data length pools', dataLength)
       for (let i = 0; i < dataLength; i++) {
         if (
           pool["data"]["coverPools"][i]["volatilityTier"]["feeAmount"] ==
           volatility
         ) {
-          console.log('pool found')
           matchedVolatility = true;
           set(() => ({
             coverPoolAddress: pool["data"]["coverPools"][i]["id"],
@@ -544,14 +541,11 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         }
       }
       dataLength = pool["data"]["volatilityTiers"].length;
-      console.log('data length vol tiers', dataLength)
       if (!matchedVolatility && dataLength != undefined) {
-        console.log('no pool found', volatility, dataLength, volatility)
         for (let idx = 0; idx < dataLength; idx++) {
           if (
             pool["data"]["volatilityTiers"][idx]["feeAmount"] == Number(volatility)
           ) {
-            console.log('tier matched', pool["data"]["volatilityTiers"][idx])
             set(() => ({
               coverPoolAddress: ZERO_ADDRESS as `0x${string}`,
               coverPoolData: {

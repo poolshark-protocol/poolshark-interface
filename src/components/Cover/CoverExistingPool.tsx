@@ -29,12 +29,11 @@ import {
 } from "../../utils/chains";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { coverPoolTypes, volatilityTiers } from "../../utils/pools";
-import { coverPoolABI } from "../../abis/evm/coverPool";
 import { useRouter } from "next/router";
 import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { fetchRangePositions } from "../../utils/queries";
-import { mapUserLimitPositions, mapUserRangePositions } from "../../utils/maps";
+import { mapUserRangePositions } from "../../utils/maps";
 import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -100,10 +99,10 @@ export default function CoverExistingPool({ goBack }) {
     state.setCoverAmountOut, */
     state.latestTick,
     state.setLatestTick,
-    inputPoolExists,
-    setInputPoolExists,
-    twapReady,
-    setTwapReady,
+    state.inputPoolExists,
+    state.setInputPoolExists,
+    state.twapReady,
+    state.setTwapReady,
     state.pairSelected,
     state.switchDirection,
     state.setCoverPoolFromVolatility,
@@ -242,11 +241,12 @@ export default function CoverExistingPool({ goBack }) {
 
   useEffect(() => {
     if (newLatestTick) {
-      console.log('setting latest tick', newLatestTick[0], newLatestTick[1], newLatestTick[2]);
+      console.log('latest tick info:', newLatestTick);
       // if underlying pool does not exist
       if (!newLatestTick[1] || !newLatestTick[2]) {
         setLowerPrice('')
         setUpperPrice('')
+        setTokenOutAmount(BN_ZERO)
       } else {
         setLatestTick(parseInt(newLatestTick[0].toString()));
       }
@@ -262,7 +262,7 @@ export default function CoverExistingPool({ goBack }) {
       //updating from empty selected token
       tokenOut.name != "Select Token"
     ) {
-      updatePools("1000");
+      updatePools("1000"); // should match fee tier of position by default
       setNeedsLatestTick(true);
     }
   }, [tokenIn.name, tokenOut.name]);
@@ -367,7 +367,7 @@ export default function CoverExistingPool({ goBack }) {
   }, [coverPositionData.lowerPrice, coverPositionData.upperPrice, tokenIn.callId == 0]); */
 
   useEffect(() => {
-    if (!coverPoolData.id) {
+    if (coverPoolData.volatilityTier == undefined) {
       setCoverPoolFromVolatility(tokenIn, tokenOut, "1000", coverSubgraph);
     }
     refetchRangePositionData();
@@ -557,7 +557,6 @@ export default function CoverExistingPool({ goBack }) {
             networkName
           )
         : await gasEstimateCoverCreateAndMint(
-            "PSHARK-CPROD",
             coverPoolData.volatilityTier
               ? coverPoolData.volatilityTier
               : volatilityTiers[0],
@@ -701,6 +700,7 @@ export default function CoverExistingPool({ goBack }) {
             min="0"
             max="100"
             value={sliderDisplay}
+            disabled={!inputPoolExists || !twapReady}
             onChange={handleChange}
             className="w-full styled-slider slider-progress bg-transparent"
           />
