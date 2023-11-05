@@ -357,7 +357,7 @@ export const fetchCoverPositions = (client: CoverSubgraph, address: string) => {
     const positionsQuery = `
       query($owner: String) {
           positions(
-            where: {owner:"${address}"}
+            where: {owner:"${address}"},
             orderBy: liquidity,
             orderDirection: desc
           ) {
@@ -720,7 +720,11 @@ export const fetchRangePositions = (client: LimitSubgraph, address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
     {
-      rangePositions(where: {owner:"${address}"}) {
+      rangePositions(
+        where: {owner:"${address}"},
+        orderBy: liquidity,
+        orderDirection: desc
+      ) {
             id
             positionId
             owner
