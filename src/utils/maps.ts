@@ -1,4 +1,3 @@
-import { BigNumber } from "ethers";
 import {
   getLimitTickIfNotZeroForOne,
   getLimitTickIfZeroForOne,
@@ -7,7 +6,6 @@ import {
 } from "./queries";
 import { CoverSubgraph, LimitSubgraph } from "./types";
 import { logoMap } from "./tokens";
-import { max } from "fuels";
 
 export const getClaimTick = async (
   poolAddress: string,
