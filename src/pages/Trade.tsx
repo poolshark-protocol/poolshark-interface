@@ -2,7 +2,6 @@ import { useState, useEffect, Fragment } from "react";
 import {
   ChevronDownIcon,
   XMarkIcon,
-  ArrowLongRightIcon,
 } from "@heroicons/react/20/solid";
 import SelectToken from "../components/SelectToken";
 import useInputBox from "../hooks/useInputBox";
@@ -19,7 +18,6 @@ import { BigNumber, ethers } from "ethers";
 import {
   chainIdsToNamesForGitTokenList,
   chainProperties,
-  supportedNetworkNames,
 } from "../utils/chains";
 import SwapRouterApproveButton from "../components/Buttons/SwapRouterApproveButton";
 import {
@@ -248,6 +246,7 @@ export default function Trade() {
   const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
     if (isAmountIn) {
       if (bnValue.gt(BN_ZERO)) {
+        //NATIVE: if wethCall, set 1:1
         if (!limitTabSelected) updatePools(bnValue, true);
         else {
           const tokenOutAmount = getExpectedAmountOutFromInput(
@@ -271,6 +270,7 @@ export default function Trade() {
       }
     } else {
       if (bnValue.gt(BN_ZERO)) {
+        //NATIVE: if wethCall, set 1:1
         if (!limitTabSelected) updatePools(bnValue, false);
         else {
           const tokenInAmount = getExpectedAmountInFromOutput(
@@ -310,14 +310,12 @@ export default function Trade() {
         limitSubgraph
       );
     }
-    // for ETH just use WETH price
-    // for same addresses we can also for the ETH/WETH exception
-    // if addresses are the same assume it's wrapping/unwrapping ETH and call deposit/withdraw
   }, [tokenIn.address]);
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
+      // NATIVE: only updatePools if !wethCall
       updatePools(exactIn ? amountIn : amountOut, exactIn);
       if (exactIn) {
         if (!isNaN(parseFloat(displayIn))) {
@@ -332,6 +330,7 @@ export default function Trade() {
           setAmounts(bnValue, false);
         }
       }
+      // NATIVE: only if !tokenIn.native
       setNeedsAllowanceIn(true);
     }
   }, [tokenIn.address, tokenOut.address]);
@@ -368,6 +367,7 @@ export default function Trade() {
     args: [availablePools, quoteParams, true],
     chainId: chainId,
     enabled: availablePools != undefined && quoteParams != undefined,
+    //NATIVE: enabled if !wethCall
     onError(error) {
       console.log("Error multiquote", error);
     },
@@ -379,6 +379,7 @@ export default function Trade() {
   });
 
   useEffect(() => {
+    //NATIVE: if wethCall, set 1:1
     if (!limitTabSelected) {
       if (poolQuotes && poolQuotes[0]) {
         if (exactIn) {
@@ -487,7 +488,6 @@ export default function Trade() {
   useEffect(() => {
     if (filledAmountList) {
       setLimitFilledAmountList(filledAmountList[0]);
-
       setCurrentAmountOutList(filledAmountList[1]);
     }
   }, [filledAmountList]);
@@ -604,6 +604,7 @@ export default function Trade() {
     token: tokenIn.address,
     enabled: tokenIn.address != undefined && needsBalanceIn,
     watch: needsBalanceIn,
+    //NATIVE: if tokenIn.native, set token to undefined
     onSuccess(data) {
       if (needsBalanceIn) {
         setNeedsBalanceIn(false);
@@ -616,6 +617,7 @@ export default function Trade() {
     token: tokenOut.address,
     enabled: tokenOut.address != undefined && needsBalanceOut,
     watch: needsBalanceOut,
+    //NATIVE: if tokenOut.native, set token to undefined
     onSuccess(data) {
       if (needsBalanceOut) {
         setNeedsBalanceOut(false);
@@ -628,14 +630,14 @@ export default function Trade() {
       setTokenInBalance(
         !isNaN(parseFloat(tokenInBal?.formatted.toString()))
           ? parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
-          : "0"
+          : "0.00"
       );
     }
     if (tokenOutBal) {
       setTokenOutBalance(
         !isNaN(parseFloat(tokenOutBal?.formatted.toString()))
           ? parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
-          : "0"
+          : "0.00"
       );
     }
   }, [tokenInBal, tokenOutBal]);
@@ -650,6 +652,7 @@ export default function Trade() {
     chainId: chainId,
     watch: needsAllowanceIn,
     enabled: tokenIn.address != ZERO_ADDRESS,
+    //NATIVE: if tokenIn.native, disable allowance check
     onError(error) {
       console.log("Error allowance", error);
     },
@@ -918,6 +921,7 @@ export default function Trade() {
 
   async function updateGasFee() {
     if (tokenIn.userRouterAllowance?.gte(amountIn)) {
+      //NATIVE: send msg.value with estimate
       await gasEstimateSwap(
         chainProperties[networkName]["routerAddress"],
         swapPoolAddresses,
@@ -936,6 +940,7 @@ export default function Trade() {
 
   async function updateMintFee() {
     if (tokenIn.userRouterAllowance?.gte(amountIn) && lowerTick?.lt(upperTick))
+      //NATIVE: send msg.value with estimate
       await gasEstimateMintLimit(
         tradePoolData.id,
         address,
@@ -999,7 +1004,7 @@ export default function Trade() {
               <div className="ml-auto text-xs">
                 {(
                   (parseFloat(
-                    ethers.utils.formatUnits(amountOut, tokenOut.decimals)
+                    ethers.utils.formatUnits(amountOut ?? BN_ZERO, tokenOut.decimals)
                   ) *
                     (100 - parseFloat(tradeSlippage))) /
                   100
@@ -1454,7 +1459,10 @@ export default function Trade() {
                     tokenSymbol={tokenIn.symbol}
                     amount={amountIn}
                   />
-                ) : tradePoolData?.id != ZERO_ADDRESS ? (
+                ) : (
+                      tokenOut.address != ZERO_ADDRESS &&
+                      tradePoolData?.id == ZERO_ADDRESS
+                    ) ? (
                   <LimitSwapButton
                     routerAddress={
                       chainProperties[networkName]["routerAddress"]

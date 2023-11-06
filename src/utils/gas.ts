@@ -46,6 +46,8 @@ export const gasEstimateSwap = async (
       gasUnits = await contract
         .connect(signer)
         .estimateGas.multiSwapSplit(poolAddresses, swapParams);
+    //NATIVE: if tokenIn.native, send msg.value as amountIn
+    //NATIVE: if tokenOut.native, send msg.value as 1 wei
     } else {
       gasUnits = BigNumber.from(1000000);
     }
@@ -97,6 +99,8 @@ export const gasEstimateMintLimit = async (
       provider
     );
     let gasUnits: BigNumber;
+    //NATIVE: if tokenIn.native, send msg.value as amountIn
+    //NATIVE: if tokenOut.native, send msg.value as 1 wei
     gasUnits = await routerContract.connect(signer).estimateGas.multiMintLimit(
       [rangePoolRoute],
       [

@@ -210,6 +210,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     //if tokenOut is selected
     if (tokenOut.address != initialTradeState.tokenOut.address) {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to initialState
+      // NATIVE: only flip tokens if 'isNative' also matches
       if (newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase()) {
         set((state) => ({
           tokenIn: {
@@ -303,6 +304,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     //if tokenIn exists
     if (tokenIn.address != initialTradeState.tokenOut.address) {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
+      // NATIVE: only flip tokens if 'isNative' also matches
       if (newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase()) {
         set((state) => ({
           tokenIn: {
