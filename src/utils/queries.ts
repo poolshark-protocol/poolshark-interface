@@ -930,25 +930,37 @@ export const fetchEthPrice = () => {
   });
 };
 
-export const fetchUserBonds = (address: string) => {
+export const fetchUserBonds = (address: string, symbol: string) => {
   return new Promise(function (resolve) {
     const userBondsQuery = `
-            query($recipient: String) {
-                bondPurchases(where: {recipient:"${address}"}) {
-                    amount
-                    auctioneer
-                    chainId
-                    id
-                    network
-                    owner
-                    payout
-                    postPurchasePrice
-                    purchasePrice
-                    recipient
-                    referrer
-                    teller
-                    timestamp
-                }
+          bondPurchases(where: {recipient:"${address}", payoutToken: {symbol: "${symbol}"}}, orderBy: timestamp, orderDirection: desc) {
+              amount
+              auctioneer
+              chainId
+              id
+              network
+              owner
+              payout
+              postPurchasePrice
+              purchasePrice
+              recipient
+              referrer
+              teller
+              timestamp
+              quoteToken {
+                address
+                symbol
+                decimals
+                id
+                totalPayoutAmount
+              }
+              payoutToken {
+                address
+                symbol
+                decimals
+                id
+                totalPayoutAmount
+              }
             }
         `;
     const client = new ApolloClient({
@@ -958,9 +970,6 @@ export const fetchUserBonds = (address: string) => {
     client
       .query({
         query: gql(userBondsQuery),
-        variables: {
-          recipient: address,
-        },
       })
       .then((data) => {
         resolve(data);
