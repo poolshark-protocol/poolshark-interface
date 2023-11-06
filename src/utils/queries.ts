@@ -929,3 +929,99 @@ export const fetchEthPrice = () => {
       });
   });
 };
+
+export const fetchUserBonds = (address: string) => {
+  return new Promise(function (resolve) {
+    const userBondsQuery = `
+            query($recipient: String) {
+                bondPurchases(where: {recipient:"${address}"}) {
+                    amount
+                    auctioneer
+                    chainId
+                    id
+                    network
+                    owner
+                    payout
+                    postPurchasePrice
+                    purchasePrice
+                    recipient
+                    referrer
+                    teller
+                    timestamp
+                }
+            }
+        `;
+    const client = new ApolloClient({
+      uri: "https://api.thegraph.com/subgraphs/name/bond-protocol/bp-arbitrum-goerli-testing",
+      cache: new InMemoryCache(),
+    });
+    client
+      .query({
+        query: gql(userBondsQuery),
+        variables: {
+          recipient: address,
+        },
+      })
+      .then((data) => {
+        resolve(data);
+        //console.log(data)
+      })
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+}
+
+export const fetchBondMarket = (idMarket: string) => {
+  return new Promise(function (resolve) {
+    const bondMarketQuery = `
+            query($marketId: String) {
+                markets(where: {marketId:"${idMarket}"}) {
+                    averageBondPrice
+                    bondsIssued
+                    callbackAddress
+                    capacity
+                    capacityInQuote
+                    chainId
+                    conclusion
+                    creationBlockTimestamp
+                    hasClosed
+                    id
+                    isInstantSwap
+                    marketId
+                    minPrice
+                    name
+                    network
+                    owner
+                    price
+                    scale
+                    start
+                    teller
+                    totalBondedAmount
+                    totalPayoutAmount
+                    type
+                    vesting
+                    vestingType
+                }
+            }
+        `;
+    const client = new ApolloClient({
+      uri: "https://api.thegraph.com/subgraphs/name/bond-protocol/bp-arbitrum-goerli-testing",
+      cache: new InMemoryCache(),
+    });
+    client
+      .query({
+        query: gql(bondMarketQuery),
+        variables: {
+          marketId: idMarket,
+        },
+      })
+      .then((data) => {
+        resolve(data);
+        //console.log(data)
+      })
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+}
