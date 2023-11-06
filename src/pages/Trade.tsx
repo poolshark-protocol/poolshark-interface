@@ -1340,26 +1340,28 @@ export default function Trade() {
             ) : (
               <></>
             )}
-            {limitTabSelected && (
-              <div className="bg-dark border rounded-[4px] border-grey/50 p-5 mt-5">
-                <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
-                  This pool does not exist so a starting price must be set in
-                  order to add liquidity.
-                </p>
-                <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
-                  <span className="text-grey1 text-xs">STARTING PRICE</span>
-                  <span className="text-white text-3xl">
-                    <input
-                      autoComplete="off"
-                      className="bg-black py-2 outline-none text-center w-full"
-                      placeholder="0"
-                      id="startPrice"
-                      type="text"
-                    />
-                  </span>
+            {limitTabSelected &&
+              tokenOut.address != ZERO_ADDRESS &&
+              tradePoolData?.id == ZERO_ADDRESS && (
+                <div className="bg-dark border rounded-[4px] border-grey/50 p-5 mt-5">
+                  <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
+                    This pool does not exist so a starting price must be set in
+                    order to add liquidity.
+                  </p>
+                  <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
+                    <span className="text-grey1 text-xs">STARTING PRICE</span>
+                    <span className="text-white text-3xl">
+                      <input
+                        autoComplete="off"
+                        className="bg-black py-2 outline-none text-center w-full"
+                        placeholder="0"
+                        id="startPrice"
+                        type="text"
+                      />
+                    </span>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             <div className="py-4">
               <div
