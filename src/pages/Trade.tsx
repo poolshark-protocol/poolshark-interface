@@ -1388,7 +1388,7 @@ export default function Trade() {
               </div>
             </div>
 
-            {!limitTabSelected && (
+            {!limitTabSelected && tokenOut.address != ZERO_ADDRESS && (
               <div className="flex gap-x-5 rounded-[4px] items-center text-xs p-2 border bg-dark border-grey mb-5">
                 <Range className="text-main2" />{" "}
                 <span className="text-grey3 flex flex-col gap-y-[-2px]">
