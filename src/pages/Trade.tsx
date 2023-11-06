@@ -1388,17 +1388,19 @@ export default function Trade() {
               </div>
             </div>
 
-            {!limitTabSelected && tokenOut.address != ZERO_ADDRESS && (
-              <div className="flex gap-x-5 rounded-[4px] items-center text-xs p-2 border bg-dark border-grey mb-5">
-                <Range className="text-main2" />{" "}
-                <span className="text-grey3 flex flex-col gap-y-[-2px]">
-                  There are currently no pools for this token pair.{" "}
-                  <a className=" hover:underline text-main2 cursor-pointer">
-                    Click here to create a range pool
-                  </a>
-                </span>
-              </div>
-            )}
+            {!limitTabSelected &&
+              tokenOut.address != ZERO_ADDRESS &&
+              tradePoolData?.id == ZERO_ADDRESS && (
+                <div className="flex gap-x-5 rounded-[4px] items-center text-xs p-2 border bg-dark border-grey mb-5">
+                  <Range className="text-main2" />{" "}
+                  <span className="text-grey3 flex flex-col gap-y-[-2px]">
+                    There are currently no pools for this token pair.{" "}
+                    <a className=" hover:underline text-main2 cursor-pointer">
+                      Click here to create a range pool
+                    </a>
+                  </span>
+                </div>
+              )}
             {isDisconnected ? (
               <ConnectWalletButton xl={true} />
             ) : !limitTabSelected ? (
