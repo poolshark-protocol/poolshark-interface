@@ -226,7 +226,7 @@ export default function CreateCover(props: any) {
     watch: needsLatestTick,
     onSuccess(data) {
       setNeedsLatestTick(false);
-      console.log('Success syncLatestTick', newLatestTick, tokenIn.address, tokenOut.address, coverPoolData.volatilityTier)
+      // console.log('Success syncLatestTick', newLatestTick, tokenIn.address, tokenOut.address, coverPoolData.volatilityTier)
     },
     onError(error) {
       console.log("Error syncLatestTick", tokenIn.address, tokenOut.address, coverPoolData.volatilityTier.feeAmount, coverPoolData.volatilityTier.tickSpread, coverPoolData.volatilityTier.twapLength, error);
@@ -236,8 +236,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (newLatestTick) {
-      console.log('setting latest tick', newLatestTick[0], newLatestTick[1], newLatestTick[2]);
-      // if underlying pool does not exist
+      // if underlying pool does not exist or twap not ready
       if (!newLatestTick[1] || !newLatestTick[2]) {
         setBnInput(BN_ZERO)
         setDisplay('')
@@ -282,7 +281,6 @@ export default function CreateCover(props: any) {
   }, [tokenIn.address, tokenOut.address, coverPoolData, latestTick, inputPoolExists, twapReady]);
 
   async function updatePositionData() {
-    console.log('updating position data')
     const tickAtPrice = Number(latestTick);
     const tickSpread = Number(coverPoolData.volatilityTier.tickSpread);
     const priceLower = TickMath.getPriceStringAtTick(
@@ -463,9 +461,6 @@ export default function CreateCover(props: any) {
                                         : inputPoolExists) // input pool must exist to create pool
     )
       updateGasFee();
-    else {
-      console.log('not updating gas fee', coverPoolAddress)
-    }
   }, [
     coverPoolAddress,
     coverPositionData.lowerPrice,

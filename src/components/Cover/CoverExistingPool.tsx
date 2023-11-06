@@ -231,7 +231,7 @@ export default function CoverExistingPool({ goBack }) {
     watch: needsLatestTick,
     onSuccess(data) {
       setNeedsLatestTick(false);
-      console.log('Success syncLatestTick', newLatestTick, tokenIn.address, tokenOut.address, coverPoolData.volatilityTier)
+      // console.log('Success syncLatestTick', newLatestTick, tokenIn.address, tokenOut.address, coverPoolData.volatilityTier)
     },
     onError(error) {
       console.log("Error syncLatestTick", tokenIn.address, tokenOut.address, coverPoolData.volatilityTier.feeAmount, coverPoolData.volatilityTier.tickSpread, coverPoolData.volatilityTier.twapLength, error);
@@ -241,8 +241,7 @@ export default function CoverExistingPool({ goBack }) {
 
   useEffect(() => {
     if (newLatestTick) {
-      console.log('latest tick info:', newLatestTick);
-      // if underlying pool does not exist
+      // if underlying pool does not exist or twap not ready
       if (!newLatestTick[1] || !newLatestTick[2]) {
         setLowerPrice('')
         setUpperPrice('')

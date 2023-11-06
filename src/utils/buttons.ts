@@ -87,7 +87,6 @@ export function getCoverMintButtonMessage(
     } else if (
         tokenInAmount.eq(BN_ZERO) && inputPoolExists && twapReady
     ) {
-        console.log('enter amount')
         return "Enter Amount"
     } else if (coverPoolAddress == ZERO_ADDRESS && !inputPoolExists) {
         return "No Pool for TWAP Data"

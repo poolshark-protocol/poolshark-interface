@@ -542,10 +542,6 @@ export const gasEstimateCoverCreateAndMint = async (
     if (!provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
-    // if input pool exists, we can create
-    // if cover pool exists, we will not enter here
-    // if twap not ready and cover pool exists, don't do mint gas estimate
-    console.log('gas estimate create')
     const routerAddress = chainProperties[networkName]["routerAddress"];
     const routerContract = new ethers.Contract(
       routerAddress,
@@ -554,7 +550,6 @@ export const gasEstimateCoverCreateAndMint = async (
     );
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     const amountIn = BigNumber.from(String(inAmount));
-    console.log('create cover pool params', ethers.utils.formatBytes32String('CONSTANT-PRODUCT'), networkName, volatilityTier, tokenIn.address, tokenOut.address)
     const gasUnits: BigNumber = await routerContract
       .connect(signer)
       .estimateGas.createCoverPoolAndMint(
@@ -579,7 +574,6 @@ export const gasEstimateCoverCreateAndMint = async (
         ] 
         : [] // skip mint if !twapReady
       );
-    console.log('gas units create and mint', gasUnits.toString())
     const price = await fetchEthPrice();
     const gasPrice = await provider.getGasPrice();
     const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);
