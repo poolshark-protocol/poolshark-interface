@@ -10,6 +10,7 @@ import { getCoverPoolFromFactory } from "../utils/queries";
 import { volatilityTiers } from "../utils/pools";
 import { parseUnits } from "../utils/math/valueMath";
 import { formatUnits } from "ethers/lib/utils.js";
+import { getCoverMintButtonDisabled, getCoverMintButtonMessage } from "../utils/buttons";
 
 type CoverState = {
   //poolAddress for current token pairs
@@ -26,6 +27,8 @@ type CoverState = {
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
   latestTick: number;
+  inputPoolExists: boolean;
+  twapReady: boolean;
   coverMintParams: {
     tokenInAmount: BigNumber;
     tokenOutAmount: BigNumber;
@@ -66,6 +69,10 @@ type CoverAction = {
   //setCoverAmountOut: (amount: JSBI) => void;
   //Latest tick
   setLatestTick: (tick: number) => void;
+  //Underlying pool exists
+  setInputPoolExists: (inputPoolExists: boolean) => void;
+  //Twap has enough samples
+  setTwapReady: (twapReady: boolean) => void;
   //Claim tick
   setClaimTick: (tick: number) => void;
   setMinTick: (coverPositionData, tick: BigNumber) => void;
@@ -133,6 +140,8 @@ const initialCoverState: CoverState = {
     coverUSDPrice: 0.0,
   } as tokenCover,
   latestTick: 0,
+  inputPoolExists: false,
+  twapReady: false,
   //
   claimTick: 0,
   //
@@ -165,6 +174,8 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   tokenOut: initialCoverState.tokenOut,
   //tick
   latestTick: initialCoverState.latestTick,
+  inputPoolExists: initialCoverState.inputPoolExists,
+  twapReady: initialCoverState.twapReady,
   claimTick: initialCoverState.claimTick,
   coverMintParams: initialCoverState.coverMintParams,
   needsRefetch: initialCoverState.needsRefetch,
@@ -407,6 +418,16 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       latestTick: latestTick,
     }));
   },
+  setInputPoolExists: (inputPoolExists: boolean) => {
+    set(() => ({
+      inputPoolExists: inputPoolExists,
+    }));
+  },
+  setTwapReady: (twapReady: boolean) => {
+    set(() => ({
+      twapReady: twapReady,
+    }));
+  },
   setClaimTick: (claimTick: number) => {
     set(() => ({
       claimTick: claimTick,
@@ -520,23 +541,20 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         }
       }
       dataLength = pool["data"]["volatilityTiers"].length;
-      if (!matchedVolatility && dataLength > 0)
+      if (!matchedVolatility && dataLength != undefined) {
         for (let idx = 0; idx < dataLength; idx++) {
           if (
-            pool["data"]["volatilityTiers"]["feeAmount"] == Number(volatility)
+            pool["data"]["volatilityTiers"][idx]["feeAmount"] == Number(volatility)
           ) {
             set(() => ({
               coverPoolAddress: ZERO_ADDRESS as `0x${string}`,
               coverPoolData: {
-                volatilityTier: {
-                  feeAmount: pool["data"]["volatilityTiers"]["feeAmount"],
-                  tickSpread: pool["data"]["volatilityTiers"]["tickSpread"],
-                  twapLength: pool["data"]["volatilityTiers"]["twapLength"],
-                },
+                volatilityTier: pool["data"]["volatilityTiers"][idx]
               },
             }));
           }
         }
+      }
     } catch (error) {
       console.log(error);
     }
@@ -545,40 +563,20 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     set((state) => ({
       coverMintParams: {
         ...state.coverMintParams,
-        buttonMessage:
-          state.tokenIn.userBalance <
-          parseFloat(
-            ethers.utils.formatUnits(
-              String(state.coverMintParams.tokenInAmount),
-              state.tokenIn.decimals
-            )
-          )
-            ? "Insufficient Token Balance"
-            : parseFloat(
-                ethers.utils.formatUnits(
-                  String(state.coverMintParams.tokenInAmount),
-                  state.tokenIn.decimals
-                )
-              ) == 0
-            ? "Enter Amount"
-            : "Mint Cover Position",
-        disabled:
-          state.tokenIn.userBalance <
-          parseFloat(
-            ethers.utils.formatUnits(
-              String(state.coverMintParams.tokenInAmount),
-              state.tokenIn.decimals
-            )
-          )
-            ? true
-            : parseFloat(
-                ethers.utils.formatUnits(
-                  String(state.coverMintParams.tokenInAmount),
-                  state.tokenIn.decimals
-                )
-              ) == 0
-            ? true
-            : false,
+        buttonMessage: getCoverMintButtonMessage(
+          state.coverMintParams.tokenInAmount,
+          state.tokenIn,
+          state.coverPoolAddress,
+          state.inputPoolExists,
+          state.twapReady
+        ),
+        disabled: getCoverMintButtonDisabled(
+          state.coverMintParams.tokenInAmount,
+          state.tokenIn,
+          state.coverPoolAddress,
+          state.inputPoolExists,
+          state.twapReady
+        )
       },
     }));
   },

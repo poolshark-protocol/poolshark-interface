@@ -10,6 +10,8 @@ import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { chainProperties } from "./chains";
 import JSBI from "jsbi";
 import { parseUnits } from "./math/valueMath";
+import { formatBytes32String } from "ethers/lib/utils.js";
+import { coverPoolTypes } from "./pools";
 
 export interface gasEstimateResult {
   formattedPrice: string;
@@ -522,7 +524,6 @@ export const gasEstimateCoverMint = async (
 };
 
 export const gasEstimateCoverCreateAndMint = async (
-  poolType: string,
   volatilityTier: any,
   address: string,
   upperTick: number,
@@ -532,7 +533,7 @@ export const gasEstimateCoverCreateAndMint = async (
   inAmount: BigNumber,
   signer,
   networkName: string,
-  positionId?: number
+  twapReady: boolean,
 ): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
@@ -553,14 +554,14 @@ export const gasEstimateCoverCreateAndMint = async (
       .connect(signer)
       .estimateGas.createCoverPoolAndMint(
         {
-          poolType: ethers.utils.formatBytes32String(poolType),
+          poolType: coverPoolTypes['constant-product']['poolshark'],
           tokenIn: tokenIn.address,
           tokenOut: tokenOut.address,
           feeTier: volatilityTier.feeAmount,
           tickSpread: volatilityTier.tickSpread,
           twapLength: volatilityTier.twapLength,
         }, // pool params
-        [
+        twapReady ? [
           {
             to: address,
             amount: inAmount,
@@ -570,7 +571,8 @@ export const gasEstimateCoverCreateAndMint = async (
             zeroForOne: zeroForOne,
             callbackData: ethers.utils.formatBytes32String(""),
           },
-        ] // cover positions
+        ] 
+        : [] // skip mint if !twapReady
       );
     const price = await fetchEthPrice();
     const gasPrice = await provider.getGasPrice();
@@ -585,7 +587,7 @@ export const gasEstimateCoverCreateAndMint = async (
 
     return { formattedPrice, gasUnits };
   } catch (error) {
-    console.log("gas error", error);
+    console.log("gas error Create and Mint", error);
     return { formattedPrice: "Unable to Estimate Gas", gasUnits: BN_ZERO };
   }
 };

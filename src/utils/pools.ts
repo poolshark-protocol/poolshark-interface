@@ -1,3 +1,4 @@
+import { formatBytes32String } from "ethers/lib/utils.js";
 import {
   getLimitPoolFromFactory,
 } from "./queries";
@@ -113,4 +114,10 @@ export const volatilityTiers = [
 
 export const limitPoolTypeIds = {
   'constant-product': 0
+}
+
+export const coverPoolTypes = {
+  'constant-product': {
+    'poolshark': formatBytes32String("PSHARK-CPROD")
+  }
 }

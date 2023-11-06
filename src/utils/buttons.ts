@@ -66,3 +66,66 @@ export function getRangeMintButtonDisabled(
         return false
     }
 }
+
+export function getCoverMintButtonMessage(
+    tokenInAmount: BigNumber,
+    tokenIn: token,
+    coverPoolAddress: string,
+    inputPoolExists: boolean,
+    twapReady: boolean
+  ): string {
+    console.log('button message:', tokenIn.address)
+    if (tokenIn.userBalance <
+        parseFloat(
+          formatUnits(
+            String(tokenInAmount),
+            tokenIn.decimals
+          )
+        )
+    ) {
+        return "Insufficient Token Balance"
+    } else if (
+        tokenInAmount.eq(BN_ZERO) && inputPoolExists && twapReady
+    ) {
+        return "Enter Amount"
+    } else if (coverPoolAddress == ZERO_ADDRESS && !inputPoolExists) {
+        return "No Pool for TWAP Data"
+    } else if (coverPoolAddress != ZERO_ADDRESS && inputPoolExists && !twapReady) {
+        return "TWAP not ready"  
+    } else if (coverPoolAddress == ZERO_ADDRESS && inputPoolExists && !twapReady) {
+        return "Create Cover Pool"
+    } else if (inputPoolExists && twapReady) {
+        return "Mint Cover Position"
+    }
+}
+
+export function getCoverMintButtonDisabled(
+    tokenInAmount: BigNumber,
+    tokenIn: token,
+    coverPoolAddress: string,
+    inputPoolExists: boolean,
+    twapReady: boolean
+): boolean {
+    if (tokenIn.userBalance <
+        parseFloat(
+          formatUnits(
+            String(tokenInAmount),
+            tokenIn.decimals
+          )
+        )
+    ) {
+        return true
+    } else if (
+        tokenInAmount.eq(BN_ZERO) && inputPoolExists && twapReady
+    ) {
+        return true
+    } else if (coverPoolAddress == ZERO_ADDRESS && !inputPoolExists) {
+        return true
+    } else if (coverPoolAddress != ZERO_ADDRESS && inputPoolExists && !twapReady) {
+        return true  
+    } else if (coverPoolAddress == ZERO_ADDRESS && inputPoolExists && !twapReady) {
+        return false
+    } else if (coverPoolAddress != ZERO_ADDRESS && inputPoolExists && twapReady) {
+        return false
+    }
+}

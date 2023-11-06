@@ -66,11 +66,13 @@ function MyApp({ Component, pageProps }) {
     setNetworkName,
     setLimitSubgraph,
     setCoverSubgraph,
+    setCoverFactoryAddress,
   ] = useConfigStore((state) => [
     state.setChainId,
     state.setNetworkName,
     state.setLimitSubgraph,
     state.setCoverSubgraph,
+    state.setCoverFactoryAddress,
   ]);
 
   const {
@@ -87,6 +89,7 @@ function MyApp({ Component, pageProps }) {
                                                         : chainProperties['arbitrumGoerli'];
     setLimitSubgraph(chainConstants['limitSubgraphUrl'])
     setCoverSubgraph(chainConstants['coverSubgraphUrl'])
+    setCoverFactoryAddress(chainConstants['coverPoolFactory'])
     setNetworkName(networkName)
   }, [name]);
 

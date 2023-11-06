@@ -111,6 +111,7 @@ export const getCoverPoolFromFactory = (
                 tickSpread
                 auctionLength
                 feeAmount
+                twapLength
               }
               token0 {
                 id
@@ -131,6 +132,7 @@ export const getCoverPoolFromFactory = (
               tickSpread
               auctionLength
               feeAmount
+              twapLength
             }
           }
          `;
@@ -433,7 +435,7 @@ export const fetchCoverPools = (client: CoverSubgraph) => {
   return new Promise(function (resolve) {
     const poolsQuery = `
             query($id: String) {
-                coverPools(id: $id) {
+                coverPools(orderBy: totalValueLockedUsd, orderDirection: desc) {
                     id
                     inputPool
                     token0{

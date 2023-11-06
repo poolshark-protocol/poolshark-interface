@@ -310,6 +310,9 @@ export default function Trade() {
         limitSubgraph
       );
     }
+    // for ETH just use WETH price
+    // for same addresses we can also for the ETH/WETH exception
+    // if addresses are the same assume it's wrapping/unwrapping ETH and call deposit/withdraw
   }, [tokenIn.address]);
 
   useEffect(() => {
