@@ -1,5 +1,9 @@
 import { useState, useEffect, Fragment } from "react";
-import { ChevronDownIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import {
+  ChevronDownIcon,
+  XMarkIcon,
+  ArrowLongRightIcon,
+} from "@heroicons/react/20/solid";
 import SelectToken from "../components/SelectToken";
 import useInputBox from "../hooks/useInputBox";
 import { Transition, Dialog } from "@headlessui/react";
@@ -54,6 +58,7 @@ import timeDifference from "../utils/time";
 import { inputHandler, parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
 import { useConfigStore } from "../hooks/useConfigStore";
+import Range from "../components/Icons/RangeIcon";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -1026,7 +1031,7 @@ export default function Trade() {
   return (
     <div className="min-h-[calc(100vh-160px)] w-[48rem] px-3 md:px-0">
       <div className="flex w-full mt-[10vh] justify-center mb-20 ">
-        <div className="bg-black font-regular border border-grey rounded-[4px]">
+        <div className="bg-black font-regular border border-grey rounded-[4px] w-full max-w-2xl">
           <div className="flex text-xs">
             <button
               onClick={() => setLimitTabSelected(false)}
@@ -1335,6 +1340,29 @@ export default function Trade() {
             ) : (
               <></>
             )}
+            {limitTabSelected &&
+              tokenOut.address != ZERO_ADDRESS &&
+              tradePoolData?.id == ZERO_ADDRESS && (
+                <div className="bg-dark border rounded-[4px] border-grey/50 p-5 mt-5">
+                  <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
+                    This pool does not exist so a starting price must be set in
+                    order to add liquidity.
+                  </p>
+                  <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
+                    <span className="text-grey1 text-xs">STARTING PRICE</span>
+                    <span className="text-white text-3xl">
+                      <input
+                        autoComplete="off"
+                        className="bg-black py-2 outline-none text-center w-full"
+                        placeholder="0"
+                        id="startPrice"
+                        type="text"
+                      />
+                    </span>
+                  </div>
+                </div>
+              )}
+
             <div className="py-4">
               <div
                 className="flex px-2 cursor-pointer py-2 rounded-[4px]"
@@ -1361,6 +1389,20 @@ export default function Trade() {
                 <Option />
               </div>
             </div>
+
+            {!limitTabSelected &&
+              tokenOut.address != ZERO_ADDRESS &&
+              tradePoolData?.id == ZERO_ADDRESS && (
+                <div className="flex gap-x-5 rounded-[4px] items-center text-xs p-2 border bg-dark border-grey mb-5">
+                  <Range className="text-main2" />{" "}
+                  <span className="text-grey3 flex flex-col gap-y-[-2px]">
+                    There are currently no pools for this token pair.{" "}
+                    <a className=" hover:underline text-main2 cursor-pointer">
+                      Click here to create a range pool
+                    </a>
+                  </span>
+                </div>
+              )}
             {isDisconnected ? (
               <ConnectWalletButton xl={true} />
             ) : !limitTabSelected ? (
