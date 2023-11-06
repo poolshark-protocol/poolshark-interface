@@ -221,8 +221,7 @@ export default function ViewRange() {
           data["data"].rangePositions
         );
         setAllRangePositions(mappedPositions);
-        const positionId =
-          rangePositionData.id ?? router.query.id;
+        const positionId = rangePositionData.id ?? router.query.id;
         const position = mappedPositions.find(
           (position) => position.id == positionId
         );
@@ -401,18 +400,32 @@ export default function ViewRange() {
         <div className="flex md:flex-row flex-col justify-between w-full items-start md:items-center gap-y-5">
           <div className="flex items-center gap-x-3">
             <div className="flex items-center">
-              <img height="50" width="50" src={tokenIn.logoURI} />
-              <img
-                height="50"
-                width="50"
-                className="ml-[-12px]"
-                src={tokenOut.logoURI}
-              />
+              {isLoading ? (
+                <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
+              ) : (
+                <img height="50" width="50" src={tokenIn.logoURI} />
+              )}
+              {isLoading ? (
+                <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
+              ) : (
+                <img
+                  height="50"
+                  width="50"
+                  className="ml-[-12px]"
+                  src={tokenOut.logoURI}
+                />
+              )}
             </div>
             <div className="flex flex-col gap-y-2">
               <div className="flex items-center text-white">
                 <h1>
-                  {tokenIn.symbol}-{tokenOut.symbol}
+                  {isLoading ? (
+                    <div className="h-5 w-20 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    <div>
+                      {tokenIn.symbol}-{tokenOut.symbol}
+                    </div>
+                  )}
                 </h1>
                 <a
                   href={
@@ -491,8 +504,16 @@ export default function ViewRange() {
 
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
-                      <img height="28" width="25" src={tokenIn.logoURI} />
-                      {tokenIn.symbol}
+                      {isLoading ? (
+                        <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
+                      ) : (
+                        <img height="25" width="25" src={tokenIn.logoURI} />
+                      )}
+                      {isLoading ? (
+                        <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
+                      ) : (
+                        tokenIn.symbol
+                      )}
                     </div>
                   </div>
                 </div>
@@ -513,8 +534,16 @@ export default function ViewRange() {
                   )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
-                      <img height="28" width="25" src={tokenOut.logoURI} />
-                      {tokenOut.symbol}
+                      {isLoading ? (
+                        <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
+                      ) : (
+                        <img height="25" width="25" src={tokenOut.logoURI} />
+                      )}
+                      {isLoading ? (
+                        <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
+                      ) : (
+                        tokenOut.symbol
+                      )}
                     </div>
                   </div>
                 </div>
@@ -636,8 +665,16 @@ export default function ViewRange() {
                   )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
-                      <img height="28" width="25" src={tokenIn.logoURI} />
-                      {tokenIn.symbol}
+                      {isLoading ? (
+                        <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
+                      ) : (
+                        <img height="25" width="25" src={tokenIn.logoURI} />
+                      )}
+                      {isLoading ? (
+                        <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
+                      ) : (
+                        tokenIn.symbol
+                      )}
                     </div>
                   </div>
                 </div>
@@ -658,8 +695,16 @@ export default function ViewRange() {
                   )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
-                      <img height="28" width="25" src={tokenOut.logoURI} />
-                      {tokenOut.symbol}
+                      {isLoading ? (
+                        <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
+                      ) : (
+                        <img height="25" width="25" src={tokenOut.logoURI} />
+                      )}
+                      {isLoading ? (
+                        <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
+                      ) : (
+                        tokenOut.symbol
+                      )}
                     </div>
                   </div>
                 </div>

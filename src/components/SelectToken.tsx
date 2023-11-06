@@ -224,13 +224,27 @@ export default function SelectToken(props) {
                     ></input>
                     <div className="flex justify-between flex-wrap mt-4 gap-y-2">
                       {displayTokenList.map((coin) => {
-                        return (
-                          <CoinListButton
-                            key={coin.symbol + "top"}
-                            coin={coin}
-                            chooseToken={chooseToken}
-                          />
-                        );
+                        if (
+                          customInput.toLowerCase() == "" ||
+                          customInput.toLowerCase() == " " ||
+                          coin.symbol
+                            .toLowerCase()
+                            .includes(customInput.toLowerCase()) ||
+                          coin.name
+                            .toLowerCase()
+                            .includes(customInput.toLowerCase()) ||
+                          coin.address
+                            .toLowerCase()
+                            .includes(customInput.toLowerCase())
+                        ) {
+                          return (
+                            <CoinListButton
+                              key={coin.symbol + "top"}
+                              coin={coin}
+                              chooseToken={chooseToken}
+                            />
+                          );
+                        }
                       })}
                     </div>
                   </div>
@@ -238,13 +252,27 @@ export default function SelectToken(props) {
                     {displayTokenList
                       .sort((a, b) => b.balance - a.balance)
                       .map((coin) => {
-                        return (
-                          <CoinListItem
-                            key={coin.symbol}
-                            coin={coin}
-                            chooseToken={chooseToken}
-                          />
-                        );
+                        if (
+                          customInput.toLowerCase() == "" ||
+                          customInput.toLowerCase() == " " ||
+                          coin.symbol
+                            .toLowerCase()
+                            .includes(customInput.toLowerCase()) ||
+                          coin.name
+                            .toLowerCase()
+                            .includes(customInput.toLowerCase()) ||
+                          coin.address
+                            .toLowerCase()
+                            .includes(customInput.toLowerCase())
+                        ) {
+                          return (
+                            <CoinListItem
+                              key={coin.symbol}
+                              coin={coin}
+                              chooseToken={chooseToken}
+                            />
+                          );
+                        }
                       })}
                   </div>
                 </Dialog.Panel>
