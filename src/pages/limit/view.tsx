@@ -144,7 +144,7 @@ export default function ViewLimit() {
         );
       }
     }
-  }, [limitFilledAmount, tokenIn.address, tokenOut.address]);
+  }, [limitFilledAmount, tokenIn.address, tokenOut.address, limitPositionData.liquidity]);
 
   useEffect(() => {
     if (
