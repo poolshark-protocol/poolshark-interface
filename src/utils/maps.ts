@@ -7,6 +7,7 @@ import {
 } from "./queries";
 import { CoverSubgraph, LimitSubgraph } from "./types";
 import { logoMap } from "./tokens";
+import { max } from "fuels";
 
 export const getClaimTick = async (
   poolAddress: string,
@@ -67,6 +68,9 @@ export const getClaimTick = async (
       : claimTickQuery["data"]["limitTicks"].length;
     // set claim tick if found
     if (claimTickDataLength > 0) {
+      if (setAddLiqDisabled != undefined) {
+        setAddLiqDisabled(true)
+      }
       claimTick = isCover
         ? claimTickQuery["data"]["ticks"][0]["index"]
         : claimTickQuery["data"]["limitTicks"][0]["index"];
@@ -83,6 +87,9 @@ export const getClaimTick = async (
         }
       }
     } else if (claimTickDataLength != undefined) {
+      if (setAddLiqDisabled != undefined) {
+        setAddLiqDisabled(false)
+      }
       claimTick = isCover ? minLimit : maxLimit
     }
   }
