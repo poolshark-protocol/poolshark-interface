@@ -34,6 +34,8 @@ type TradeState = {
   limitPriceString: string;
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
+  //true if wrapping ETH or unwrapping WETH
+  wethCall: boolean;
   //TokenIn defines the token on the left/up on a swap page
   tokenIn: tokenSwap;
   //TokenOut defines the token on the left/up on a swap page
@@ -62,6 +64,8 @@ type TradeLimitAction = {
   setTradePositionData: (tradePosition: any) => void;
   //
   setPairSelected: (pairSelected: boolean) => void;
+  //
+  setWethCall: (wethCall: boolean) => void;
   //
   setTokenIn: (tokenOut: any, newToken: any, amount: string, isAmountIn: boolean) => void;
   setTokenInAmount: (amount: BigNumber) => void;
@@ -127,13 +131,15 @@ const initialTradeState: TradeState = {
   //
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: false,
+  wethCall: false,
   //
   tokenIn: {
     callId: 0,
     name: "Wrapped Ether",
     symbol: "WETH",
+    native: false,
     logoURI:
-      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/native-eth-support/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
@@ -145,6 +151,7 @@ const initialTradeState: TradeState = {
     callId: 1,
     name: "Select Token",
     symbol: "Select Token",
+    native: false,
     logoURI: "",
     address: ZERO_ADDRESS as `0x${string}`,
     decimals: 18,
@@ -180,6 +187,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   tradeParams: initialTradeState.tradeParams,
   //true if both tokens selected, false if only one token selected
   pairSelected: initialTradeState.pairSelected,
+  wethCall: initialTradeState.wethCall,
   //tokenIn
   tokenIn: initialTradeState.tokenIn,
   //tokenOut
@@ -206,17 +214,23 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       pairSelected: pairSelected,
     }));
   },
+  setWethCall: (wethCall: boolean) => {
+    set(() => ({
+      wethCall: wethCall,
+    }));
+  },
   setTokenIn: (tokenOut, newTokenIn: tokenSwap, amount: string, isAmountIn: boolean) => {
     //if tokenOut is selected
     if (tokenOut.address != initialTradeState.tokenOut.address) {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to initialState
-      // NATIVE: only flip tokens if 'isNative' also matches
-      if (newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase()) {
+      if (newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase() &&
+          newTokenIn.native == tokenOut.native) {
         set((state) => ({
           tokenIn: {
             callId: state.tokenOut.callId,
             name: state.tokenOut.name,
             symbol: state.tokenOut.symbol,
+            native: state.tokenOut.native,
             logoURI: state.tokenOut.logoURI,
             address: state.tokenOut.address,
             decimals: state.tokenOut.decimals,
@@ -228,6 +242,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             callId: state.tokenIn.callId,
             name: state.tokenIn.name,
             symbol: state.tokenIn.symbol,
+            native: state.tokenIn.native,
             logoURI: state.tokenIn.logoURI,
             address: state.tokenIn.address,
             decimals: state.tokenIn.decimals,
@@ -237,14 +252,17 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           },
           amountIn: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.amountIn,
           amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals),
-          needsAllowanceIn: true
+          needsAllowanceIn: true,
+          wethCall: state.tokenOut.address.toLowerCase() == state.tokenIn.address.toLowerCase(),
         }));
       } else {
         //if tokens are different
+        console.log('new token in', newTokenIn)
         set(() => ({
           tokenIn: {
             callId:
               newTokenIn.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
+            native: newTokenIn.native ?? false,
             ...newTokenIn,
           },
           tokenOut: {
@@ -254,9 +272,11 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           },
           pairSelected: true,
           needsAllowanceIn: true,
+          wethCall: newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase(),
         }));
       }
     } else {
+      console.log('else case', newTokenIn)
       //if tokenOut its not selected
       set(() => ({
         tokenIn: {
@@ -268,6 +288,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           ...tokenOut,
         },
         pairSelected: false,
+        wethCall: false,
         needsAllowanceIn: true,
       }));
     }
@@ -305,12 +326,14 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     if (tokenIn.address != initialTradeState.tokenOut.address) {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
       // NATIVE: only flip tokens if 'isNative' also matches
-      if (newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase()) {
+      if (newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase() &&
+          newTokenOut.native == tokenIn.native) {
         set((state) => ({
           tokenIn: {
             callId: state.tokenOut.callId,
             name: state.tokenOut.name,
             symbol: state.tokenOut.symbol,
+            native: state.tokenOut.native,
             logoURI: state.tokenOut.logoURI,
             address: state.tokenOut.address,
             decimals: state.tokenOut.decimals,
@@ -322,6 +345,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             callId: state.tokenIn.callId,
             name: state.tokenIn.name,
             symbol: state.tokenIn.symbol,
+            native: state.tokenIn.native,
             logoURI: state.tokenIn.logoURI,
             address: state.tokenIn.address,
             decimals: state.tokenIn.decimals,
@@ -331,7 +355,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           },
           amountIn: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.amountIn,
           amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals),
-          needsAllowanceIn: true
+          needsAllowanceIn: true,
+          wethCall: newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase(),
         }));
       } else {
         //if tokens are different
@@ -340,6 +365,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             callId: tokenIn.address.localeCompare(newTokenOut.address) < 0 ? 0 : 1,
             symbol: tokenIn.symbol,
             name: tokenIn.name,
+            native: tokenIn.native ?? false,
             logoURI: tokenIn.logoURI,
             address: tokenIn.address,
             decimals: tokenIn.decimals,
@@ -352,6 +378,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             ...newTokenOut,
           },
           pairSelected: true,
+          wethCall: newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase(),
         }));
       }
     } else {
@@ -366,6 +393,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           ...newTokenOut,
         },
         pairSelected: false,
+        wethCall: false,
       }));
     }
   },
@@ -531,6 +559,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         callId: state.tokenOut.callId,
         name: state.tokenOut.name,
         symbol: state.tokenOut.symbol,
+        native: state.tokenOut.native,
         logoURI: state.tokenOut.logoURI,
         address: state.tokenOut.address,
         decimals: state.tokenOut.decimals,
@@ -542,6 +571,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         callId: state.tokenIn.callId,
         name: state.tokenIn.name,
         symbol: state.tokenIn.symbol,
+        native: state.tokenIn.native,
         logoURI: state.tokenIn.logoURI,
         address: state.tokenIn.address,
         decimals: state.tokenIn.decimals,

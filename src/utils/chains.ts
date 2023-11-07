@@ -25,7 +25,7 @@ export const supportedNetworkNames = {
 export const chainProperties = {
     mainnet: {
         chainName: 'Ethereum Mainnet',
-        logo:"https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/logo.png",
+        logo:"https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/native-eth-support/blockchains/ethereum/logo.png",
         rpcUrls: ['https://eth-mainnet.public.blastapi.io'],
         blockExplorerUrls: ['https://etherscan.io/'],
         nativeCurrency: {

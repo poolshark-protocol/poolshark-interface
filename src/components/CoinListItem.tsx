@@ -1,7 +1,7 @@
 import useTokenBalance from '../hooks/useTokenBalance'
 
 function CoinListItem({ chooseToken, coin }) {
-  const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(coin?.address)
+  const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(coin?.native ? undefined : coin?.address)
 
   return (
     <div

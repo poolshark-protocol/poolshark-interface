@@ -88,6 +88,7 @@ export default function Trade() {
     tradeParams,
     pairSelected,
     setPairSelected,
+    wethCall,
     tradeSlippage,
     setTradeSlippage,
     tokenIn,
@@ -130,6 +131,7 @@ export default function Trade() {
     s.tradeParams,
     s.pairSelected,
     s.setPairSelected,
+    s.wethCall,
     s.tradeSlippage,
     s.setTradeSlippage,
     s.tokenIn,
@@ -246,9 +248,12 @@ export default function Trade() {
   const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
     if (isAmountIn) {
       if (bnValue.gt(BN_ZERO)) {
-        //NATIVE: if wethCall, set 1:1
-        if (!limitTabSelected) updatePools(bnValue, true);
-        else {
+        if (wethCall) {
+          setDisplayOut(displayIn);
+          setAmountOut(bnValue);
+        } else if (!limitTabSelected) {
+          updatePools(bnValue, true);
+        } else {
           const tokenOutAmount = getExpectedAmountOutFromInput(
             Number(lowerTick),
             Number(upperTick),
@@ -270,9 +275,12 @@ export default function Trade() {
       }
     } else {
       if (bnValue.gt(BN_ZERO)) {
-        //NATIVE: if wethCall, set 1:1
-        if (!limitTabSelected) updatePools(bnValue, false);
-        else {
+        if (wethCall) {
+          setDisplayIn(displayOut);
+          setAmountIn(bnValue);
+        } else if (!limitTabSelected) {
+          updatePools(bnValue, false);
+        } else {
           const tokenInAmount = getExpectedAmountInFromOutput(
             Number(lowerTick),
             Number(upperTick),
@@ -315,8 +323,9 @@ export default function Trade() {
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
-      // NATIVE: only updatePools if !wethCall
-      updatePools(exactIn ? amountIn : amountOut, exactIn);
+      if (!wethCall)
+        // only update pools if !wethCall
+        updatePools(exactIn ? amountIn : amountOut, exactIn);
       if (exactIn) {
         if (!isNaN(parseFloat(displayIn))) {
           const bnValue = parseUnits(displayIn, tokenIn.decimals);
@@ -330,8 +339,8 @@ export default function Trade() {
           setAmounts(bnValue, false);
         }
       }
-      // NATIVE: only if !tokenIn.native
-      setNeedsAllowanceIn(true);
+      if (!tokenIn.native)
+        setNeedsAllowanceIn(true);
     }
   }, [tokenIn.address, tokenOut.address]);
 
@@ -366,8 +375,7 @@ export default function Trade() {
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
     chainId: chainId,
-    enabled: availablePools != undefined && quoteParams != undefined,
-    //NATIVE: enabled if !wethCall
+    enabled: availablePools != undefined && quoteParams != undefined && !wethCall,
     onError(error) {
       console.log("Error multiquote", error);
     },
@@ -379,8 +387,7 @@ export default function Trade() {
   });
 
   useEffect(() => {
-    //NATIVE: if wethCall, set 1:1
-    if (!limitTabSelected) {
+    if (!limitTabSelected && !wethCall) {
       if (poolQuotes && poolQuotes[0]) {
         if (exactIn) {
           setAmountOut(poolQuotes[0].amountOut);
@@ -426,7 +433,7 @@ export default function Trade() {
         );
 
         // set price impact
-        if (poolQuotes[i].pool.toLowerCase() == tradePoolData.id) {
+        if (poolQuotes[i].pool.toLowerCase() == tradePoolData.id.toLowerCase()) {
           const currentPrice: number = parseFloat(
             TickMath.getPriceStringAtSqrtPrice(
               tradePoolData.poolPrice,
@@ -582,6 +589,7 @@ export default function Trade() {
             setTokenInTradeUSDPrice
           );
         }
+        //NATIVE: if tradePoolData undefined query token usdPrice
         //TODO: check if cover and/or range pools present
       }
       if (tokenOut.address) {
@@ -593,18 +601,18 @@ export default function Trade() {
             setTokenOutTradeUSDPrice
           );
         }
+        //NATIVE: if tradePoolData undefined query token usdPrice
       }
     }
-  }, [tradePoolData, tokenIn.address, tokenOut.address]);
+  }, [tradePoolData, tokenIn.address, tokenOut.address, tokenIn.native, tokenOut.native]);
 
   ////////////////////////////////Balances
 
   const { data: tokenInBal } = useBalance({
     address: address,
-    token: tokenIn.address,
+    token: tokenIn.native ? undefined : tokenIn.address,
     enabled: tokenIn.address != undefined && needsBalanceIn,
     watch: needsBalanceIn,
-    //NATIVE: if tokenIn.native, set token to undefined
     onSuccess(data) {
       if (needsBalanceIn) {
         setNeedsBalanceIn(false);
@@ -614,10 +622,9 @@ export default function Trade() {
 
   const { data: tokenOutBal } = useBalance({
     address: address,
-    token: tokenOut.address,
+    token: tokenIn.native ? undefined: tokenOut.address,
     enabled: tokenOut.address != undefined && needsBalanceOut,
     watch: needsBalanceOut,
-    //NATIVE: if tokenOut.native, set token to undefined
     onSuccess(data) {
       if (needsBalanceOut) {
         setNeedsBalanceOut(false);
@@ -651,8 +658,7 @@ export default function Trade() {
     args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowanceIn,
-    enabled: tokenIn.address != ZERO_ADDRESS,
-    //NATIVE: if tokenIn.native, disable allowance check
+    enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
     onError(error) {
       console.log("Error allowance", error);
     },
@@ -1100,7 +1106,7 @@ export default function Trade() {
                             amountIn ?? BN_ZERO,
                             tokenIn.decimals
                           )
-                        ) * tokenIn.USDPrice
+                        ) * (tokenIn.USDPrice ?? 0)
                       ).toFixed(2)
                     : (0).toFixed(2)}
                 </span>

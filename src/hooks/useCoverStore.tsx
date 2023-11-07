@@ -120,7 +120,8 @@ const initialCoverState: CoverState = {
     callId: 0,
     name: "Wrapped Ether",
     symbol: "WETH",
-    logoURI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+    native: false,
+    logoURI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/native-eth-support/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
@@ -132,7 +133,8 @@ const initialCoverState: CoverState = {
     callId: 1,
     name: "DAI",
     symbol: "DAI",
-    logoURI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
+    native: false,
+    logoURI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/native-eth-support/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
     address: tokenOneAddress,
     decimals: 18,
     userBalance: 0.0,
@@ -187,12 +189,14 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     //if tokenOut is selected
     if (tokenOut.symbol != "Select Token") {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
-      if (newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase()) {
+      if (newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase() &&
+          newTokenIn.native == tokenOut.native) {
         set((state) => ({
           tokenIn: {
             callId: state.tokenOut.callId,
             name: state.tokenOut.name,
             symbol: state.tokenOut.symbol,
+            native: state.tokenOut.native,
             logoURI: state.tokenOut.logoURI,
             address: state.tokenOut.address,
             decimals: state.tokenOut.decimals,
@@ -204,6 +208,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
             callId: state.tokenIn.callId,
             name: state.tokenIn.name,
             symbol: state.tokenIn.symbol,
+            native: state.tokenIn.native,
             logoURI: state.tokenIn.logoURI,
             address: state.tokenIn.address,
             decimals: state.tokenIn.decimals,
@@ -305,12 +310,14 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     //if tokenIn exists
     if (tokenIn.symbol != "Select Token") {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
-      if (newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase()) {
+      if (newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase() &&
+          newTokenOut.native == tokenIn.native) {
         set((state) => ({
           tokenIn: {
             callId: state.tokenOut.callId,
             name: state.tokenOut.name,
             symbol: state.tokenOut.symbol,
+            native: state.tokenOut.native,
             logoURI: state.tokenOut.logoURI,
             address: state.tokenOut.address,
             decimals: state.tokenOut.decimals,
@@ -322,6 +329,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
             callId: state.tokenIn.callId,
             name: state.tokenIn.name,
             symbol: state.tokenIn.symbol,
+            native: state.tokenIn.native,
             logoURI: state.tokenIn.logoURI,
             address: state.tokenIn.address,
             decimals: state.tokenIn.decimals,
@@ -494,6 +502,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         callId: state.tokenOut.callId,
         name: state.tokenOut.name,
         symbol: state.tokenOut.symbol,
+        native: state.tokenOut.native,
         logoURI: state.tokenOut.logoURI,
         address: state.tokenOut.address,
         decimals: state.tokenOut.decimals,
@@ -505,6 +514,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         callId: state.tokenIn.callId,
         name: state.tokenIn.name,
         symbol: state.tokenIn.symbol,
+        native: state.tokenIn.native,
         logoURI: state.tokenIn.logoURI,
         address: state.tokenIn.address,
         decimals: state.tokenIn.decimals,
