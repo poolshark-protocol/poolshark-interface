@@ -986,31 +986,73 @@ export const fetchBondMarket = (idMarket: string) => {
     const bondMarketQuery = `
             query($marketId: String) {
                 markets(where: {marketId:"${idMarket}"}) {
-                    averageBondPrice
-                    bondsIssued
-                    callbackAddress
-                    capacity
-                    capacityInQuote
-                    chainId
-                    conclusion
-                    creationBlockTimestamp
-                    hasClosed
+                  id
+                  name
+                  network
+                  auctioneer
+                  teller
+                  marketId
+                  owner
+                  callbackAddress
+                  capacity
+                  capacityInQuote
+                  chainId
+                  minPrice
+                  scale
+                  start
+                  conclusion
+                  payoutToken {
                     id
-                    isInstantSwap
-                    marketId
-                    minPrice
+                    address
+                    symbol
+                    decimals
                     name
-                    network
-                    owner
-                    price
-                    scale
-                    start
-                    teller
-                    totalBondedAmount
-                    totalPayoutAmount
-                    type
-                    vesting
-                    vestingType
+                  }
+                  quoteToken {
+                    id
+                    address
+                    symbol
+                    decimals
+                    name
+                    lpPair {
+                      token0 {
+                        id
+                        address
+                        symbol
+                        decimals
+                        name
+                        typeName
+                      }
+                      token1 {
+                        id
+                        address
+                        symbol
+                        decimals
+                        name
+                        typeName
+                      }
+                    }
+                    balancerWeightedPool {
+                      id
+                      vaultAddress
+                      poolId
+                      constituentTokens {
+                        id
+                        address
+                        symbol
+                        decimals
+                        name
+                        typeName
+                      }
+                    }
+                  }
+                  vesting
+                  vestingType
+                  isInstantSwap
+                  hasClosed
+                  totalBondedAmount
+                  totalPayoutAmount
+                  creationBlockTimestamp
                 }
             }
         `;
