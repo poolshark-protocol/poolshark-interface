@@ -109,7 +109,6 @@ export default function LimitSwapBurnButton({
         positionId: positionId,
         claim: BigNumber.from(claimTick),
         zeroForOne: zeroForOne,
-        sync: true,
       },
     ],
     chainId: chainId,
