@@ -1031,6 +1031,11 @@ export default function Trade() {
   ///////////////////////
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
+  console.log("limitTabSelected", limitTabSelected);
+  console.log("tradePoolData", tradePoolData);
+  console.log("tokenIn", tokenIn);
+  console.log("tokenOut", tokenOut);
+
   return (
     <div className="min-h-[calc(100vh-160px)] w-[48rem] px-3 md:px-0">
       <div className="flex w-full mt-[10vh] justify-center mb-20 ">
