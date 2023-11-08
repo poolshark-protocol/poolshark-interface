@@ -10,7 +10,11 @@ import { getCoverPoolFromFactory } from "../utils/queries";
 import { volatilityTiers } from "../utils/pools";
 import { parseUnits } from "../utils/math/valueMath";
 import { formatUnits } from "ethers/lib/utils.js";
-import { getCoverMintButtonDisabled, getCoverMintButtonMessage } from "../utils/buttons";
+import {
+  getCoverMintButtonDisabled,
+  getCoverMintButtonMessage,
+} from "../utils/buttons";
+import { logoMap } from "../utils/tokens";
 
 type CoverState = {
   //poolAddress for current token pairs
@@ -54,14 +58,24 @@ type CoverAction = {
   setCoverPositionData: (data: any) => void;
   //setPairSelected: (pairSelected: boolean) => void;
   //tokenIn
-  setTokenIn: (tokenOut: tokenCover, newToken: tokenCover, amount: string, isAmountIn: boolean) => void;
+  setTokenIn: (
+    tokenOut: tokenCover,
+    newToken: tokenCover,
+    amount: string,
+    isAmountIn: boolean
+  ) => void;
   setTokenInAmount: (amount: BigNumber) => void;
   setTokenInCoverUSDPrice: (price: number) => void;
   setTokenInCoverAllowance: (allowance: string) => void;
   setTokenInBalance: (balance: string) => void;
   //setCoverAmountIn: (amount: BigNumber) => void;
   //tokenOut
-  setTokenOut: (tokenOut: tokenCover, newToken: tokenCover, amount: string, isAmountIn: boolean) => void;
+  setTokenOut: (
+    tokenOut: tokenCover,
+    newToken: tokenCover,
+    amount: string,
+    isAmountIn: boolean
+  ) => void;
   setTokenOutAmount: (amount: BigNumber) => void;
   setTokenOutCoverUSDPrice: (price: number) => void;
   setTokenOutBalance: (balance: string) => void;
@@ -120,7 +134,7 @@ const initialCoverState: CoverState = {
     callId: 0,
     name: "Wrapped Ether",
     symbol: "WETH",
-    logoURI: "/static/images/eth_icon.svg",
+    logoURI: logoMap["WETH"],
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
@@ -132,7 +146,7 @@ const initialCoverState: CoverState = {
     callId: 1,
     name: "DAI",
     symbol: "DAI",
-    logoURI: "/static/images/dai_icon.png",
+    logoURI: logoMap["DAI"],
     address: tokenOneAddress,
     decimals: 18,
     userBalance: 0.0,
@@ -183,7 +197,12 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   needsLatestTick: initialCoverState.needsLatestTick,
   needsAllowance: initialCoverState.needsAllowance,
   needsBalance: initialCoverState.needsBalance,
-  setTokenIn: (tokenOut, newTokenIn: tokenCover, amount: string, isAmountIn: boolean) => {
+  setTokenIn: (
+    tokenOut,
+    newTokenIn: tokenCover,
+    amount: string,
+    isAmountIn: boolean
+  ) => {
     //if tokenOut is selected
     if (tokenOut.symbol != "Select Token") {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
@@ -301,7 +320,12 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       },
     }));
   },
-  setTokenOut: (tokenIn, newTokenOut: tokenCover, amount: string, isAmountIn: boolean) => {
+  setTokenOut: (
+    tokenIn,
+    newTokenOut: tokenCover,
+    amount: string,
+    isAmountIn: boolean
+  ) => {
     //if tokenIn exists
     if (tokenIn.symbol != "Select Token") {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
@@ -355,8 +379,8 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     } else {
       //if tokenIn its not selected
       set(() => ({
-        tokenIn:  { callId: 0, ...tokenIn},
-        tokenOut: { callId: 1, ...newTokenOut},
+        tokenIn: { callId: 0, ...tokenIn },
+        tokenOut: { callId: 1, ...newTokenOut },
         pairSelected: false,
       }));
     }
@@ -515,11 +539,22 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       needsAllowance: true,
       coverMintParams: {
         ...state.coverMintParams,
-        tokenInAmount: parseUnits(formatUnits(state.coverMintParams.tokenInAmount, state.tokenIn.decimals), state.tokenOut.decimals),
+        tokenInAmount: parseUnits(
+          formatUnits(
+            state.coverMintParams.tokenInAmount,
+            state.tokenIn.decimals
+          ),
+          state.tokenOut.decimals
+        ),
       },
     }));
   },
-  setCoverPoolFromVolatility: async (tokenIn, tokenOut, volatility: any, client: CoverSubgraph) => {
+  setCoverPoolFromVolatility: async (
+    tokenIn,
+    tokenOut,
+    volatility: any,
+    client: CoverSubgraph
+  ) => {
     try {
       const pool = await getCoverPoolFromFactory(
         client,
@@ -544,12 +579,13 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       if (!matchedVolatility && dataLength != undefined) {
         for (let idx = 0; idx < dataLength; idx++) {
           if (
-            pool["data"]["volatilityTiers"][idx]["feeAmount"] == Number(volatility)
+            pool["data"]["volatilityTiers"][idx]["feeAmount"] ==
+            Number(volatility)
           ) {
             set(() => ({
               coverPoolAddress: ZERO_ADDRESS as `0x${string}`,
               coverPoolData: {
-                volatilityTier: pool["data"]["volatilityTiers"][idx]
+                volatilityTier: pool["data"]["volatilityTiers"][idx],
               },
             }));
           }
@@ -576,7 +612,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
           state.coverPoolAddress,
           state.inputPoolExists,
           state.twapReady
-        )
+        ),
       },
     }));
   },
@@ -584,8 +620,8 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     set((state) => ({
       coverPositionData: {
         ...state.coverPositionData,
-        addLiqDisabled: coverAddLiqDisabled
-      }
+        addLiqDisabled: coverAddLiqDisabled,
+      },
     }));
   },
 }));
