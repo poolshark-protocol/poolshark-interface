@@ -303,17 +303,30 @@ export default function Trade() {
   const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
 
   useEffect(() => {
-    if (tokenIn.address != ZERO_ADDRESS && tokenOut.address === ZERO_ADDRESS) {
+    if (tokenIn.address != ZERO_ADDRESS && (
+          tradePoolData?.id == ZERO_ADDRESS || 
+          tradePoolData?.id == undefined
+    )) {
       getLimitTokenUsdPrice(
         tokenIn.address,
         setTokenInTradeUSDPrice,
         limitSubgraph
       );
     }
-    // for ETH just use WETH price
-    // for same addresses we can also for the ETH/WETH exception
-    // if addresses are the same assume it's wrapping/unwrapping ETH and call deposit/withdraw
   }, [tokenIn.address]);
+
+  useEffect(() => {
+    if (tokenOut.address != ZERO_ADDRESS && (
+      tradePoolData?.id == ZERO_ADDRESS || 
+      tradePoolData?.id == undefined
+    )) {
+      getLimitTokenUsdPrice(
+        tokenOut.address,
+        setTokenInTradeUSDPrice,
+        limitSubgraph
+      );
+    }
+  }, [tokenOut.address]);
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
@@ -341,7 +354,7 @@ export default function Trade() {
       limitSubgraph,
       tokenIn,
       tokenOut,
-      setTradePoolData
+      setTradePoolData,
     );
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
@@ -1104,7 +1117,7 @@ export default function Trade() {
                             amountIn ?? BN_ZERO,
                             tokenIn.decimals
                           )
-                        ) * tokenIn.USDPrice
+                        ) * (tokenIn.USDPrice ?? 0)
                       ).toFixed(2)
                     : (0).toFixed(2)}
                 </span>
@@ -1186,7 +1199,7 @@ export default function Trade() {
                           amountOut ?? BN_ZERO,
                           tokenOut.decimals
                         )
-                      ) * tokenOut.USDPrice
+                      ) * (tokenOut.USDPrice ?? 0)
                     ).toFixed(2)
                   ) : (
                     <>{(0).toFixed(2)}</>

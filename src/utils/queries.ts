@@ -888,19 +888,19 @@ export const fetchTokenPrice = (
   tokenAddress: string
 ) => {
   return new Promise(function (resolve) {
-    const poolsQuery = `
-            query($id: String) {
-                tokens(id: $id) {
-                    usdPrice
-                }
+    const tokenQuery = `
+          { 
+            tokens(
+              first: 1
+              where: {id:"${tokenAddress.toLowerCase()}"}
+            ) {
+              usdPrice
             }
+          }
         `;
     client
       .query({
-        query: gql(poolsQuery),
-        variables: {
-          id: tokenAddress,
-        },
+        query: gql(tokenQuery)
       })
       .then((data) => {
         resolve(data);
