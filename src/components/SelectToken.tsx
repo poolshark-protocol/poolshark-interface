@@ -19,14 +19,22 @@ export default function SelectToken(props) {
   const [isOpen, setIsOpen] = useState(false);
   const [customInput, setCustomInput] = useState("");
   const [displayTokenList, setDisplayTokenList] = useState([]);
-  const [listedTokenList, setListedTokenList] = useState([]);
-  const [searchTokenList, setSearchTokenList] = useState([]);
   const [tokenInfo, setTokenInfo] = useState(undefined);
 
-  const [chainId, networkName, setTokenList] = useConfigStore((state) => [
+  const [
+    chainId,
+    networkName,
+    listedTokenList,
+    setListedTokenList,
+    searchtokenList,
+    setSearchTokenList,
+  ] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
-    state.setTokenList,
+    state.listedtokenList,
+    state.setListedTokenList,
+    state.searchtokenList,
+    state.setSearchTokenList,
   ]);
 
   const {
@@ -63,11 +71,12 @@ export default function SelectToken(props) {
       const chainName = chainIdsToNamesForGitTokenList[chainId];
       axios
         .get(
-          `https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/${
+          `https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/arb-testnet-updates/blockchains/${
             chainName === undefined ? "ethereum" : "arbitrum-goerli"
           }/tokenlist.json`
         )
         .then(function (response) {
+          console.log(response);
           const coins = {
             listed_tokens: response.data.listed_tokens,
             search_tokens: response.data.search_tokens,
@@ -78,7 +87,6 @@ export default function SelectToken(props) {
           if (coins.listed_tokens != undefined) {
             setListedTokenList(coins.listed_tokens);
             setDisplayTokenList(coins.listed_tokens);
-            setTokenList(coins.listed_tokens);
           }
           for (let i = 0; i < coins.search_tokens?.length; i++) {
             coins.search_tokens[i].address = coins.search_tokens[i].id;

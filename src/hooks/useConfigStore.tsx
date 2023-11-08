@@ -7,8 +7,9 @@ type ConfigState = {
   networkName: string;
   limitSubgraph: LimitSubgraph;
   coverSubgraph: CoverSubgraph;
-  coverFactoryAddress: string
-  tokenList: any;
+  coverFactoryAddress: string;
+  listedtokenList: any;
+  searchtokenList: any;
 };
 
 type ConfigAction = {
@@ -18,7 +19,8 @@ type ConfigAction = {
   setLimitSubgraph: (limitSubgraphUrl: string) => void;
   setCoverSubgraph: (coverSubgraphUrl: string) => void;
   setCoverFactoryAddress: (coverFactoryAddress: string) => void;
-  setTokenList: (tokenList: any) => void;
+  setListedTokenList: (listedtokenList: any) => void;
+  setSearchTokenList: (searchtokenList: any) => void;
 };
 
 const initialConfigState: ConfigState = {
@@ -28,7 +30,8 @@ const initialConfigState: ConfigState = {
   limitSubgraph: undefined,
   coverSubgraph: undefined,
   coverFactoryAddress: undefined,
-  tokenList: undefined,
+  listedtokenList: undefined,
+  searchtokenList: undefined,
 };
 
 export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
@@ -38,7 +41,8 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
   limitSubgraph: initialConfigState.limitSubgraph,
   coverSubgraph: initialConfigState.coverSubgraph,
   coverFactoryAddress: initialConfigState.coverFactoryAddress,
-  tokenList: initialConfigState.tokenList,
+  listedtokenList: initialConfigState.listedtokenList,
+  searchtokenList: initialConfigState.searchtokenList,
   setChainId: (chainId: number) => {
     set(() => ({
       chainId: chainId,
@@ -70,9 +74,14 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
       coverFactoryAddress: coverFactoryAddress,
     }));
   },
-  setTokenList: (tokenList: any) => {
+  setListedTokenList: (listedtokenList: any) => {
     set(() => ({
-      tokenList: tokenList,
+      listedtokenList: listedtokenList,
+    }));
+  },
+  setSearchTokenList: (searchtokenList: any) => {
+    set(() => ({
+      searchtokenList: searchtokenList,
     }));
   },
 }));
