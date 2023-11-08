@@ -505,7 +505,7 @@ export default function RangePoolPreview() {
                             token1={tokenOut}
                             startPrice={BigNumber.from(
                               rangePoolData?.poolPrice ?? '0'
-                            )} //TODO: for lucas; need input box for this
+                            )}
                             feeTier={
                               rangePoolData.feeTier?.feeAmount
                                 ?? 3000
