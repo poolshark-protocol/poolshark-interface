@@ -60,6 +60,7 @@ export const chainProperties = {
             decimals: 18,
         },
         chainId: '0x66EED',
+        wethAddress: '0x4Cd24CdDFD0b2ADf3EF17A203Bc34eAF650A380D' as `0x${string}`,
         routerAddress: '0xa6fc46d68fc05f0b68d0f79d548391e6d6a576ef' as `0x${string}`,
         coverPoolFactory: '0x5c032AEC3a62AEC6a337D5f2aaA94905ecCBF06B' as `0x${string}`,
         limitPoolFactory: '0xbd6d010bcecc7440a72889546411e0edbb333ea2',

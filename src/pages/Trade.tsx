@@ -27,7 +27,7 @@ import {
   minPriceBn,
 } from "../utils/math/tickMath";
 import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
-import { gasEstimateMintLimit, gasEstimateSwap } from "../utils/gas";
+import { gasEstimateMintLimit, gasEstimateSwap, gasEstimateWethCall } from "../utils/gas";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
 import {
@@ -57,6 +57,8 @@ import { inputHandler, parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
 import { useConfigStore } from "../hooks/useConfigStore";
 import Range from "../components/Icons/RangeIcon";
+import SwapWrapNativeButton from "../components/Buttons/SwapWrapNativeButton";
+import SwapUnwrapNativeButton from "../components/Buttons/SwapUnwrapNativeButton";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -926,7 +928,7 @@ export default function Trade() {
   }, [swapParams, tokenIn, tokenOut, lowerTick, upperTick, needsAllowanceIn]);
 
   async function updateGasFee() {
-    if (tokenIn.userRouterAllowance?.gte(amountIn)) {
+    if (tokenIn.userRouterAllowance?.gte(amountIn) && !wethCall) {
       //NATIVE: send msg.value with estimate
       await gasEstimateSwap(
         chainProperties[networkName]["routerAddress"],
@@ -934,11 +936,23 @@ export default function Trade() {
         swapParams,
         tokenIn,
         tokenOut,
+        amountIn,
         signer,
         isConnected,
         setSwapGasFee,
         setSwapGasLimit
       );
+    } else if (wethCall) {
+      await gasEstimateWethCall(
+        chainProperties[networkName]["wethAddress"],
+        tokenIn,
+        tokenOut,
+        amountIn,
+        signer,
+        isConnected,
+        setSwapGasFee,
+        setSwapGasLimit
+      )
     } else {
       setSwapGasLimit(BN_ZERO);
     }
@@ -1424,7 +1438,8 @@ export default function Trade() {
               <>
                 {
                   //range buttons
-                  tokenIn.userRouterAllowance?.lt(amountIn) ? (
+                  tokenIn.userRouterAllowance?.lt(amountIn) &&
+                  !tokenIn.native ? (
                     <div>
                       <SwapRouterApproveButton
                         routerAddress={
@@ -1435,7 +1450,7 @@ export default function Trade() {
                         amount={amountIn}
                       />
                     </div>
-                  ) : (
+                  ) : !wethCall ? (
                     <SwapRouterButton
                       disabled={
                         tradeParams.disabled ||
@@ -1445,8 +1460,39 @@ export default function Trade() {
                       routerAddress={
                         chainProperties[networkName]["routerAddress"]
                       }
+                      amountIn={amountIn}
+                      tokenInNative={tokenIn.native ?? false}
+                      tokenOutNative={tokenOut.native ?? false}
                       poolAddresses={swapPoolAddresses}
                       swapParams={swapParams ?? {}}
+                      gasLimit={swapGasLimit}
+                      resetAfterSwap={resetAfterSwap}
+                    />
+                  ) : (
+                    tokenIn.native ? 
+                      <SwapWrapNativeButton
+                        disabled={false}
+                        routerAddress={
+                          chainProperties[networkName]["routerAddress"]
+                        }
+                        wethAddress={
+                          chainProperties[networkName]["wethAddress"]
+                        }
+                        tokenInSymbol={tokenIn.symbol}
+                        amountIn={amountIn}
+                        gasLimit={swapGasLimit}
+                        resetAfterSwap={resetAfterSwap}
+                      />
+                    : <SwapUnwrapNativeButton
+                      disabled={false}
+                      routerAddress={
+                        chainProperties[networkName]["routerAddress"]
+                      }
+                      wethAddress={
+                        chainProperties[networkName]["wethAddress"]
+                      }
+                      tokenInSymbol={tokenIn.symbol}
+                      amountIn={amountIn}
                       gasLimit={swapGasLimit}
                       resetAfterSwap={resetAfterSwap}
                     />
@@ -1456,7 +1502,8 @@ export default function Trade() {
             ) : (
               //limit tab
               <>
-                {tokenIn.userRouterAllowance?.lt(amountIn) ? (
+                {tokenIn.userRouterAllowance?.lt(amountIn) &&
+                  !tokenIn.native ? (
                   <SwapRouterApproveButton
                     routerAddress={
                       chainProperties[networkName]["routerAddress"]

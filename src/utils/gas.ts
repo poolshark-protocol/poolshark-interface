@@ -12,11 +12,73 @@ import JSBI from "jsbi";
 import { parseUnits } from "./math/valueMath";
 import { formatBytes32String } from "ethers/lib/utils.js";
 import { coverPoolTypes } from "./pools";
+import { getSwapRouterButtonMsgValue } from "./buttons";
+import { weth9ABI } from "../abis/evm/weth9";
 
 export interface gasEstimateResult {
   formattedPrice: string;
   gasUnits: BigNumber;
 }
+
+export const gasEstimateWethCall = async (
+  wethAddress: string,
+  tokenIn: tokenSwap,
+  tokenOut: tokenSwap,
+  amountIn: BigNumber,
+  signer: Signer,
+  isConnected: boolean,
+  setGasFee,
+  setGasLimit
+): Promise<void> => {
+  try {
+    const provider = new ethers.providers.JsonRpcProvider(
+      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
+    );
+    const ethUsdQuery = await fetchEthPrice();
+    const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
+    const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
+    let gasUnits: BigNumber;
+    if (wethAddress && isConnected) {
+      const contract = new ethers.Contract(
+        wethAddress,
+        weth9ABI,
+        provider
+      );
+      if (tokenIn.native) {
+        gasUnits = await contract
+          .connect(signer)
+          .estimateGas.deposit(
+            {
+              value: amountIn
+            }
+          );
+      } else if (tokenOut.native) {
+        gasUnits = await contract
+          .connect(signer)
+          .estimateGas.withdraw(
+            amountIn
+          );
+      }
+    //NATIVE: if tokenIn.native, send msg.value as amountIn
+    //NATIVE: if tokenOut.native, send msg.value as 1 wei
+    } else {
+      gasUnits = BigNumber.from(1000000);
+    }
+    const gasPrice = await provider.getGasPrice();
+    const networkFeeWei = gasPrice.mul(gasUnits);
+    const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
+    const networkFeeUsd = networkFeeEth * Number(ethUsdPrice);
+    const formattedPrice: string = networkFeeUsd.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+    setGasFee(formattedPrice);
+    setGasLimit(gasUnits.mul(200).div(100));
+  } catch (error) {
+    setGasFee("$0.00");
+    setGasLimit(BigNumber.from(1000000));
+  }
+};
 
 export const gasEstimateSwap = async (
   poolRouter: string,
@@ -24,6 +86,7 @@ export const gasEstimateSwap = async (
   swapParams: SwapParams[],
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
+  amountIn: BigNumber,
   signer: Signer,
   isConnected: boolean,
   setGasFee,
@@ -44,8 +107,18 @@ export const gasEstimateSwap = async (
         provider
       );
       gasUnits = await contract
-        .connect(signer)
-        .estimateGas.multiSwapSplit(poolAddresses, swapParams);
+      .connect(signer)
+      .estimateGas.multiSwapSplit(
+        poolAddresses,
+        swapParams,
+        {
+          value: getSwapRouterButtonMsgValue(
+            tokenIn.native,
+            tokenOut.native,
+            amountIn
+          )
+        }
+      );
     //NATIVE: if tokenIn.native, send msg.value as amountIn
     //NATIVE: if tokenOut.native, send msg.value as 1 wei
     } else {

@@ -11,11 +11,15 @@ import React, { useState } from "react";
 import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { getSwapRouterButtonMsgValue } from "../../utils/buttons";
 
 export default function SwapRouterButton({
   disabled,
   routerAddress,
   poolAddresses,
+  amountIn,
+  tokenInNative,
+  tokenOutNative,
   swapParams,
   gasLimit,
   resetAfterSwap
@@ -47,6 +51,11 @@ export default function SwapRouterButton({
     chainId: chainId,
     overrides: {
       gasLimit: gasLimit,
+      value: getSwapRouterButtonMsgValue(
+        tokenInNative,
+        tokenOutNative,
+        amountIn
+      )
     },
   });
 

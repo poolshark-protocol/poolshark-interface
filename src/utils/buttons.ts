@@ -1,7 +1,21 @@
 import { BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils.js";
-import { BN_ZERO, ZERO_ADDRESS } from "./math/constants";
+import { BN_ONE, BN_ZERO, ZERO_ADDRESS } from "./math/constants";
 import { token } from "./types";
+
+export function getSwapRouterButtonMsgValue(
+    tokenInNative: boolean,
+    tokenOutNative: boolean,
+    amountIn: BigNumber
+): BigNumber {
+    if (tokenInNative) {
+        return amountIn
+    } else if (tokenOutNative) {
+        return BN_ONE
+    } else {
+        return BN_ZERO
+    }
+}
 
 export function getRangeMintButtonMessage(
     tokenInAmount: BigNumber,
@@ -10,7 +24,7 @@ export function getRangeMintButtonMessage(
     tokenOut: token,
     rangePoolAddress: string,
     startPrice: string
-  ): string {
+): string {
     if (tokenIn.userBalance < parseFloat(formatUnits(
             String(tokenInAmount),
             tokenIn.decimals
