@@ -3,9 +3,6 @@ import { getLimitPoolFromFactory } from "./queries";
 import { LimitSubgraph, tokenSwap } from "./types";
 import { ZERO, ZERO_ADDRESS } from "./math/constants";
 
-//TODO@retraca enable this componnent to directly u0pdate zustand states
-
-//Grab pool with most liquidity
 export const getSwapPools = async (
   client: LimitSubgraph,
   tokenIn: tokenSwap,
