@@ -240,7 +240,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         }));
       } else {
         //if tokens are different
-        set(() => ({
+        set((state) => ({
           tokenIn: {
             callId:
               newTokenIn.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
@@ -251,13 +251,14 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
               tokenOut.address.localeCompare(newTokenIn.address) < 0 ? 0 : 1,
             ...tokenOut
           },
+          amountIn: isAmountIn ? parseUnits(amount, newTokenIn.decimals) : state.amountIn,
           pairSelected: true,
           needsAllowanceIn: true,
         }));
       }
     } else {
       //if tokenOut its not selected
-      set(() => ({
+      set((state) => ({
         tokenIn: {
           callId: 1,
           ...newTokenIn,
@@ -266,6 +267,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           callId: 0,
           ...tokenOut,
         },
+        amountIn: isAmountIn ? parseUnits(amount, newTokenIn.decimals) : state.amountIn,
         pairSelected: false,
         needsAllowanceIn: true,
       }));
@@ -333,7 +335,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         }));
       } else {
         //if tokens are different
-        set(() => ({
+        set((state) => ({
           tokenIn: {
             callId: tokenIn.address.localeCompare(newTokenOut.address) < 0 ? 0 : 1,
             symbol: tokenIn.symbol,
@@ -349,12 +351,13 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             callId: newTokenOut.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
             ...newTokenOut,
           },
+          amountOut: isAmountIn ? state.amountOut : parseUnits(amount, newTokenOut.decimals),
           pairSelected: true,
         }));
       }
     } else {
       //if tokenIn its not selected
-      set(() => ({
+      set((state) => ({
         tokenIn: {
           callId: 0,
           ...tokenIn,
@@ -363,6 +366,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           callId: 1,
           ...newTokenOut,
         },
+        amountOut: isAmountIn ? state.amountOut : parseUnits(amount, newTokenOut.decimals),
         pairSelected: false,
       }));
     }
