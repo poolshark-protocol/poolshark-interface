@@ -73,10 +73,9 @@ export default function LimitRemoveLiqButton({
       Boolean(zeroForOne),
       Number(epochLast),
       false,
-      limitSubgraph
+      limitSubgraph,
+      undefined
     );
-
-    console.log(tick, "claim tick after update")
     setClaimTick(tick);
   };
 
@@ -125,6 +124,7 @@ export default function LimitRemoveLiqButton({
         sync: true,
       },
     ],
+    enabled: positionId != undefined,
     chainId: chainId,
     overrides: {
       gasLimit: gasLimit,

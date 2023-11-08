@@ -106,7 +106,7 @@ export default function CreateCover(props: any) {
 
   const { data: signer } = useSigner();
   const { address, isConnected, isDisconnected } = useAccount();
-  const { bnInput, inputBox, maxBalance, display } = useInputBox();
+  const { bnInput, inputBox, display } = useInputBox();
   const [loadingPrices, setLoadingPrices] = useState(true);
 
   // for mint modal

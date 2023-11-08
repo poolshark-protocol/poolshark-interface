@@ -58,8 +58,6 @@ export const gasEstimateSwap = async (
     setGasFee(formattedPrice);
     setGasLimit(gasUnits.mul(200).div(100));
   } catch (error) {
-    console.log("gas error swap split", swapParams[0].amount.toString(), error);
-    console.log("gas error params", swapParams, poolAddresses);
     setGasFee("$0.00");
     setGasLimit(BigNumber.from(1000000));
   }
@@ -224,7 +222,12 @@ export const gasEstimateBurnLimit = async (
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
 
-    if (!limitPoolRoute || !provider || signer == undefined) {
+    if (
+      !limitPoolRoute ||
+      !provider ||
+      signer == undefined ||
+      positionId == undefined
+    ) {
       setBurnGasFee("$0.00");
       setBurnGasLimit(BN_ZERO);
     }
@@ -259,7 +262,7 @@ export const gasEstimateBurnLimit = async (
   } catch (error) {
     console.log(
       "gas error limit burn",
-      positionId.toString(),
+      positionId?.toString(),
       claim.toString(),
       error
     );
@@ -352,8 +355,16 @@ export const gasEstimateRangeCreateAndMint = async (
     if (!provider || (amount0.eq(BN_ZERO) && amount1.eq(BN_ZERO))) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
-    if (JSBI.lessThan(JSBI.BigInt(startPrice.toString()), TickMath.MIN_SQRT_RATIO) ||
-        JSBI.greaterThanOrEqual(JSBI.BigInt(startPrice.toString()), TickMath.MAX_SQRT_RATIO)) {
+    if (
+      JSBI.lessThan(
+        JSBI.BigInt(startPrice.toString()),
+        TickMath.MIN_SQRT_RATIO
+      ) ||
+      JSBI.greaterThanOrEqual(
+        JSBI.BigInt(startPrice.toString()),
+        TickMath.MAX_SQRT_RATIO
+      )
+    ) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     const routerAddress = chainProperties[networkName]["routerAddress"];
