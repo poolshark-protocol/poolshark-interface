@@ -1048,11 +1048,6 @@ export default function Trade() {
   ///////////////////////
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  console.log("limitTabSelected", limitTabSelected);
-  console.log("tradePoolData", tradePoolData);
-  console.log("tokenIn", tokenIn);
-  console.log("tokenOut", tokenOut);
-
   return (
     <div className="min-h-[calc(100vh-160px)] w-[48rem] px-3 md:px-0">
       <div className="flex w-full mt-[10vh] justify-center mb-20 ">
@@ -1366,8 +1361,9 @@ export default function Trade() {
               <></>
             )}
             {limitTabSelected &&
-            tradePoolData == undefined &&
-            tokenOut.address != ZERO_ADDRESS ? (
+              tokenIn.address != ZERO_ADDRESS &&
+              tokenOut.address != ZERO_ADDRESS &&
+              tradePoolData?.id == ZERO_ADDRESS ? (
               <div className="bg-dark border rounded-[4px] border-grey/50 p-5 mt-5">
                 <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
                   This pool does not exist so a starting price must be set in
@@ -1418,8 +1414,9 @@ export default function Trade() {
             </div>
 
             {!limitTabSelected &&
-            tradePoolData == undefined &&
-            tokenOut.address != ZERO_ADDRESS ? (
+              tokenIn.address != ZERO_ADDRESS &&
+              tokenOut.address != ZERO_ADDRESS &&
+              tradePoolData?.id == ZERO_ADDRESS ? (
               <div className="flex gap-x-5 rounded-[4px] items-center text-xs p-2 border bg-dark border-grey mb-5">
                 <Range className="text-main2" />{" "}
                 <span className="text-grey3 flex flex-col gap-y-[-2px]">
