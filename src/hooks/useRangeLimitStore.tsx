@@ -466,6 +466,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
             ...state.limitMintParams,
             tokenOutAmount: isAmountIn ? state.limitMintParams.tokenOutAmount : parseUnits(amount, newTokenOut.decimals),
           },
+          needsAllowanceOut: true,
           pairSelected: false,
         }));
       }
