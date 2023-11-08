@@ -48,7 +48,15 @@ export default function LimitCollectButton({
     address: poolAddress,
     abi: limitPoolABI,
     functionName: "burnLimit",
-    args: [[address, BigNumber.from(0), positionId, claim, zeroForOne]],
+    args: [
+      {
+        to: address,
+        burnPercent: BN_ZERO,
+        positionId: positionId,
+        claim: claim,
+        zeroForOne: zeroForOne
+      },
+    ],
     chainId: chainId,
     enabled: positionId != undefined,
     overrides: {

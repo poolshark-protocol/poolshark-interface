@@ -1,8 +1,7 @@
 import { formatBytes32String } from "ethers/lib/utils.js";
-import {
-  getLimitPoolFromFactory,
-} from "./queries";
+import { getLimitPoolFromFactory } from "./queries";
 import { LimitSubgraph, tokenSwap } from "./types";
+import { ZERO, ZERO_ADDRESS } from "./math/constants";
 
 //TODO@retraca enable this componnent to directly u0pdate zustand states
 
@@ -14,14 +13,20 @@ export const getSwapPools = async (
   setSwapPoolData
 ) => {
   try {
-    const limitPools = await getLimitPoolFromFactory(client, tokenIn.address, tokenOut.address);
+    const limitPools = await getLimitPoolFromFactory(
+      client,
+      tokenIn.address,
+      tokenOut.address
+    );
     const data = limitPools["data"];
-    if (data) {
+    if (data && data["limitPools"]?.length > 0) {
       const allPools = data["limitPools"];
       setSwapPoolData(allPools[0]);
       return allPools;
     } else {
-      return undefined;
+      return setSwapPoolData({
+        id: ZERO_ADDRESS,
+      });
     }
   } catch (error) {
     console.log(error);
@@ -113,11 +118,11 @@ export const volatilityTiers = [
 ];
 
 export const limitPoolTypeIds = {
-  'constant-product': 0
-}
+  "constant-product": 0,
+};
 
 export const coverPoolTypes = {
-  'constant-product': {
-    'poolshark': formatBytes32String("PSHARK-CPROD")
-  }
-}
+  "constant-product": {
+    poolshark: formatBytes32String("PSHARK-CPROD"),
+  },
+};
