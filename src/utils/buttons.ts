@@ -1,11 +1,13 @@
 import { BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils.js";
-import { BN_ZERO, ZERO_ADDRESS } from "./math/constants";
+import { BN_ZERO, ONE, ZERO, ZERO_ADDRESS } from "./math/constants";
 import { token } from "./types";
+import JSBI from "jsbi";
 
 export function getRangeMintButtonMessage(
     tokenInAmount: BigNumber,
     tokenOutAmount: BigNumber,
+    liquidityAmount: JSBI,
     tokenIn: token,
     tokenOut: token,
     rangePoolAddress: string,
@@ -30,6 +32,8 @@ export function getRangeMintButtonMessage(
         if (isNaN(priceStart) || priceStart <= 0)
             // invalid start price
             return "Enter Start Price"
+    } else if (JSBI.lessThanOrEqual(liquidityAmount, ONE)) {
+        return "No Liquidity Added"  
     } else {
         return "Mint Range Position"
     }
@@ -38,6 +42,7 @@ export function getRangeMintButtonMessage(
 export function getRangeMintButtonDisabled(
     tokenInAmount: BigNumber,
     tokenOutAmount: BigNumber,
+    liquidityAmount: JSBI,
     tokenIn: token,
     tokenOut: token,
     rangePoolAddress: string,
@@ -62,6 +67,8 @@ export function getRangeMintButtonDisabled(
         if (isNaN(priceStart) || priceStart <= 0)
             // invalid start price
             return true
+    } else if (JSBI.lessThanOrEqual(liquidityAmount, ONE)) {
+        return true
     } else {
         return false
     }
@@ -74,7 +81,7 @@ export function getCoverMintButtonMessage(
     inputPoolExists: boolean,
     twapReady: boolean
   ): string {
-    console.log('button message:', tokenIn.address)
+    console.log('button message:', tokenIn.userBalance)
     if (tokenIn.userBalance <
         parseFloat(
           formatUnits(
