@@ -334,7 +334,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         }
       } else {
         //if tokenOut its not selected
-        set(() => ({
+        set((state) => ({
           tokenIn: {
             callId: 1,
             ...newTokenIn,
@@ -343,6 +343,15 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
             callId: 0,
             ...tokenOut,
           },
+          rangeMintParams: {
+            ...state.rangeMintParams,
+            tokenInAmount: isAmountIn ? parseUnits(amount, newTokenIn.decimals) : state.rangeMintParams.tokenInAmount,
+          },
+          limitMintParams: {
+            ...state.limitMintParams,
+            tokenInAmount: isAmountIn ? parseUnits(amount, newTokenIn.decimals) : state.limitMintParams.tokenInAmount,
+          },
+          needsAllowanceIn: true,
           pairSelected: false,
         }));
       }
@@ -446,9 +455,18 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         }
       } else {
         //if tokenIn its not selected
-        set(() => ({
+        set((state) => ({
           tokenIn: { callId: 0, ...tokenIn},
           tokenOut: { callId: 1, ...newTokenOut},
+          rangeMintParams: {
+            ...state.rangeMintParams,
+            tokenOutAmount: isAmountIn ? state.rangeMintParams.tokenOutAmount : parseUnits(amount, newTokenOut.decimals),
+          },
+          limitMintParams: {
+            ...state.limitMintParams,
+            tokenOutAmount: isAmountIn ? state.limitMintParams.tokenOutAmount : parseUnits(amount, newTokenOut.decimals),
+          },
+          needsAllowanceOut: true,
           pairSelected: false,
         }));
       }
