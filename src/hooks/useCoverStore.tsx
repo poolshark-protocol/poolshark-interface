@@ -239,7 +239,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       }
     } else {
       //if tokenOut its not selected
-      set(() => ({
+      set((state) => ({
         tokenIn: {
           callId: 1,
           ...newTokenIn,
@@ -247,6 +247,10 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         tokenOut: {
           callId: 0,
           ...tokenOut,
+        },
+        coverMintParams: {
+          ...state.coverMintParams,
+          tokenInAmount: parseUnits(amount, newTokenIn.decimals),
         },
         pairSelected: false,
       }));
