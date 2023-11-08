@@ -907,7 +907,11 @@ export default function Trade() {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (!amountIn.eq(BN_ZERO) && !needsAllowanceIn) {
+    if (
+      !amountIn.eq(BN_ZERO) &&
+      !needsAllowanceIn &&
+      tradePoolData != undefined
+    ) {
       if (!limitTabSelected) {
         updateGasFee();
       } else {
