@@ -19,12 +19,11 @@ export const getSwapPools = async (
       tokenOut.address
     );
     const data = limitPools["data"];
-    const dataLength = limitPools["data"]?.length;
-    if (data && dataLength > 0) {
+    if (data && data["limitPools"]?.length > 0) {
       const allPools = data["limitPools"];
       setSwapPoolData(allPools[0]);
       return allPools;
-    } else if (dataLength == 0) {
+    } else {
       return setSwapPoolData({
         id: ZERO_ADDRESS,
       });
