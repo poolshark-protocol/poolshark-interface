@@ -303,7 +303,10 @@ export default function Trade() {
   const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
 
   useEffect(() => {
-    if (tokenIn.address != ZERO_ADDRESS && tradePoolData?.id == ZERO_ADDRESS) {
+    if (tokenIn.address != ZERO_ADDRESS && (
+          tradePoolData?.id == ZERO_ADDRESS || 
+          tradePoolData?.id == undefined
+    )) {
       getLimitTokenUsdPrice(
         tokenIn.address,
         setTokenInTradeUSDPrice,
@@ -313,7 +316,10 @@ export default function Trade() {
   }, [tokenIn.address]);
 
   useEffect(() => {
-    if (tokenOut.address != ZERO_ADDRESS && tradePoolData?.id == ZERO_ADDRESS) {
+    if (tokenOut.address != ZERO_ADDRESS && (
+      tradePoolData?.id == ZERO_ADDRESS || 
+      tradePoolData?.id == undefined
+    )) {
       getLimitTokenUsdPrice(
         tokenOut.address,
         setTokenInTradeUSDPrice,
@@ -1102,7 +1108,7 @@ export default function Trade() {
                             amountIn ?? BN_ZERO,
                             tokenIn.decimals
                           )
-                        ) * tokenIn.USDPrice
+                        ) * (tokenIn.USDPrice ?? 0)
                       ).toFixed(2)
                     : (0).toFixed(2)}
                 </span>
@@ -1184,7 +1190,7 @@ export default function Trade() {
                           amountOut ?? BN_ZERO,
                           tokenOut.decimals
                         )
-                      ) * tokenOut.USDPrice
+                      ) * (tokenOut.USDPrice ?? 0)
                     ).toFixed(2)
                   ) : (
                     <>{(0).toFixed(2)}</>
