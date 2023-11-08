@@ -27,13 +27,13 @@ export default function Range() {
   const [isPositionsLoading, setIsPositionsLoading] = useState(false);
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
 
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph, tokenList] =
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph, listedtokenList] =
     useConfigStore((state) => [
       state.chainId,
       state.networkName,
       state.limitSubgraph,
       state.setLimitSubgraph,
-      state.tokenList,
+      state.listedtokenList,
     ]);
 
   const [
@@ -283,7 +283,7 @@ export default function Range() {
                               searchTerm.toLowerCase() ||
                             allRangePosition.tokenOne.id.toLowerCase() ===
                               searchTerm.toLowerCase() ||
-                            tokenList.find(
+                            listedtokenList.find(
                               (element) =>
                                 element.address.toLowerCase() ===
                                 searchTerm.toLowerCase()
