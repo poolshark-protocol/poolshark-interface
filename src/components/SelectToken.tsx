@@ -76,7 +76,6 @@ export default function SelectToken(props) {
           }/tokenlist.json`
         )
         .then(function (response) {
-          console.log(response);
           const coins = {
             listed_tokens: response.data.listed_tokens,
             search_tokens: response.data.search_tokens,
