@@ -21,11 +21,9 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
     setSearchTerm(event.target.value);
   };
 
-  const [limitSubgraph, coverSubgraph, tokenList] = useConfigStore((state) => [
-    state.limitSubgraph,
-    state.coverSubgraph,
-    state.tokenList,
-  ]);
+  const [limitSubgraph, coverSubgraph, listedTokenList] = useConfigStore(
+    (state) => [state.limitSubgraph, state.coverSubgraph, state.listedtokenList]
+  );
 
   const [limitPositions, setLimitPositions] = useState([]);
   const [allRangePositions, setAllRangePositions] = useState([]);
@@ -239,7 +237,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                                 searchTerm.toLowerCase() ||
                               allRangePosition.tokenOne.id.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
-                              tokenList.find(
+                              listedTokenList.find(
                                 (element) =>
                                   element.address.toLowerCase() ===
                                   searchTerm.toLowerCase()

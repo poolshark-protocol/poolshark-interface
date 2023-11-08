@@ -20,12 +20,12 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties, supportedNetworkNames } from "../../utils/chains";
 
 export default function Cover() {
-  const [networkName, coverSubgraph, setCoverSubgraph, tokenList] =
+  const [networkName, coverSubgraph, setCoverSubgraph, listedTokenList] =
     useConfigStore((state) => [
       state.networkName,
       state.coverSubgraph,
       state.setCoverSubgraph,
-      state.tokenList,
+      state.listedtokenList,
     ]);
 
   const [
@@ -387,7 +387,7 @@ export default function Cover() {
                             searchTerm.toLowerCase() ||
                           allCoverPool.tokenOne.id.toLowerCase() ===
                             searchTerm.toLowerCase() ||
-                          tokenList.find(
+                          listedTokenList.find(
                             (element) =>
                               element.address.toLowerCase() ===
                               searchTerm.toLowerCase()

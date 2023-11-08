@@ -920,7 +920,11 @@ export default function Trade() {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (!amountIn.eq(BN_ZERO) && !needsAllowanceIn) {
+    if (
+      !amountIn.eq(BN_ZERO) &&
+      !needsAllowanceIn &&
+      tradePoolData != undefined
+    ) {
       if (!limitTabSelected) {
         updateGasFee();
       } else {
@@ -1357,8 +1361,9 @@ export default function Trade() {
               <></>
             )}
             {limitTabSelected &&
-            tokenOut.address != ZERO_ADDRESS &&
-            tradePoolData?.id == ZERO_ADDRESS ? (
+              tokenIn.address != ZERO_ADDRESS &&
+              tokenOut.address != ZERO_ADDRESS &&
+              tradePoolData?.id == ZERO_ADDRESS ? (
               <div className="bg-dark border rounded-[4px] border-grey/50 p-5 mt-5">
                 <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
                   This pool does not exist so a starting price must be set in
@@ -1409,8 +1414,9 @@ export default function Trade() {
             </div>
 
             {!limitTabSelected &&
-            tokenOut.address != ZERO_ADDRESS &&
-            tradePoolData?.id == ZERO_ADDRESS ? (
+              tokenIn.address != ZERO_ADDRESS &&
+              tokenOut.address != ZERO_ADDRESS &&
+              tradePoolData?.id == ZERO_ADDRESS ? (
               <div className="flex gap-x-5 rounded-[4px] items-center text-xs p-2 border bg-dark border-grey mb-5">
                 <Range className="text-main2" />{" "}
                 <span className="text-grey3 flex flex-col gap-y-[-2px]">
