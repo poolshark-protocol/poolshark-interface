@@ -981,11 +981,10 @@ export const fetchUserBonds = (address: string, symbol: string) => {
   });
 }
 
-export const fetchBondMarket = (idMarket: string) => {
+export const fetchBondMarket = (symbol: string) => {
   return new Promise(function (resolve) {
     const bondMarketQuery = `
-            query($marketId: String) {
-                markets(where: {marketId:"${idMarket}"}) {
+                markets(where: {payoutToken: {symbol: "${symbol}"}}) {
                   id
                   name
                   network
@@ -1054,7 +1053,6 @@ export const fetchBondMarket = (idMarket: string) => {
                   totalPayoutAmount
                   creationBlockTimestamp
                 }
-            }
         `;
     const client = new ApolloClient({
       uri: "https://api.thegraph.com/subgraphs/name/bond-protocol/bp-arbitrum-goerli-testing",
@@ -1063,9 +1061,6 @@ export const fetchBondMarket = (idMarket: string) => {
     client
       .query({
         query: gql(bondMarketQuery),
-        variables: {
-          marketId: idMarket,
-        },
       })
       .then((data) => {
         resolve(data);
