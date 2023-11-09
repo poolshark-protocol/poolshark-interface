@@ -71,13 +71,21 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                   COVER
                 </div>
               </Link>
+              <Link href="/bond">
+                <div
+                  className={
+                    router.pathname.includes("/bond")
+                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
+                      : "text-grey1 border border-transparent transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
+                  }
+                >
+                  <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1H1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"></path><path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V5zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2H3z"></path></svg>
+                  BOND
+                </div>
+              </Link>
             </div>
           </div>
           <div className=" flex justify-end items-center gap-x-4">
-          <Link href="/bond" >
-            <span className="text-white hover:underline text-sm cursor-pointer">BOND $FIN</span>
-         
-          </Link>
             <ConnectWalletButton />
           </div>
         </div>

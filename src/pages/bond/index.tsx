@@ -3,6 +3,7 @@ import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import BuyBondButton from "../../components/Buttons/BuyBondButton";
 import { useState } from "react";
 import { ethers } from "ethers";
+import ReedemMulticallBondButton from "../../components/Buttons/ReedemMulticallBondButton";
 import ReedemBondButton from "../../components/Buttons/ReedemBondButton";
 
 export default function Bond() {
@@ -111,6 +112,9 @@ export default function Bond() {
             </div>
           </div>
           <div className="flex gap-y-5 flex-col w-full lg:w-1/2">
+            {/*
+            MULTI CALL REEDEM BOX
+
           <div className="border bg-main1/30 border-main/40 p-5">
           <h1 className="">BOND AVAILABLE TO REEDEM</h1>
           <div className="flex flex-col gap-y-4 border-main/60 border rounded-[4px] text-xs p-5 mt-4 bg-black/50 mb-2">
@@ -118,8 +122,9 @@ export default function Bond() {
                   AMOUNT <span className="text-white text-lg">60 FIN</span>
                 </div>
               </div>
-            <ReedemBondButton />
+            <ReedemMulticallBondButton />
         </div>
+  */}
             <div className="border bg-dark border-grey rounded-[4px] w-full p-5 pb-7 h-full">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">BUY BOND</h1>
@@ -131,7 +136,7 @@ export default function Bond() {
                   <span>BALANCE: 0</span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  <input className="bg-black" />
+                  <input className="bg-black outline-none  xl:w-60 md:w-48" />
                   <div className="flex items-center gap-x-2 ">
                     <button className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden">
                       MAX
@@ -211,7 +216,7 @@ export default function Bond() {
                 </thead>
                 <tbody className="divide-y divide-grey/70">
                   <tr className="text-left text-xs py-2 md:text-sm bg-black cursor-pointer">
-                    <td className="pl-3 py-2">2023.10.28</td>
+                    <td className="pl-3 py-2.5">2023.10.28</td>
                     <td className="">
                       <div className="flex gap-x-1.5 items-center">
                         <img
@@ -239,10 +244,13 @@ export default function Bond() {
                         0x123...456 <ExternalLinkIcon />
                       </div>
                     </td>
-                    <td className="text-grey1">
+                    <td className="text-grey1 w-min">
                       <div className="flex gap-x-1.5 items-center">
                         0x123...456 <ExternalLinkIcon />
                       </div>
+                    </td>
+                    <td className="w-28">
+                    <ReedemBondButton />
                     </td>
                   </tr>
                 </tbody>
