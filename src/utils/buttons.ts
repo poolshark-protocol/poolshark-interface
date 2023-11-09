@@ -81,7 +81,6 @@ export function getCoverMintButtonMessage(
     inputPoolExists: boolean,
     twapReady: boolean
   ): string {
-    console.log('button message:', tokenIn.userBalance)
     if (tokenIn.userBalance <
         parseFloat(
           formatUnits(

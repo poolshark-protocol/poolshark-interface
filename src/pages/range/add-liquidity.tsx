@@ -354,7 +354,6 @@ export default function AddLiquidity({}) {
       );
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lower);
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upper);
-      console.log('amount set', amountSet.toString())
       if (amountSet.gt(BN_ZERO)) {
         let liquidity = ZERO;
         if (
