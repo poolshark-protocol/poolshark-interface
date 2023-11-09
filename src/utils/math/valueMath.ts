@@ -49,7 +49,8 @@ export function parseUnits(value: string, decimals: number): BigNumber {
     const decimalPlaces = Number(floatValue.toString().split('e-')[1])
     if (decimalPlaces > decimals || decimalPlaces >= 16) value = floatValue.toFixed(decimals)
   } else {
-    // if float is 1.[15]1 we truncate using fixed decimals
+    // if float is 1.[15]1 parseFloat will round to 1
+    // thus we truncate using fixed decimals
     value = floatValue.toFixed(decimals)
    }
   return ethers.utils.parseUnits(value, decimals)
