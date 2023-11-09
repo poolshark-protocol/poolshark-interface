@@ -7,6 +7,7 @@ import {
 } from "./queries";
 import { CoverSubgraph, LimitSubgraph } from "./types";
 import { logoMap } from "./tokens";
+import { formatEther } from "ethers/lib/utils.js";
 
 export const getClaimTick = async (
   poolAddress: string,
@@ -253,4 +254,79 @@ export function mapUserLimitPositions(limitPositions) {
     mappedLimitPositions.push(limitPositionData);
   });
   return mappedLimitPositions;
+}
+
+export function mapBondMarkets(markets) {
+  const mappedMarkets = [];
+  markets.map((market) => {
+    const marketData = {
+      id: market.id,
+      name: market.name,
+      network: market.network,
+      auctioneer: market.auctioneer,
+      teller: market.teller,
+      marketId: market.marketId,
+      owner: market.owner,
+      callbackAddress: market.callbackAddress,
+      capacityInQuote: market.capacityInQuote,
+      chainId: market.chainId,
+      scale: market.scale,
+      vestingType: market.vestingType,
+      isInstantSwap: market.isInstantSwap,
+      hasClosed: market.hasClosed,
+      payoutTokenId: market.payoutToken.id,
+      payoutTokenAddress: market.payoutToken.address,
+      payoutTokenSymbol: market.payoutToken.symbol,
+      payoutTokenDecimals: market.payoutToken.decimals,
+      payoutTokenName: market.payoutToken.name,
+      quoteTokenId: market.quoteToken.id,
+      quoteTokenAddress: market.quoteToken.address,
+      quoteTokenSymbol: market.quoteToken.symbol,
+      quoteTokenDecimals: market.quoteToken.decimals,
+      quoteTokenName: market.quoteToken.name,
+      start: Number(market.start),
+      conclusion: Number(market.conclusion),
+      vesting: Number(market.vesting),
+      creationBlockTimestamp: Number(market.creationBlockTimestamp),
+      capacity: Number(formatEther(market.capacity)),
+      minPrice: Number(formatEther(market.minPrice)) ?? 0,
+      totalBondedAmount: Number(market.totalBondedAmount),
+      totalPayoutAmount: Number(market.totalPayoutAmount),
+    };
+    mappedMarkets.push(marketData);
+  });
+  return mappedMarkets;
+}
+
+export function mapUserBondPurchases(bondPurchases) {
+  const mappedBondPurchases = [];
+  bondPurchases.map((bondPurchase) => {
+    const bondPurchaseData = {
+      amount: Number(bondPurchase.amount),
+      payout: Number(bondPurchase.payout),
+      purchasePrice: Number(bondPurchase.purchasePrice),
+      postPurchasePrice: Number(bondPurchase.postPurchasePrice),
+      timestamp: Number(bondPurchase.timestamp),
+      auctioneer: bondPurchase.auctioneer,
+      chainId: bondPurchase.chainId,
+      id: bondPurchase.id,
+      network: bondPurchase.network,
+      owner: bondPurchase.owner,
+      recipient: bondPurchase.recipient,
+      referrer: bondPurchase.referrer,
+      teller: bondPurchase.teller,
+      payoutTokenId: bondPurchase.payoutToken.id,
+      payoutTokenAddress: bondPurchase.payoutToken.address,
+      payoutTokenSymbol: bondPurchase.payoutToken.symbol,
+      payoutTokenDecimals: bondPurchase.payoutToken.decimals,
+      payoutTokenPayoutAmount: Number(bondPurchase.payoutToken.totalPayoutAmount),
+      quoteTokenId: bondPurchase.quoteToken.id,
+      quoteTokenAddress: bondPurchase.quoteToken.address,
+      quoteTokenSymbol: bondPurchase.quoteToken.symbol,
+      quoteTokenDecimals: bondPurchase.quoteToken.decimals,
+      quoteTokenPayoutAmount: Number(bondPurchase.quoteToken.totalPayoutAmount),
+    };
+    mappedBondPurchases.push(bondPurchaseData);
+  });
+  return mappedBondPurchases;
 }
