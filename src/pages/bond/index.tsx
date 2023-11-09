@@ -2,10 +2,32 @@ import Navbar from "../../components/Navbar";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import BuyBondButton from "../../components/Buttons/BuyBondButton";
 import { useState } from "react";
+import { ethers } from "ethers";
 
 export default function Bond() {
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
-  
+  const abiCoder = new ethers.utils.AbiCoder();
+  const abiData =
+    abiCoder.encode(
+      [ 
+        "tuple(address payoutToken,address quoteToken,address callbackAddr,bool capacityInQuote,uint256 capacity,uint256 formattedPrice,uint48 depositInterval,uint48 vesting,uint48 start,uint48 duration,int8 scaleAdjustment)",
+      ],
+      [{
+        payoutToken: "0x742510a23bf83be959990a510ccae40b2d3d9b83",
+        quoteToken: "0x251f7eacde75458b52dbc4995c439128b9ef98ca",
+        callbackAddr: "0x0000000000000000000000000000000000000000",
+        capacityInQuote: false,
+        capacity: "10000000000000000000000",
+        formattedPrice: "1000000000000000",
+        depositInterval: "3600",
+        vesting: "7200",
+        start: "1699545600",
+        duration: "604800",
+        scaleAdjustment: "0"
+      }]
+    )
+
+  console.log(abiData);
 
   return (
     <div className="bg-black min-h-screen  ">
@@ -130,7 +152,7 @@ export default function Bond() {
                   UNLOCK DATE <span className="text-white">2023.11.05</span>
                 </div>
               </div>
-              <BuyBondButton />
+              {/*<BuyBondButton />*/}
             </div>
           </div>
         </div>
