@@ -14,7 +14,7 @@ import {
   getCoverMintButtonDisabled,
   getCoverMintButtonMessage,
 } from "../utils/buttons";
-import { logoMap } from "../utils/tokens";
+import { useConfigStore } from "./useConfigStore";
 
 type CoverState = {
   //poolAddress for current token pairs
@@ -134,7 +134,8 @@ const initialCoverState: CoverState = {
     callId: 0,
     name: "Wrapped Ether",
     symbol: "WETH",
-    logoURI: logoMap["WETH"],
+    logoURI:
+      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
@@ -146,7 +147,8 @@ const initialCoverState: CoverState = {
     callId: 1,
     name: "DAI",
     symbol: "DAI",
-    logoURI: logoMap["DAI"],
+    logoURI:
+      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
     address: tokenOneAddress,
     decimals: 18,
     userBalance: 0.0,

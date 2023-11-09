@@ -101,6 +101,7 @@ export default function SelectToken(props) {
     fetch();
   }, [chainId, address]);
 
+
   useEffect(() => {
     const fetch = async () => {
       // validate address
