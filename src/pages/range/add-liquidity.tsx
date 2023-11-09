@@ -10,7 +10,7 @@ import JSBI from "jsbi";
 import useInputBox from "../../hooks/useInputBox";
 import { erc20ABI, useAccount, useBalance, useContractRead } from "wagmi";
 import { BigNumber, ethers } from "ethers";
-import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO, ONE, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
 import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
@@ -55,6 +55,7 @@ export default function AddLiquidity({}) {
     setTokenOutAmount,
     setTokenOutRangeUSDPrice,
     setTokenOutBalance,
+    setLiquidityAmount,
     startPrice,
     pairSelected,
     setPairSelected,
@@ -88,6 +89,7 @@ export default function AddLiquidity({}) {
     state.setTokenOutAmount,
     state.setTokenOutRangeUSDPrice,
     state.setTokenOutBalance,
+    state.setLiquidityAmount,
     state.startPrice,
     state.pairSelected,
     state.setPairSelected,
@@ -391,6 +393,7 @@ export default function AddLiquidity({}) {
             // warn the user the input is invalid
           }
         }
+        setLiquidityAmount(liquidity)
         const outputJsbi = JSBI.greaterThan(liquidity, ZERO)
           ? isToken0
             ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
@@ -427,7 +430,7 @@ export default function AddLiquidity({}) {
     }
   }
 
-  ////////////////////////////////Gas Fee
+  ////////////////////////////////Position Price Range
 
   const [minInput, setMinInput] = useState("");
   const [maxInput, setMaxInput] = useState("");
@@ -815,6 +818,13 @@ export default function AddLiquidity({}) {
                   the market price moves into your range.
                 </div>
               )}
+
+              {(rangeMintParams.tokenInAmount?.gt(BN_ZERO) || rangeMintParams.tokenOutAmount?.gt(BN_ZERO)) && JSBI.lessThanOrEqual(rangeMintParams.liquidityAmount, ONE) ? (<div className=" text-red-600 bg-red-900/30 text-[10px] md:text-[11px] flex items-center md:gap-x-5 gap-x-3 p-2 rounded-[8px]">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="md:w-9 w-12">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                </svg>
+                Liquidity size too small: please add more tokens or decrease the price range.
+              </div>) : <></>}
             </div>
           </div>
         </div>

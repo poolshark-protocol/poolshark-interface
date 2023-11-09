@@ -200,7 +200,6 @@ export default function ViewCover() {
     getCoverPoolRatios();
   }, [tokenIn.coverUSDPrice, tokenOut.coverUSDPrice]);
 
-  //TODO need to be set to utils
   const getCoverPoolRatios = () => {
     try {
       if (coverPoolData != undefined) {

@@ -153,7 +153,9 @@ export default function Range() {
                 );
                 router.push({
                   pathname: "/range/add-liquidity",
-                  query: { state: "select" },
+                  query: {
+                    feeTier: allRangePools[0].feeTier ?? 1000,
+                  },
                 });
               }}
               className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm

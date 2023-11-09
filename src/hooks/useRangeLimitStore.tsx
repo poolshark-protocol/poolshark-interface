@@ -1,6 +1,6 @@
 import { BigNumber } from "ethers";
 import { LimitSubgraph, token, tokenRangeLimit } from "../utils/types";
-import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
   tokenOneAddress,
   tokenZeroAddress,
@@ -12,6 +12,7 @@ import {
 } from "../utils/queries";
 import { parseUnits } from "../utils/math/valueMath";
 import { getRangeMintButtonDisabled, getRangeMintButtonMessage } from "../utils/buttons";
+import JSBI from "jsbi";
 
 type RangeLimitState = {
   //rangePoolAddress for current token pairs
@@ -29,6 +30,7 @@ type RangeLimitState = {
     gasLimit: BigNumber;
     disabled: boolean;
     buttonMessage: string;
+    liquidityAmount: JSBI;
   };
   //limitPoolAddress for current token pairs
   limitPoolAddress: `0x${string}`;
@@ -97,6 +99,7 @@ type RangeLimitAction = {
   setTokenOutRangeUSDPrice: (price: number) => void;
   setTokenOutRangeAllowance: (allowance: BigNumber) => void;
   setTokenOutBalance: (balance: string) => void;
+  setLiquidityAmount: (liquidityAmount: JSBI) => void;
   //
   setMinInput: (newMinTick: string) => void;
   setMaxInput: (newMaxTick: string) => void;
@@ -154,6 +157,7 @@ const initialRangeLimitState: RangeLimitState = {
   rangeMintParams: {
     tokenInAmount: BN_ZERO,
     tokenOutAmount: BN_ZERO,
+    liquidityAmount: ZERO,
     gasFee: "$0.00",
     gasLimit: BN_ZERO,
     disabled: true,
@@ -361,6 +365,14 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         rangeMintParams: {
           ...state.rangeMintParams,
           tokenInAmount: newAmount,
+        },
+      }));
+    },
+    setLiquidityAmount: (liquidityAmount: JSBI) => {
+      set((state) => ({
+        rangeMintParams: {
+          ...state.rangeMintParams,
+          liquidityAmount: liquidityAmount,
         },
       }));
     },
@@ -587,6 +599,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           buttonMessage: getRangeMintButtonMessage(
             state.rangeMintParams.tokenInAmount,
             state.rangeMintParams.tokenOutAmount,
+            state.rangeMintParams.liquidityAmount,
             state.tokenIn,
             state.tokenOut,
             state.rangePoolAddress,
@@ -595,6 +608,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           disabled: getRangeMintButtonDisabled(
             state.rangeMintParams.tokenInAmount,
             state.rangeMintParams.tokenOutAmount,
+            state.rangeMintParams.liquidityAmount,
             state.tokenIn,
             state.tokenOut,
             state.rangePoolAddress,

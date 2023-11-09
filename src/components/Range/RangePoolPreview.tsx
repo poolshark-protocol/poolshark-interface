@@ -8,7 +8,7 @@ import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButto
 import { useRouter } from "next/router";
 import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO, ONE, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import {
   gasEstimateRangeCreateAndMint,
   gasEstimateRangeMint,
@@ -18,6 +18,7 @@ import { chainProperties } from "../../utils/chains";
 import { limitPoolTypeIds } from "../../utils/pools";
 import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import JSBI from "jsbi";
 
 export default function RangePoolPreview() {
   const [
@@ -130,11 +131,12 @@ export default function RangePoolPreview() {
         Number(rangePositionData.lowerPrice) <
           Number(rangePositionData.upperPrice) &&
         allowanceInRange?.gte(rangeMintParams.tokenInAmount) &&
-        allowanceOutRange?.gte(rangeMintParams.tokenOutAmount)
+        allowanceOutRange?.gte(rangeMintParams.tokenOutAmount) &&
+        JSBI.greaterThan(rangeMintParams.liquidityAmount, ONE)
     ) {
       updateGasFee();
     }
-  }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount, allowanceInRange, allowanceOutRange, rangePositionData]);
+  }, [rangeMintParams.liquidityAmount, allowanceInRange, allowanceOutRange, rangePositionData.lowerPrice, rangePositionData.upperPrice]);
 
   async function updateGasFee() {
     const newGasFee =
@@ -503,7 +505,7 @@ export default function RangePoolPreview() {
                             token1={tokenOut}
                             startPrice={BigNumber.from(
                               rangePoolData?.poolPrice ?? '0'
-                            )} //TODO: for lucas; need input box for this
+                            )}
                             feeTier={
                               rangePoolData.feeTier?.feeAmount
                                 ?? 3000
