@@ -12,7 +12,7 @@ import { useContractRead } from "wagmi";
 import RemoveLiquidity from "../../components/Modals/Range/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Range/AddLiquidity";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { fetchRangeTokenUSDPrice, logoMap } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
@@ -25,12 +25,13 @@ import { chainProperties, supportedNetworkNames } from "../../utils/chains";
 import { tokenRangeLimit } from "../../utils/types";
 
 export default function ViewRange() {
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph] =
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
     useConfigStore((state) => [
       state.chainId,
       state.networkName,
       state.limitSubgraph,
       state.setLimitSubgraph,
+      state.logoMap,
     ]);
 
   const [
