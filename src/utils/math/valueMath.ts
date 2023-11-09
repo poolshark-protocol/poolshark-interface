@@ -33,7 +33,7 @@ export function inputHandler(e, token: token): [string, BigNumber] {
 
 export function parseUnits(value: string, decimals: number): BigNumber {
   const floatValue = parseFloat(value)
-  if (isNaN(floatValue)) return 
+  if (isNaN(floatValue)) return BN_ZERO
   if (floatValue.toString().indexOf('.') != -1 && floatValue.toString().indexOf('e-') != -1) {
     // example: 1.36e-7
     const decimalCount = (floatValue.toString().split('e-')[0]).split('.')[1].length
@@ -48,6 +48,9 @@ export function parseUnits(value: string, decimals: number): BigNumber {
     // example: 1e-7
     const decimalPlaces = Number(floatValue.toString().split('e-')[1])
     if (decimalPlaces > decimals || decimalPlaces >= 16) value = floatValue.toFixed(decimals)
-  }
+  } else {
+    // if float is 1.[15]1 we truncate using fixed decimals
+    value = floatValue.toFixed(decimals)
+   }
   return ethers.utils.parseUnits(value, decimals)
 } 
