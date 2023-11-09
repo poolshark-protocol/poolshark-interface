@@ -33,9 +33,20 @@ export function inputHandler(e, token: token): [string, BigNumber] {
 
 export function parseUnits(value: string, decimals: number): BigNumber {
   const floatValue = parseFloat(value)
-  if (isNaN(floatValue)) return BN_ZERO
-  if (floatValue.toString().indexOf('.') != -1) {
+  if (isNaN(floatValue)) return 
+  if (floatValue.toString().indexOf('.') != -1 && floatValue.toString().indexOf('e-') != -1) {
+    // example: 1.36e-7
+    const decimalCount = (floatValue.toString().split('e-')[0]).split('.')[1].length
+    const exponentialCount = Number(floatValue.toString().split('e-')[1])
+    const decimalPlaces = decimalCount + exponentialCount
+    if (decimalPlaces > decimals || decimalPlaces >= 16) value = floatValue.toFixed(decimals)
+  } else if (floatValue.toString().indexOf('.') != -1) {
+    // example: 1.36
     const decimalPlaces = floatValue.toString().split('.')[1].length
+    if (decimalPlaces > decimals || decimalPlaces >= 16) value = floatValue.toFixed(decimals)
+  } else if (floatValue.toString().indexOf('e-') != -1) {
+    // example: 1e-7
+    const decimalPlaces = Number(floatValue.toString().split('e-')[1])
     if (decimalPlaces > decimals || decimalPlaces >= 16) value = floatValue.toFixed(decimals)
   }
   return ethers.utils.parseUnits(value, decimals)
