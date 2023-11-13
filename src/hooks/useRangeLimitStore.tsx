@@ -112,8 +112,8 @@ type RangeLimitAction = {
   //
   switchDirection: () => void;
   setRangePoolFromFeeTier: (
-    tokenIn: token,
-    tokenOut: token,
+    tokenIn: any,
+    tokenOut: any,
     volatility: any,
     client: LimitSubgraph,
     poolPrice?: any,
