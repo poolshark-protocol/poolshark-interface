@@ -93,7 +93,7 @@ export default function LimitSwapButton({
       setTimeout(() => {
         setNeedsRefetch(true);
         setNeedsPosRefetch(true);
-      }, 1000);
+      }, 2500);
       closeModal();
     },
     onError() {
