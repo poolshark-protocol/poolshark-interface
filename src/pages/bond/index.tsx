@@ -1,10 +1,38 @@
 import Navbar from "../../components/Navbar";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import BuyBondButton from "../../components/Buttons/BuyBondButton";
-import { useState } from "react";
-import { ethers } from "ethers";
+import { useEffect, useState } from "react";
+import { BigNumber, ethers } from "ethers";
+import { useAccount, useBalance, useContractRead } from "wagmi";
+import {
+  chainIdsToNamesForGitTokenList,
+  chainProperties,
+} from "../../utils/chains";
+import { useConfigStore } from "../../hooks/useConfigStore";
+import { bondTellerABI } from "../../abis/evm/bondTeller";
 
 export default function Bond() {
+  const { address } = useAccount()
+
+  const [needsSubgraph, setNeedsSubgraph] = useState(true)
+  const [needsBalance, setNeedsBalance] = useState(true)
+  const [needsAllowance, setNeedsAllowance] = useState(true)
+
+  const [
+    chainId,
+    networkName,
+    limitSubgraph,
+    coverSubgraph,
+  ] = useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
+    state.limitSubgraph,
+    state.coverSubgraph
+  ]);
+
+  const [tokenBalance, setTokenBalance] = useState(null)
+  const [tokenAllowance, setTokenAllowance] = useState(null)
+
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
   const abiCoder = new ethers.utils.AbiCoder();
   const abiData =
@@ -28,6 +56,51 @@ export default function Bond() {
     )
 
   console.log(abiData);
+
+  const { data: tokenBalanceData } = useBalance({
+    address: address,
+    token: WETH_ADDRESS,
+    enabled: WETH_ADDRESS != undefined && needsBalance,
+    watch: needsBalance,
+    onSuccess(data) {
+      setNeedsBalance(false);
+    },
+  });
+
+  useEffect(() => {
+    if (tokenBalanceData) {
+      setTokenBalance(tokenBalanceData)
+    }
+  }, [tokenBalance])
+
+  const { data: tokenAllowanceData } = useContractRead({
+    address: TELLER_ADDRESS,
+    abi: bondTellerABI,
+    functionName: "allowance",
+    args: [address, chainProperties[networkName]["routerAddress"]],
+    chainId: chainId,
+    watch: needsAllowance,
+    enabled: TELLER_ADDRESS != undefined,
+    onSuccess(data) {
+      // setNeedsAllowance(false);
+    },
+    onError(error) {
+      console.log("Error", error);
+    },
+    onSettled(data, error) {},
+  });
+
+  useEffect(() => {
+    if (tokenAllowanceData) {
+      setTokenAllowance(tokenBalanceData)
+    }
+  }, [tokenBalance])
+
+  useEffect(() => {
+    if (tokenAllowanceData) {
+      setTokenAllowance(tokenBalanceData)
+    }
+  }, [tokenBalance])
 
   return (
     <div className="bg-black min-h-screen  ">
