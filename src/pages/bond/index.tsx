@@ -32,6 +32,9 @@ export default function Bond() {
     state.coverSubgraph
   ]);
 
+  const WETH_ADDRESS = "0x251f7eacde75458b52dbc4995c439128b9ef98ca"
+  const TELLER_ADDRESS = "0x007FE70dc9797C4198528aE43d8195ffF82Bdc95"
+
   const [tokenBalance, setTokenBalance] = useState(null)
   const [tokenAllowance, setTokenAllowance] = useState(null)
 
@@ -181,14 +184,14 @@ export default function Bond() {
                   <span className="text-main2/60 text-[13px]">BOND PRICE</span>
                   <span className="text-main2 text-2xl md:text-4xl">$1.24</span>
                 </div>
-                <div className=" rounded-[4px] flex flex-col w-full bg-[#2ECC71]/10 items-center justify-center gap-y-4 h-32">
+                {/*<div className=" rounded-[4px] flex flex-col w-full bg-[#2ECC71]/10 items-center justify-center gap-y-4 h-32">
                   <span className="text-[#2ECC71]/50 text-[13px]">
                     CURRENT DISCOUNT
                   </span>
                   <span className="text-[#2ECC71] text-2xl md:text-4xl">
                     1.53%
                   </span>
-                </div>
+                </div>*/}
               </div>
               <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-4 h-32">
                 <span className="text-grey1 text-[13px]">
