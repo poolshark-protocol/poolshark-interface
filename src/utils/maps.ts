@@ -288,8 +288,8 @@ export function mapBondMarkets(markets) {
       conclusion: Number(market.conclusion),
       vesting: Number(market.vesting),
       creationBlockTimestamp: Number(market.creationBlockTimestamp),
-      capacity: Number(formatEther(market.capacity)),
-      minPrice: Number(formatEther(market.minPrice)) ?? 0,
+      capacity: market.capacity,
+      minPrice: market.minPrice,
       totalBondedAmount: Number(market.totalBondedAmount),
       totalPayoutAmount: Number(market.totalPayoutAmount),
     };

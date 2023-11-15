@@ -12,6 +12,8 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { bondTellerABI } from "../../abis/evm/bondTeller";
 import { fetchBondMarket, fetchUserBonds } from "../../utils/queries";
 import { mapBondMarkets, mapUserBondPurchases } from "../../utils/maps";
+import { convertTimestampToDateFormat } from "../../utils/time";
+import { formatEther } from "ethers/lib/utils.js";
 
 export default function Bond() {
   const { address } = useAccount()
@@ -35,11 +37,11 @@ export default function Bond() {
   const WETH_ADDRESS = "0x251f7eacde75458b52dbc4995c439128b9ef98ca"
   const TELLER_ADDRESS = "0x007FE70dc9797C4198528aE43d8195ffF82Bdc95"
 
-  const [tokenBalance, setTokenBalance] = useState(null)
-  const [tokenAllowance, setTokenAllowance] = useState(null)
+  const [tokenBalance, setTokenBalance] = useState(undefined)
+  const [tokenAllowance, setTokenAllowance] = useState(undefined)
 
-  const [allUserBonds, setAllUserBonds] = useState(null)
-  const [marketData, setMarketData] = useState(null)
+  const [allUserBonds, setAllUserBonds] = useState(undefined)
+  const [marketData, setMarketData] = useState(undefined)
 
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
   const abiCoder = new ethers.utils.AbiCoder();
@@ -139,6 +141,8 @@ export default function Bond() {
     }
   }, [needsSubgraph]);
 
+  console.log(marketData, "formatted market data")
+
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
@@ -150,7 +154,7 @@ export default function Bond() {
             </div>
             <div className="flex flex-col gap-y-2">
               <div className="flex text-lg items-center text-white">
-                <h1>$FIN BOND</h1>
+                <h1>${marketData != undefined ? marketData[0]?.payoutTokenSymbol : "FIN"} BOND</h1>
                 <a
                   href={"https://goerli.arbiscan.io/address/" + "PoolAddress"}
                   target="_blank"
@@ -158,7 +162,7 @@ export default function Bond() {
                   className="flex items-center gap-x-3 text-grey1 group cursor-pointer"
                 >
                   <span className="-mb-1 text-light text-xs ml-8 group-hover:underline">
-                    0x123...456
+                    {TELLER_ADDRESS}
                   </span>{" "}
                   <ExternalLinkIcon />
                 </a>
@@ -166,7 +170,7 @@ export default function Bond() {
               <div className="flex text-xs text-[#999999] items-center gap-x-3">
                 END DATE:{" "}
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  12/12/2023
+                  {marketData != undefined ? convertTimestampToDateFormat(marketData[0]?.conclusion) : "Loading..."}
                 </span>
               </div>
             </div>
@@ -209,7 +213,7 @@ export default function Bond() {
               <div className="flex justify-between ">
                 <h1 className="uppercase text-white">REMAINING CAPACITY</h1>
                 <span>
-                  50,432.54 <span className="text-grey1">FIN</span>
+                  {marketData != undefined ? formatEther(marketData[0].capacity) : "0"} <span className="text-grey1">FIN</span>
                 </span>
               </div>
               <div className="bg-main2 relative h-10 rounded-full w-full">

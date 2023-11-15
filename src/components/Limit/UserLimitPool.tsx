@@ -11,7 +11,7 @@ import LimitSwapBurnButton from "../Buttons/LimitSwapBurnButton";
 import { tokenRangeLimit } from "../../utils/types";
 import router from "next/router";
 import { logoMap } from "../../utils/tokens";
-import timeDifference from "../../utils/time";
+import { timeDifference } from "../../utils/time";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { parseUnits } from "../../utils/math/valueMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
