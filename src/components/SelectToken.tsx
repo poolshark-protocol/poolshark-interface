@@ -19,14 +19,22 @@ export default function SelectToken(props) {
   const [isOpen, setIsOpen] = useState(false);
   const [customInput, setCustomInput] = useState("");
   const [displayTokenList, setDisplayTokenList] = useState([]);
-  const [listedTokenList, setListedTokenList] = useState([]);
-  const [searchTokenList, setSearchTokenList] = useState([]);
   const [tokenInfo, setTokenInfo] = useState(undefined);
 
-  const [chainId, networkName, setTokenList] = useConfigStore((state) => [
+  const [
+    chainId,
+    networkName,
+    listedTokenList,
+    setListedTokenList,
+    searchtokenList,
+    setSearchTokenList,
+  ] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
-    state.setTokenList,
+    state.listedtokenList,
+    state.setListedTokenList,
+    state.searchtokenList,
+    state.setSearchTokenList,
   ]);
 
   const {
@@ -78,7 +86,6 @@ export default function SelectToken(props) {
           if (coins.listed_tokens != undefined) {
             setListedTokenList(coins.listed_tokens);
             setDisplayTokenList(coins.listed_tokens);
-            setTokenList(coins.listed_tokens);
           }
           for (let i = 0; i < coins.search_tokens?.length; i++) {
             coins.search_tokens[i].address = coins.search_tokens[i].id;
@@ -93,6 +100,7 @@ export default function SelectToken(props) {
     };
     fetch();
   }, [chainId, address]);
+
 
   useEffect(() => {
     const fetch = async () => {
@@ -109,7 +117,7 @@ export default function SelectToken(props) {
       }
     };
     fetch();
-  }, [customInput]);
+  }, [customInput, listedTokenList]);
 
   const chooseToken = (coin) => {
     coin = {
@@ -228,7 +236,7 @@ export default function SelectToken(props) {
                       onChange={(e) => setCustomInput(e.target.value)}
                     ></input>
                     <div className="flex justify-between flex-wrap mt-4 gap-y-2">
-                      {displayTokenList.map((coin) => {
+                      {displayTokenList?.map((coin) => {
                         if (
                           customInput.toLowerCase() == "" ||
                           customInput.toLowerCase() == " " ||
@@ -255,30 +263,32 @@ export default function SelectToken(props) {
                   </div>
                   <div>
                     {displayTokenList
-                      .sort((a, b) => b.balance - a.balance)
-                      .map((coin) => {
-                        if (
-                          customInput.toLowerCase() == "" ||
-                          customInput.toLowerCase() == " " ||
-                          coin.symbol
-                            .toLowerCase()
-                            .includes(customInput.toLowerCase()) ||
-                          coin.name
-                            .toLowerCase()
-                            .includes(customInput.toLowerCase()) ||
-                          coin.address
-                            .toLowerCase()
-                            .includes(customInput.toLowerCase())
-                        ) {
-                          return (
-                            <CoinListItem
-                              key={coin.id + coin.symbol}
-                              coin={coin}
-                              chooseToken={chooseToken}
-                            />
-                          );
-                        }
-                      })}
+                      ? displayTokenList
+                          .sort((a, b) => b.balance - a.balance)
+                          .map((coin) => {
+                            if (
+                              customInput.toLowerCase() == "" ||
+                              customInput.toLowerCase() == " " ||
+                              coin.symbol
+                                .toLowerCase()
+                                .includes(customInput.toLowerCase()) ||
+                              coin.name
+                                .toLowerCase()
+                                .includes(customInput.toLowerCase()) ||
+                              coin.address
+                                .toLowerCase()
+                                .includes(customInput.toLowerCase())
+                            ) {
+                              return (
+                                <CoinListItem
+                                  key={coin.id}
+                                  coin={coin}
+                                  chooseToken={chooseToken}
+                                />
+                              );
+                            }
+                          })
+                      : null}
                   </div>
                 </Dialog.Panel>
               </Transition.Child>

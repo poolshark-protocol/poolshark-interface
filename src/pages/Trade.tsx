@@ -33,7 +33,6 @@ import LimitSwapButton from "../components/Buttons/LimitSwapButton";
 import {
   fetchRangeTokenUSDPrice,
   getLimitTokenUsdPrice,
-  logoMap,
 } from "../utils/tokens";
 import { getSwapPools, limitPoolTypeIds } from "../utils/pools";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
@@ -74,12 +73,13 @@ export default function Trade() {
     setDisplay: setDisplayOut,
   } = useInputBox();
 
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph] =
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
     useConfigStore((state) => [
       state.chainId,
       state.networkName,
       state.limitSubgraph,
       state.setLimitSubgraph,
+      state.logoMap,
     ]);
 
   const [
@@ -313,7 +313,10 @@ export default function Trade() {
   const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
 
   useEffect(() => {
-    if (tokenIn.address != ZERO_ADDRESS && tokenOut.address === ZERO_ADDRESS) {
+    if (
+      tokenIn.address != ZERO_ADDRESS &&
+      (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
+    ) {
       getLimitTokenUsdPrice(
         tokenIn.address,
         setTokenInTradeUSDPrice,
@@ -321,6 +324,19 @@ export default function Trade() {
       );
     }
   }, [tokenIn.address]);
+
+  useEffect(() => {
+    if (
+      tokenOut.address != ZERO_ADDRESS &&
+      (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
+    ) {
+      getLimitTokenUsdPrice(
+        tokenOut.address,
+        setTokenInTradeUSDPrice,
+        limitSubgraph
+      );
+    }
+  }, [tokenOut.address]);
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
@@ -918,7 +934,11 @@ export default function Trade() {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (!amountIn.eq(BN_ZERO) && !needsAllowanceIn) {
+    if (
+      !amountIn.eq(BN_ZERO) &&
+      !needsAllowanceIn &&
+      tradePoolData != undefined
+    ) {
       if (!limitTabSelected) {
         updateGasFee();
       } else {
@@ -1202,7 +1222,7 @@ export default function Trade() {
                           amountOut ?? BN_ZERO,
                           tokenOut.decimals
                         )
-                      ) * tokenOut.USDPrice
+                      ) * (tokenOut.USDPrice ?? 0)
                     ).toFixed(2)
                   ) : (
                     <>{(0).toFixed(2)}</>
@@ -1369,27 +1389,30 @@ export default function Trade() {
               <></>
             )}
             {limitTabSelected &&
-              tokenOut.address != ZERO_ADDRESS &&
-              tradePoolData?.id == ZERO_ADDRESS && (
-                <div className="bg-dark border rounded-[4px] border-grey/50 p-5 mt-5">
-                  <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
-                    This pool does not exist so a starting price must be set in
-                    order to add liquidity.
-                  </p>
-                  <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
-                    <span className="text-grey1 text-xs">STARTING PRICE</span>
-                    <span className="text-white text-3xl">
-                      <input
-                        autoComplete="off"
-                        className="bg-black py-2 outline-none text-center w-full"
-                        placeholder="0"
-                        id="startPrice"
-                        type="text"
-                      />
-                    </span>
-                  </div>
+            tokenIn.address != ZERO_ADDRESS &&
+            tokenOut.address != ZERO_ADDRESS &&
+            tradePoolData?.id == ZERO_ADDRESS ? (
+              <div className="bg-dark border rounded-[4px] border-grey/50 p-5 mt-5">
+                <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
+                  This pool does not exist so a starting price must be set in
+                  order to add liquidity.
+                </p>
+                <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
+                  <span className="text-grey1 text-xs">STARTING PRICE</span>
+                  <span className="text-white text-3xl">
+                    <input
+                      autoComplete="off"
+                      className="bg-black py-2 outline-none text-center w-full"
+                      placeholder="0"
+                      id="startPrice"
+                      type="text"
+                    />
+                  </span>
                 </div>
-              )}
+              </div>
+            ) : (
+              <></>
+            )}
 
             <div className="py-4">
               <div
@@ -1419,18 +1442,21 @@ export default function Trade() {
             </div>
 
             {!limitTabSelected &&
-              tokenOut.address != ZERO_ADDRESS &&
-              tradePoolData?.id == ZERO_ADDRESS && (
-                <div className="flex gap-x-5 rounded-[4px] items-center text-xs p-2 border bg-dark border-grey mb-5">
-                  <Range className="text-main2" />{" "}
-                  <span className="text-grey3 flex flex-col gap-y-[-2px]">
-                    There are currently no pools for this token pair.{" "}
-                    <a className=" hover:underline text-main2 cursor-pointer">
-                      Click here to create a range pool
-                    </a>
-                  </span>
-                </div>
-              )}
+            tokenIn.address != ZERO_ADDRESS &&
+            tokenOut.address != ZERO_ADDRESS &&
+            tradePoolData?.id == ZERO_ADDRESS ? (
+              <div className="flex gap-x-5 rounded-[4px] items-center text-xs p-2 border bg-dark border-grey mb-5">
+                <Range className="text-main2" />{" "}
+                <span className="text-grey3 flex flex-col gap-y-[-2px]">
+                  There are currently no pools for this token pair.{" "}
+                  <a className=" hover:underline text-main2 cursor-pointer">
+                    Click here to create a range pool
+                  </a>
+                </span>
+              </div>
+            ) : (
+              <></>
+            )}
             {isDisconnected ? (
               <ConnectWalletButton xl={true} />
             ) : !limitTabSelected ? (

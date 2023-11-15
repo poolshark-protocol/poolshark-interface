@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { TickMath } from "../../utils/math/tickMath";
-import { fetchRangeTokenUSDPrice, logoMap } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
@@ -13,12 +13,10 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { formatUsdValue } from "../../utils/math/valueMath";
 
 export default function UserRangePool({ rangePosition, href, isModal }) {
-  const [
-    limitSubgraph,
-    coverSubgraph
-  ] = useConfigStore((state) => [
+  const [limitSubgraph, coverSubgraph, logoMap] = useConfigStore((state) => [
     state.limitSubgraph,
-    state.coverSubgraph
+    state.coverSubgraph,
+    state.logoMap,
   ]);
 
   const [
@@ -209,20 +207,25 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       decimals: rangePosition.tokenOne.decimals,
     } as tokenCover;
     if (href.includes("cover")) {
-      setCoverTokenIn(tokenOutNew, tokenInNew, '0', true);
-      setCoverTokenOut(tokenInNew, tokenOutNew, '0', false);
+      setCoverTokenIn(tokenOutNew, tokenInNew, "0", true);
+      setCoverTokenOut(tokenInNew, tokenOutNew, "0", false);
       setRangePositionData(rangePosition);
-      setCoverPoolFromVolatility(tokenInNew, tokenOutNew, "1000", coverSubgraph);
+      setCoverPoolFromVolatility(
+        tokenInNew,
+        tokenOutNew,
+        "1000",
+        coverSubgraph
+      );
     } else {
-      setRangeTokenIn(tokenOutNew, tokenInNew, '0', true);
-      setRangeTokenOut(tokenInNew, tokenOutNew, '0', false);
+      setRangeTokenIn(tokenOutNew, tokenInNew, "0", true);
+      setRangeTokenOut(tokenInNew, tokenOutNew, "0", false);
       setRangePositionData(rangePosition);
       //async setter should be last
       setRangePoolFromFeeTier(
         tokenInNew,
         tokenOutNew,
         rangePosition.pool.feeTier.feeAmount,
-        limitSubgraph,
+        limitSubgraph
       );
     }
     router.push({
@@ -308,7 +311,9 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
               </span>
             </div>
             <div className="text-right text-white text-xs lg:block hidden">
-              {!isModal && <span>${formatUsdValue(totalUsdValue.toString())}</span>}
+              {!isModal && (
+                <span>${formatUsdValue(totalUsdValue.toString())}</span>
+              )}
             </div>
           </div>
         </div>

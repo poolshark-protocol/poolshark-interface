@@ -51,6 +51,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     setTokenOutAllowance,
     setTokenOutBalance,
     setTokenOutAmount,
+    setLiquidityAmount,
     rangePositionData,
     needsAllowanceIn,
     setNeedsAllowanceIn,
@@ -75,6 +76,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     state.setTokenOutRangeAllowance,
     state.setTokenOutBalance,
     state.setTokenOutAmount,
+    state.setLiquidityAmount,
     state.rangePositionData,
     state.needsAllowanceIn,
     state.setNeedsAllowanceIn,
@@ -315,6 +317,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                 // warn the user the input is invalid
               }
           }
+          setLiquidityAmount(liquidity)
           const outputJsbi = JSBI.greaterThan(liquidity, ZERO)
             ? isToken0
               ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
@@ -387,7 +390,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
 
   useEffect(() => {
     setMintButtonState();
-  }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
+  }, [rangeMintParams.liquidityAmount, rangePositionData.lowerPrice, rangePositionData.upperPrice]);
 
   ////////////////////////////////
 
