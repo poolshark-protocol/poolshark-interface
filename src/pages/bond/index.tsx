@@ -247,9 +247,9 @@ export default function Bond() {
                 <div className="flex justify-between w-full text-grey1">
                   YOU WILL GET <span className="text-white">60 FIN</span>
                 </div>
-                <div className="flex justify-between w-full text-grey1">
+                {/*<div className="flex justify-between w-full text-grey1">
                   DAILY UNLOCK <span className="text-white">0.5 FIN</span>
-                </div>
+                </div>*/}
                 <div className="flex justify-between w-full text-grey1">
                   MAX BONDABLE <span className="text-white">6000 USDC</span>
                 </div>
