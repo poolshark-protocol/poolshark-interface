@@ -1,16 +1,13 @@
 import { BigNumber, ethers } from "ethers";
-import { LimitSubgraph, tokenRangeLimit, tokenSwap } from "../utils/types";
+import { LimitSubgraph, tokenSwap } from "../utils/types";
 import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
-  tokenOneAddress,
   tokenZeroAddress,
 } from "../constants/contractAddresses";
 import { create } from "zustand";
 import {
   getLimitPoolFromFactory,
-  getRangePoolFromFactory,
 } from "../utils/queries";
-import inputFilter from "../utils/inputFilter";
 import { parseUnits } from "../utils/math/valueMath";
 
 type TradeState = {
@@ -325,6 +322,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   setTokenOut: (tokenIn, newTokenOut: tokenSwap, amount: string, isAmountIn: boolean) => {
     //if tokenIn exists
     if (tokenIn.address != initialTradeState.tokenOut.address) {
+      console.log('token out set', newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase())
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
       // NATIVE: only flip tokens if 'isNative' also matches
       if (newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase() &&

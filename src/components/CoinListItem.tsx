@@ -12,7 +12,7 @@ function CoinListItem({ chooseToken, coin }) {
       data-symbol={coin.symbol}
       key={coin.address}
       data-decimals={coin.decimals}
-      data-address={coin.id}
+      data-address={coin.id+coin.symbol}
     >
       <button
         onClick={() => chooseToken(coin)}

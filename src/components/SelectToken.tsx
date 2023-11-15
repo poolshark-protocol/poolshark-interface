@@ -281,7 +281,7 @@ export default function SelectToken(props) {
                             ) {
                               return (
                                 <CoinListItem
-                                  key={coin.id}
+                                  key={coin.id+coin.symbol}
                                   coin={coin}
                                   chooseToken={chooseToken}
                                 />

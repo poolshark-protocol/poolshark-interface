@@ -210,6 +210,7 @@ export default function Trade() {
 
   const handleInputBox = (e) => {
     if (e.target.name === "tokenIn") {
+      console.log('input box handler')
       const [value, bnValue] = inputHandler(e, tokenIn);
       if (!pairSelected) {
         setDisplayIn(value);
@@ -249,9 +250,10 @@ export default function Trade() {
 
   const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
     if (isAmountIn) {
+      console.log('setting amount in', bnValue.toString())
       if (bnValue.gt(BN_ZERO)) {
         if (wethCall) {
-          setDisplayOut(displayIn);
+          setDisplayOut(ethers.utils.formatUnits(bnValue, tokenIn.decimals));
           setAmountOut(bnValue);
         } else if (!limitTabSelected) {
           updatePools(bnValue, true);
@@ -323,20 +325,22 @@ export default function Trade() {
         limitSubgraph
       );
     }
-  }, [tokenIn.address]);
+  }, [tokenIn.address, tokenOut.address, tokenIn.native]);
 
   useEffect(() => {
+    console.log('token out usd pool', tradePoolData?.id)
     if (
       tokenOut.address != ZERO_ADDRESS &&
       (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
     ) {
+      console.log('fetching token out usd price')
       getLimitTokenUsdPrice(
         tokenOut.address,
-        setTokenInTradeUSDPrice,
+        setTokenOutTradeUSDPrice,
         limitSubgraph
       );
     }
-  }, [tokenOut.address]);
+  }, [tokenIn.address, tokenOut.address]);
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
@@ -640,10 +644,11 @@ export default function Trade() {
 
   const { data: tokenOutBal } = useBalance({
     address: address,
-    token: tokenIn.native ? undefined: tokenOut.address,
+    token: tokenOut.native ? undefined: tokenOut.address,
     enabled: tokenOut.address != undefined && needsBalanceOut,
     watch: needsBalanceOut,
     onSuccess(data) {
+      console.log('token native check', )
       if (needsBalanceOut) {
         setNeedsBalanceOut(false);
       }
@@ -710,6 +715,7 @@ export default function Trade() {
   };
 
   useEffect(() => {
+    console.log('usd price change', tokenIn.address, tokenOut.address, tokenIn.USDPrice, tokenOut.USDPrice, pairSelected)
     if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
       var newPrice = (
         limitPriceOrder == (tokenIn.callId == 0)
@@ -944,6 +950,9 @@ export default function Trade() {
       } else {
         updateMintFee();
       }
+    } else if (wethCall) {
+      console.log('skipping gas estimate')
+      updateWethFee();
     }
   }, [swapParams, tokenIn, tokenOut, lowerTick, upperTick, needsAllowanceIn]);
 
@@ -962,17 +971,6 @@ export default function Trade() {
         setSwapGasFee,
         setSwapGasLimit
       );
-    } else if (wethCall) {
-      await gasEstimateWethCall(
-        chainProperties[networkName]["wethAddress"],
-        tokenIn,
-        tokenOut,
-        amountIn,
-        signer,
-        isConnected,
-        setSwapGasFee,
-        setSwapGasLimit
-      )
     } else {
       setSwapGasLimit(BN_ZERO);
     }
@@ -994,6 +992,22 @@ export default function Trade() {
         setMintGasLimit,
         networkName
       );
+  }
+
+  async function updateWethFee() {
+    console.log('weth allowance check')
+    if (tokenIn.userRouterAllowance?.gte(amountIn) || tokenIn.native) {
+      await gasEstimateWethCall(
+        chainProperties[networkName]["wethAddress"],
+        tokenIn,
+        tokenOut,
+        amountIn,
+        signer,
+        isConnected,
+        setSwapGasFee,
+        setSwapGasLimit
+      )
+    }
   }
 
   ////////////////////////////////Mint Button State
@@ -1133,7 +1147,7 @@ export default function Trade() {
                   ~$
                   {!isNaN(parseInt(amountIn.toString())) &&
                   !isNaN(tokenIn.decimals) &&
-                  !isNaN(tokenOut.USDPrice)
+                  !isNaN(tokenIn.USDPrice)
                     ? (
                         parseFloat(
                           ethers.utils.formatUnits(
@@ -1422,6 +1436,7 @@ export default function Trade() {
                 <div className="flex-none text-xs uppercase text-[#C9C9C9]">
                   {"1 " + tokenIn.symbol} ={" "}
                   {displayPoolPrice(
+                    wethCall,
                     pairSelected,
                     tradePoolData?.poolPrice,
                     tokenIn,
@@ -1444,7 +1459,8 @@ export default function Trade() {
             {!limitTabSelected &&
             tokenIn.address != ZERO_ADDRESS &&
             tokenOut.address != ZERO_ADDRESS &&
-            tradePoolData?.id == ZERO_ADDRESS ? (
+            tradePoolData?.id == ZERO_ADDRESS &&
+            !wethCall ? (
               <div className="flex gap-x-5 rounded-[4px] items-center text-xs p-2 border bg-dark border-grey mb-5">
                 <Range className="text-main2" />{" "}
                 <span className="text-grey3 flex flex-col gap-y-[-2px]">

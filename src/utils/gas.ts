@@ -44,6 +44,7 @@ export const gasEstimateWethCall = async (
         weth9ABI,
         provider
       );
+      console.log('weth call gas estimate')
       if (tokenIn.native) {
         gasUnits = await contract
           .connect(signer)

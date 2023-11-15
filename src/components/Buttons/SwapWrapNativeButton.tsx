@@ -4,15 +4,13 @@ import {
     useWaitForTransaction,
     useAccount,
   } from "wagmi";
-  import { SuccessToast } from "../Toasts/Success";
-  import { ErrorToast } from "../Toasts/Error";
-  import { ConfirmingToast } from "../Toasts/Confirming";
-  import React, { useState } from "react";
-  import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
-  import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
-  import { useConfigStore } from "../../hooks/useConfigStore";
+import { SuccessToast } from "../Toasts/Success";
+import { ErrorToast } from "../Toasts/Error";
+import { ConfirmingToast } from "../Toasts/Confirming";
+import React, { useState } from "react";
+import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
+import { useConfigStore } from "../../hooks/useConfigStore";
 import { weth9ABI } from "../../abis/evm/weth9";
-import { parseEther } from "ethers/lib/utils.js";
 import { ZERO_ADDRESS } from "../../utils/math/constants";
   
   export default function WrapEtherButton({
@@ -41,6 +39,8 @@ import { ZERO_ADDRESS } from "../../utils/math/constants";
   
     const { address } = useAccount();
     const userAddress = address;
+
+    console.log('inside wrap native button', gasLimit.toString())
   
     const { config } = usePrepareContractWrite({
       address: wethAddress,
