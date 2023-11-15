@@ -10,6 +10,8 @@ import {
 } from "../../utils/chains";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { bondTellerABI } from "../../abis/evm/bondTeller";
+import { fetchBondMarket, fetchUserBonds } from "../../utils/queries";
+import { mapBondMarkets, mapUserBondPurchases } from "../../utils/maps";
 
 export default function Bond() {
   const { address } = useAccount()
@@ -32,6 +34,9 @@ export default function Bond() {
 
   const [tokenBalance, setTokenBalance] = useState(null)
   const [tokenAllowance, setTokenAllowance] = useState(null)
+
+  const [allUserBonds, setAllUserBonds] = useState(null)
+  const [marketData, setMarketData] = useState(null)
 
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
   const abiCoder = new ethers.utils.AbiCoder();
@@ -87,6 +92,44 @@ export default function Bond() {
       setNeedsAllowance(false)
     }
   }, [tokenAllowanceData])
+
+  async function getUserBonds() {
+    try {
+      const data = await fetchUserBonds(
+        address?.toLowerCase(),
+        "FIN"
+      );
+      if (data["data"]) {
+        setAllUserBonds(
+          mapUserBondPurchases(data["data"].bondPurchases)
+        );
+      }
+    } catch (error) {
+      console.log("user bond subgraph error", error);
+    }
+  }
+
+  async function getMarket() {
+    try {
+      const data = await fetchBondMarket("FIN");
+      if (data["data"]) {
+        setMarketData(
+          mapBondMarkets(data["data"].bondMarket)
+        );
+      }
+    }
+    catch (error) {
+      console.log("market subgraph error", error);
+    }
+  }
+
+  useEffect(() => {
+    if (address && needsSubgraph) {
+      getMarket();
+      getUserBonds();
+      setNeedsSubgraph(false);
+    }
+  }, [address, needsSubgraph]);
 
   return (
     <div className="bg-black min-h-screen  ">
