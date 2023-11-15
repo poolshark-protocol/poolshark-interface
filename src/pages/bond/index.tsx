@@ -98,10 +98,8 @@ export default function Bond() {
 
   async function getUserBonds() {
     try {
-      const data = await fetchUserBonds(
-        address?.toLowerCase(),
-        "FIN"
-      );
+      const data = await fetchUserBonds("43");
+      console.log(data, "bond purchase data")
       if (data["data"]) {
         setAllUserBonds(
           mapUserBondPurchases(data["data"].bondPurchases)
@@ -115,7 +113,7 @@ export default function Bond() {
   async function getMarket() {
     try {
       const data = await fetchBondMarket("43");
-      console.log(data, "market data")
+      console.log(data["data"].markets, "market data")
       if (data["data"]) {
         setMarketData(
           mapBondMarkets(data["data"].markets)
@@ -131,8 +129,6 @@ export default function Bond() {
     getMarket();
     getUserBonds();
     setNeedsSubgraph(false);
-    console.log(marketData, "market data")
-    console.log(allUserBonds, "user bonds")
   }, []);
 
   useEffect(() => {
@@ -140,8 +136,6 @@ export default function Bond() {
       getMarket();
       getUserBonds();
       setNeedsSubgraph(false);
-      console.log(marketData, "market data")
-      console.log(allUserBonds, "user bonds")
     }
   }, [needsSubgraph]);
 
