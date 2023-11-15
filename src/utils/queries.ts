@@ -983,11 +983,11 @@ export const fetchUserBonds = (address: string, symbol: string) => {
   });
 }
 
-export const fetchBondMarket = (symbol: string) => {
+export const fetchBondMarket = (marketId: string) => {
   return new Promise(function (resolve) {
     const bondMarketQuery = `
               {
-                markets(where: {payoutToken: {symbol: "${symbol}"}}) {
+                markets(where: { hasClosed: false, marketId: "${marketId}" }) {
                   id
                   name
                   network

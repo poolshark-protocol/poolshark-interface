@@ -114,7 +114,7 @@ export default function Bond() {
 
   async function getMarket() {
     try {
-      const data = await fetchBondMarket("FIN");
+      const data = await fetchBondMarket("43");
       console.log(data, "market data")
       if (data["data"]) {
         setMarketData(
