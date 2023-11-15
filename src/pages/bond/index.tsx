@@ -115,9 +115,10 @@ export default function Bond() {
   async function getMarket() {
     try {
       const data = await fetchBondMarket("FIN");
+      console.log(data, "market data")
       if (data["data"]) {
         setMarketData(
-          mapBondMarkets(data["data"].bondMarket)
+          mapBondMarkets(data["data"].markets)
         );
       }
     }
@@ -127,12 +128,22 @@ export default function Bond() {
   }
 
   useEffect(() => {
+    getMarket();
+    getUserBonds();
+    setNeedsSubgraph(false);
+    console.log(marketData, "market data")
+    console.log(allUserBonds, "user bonds")
+  }, []);
+
+  useEffect(() => {
     if (address && needsSubgraph) {
       getMarket();
       getUserBonds();
       setNeedsSubgraph(false);
+      console.log(marketData, "market data")
+      console.log(allUserBonds, "user bonds")
     }
-  }, [address, needsSubgraph]);
+  }, [needsSubgraph]);
 
   return (
     <div className="bg-black min-h-screen  ">
@@ -257,7 +268,11 @@ export default function Bond() {
                   UNLOCK DATE <span className="text-white">2023.11.05</span>
                 </div>
               </div>
-              {/*<BuyBondButton />*/}
+              {/*<BuyBondButton
+                inputAmount={ethers.utils.parseEther("100")}
+                setNeedsSubgraph={setNeedsSubgraph}
+                marketId={marketData?.marketId}
+              />*/}
             </div>
           </div>
         </div>

@@ -933,6 +933,7 @@ export const fetchEthPrice = () => {
 export const fetchUserBonds = (address: string, symbol: string) => {
   return new Promise(function (resolve) {
     const userBondsQuery = `
+        {
           bondPurchases(where: {recipient:"${address}", payoutToken: {symbol: "${symbol}"}}, orderBy: timestamp, orderDirection: desc) {
               amount
               auctioneer
@@ -962,6 +963,7 @@ export const fetchUserBonds = (address: string, symbol: string) => {
                 totalPayoutAmount
               }
             }
+          }
         `;
     const client = new ApolloClient({
       uri: "https://api.thegraph.com/subgraphs/name/bond-protocol/bp-arbitrum-goerli-testing",
@@ -984,6 +986,7 @@ export const fetchUserBonds = (address: string, symbol: string) => {
 export const fetchBondMarket = (symbol: string) => {
   return new Promise(function (resolve) {
     const bondMarketQuery = `
+              {
                 markets(where: {payoutToken: {symbol: "${symbol}"}}) {
                   id
                   name
@@ -1053,6 +1056,7 @@ export const fetchBondMarket = (symbol: string) => {
                   totalPayoutAmount
                   creationBlockTimestamp
                 }
+              }
         `;
     const client = new ApolloClient({
       uri: "https://api.thegraph.com/subgraphs/name/bond-protocol/bp-arbitrum-goerli-testing",
