@@ -62,14 +62,12 @@ export default function Bond() {
     token: WETH_ADDRESS,
     enabled: WETH_ADDRESS != undefined && needsBalance,
     watch: needsBalance,
-    onSuccess(data) {
-      setNeedsBalance(false);
-    },
   });
 
   useEffect(() => {
     if (tokenBalanceData) {
       setTokenBalance(tokenBalanceData)
+      setNeedsBalance(false)
     }
   }, [tokenBalance])
 
@@ -81,26 +79,14 @@ export default function Bond() {
     chainId: chainId,
     watch: needsAllowance,
     enabled: TELLER_ADDRESS != undefined,
-    onSuccess(data) {
-      // setNeedsAllowance(false);
-    },
-    onError(error) {
-      console.log("Error", error);
-    },
-    onSettled(data, error) {},
   });
 
   useEffect(() => {
     if (tokenAllowanceData) {
-      setTokenAllowance(tokenBalanceData)
+      setTokenAllowance(tokenAllowanceData)
+      setNeedsAllowance(false)
     }
-  }, [tokenBalance])
-
-  useEffect(() => {
-    if (tokenAllowanceData) {
-      setTokenAllowance(tokenBalanceData)
-    }
-  }, [tokenBalance])
+  }, [tokenAllowanceData])
 
   return (
     <div className="bg-black min-h-screen  ">
