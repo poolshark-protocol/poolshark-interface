@@ -169,20 +169,25 @@ export default function Trade() {
   ]);
 
   //set Limit Fee tier Modal
+  //NOT USED
   const [isOpen, setIsOpen] = useState(false);
 
   //false when user in normal swap, true when user in limit swap
   const [limitTabSelected, setLimitTabSelected] = useState(false);
 
   //false when user is in exact price, true when user is in price range
+  //LIMIT
   const [priceRangeSelected, setPriceRangeSelected] = useState(false);
 
   //false order history is selected, true when active orders is selected
+  //BOTH
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
 
   ////////////////////////////////ChainId
+  //CONFIG STORE
   const [stateChainName, setStateChainName] = useState();
 
+  // BOTH
   useEffect(() => {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
@@ -302,6 +307,8 @@ export default function Trade() {
   const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
   const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
 
+
+  //BOTH
   useEffect(() => {
     if (
       tokenIn.address != ZERO_ADDRESS &&
@@ -315,6 +322,7 @@ export default function Trade() {
     }
   }, [tokenIn.address]);
 
+  //BOTH
   useEffect(() => {
     if (
       tokenOut.address != ZERO_ADDRESS &&
@@ -328,6 +336,8 @@ export default function Trade() {
     }
   }, [tokenOut.address]);
 
+
+  // BOTH
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
@@ -349,6 +359,7 @@ export default function Trade() {
     }
   }, [tokenIn.address, tokenOut.address]);
 
+  //BOTH
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
     const pools = await getSwapPools(
       limitSubgraph,
@@ -374,6 +385,7 @@ export default function Trade() {
     setQuoteParams(quoteList);
   }
 
+  //MARKET
   const { data: poolQuotes } = useContractRead({
     address: chainProperties[networkName]["routerAddress"], //contract address,
     abi: poolsharkRouterABI, // contract abi,
@@ -391,6 +403,7 @@ export default function Trade() {
     },
   });
 
+  //MARKET
   useEffect(() => {
     if (!limitTabSelected) {
       if (poolQuotes && poolQuotes[0]) {
@@ -420,6 +433,7 @@ export default function Trade() {
     }
   }, [poolQuotes, quoteParams, tradeSlippage, limitTabSelected]);
 
+  //MARKET
   function updateSwapParams(poolQuotes: any) {
     const poolAddresses: string[] = [];
     const paramsList: SwapParams[] = [];
@@ -478,6 +492,7 @@ export default function Trade() {
   }
 
   ////////////////////////////////Filled Amount
+  //BOTH
   const { data: filledAmountList } = useContractRead({
     address: chainProperties[networkName]["routerAddress"],
     abi: poolsharkRouterABI,
@@ -497,6 +512,7 @@ export default function Trade() {
     },
   });
 
+  //BOTH
   useEffect(() => {
     if (filledAmountList) {
       setLimitFilledAmountList(filledAmountList[0]);
@@ -507,8 +523,10 @@ export default function Trade() {
 
   //////////////////////Get Pools Data
 
+  //BOTH
   const [allLimitPositions, setAllLimitPositions] = useState([]);
 
+  //BOTH
   useEffect(() => {
     if (address) {
       const chainConstants = chainProperties[networkName]
@@ -520,12 +538,14 @@ export default function Trade() {
     }
   }, [needsRefetch, needsPosRefetch, address, networkName]);
 
+  //BOTH
   useEffect(() => {
     if (allLimitPositions.length > 0) {
       mapUserLimitSnapshotList();
     }
   }, [allLimitPositions]);
 
+  //BOTH
   async function getUserLimitPositionData() {
     try {
       const data = await fetchLimitPositions(
@@ -542,6 +562,7 @@ export default function Trade() {
     }
   }
 
+  //BOTH
   async function mapUserLimitSnapshotList() {
     try {
       let mappedLimitPoolAddresses = [];
@@ -584,6 +605,7 @@ export default function Trade() {
 
   ////////////////////////////////TokenUSDPrices
 
+  //BOTH
   useEffect(() => {
     if (tradePoolData) {
       if (tokenIn.address) {
@@ -612,6 +634,7 @@ export default function Trade() {
 
   ////////////////////////////////Balances
 
+  //BOTH
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.address,
@@ -624,6 +647,7 @@ export default function Trade() {
     },
   });
 
+  //BOTH
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.address,
@@ -636,6 +660,7 @@ export default function Trade() {
     },
   });
 
+  //BOTH
   useEffect(() => {
     if (isConnected) {
       setTokenInBalance(
@@ -655,6 +680,7 @@ export default function Trade() {
 
   ////////////////////////////////Allowances
 
+  //BOTH
   const { data: allowanceInRouter } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -672,6 +698,7 @@ export default function Trade() {
     },
   });
 
+  //BOTH
   useEffect(() => {
     if (allowanceInRouter) {
       setTokenInTradeAllowance(allowanceInRouter);
@@ -679,15 +706,18 @@ export default function Trade() {
   }, [allowanceInRouter]);
 
   ////////////////////////////////FeeTiers and Slippage
+  //MARKET
   const [priceImpact, setPriceImpact] = useState("0.00");
 
   //i receive the price afte from the multiquote and then i will add and subtract the slippage from it
 
   ////////////////////////////////Limit Price Switch
+  //LIMIT
   const [limitPriceOrder, setLimitPriceOrder] = useState(true);
   const [lowerPriceString, setLowerPriceString] = useState("0");
   const [upperPriceString, setUpperPriceString] = useState("0");
 
+  //LIMIT
   const handlePriceSwitch = () => {
     setLimitPriceOrder(!limitPriceOrder);
     setLimitPriceString(invertPrice(limitPriceString, false));
@@ -695,6 +725,7 @@ export default function Trade() {
     setUpperPriceString(invertPrice(lowerPriceString, false));
   };
 
+  //LIMIT
   useEffect(() => {
     if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
       var newPrice = (
@@ -758,6 +789,7 @@ export default function Trade() {
   const [lowerTick, setLowerTick] = useState(BN_ZERO);
   const [upperTick, setUpperTick] = useState(BN_ZERO);
 
+  //LIMIT
   useEffect(() => {
     if (
       limitTabSelected &&
@@ -770,6 +802,7 @@ export default function Trade() {
     }
   }, [limitPriceString, tradeSlippage, priceRangeSelected, limitTabSelected]);
 
+  //LIMIT
   useEffect(() => {
     if (limitTabSelected && tradeSlippage) {
       if (exactIn) {
@@ -813,6 +846,7 @@ export default function Trade() {
     }
   }, [lowerTick, upperTick, tokenIn.address, tokenOut.address]);
 
+  //LIMIT
   function updateLimitTicks() {
     const tickSpacing = tradePoolData.feeTier.tickSpacing;
     const priceString = invertPrice(limitPriceString, limitPriceOrder);
@@ -914,11 +948,14 @@ export default function Trade() {
     }
   }
   ////////////////////////////////Fee Estimations
+  //MARKET
   const [swapGasFee, setSwapGasFee] = useState("$0.00");
   const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
+  //LIMIT
   const [mintFee, setMintFee] = useState("$0.00");
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
+  //CAN BE SPLIT
   useEffect(() => {
     if (
       !amountIn.eq(BN_ZERO) &&
@@ -933,6 +970,7 @@ export default function Trade() {
     }
   }, [swapParams, tokenIn, tokenOut, lowerTick, upperTick, needsAllowanceIn]);
 
+  //MARKET
   async function updateGasFee() {
     if (tokenIn.userRouterAllowance?.gte(amountIn)) {
       await gasEstimateSwap(
@@ -951,6 +989,7 @@ export default function Trade() {
     }
   }
 
+  //LIMIT
   async function updateMintFee() {
     if (tokenIn.userRouterAllowance?.gte(amountIn) && lowerTick?.lt(upperTick))
       await gasEstimateMintLimit(
@@ -969,13 +1008,14 @@ export default function Trade() {
   }
 
   ////////////////////////////////Mint Button State
-
+  //BOTH
   useEffect(() => {
     if (amountIn) {
       setTokenInAmount(amountIn);
     }
   }, [amountIn]);
 
+  //LIMIT
   useEffect(() => {
     setMintButtonState();
   }, [tradeParams.tokenInAmount, tradeParams.tokenOutAmount]);
