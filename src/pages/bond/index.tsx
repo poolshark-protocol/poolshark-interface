@@ -41,8 +41,8 @@ export default function Bond() {
   const [tokenBalance, setTokenBalance] = useState(undefined)
   const [tokenAllowance, setTokenAllowance] = useState(undefined)
 
-  const [allUserBonds, setAllUserBonds] = useState(undefined)
-  const [marketData, setMarketData] = useState(undefined)
+  const [allUserBonds, setAllUserBonds] = useState([])
+  const [marketData, setMarketData] = useState([])
 
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
   const abiCoder = new ethers.utils.AbiCoder();
@@ -83,13 +83,13 @@ export default function Bond() {
   }, [tokenBalance])
 
   const { data: tokenAllowanceData } = useContractRead({
-    address: BOND_TOKEN_ADDRESS,
+    address: WETH_ADDRESS,
     abi: bondTellerABI,
     functionName: "allowance",
     args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowance,
-    enabled: BOND_TOKEN_ADDRESS != undefined,
+    enabled: WETH_ADDRESS != undefined,
   });
 
   useEffect(() => {
@@ -155,7 +155,7 @@ export default function Bond() {
             </div>
             <div className="flex flex-col gap-y-2">
               <div className="flex text-lg items-center text-white">
-                <h1>${marketData != undefined ? marketData[0]?.payoutTokenSymbol : "FIN"} BOND</h1>
+                <h1>${marketData[0] != undefined ? marketData[0]?.payoutTokenSymbol : "FIN"} BOND</h1>
                 <a
                   href={"https://goerli.arbiscan.io/address/" + TELLER_ADDRESS}
                   target="_blank"
@@ -171,7 +171,7 @@ export default function Bond() {
               <div className="flex text-xs text-[#999999] items-center gap-x-3">
                 END DATE:{" "}
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {marketData != undefined ? convertTimestampToDateFormat(marketData[0]?.conclusion) : "Loading..."}
+                  {marketData[0] != undefined ? convertTimestampToDateFormat(marketData[0]?.conclusion) : "Loading..."}
                 </span>
               </div>
             </div>
@@ -214,7 +214,7 @@ export default function Bond() {
               <div className="flex justify-between ">
                 <h1 className="uppercase text-white">REMAINING CAPACITY</h1>
                 <span>
-                  {marketData != undefined ? formatEther(marketData[0].capacity) : "0"} <span className="text-grey1">FIN</span>
+                  {marketData[0] != undefined ? formatEther(marketData[0].capacity) : "0"} <span className="text-grey1">FIN</span>
                 </span>
               </div>
               <div className="bg-main2 relative h-10 rounded-full w-full">
@@ -265,7 +265,9 @@ export default function Bond() {
                 </div>
                 <div className="flex justify-between w-full text-grey1">
                   UNLOCK DATE <span className="text-white">
-                    {convertTimestampToDateFormat((Date.now() / 1000) + marketData[0].vesting)}</span>
+                    {marketData[0] != undefined ?
+                      convertTimestampToDateFormat((Date.now() / 1000) + marketData[0]?.vesting) :
+                      ""}</span>
                 </div>
               </div>
               {<BuyBondButton
@@ -343,7 +345,7 @@ export default function Bond() {
                           </td>
                           {/*<td className="">0.9%</td>
                           <td className="">0.94 FIN</td>*/}
-                          <td className="">{convertTimestampToDateFormat((Date.now() / 1000) + (marketData[0].vesting - userBond.timestamp))}</td>
+                          <td className="">{convertTimestampToDateFormat((Date.now() / 1000) + (marketData[0]?.vesting - userBond.timestamp))}</td>
                           <td className="text-grey1">
                             {" "}
                             <div className="flex gap-x-1.5 items-center">
