@@ -39,8 +39,6 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
   
     const { address } = useAccount();
     const userAddress = address;
-
-    console.log('inside wrap native button', gasLimit.toString())
   
     const { config } = usePrepareContractWrite({
       address: wethAddress,

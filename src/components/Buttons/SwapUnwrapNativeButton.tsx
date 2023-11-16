@@ -36,8 +36,6 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
       (state) => [state.setNeedsAllowanceIn, state.setNeedsBalanceIn, state.setNeedsBalanceOut, state.tradeButton]
     );
 
-    console.log('unwrap button', tradeButton.disabled)
-  
     const [errorDisplay, setErrorDisplay] = useState(false);
     const [successDisplay, setSuccessDisplay] = useState(false);
   

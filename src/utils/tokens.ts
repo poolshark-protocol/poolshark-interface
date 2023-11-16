@@ -47,7 +47,6 @@ export const getLimitTokenUsdPrice = async (
       tokenData["data"]["tokens"] != undefined &&
       tokenData["data"]["tokens"].length > 0
     ) {
-      console.log('token found')
       const tokenUsdPrice = tokenData["data"]["tokens"]["0"]["usdPrice"];
       setTokenUSDPrice(tokenUsdPrice);
     } else {

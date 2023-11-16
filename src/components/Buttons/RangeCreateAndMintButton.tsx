@@ -65,7 +65,6 @@ export default function RangeCreateAndMintButton({
   // creates new position every time
   const positionId = 0;
 
-  console.log('create mint button', buttonMessage)
   const { config } = usePrepareContractWrite({
     address: routerAddress,
     abi: poolsharkRouterABI,

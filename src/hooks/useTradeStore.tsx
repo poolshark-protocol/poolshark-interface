@@ -237,15 +237,16 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         //if tokens are different
         set((state) => ({
           tokenIn: {
+            ...newTokenIn,
             callId:
               newTokenIn.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
             native: newTokenIn.native ?? false,
-            ...newTokenIn,
+
           },
           tokenOut: {
+            ...tokenOut,
             callId:
               tokenOut.address.localeCompare(newTokenIn.address) < 0 ? 0 : 1,
-            ...tokenOut
           },
           amountIn: isAmountIn ? parseUnits(amount, newTokenIn.decimals) : state.amountIn,
           pairSelected: true,
@@ -254,16 +255,16 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         }));
       }
     } else {
-      console.log('else case', newTokenIn)
-      //if tokenOut its not selected
+      //if tokenOut is not selected
       set((state) => ({
         tokenIn: {
-          callId: 1,
           ...newTokenIn,
+          callId: 1,
+
         },
         tokenOut: {
-          callId: 0,
           ...tokenOut,
+          callId: 0,
         },
         amountIn: isAmountIn ? parseUnits(amount, newTokenIn.decimals) : state.amountIn,
         pairSelected: false,
@@ -295,7 +296,6 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   setTokenOut: (tokenIn, newTokenOut: tokenSwap, amount: string, isAmountIn: boolean) => {
     //if tokenIn exists
     if (tokenIn.address != initialTradeState.tokenOut.address) {
-      console.log('token out set', newTokenOut.native)
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
       // NATIVE: only flip tokens if 'isNative' also matches
       if (newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase() &&
@@ -334,12 +334,12 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         //if tokens are different
         set((state) => ({
           tokenIn: {
-            callId: tokenIn.address.localeCompare(newTokenOut.address) < 0 ? 0 : 1,
             ...tokenIn,
+            callId: tokenIn.address.localeCompare(newTokenOut.address) < 0 ? 0 : 1,
           },
           tokenOut: {
-            callId: newTokenOut.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
             ...newTokenOut,
+            callId: newTokenOut.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
           },
           amountOut: isAmountIn ? state.amountOut : parseUnits(amount, newTokenOut.decimals),
           pairSelected: true,
@@ -348,15 +348,15 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         }));
       }
     } else {
-      //if tokenIn its not selected
+      //if tokenIn is not selected
       set((state) => ({
         tokenIn: {
-          callId: 0,
           ...tokenIn,
+          callId: 0,
         },
         tokenOut: {
-          callId: 1,
           ...newTokenOut,
+          callId: 1,
         },
         amountOut: isAmountIn ? state.amountOut : parseUnits(amount, newTokenOut.decimals),
         pairSelected: false,

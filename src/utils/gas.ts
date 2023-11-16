@@ -44,7 +44,6 @@ export const gasEstimateWethCall = async (
         weth9ABI,
         provider
       );
-      console.log('weth call gas estimate', tokenOut.native, tokenIn.native)
       if (tokenIn.native) {
         gasUnits = await contract
           .connect(signer)
@@ -59,7 +58,6 @@ export const gasEstimateWethCall = async (
           .estimateGas.withdraw(
             amountIn
           );
-          console.log('estimate withdraw', gasUnits.toString())
       }
     //NATIVE: if tokenIn.native, send msg.value as amountIn
     //NATIVE: if tokenOut.native, send msg.value as 1 wei
@@ -102,18 +100,12 @@ export const gasEstimateSwap = async (
     const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     let gasUnits: BigNumber;
-    console.log('msg value estimate', formatUnits(amountIn.toString()))
     if (poolRouter && isConnected) {
       const contract = new ethers.Contract(
         poolRouter,
         poolsharkRouterABI,
         provider
       );
-      console.log('before gas units', poolRouter, swapParams[0].amount.eq(amountIn), getSwapRouterButtonMsgValue(
-        tokenIn.native,
-        tokenOut.native,
-        amountIn
-      ))
       gasUnits = await contract
       .connect(signer)
       .estimateGas.multiSwapSplit(
@@ -127,10 +119,6 @@ export const gasEstimateSwap = async (
           )
         }
       );
-      console.log('after gas units')
-      console.log('gas units', gasUnits.toString())
-    //NATIVE: if tokenIn.native, send msg.value as amountIn
-    //NATIVE: if tokenOut.native, send msg.value as 1 wei
     } else {
       gasUnits = BigNumber.from(1000000);
     }

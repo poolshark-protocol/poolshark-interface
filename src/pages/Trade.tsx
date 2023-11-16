@@ -204,7 +204,6 @@ export default function Trade() {
 
   const handleInputBox = (e) => {
     if (e.target.name === "tokenIn") {
-      console.log('input box handler')
       const [value, bnValue] = inputHandler(e, tokenIn);
       if (!pairSelected) {
         setDisplayIn(value);
@@ -244,7 +243,6 @@ export default function Trade() {
 
   const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
     if (isAmountIn) {
-      console.log('setting amount in', bnValue.toString())
       if (bnValue.gt(BN_ZERO)) {
         if (wethCall) {
           setDisplayOut(ethers.utils.formatUnits(bnValue, tokenIn.decimals));
@@ -322,12 +320,10 @@ export default function Trade() {
   }, [tokenIn.address, tokenOut.address, tokenIn.native]);
 
   useEffect(() => {
-    console.log('token out usd pool', tradePoolData?.id)
     if (
       tokenOut.address != ZERO_ADDRESS &&
       (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
     ) {
-      console.log('fetching token out usd price')
       getLimitTokenUsdPrice(
         tokenOut.address,
         setTokenOutTradeUSDPrice,
@@ -449,7 +445,7 @@ export default function Trade() {
         );
 
         // set price impact
-        if (poolQuotes[i].pool.toLowerCase() == tradePoolData.id.toLowerCase()) {
+        if (poolQuotes[i].pool?.toLowerCase() == tradePoolData.id?.toLowerCase()) {
           const currentPrice: number = parseFloat(
             TickMath.getPriceStringAtSqrtPrice(
               tradePoolData.poolPrice,
@@ -642,7 +638,6 @@ export default function Trade() {
     enabled: tokenOut.address != undefined && needsBalanceOut,
     watch: needsBalanceOut,
     onSuccess(data) {
-      console.log('token native check', )
       if (needsBalanceOut) {
         setNeedsBalanceOut(false);
       }
@@ -681,7 +676,7 @@ export default function Trade() {
     },
     onSuccess(data) {
       setNeedsAllowanceIn(false);
-      console.log("Success allowance", tokenIn.symbol, tokenIn.address, data.toString());
+      // console.log("Success allowance", tokenIn.symbol, tokenIn.userRouterAllowance, tokenOut.callId);
     },
   });
 
@@ -709,7 +704,6 @@ export default function Trade() {
   };
 
   useEffect(() => {
-    console.log('usd price change', tokenIn.address, tokenOut.address, tokenIn.USDPrice, tokenOut.USDPrice, pairSelected)
     if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
       var newPrice = (
         limitPriceOrder == (tokenIn.callId == 0)
@@ -934,9 +928,6 @@ export default function Trade() {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    console.log('gas use effect', 
-
-    !needsAllowanceIn)
     if (
       !amountIn.eq(BN_ZERO) &&
       (!needsAllowanceIn || tokenIn.native) &&
@@ -966,7 +957,6 @@ export default function Trade() {
   ]);
 
   async function updateGasFee() {
-    console.log('gas fee check', tokenIn.userRouterAllowance?.gte(amountIn) && !wethCall)
     if (
         (
           tokenIn.userRouterAllowance?.gte(amountIn) ||
@@ -988,9 +978,7 @@ export default function Trade() {
         setSwapGasFee,
         setSwapGasLimit
       );
-      console.log('new gas limit', swapGasLimit.toString())
     } else {
-      console.log('zeroing out gas limit')
       setSwapGasLimit(BN_ZERO);
     }
   }
@@ -1014,7 +1002,6 @@ export default function Trade() {
   }
 
   async function updateWethFee() {
-    console.log('weth allowance check', tokenIn.userRouterAllowance?.gte(amountIn))
     if (tokenIn.userRouterAllowance?.gte(amountIn) || tokenIn.native) {
       await gasEstimateWethCall(
         chainProperties[networkName]["wethAddress"],
