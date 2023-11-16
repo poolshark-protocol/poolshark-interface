@@ -308,8 +308,8 @@ export default function Bond() {
                     <th className="text-left pl-3 py-3 uppercase">DATE</th>
                     <th className="text-left uppercase">BOND AMOUNT</th>
                     <th className="text-left uppercase">PAYOUT AMOUNT</th>
-                    <th className="text-left uppercase">DISCOUNT</th>
-                    <th className="text-left uppercase">DAILY UNLOCK</th>
+                    {/*<th className="text-left uppercase">DISCOUNT</th>
+                    <th className="text-left uppercase">DAILY UNLOCK</th>*/}
                     <th className="text-left uppercase">UNLOCK DATE</th>
                     <th className="text-left uppercase">TRANSACTION</th>
                     <th className="text-left uppercase">ADDRESS</th>
@@ -336,8 +336,8 @@ export default function Bond() {
                         845 FIN
                       </div>
                     </td>
-                    <td className="">0.9%</td>
-                    <td className="">0.94 FIN</td>
+                    {/*<td className="">0.9%</td>
+                    <td className="">0.94 FIN</td>*/}
                     <td className="">2024.10.28</td>
                     <td className="text-grey1">
                       {" "}
