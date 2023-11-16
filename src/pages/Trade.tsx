@@ -1512,7 +1512,7 @@ export default function Trade() {
                   ) : (
                     tokenIn.native ? 
                       <SwapWrapNativeButton
-                        disabled={swapGasLimit.eq(BN_ZERO)}
+                        disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
                         routerAddress={
                           chainProperties[networkName]["routerAddress"]
                         }
@@ -1525,7 +1525,7 @@ export default function Trade() {
                         resetAfterSwap={resetAfterSwap}
                       />
                     : <SwapUnwrapNativeButton
-                      disabled={swapGasLimit.eq(BN_ZERO)}
+                      disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
                       routerAddress={
                         chainProperties[networkName]["routerAddress"]
                       }

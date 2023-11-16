@@ -15,7 +15,7 @@ import { weth9ABI } from "../../abis/evm/weth9";
 import { parseEther } from "ethers/lib/utils.js";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
   
-  export default function WrapEtherButton({
+  export default function SwapUnwrapEtherButton({
     disabled,
     routerAddress,
     wethAddress,
@@ -32,9 +32,11 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
       state.networkName
     ]);
   
-    const [setNeedsAllowanceIn, setNeedsBalanceIn, setNeedsBalanceOut] = useRangeLimitStore(
-      (state) => [state.setNeedsAllowanceIn, state.setNeedsBalanceIn, state.setNeedsBalanceOut]
+    const [setNeedsAllowanceIn, setNeedsBalanceIn, setNeedsBalanceOut, tradeButton] = useRangeLimitStore(
+      (state) => [state.setNeedsAllowanceIn, state.setNeedsBalanceIn, state.setNeedsBalanceOut, state.tradeButton]
     );
+
+    console.log('unwrap button', tradeButton.disabled)
   
     const [errorDisplay, setErrorDisplay] = useState(false);
     const [successDisplay, setSuccessDisplay] = useState(false);
@@ -77,7 +79,7 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
           disabled={disabled || gasLimit.lte(BN_ZERO)}
           onClick={(address) => (address ? write?.() : null)}
         >
-          Unwrap {tokenInSymbol}
+          { disabled && tradeButton.buttonMessage != '' ? tradeButton.buttonMessage : 'Unwrap ' + tokenInSymbol }
         </button>
         <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
           {errorDisplay && (

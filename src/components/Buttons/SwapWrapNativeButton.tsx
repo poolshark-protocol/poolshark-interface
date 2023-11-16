@@ -13,7 +13,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { weth9ABI } from "../../abis/evm/weth9";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
   
-  export default function WrapEtherButton({
+  export default function SwapWrapEtherButton({
     disabled,
     routerAddress,
     wethAddress,
@@ -30,8 +30,8 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
       state.networkName
     ]);
   
-    const [setNeedsAllowanceIn, setNeedsBalanceIn, setNeedsBalanceOut] = useRangeLimitStore(
-      (state) => [state.setNeedsAllowanceIn, state.setNeedsBalanceIn, state.setNeedsBalanceOut]
+    const [setNeedsAllowanceIn, setNeedsBalanceIn, setNeedsBalanceOut, tradeButton] = useRangeLimitStore(
+      (state) => [state.setNeedsAllowanceIn, state.setNeedsBalanceIn, state.setNeedsBalanceOut, state.tradeButton]
     );
   
     const [errorDisplay, setErrorDisplay] = useState(false);
@@ -78,7 +78,7 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
           disabled={disabled || gasLimit.lte(BN_ZERO)}
           onClick={(address) => (address ? write?.() : null)}
         >
-          Wrap {tokenInSymbol}
+          { disabled && tradeButton.buttonMessage != '' ? tradeButton.buttonMessage : 'Wrap ' + tokenInSymbol }
         </button>
         <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
           {errorDisplay && (
