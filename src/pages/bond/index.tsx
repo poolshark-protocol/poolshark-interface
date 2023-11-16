@@ -156,7 +156,7 @@ export default function Bond() {
               <div className="flex text-lg items-center text-white">
                 <h1>${marketData != undefined ? marketData[0]?.payoutTokenSymbol : "FIN"} BOND</h1>
                 <a
-                  href={"https://goerli.arbiscan.io/address/" + "PoolAddress"}
+                  href={"https://goerli.arbiscan.io/address/" + TELLER_ADDRESS}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-x-3 text-grey1 group cursor-pointer"
