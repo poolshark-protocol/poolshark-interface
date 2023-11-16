@@ -50,7 +50,7 @@ import {
   getExpectedAmountOutFromInput,
   getMarketPriceAboveBelowString,
 } from "../utils/math/priceMath";
-import timeDifference from "../utils/time";
+import { timeDifference } from "../utils/time";
 import { inputHandler, parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
 import { useConfigStore } from "../hooks/useConfigStore";

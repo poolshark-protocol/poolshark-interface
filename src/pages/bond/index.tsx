@@ -1,12 +1,72 @@
 import Navbar from "../../components/Navbar";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import BuyBondButton from "../../components/Buttons/BuyBondButton";
-import { useState } from "react";
-import { ethers } from "ethers";
 import ReedemMulticallBondButton from "../../components/Buttons/ReedemMulticallBondButton";
 import ReedemBondButton from "../../components/Buttons/ReedemBondButton";
+import { useEffect, useState } from "react";
+import { BigNumber, ethers } from "ethers";
+import { useAccount, useBalance, useContractRead } from "wagmi";
+import {
+  chainIdsToNamesForGitTokenList,
+  chainProperties,
+} from "../../utils/chains";
+import { useConfigStore } from "../../hooks/useConfigStore";
+import { bondTellerABI } from "../../abis/evm/bondTeller";
+import { fetchBondMarket, fetchUserBonds } from "../../utils/queries";
+import { mapBondMarkets, mapUserBondPurchases } from "../../utils/maps";
+import { convertTimestampToDateFormat } from "../../utils/time";
+import { formatEther } from "ethers/lib/utils.js";
+import { erc20 } from "../../abis/evm/erc20";
+import { methABI } from "../../abis/evm/meth";
+import { auctioneerABI } from "../../abis/evm/bondAuctioneer";
 
 export default function Bond() {
+  const { address } = useAccount()
+
+  const [needsSubgraph, setNeedsSubgraph] = useState(true)
+  const [needsBalance, setNeedsBalance] = useState(true)
+  const [needsAllowance, setNeedsAllowance] = useState(true)
+  const [needsMarketPurchaseData, setNeedsMarketPurchaseData] = useState(true)
+  const [needsCapacityData, setNeedsCapacityData] = useState(true)
+
+  const [
+    chainId,
+    networkName,
+    limitSubgraph,
+    coverSubgraph,
+  ] = useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
+    state.limitSubgraph,
+    state.coverSubgraph
+  ]);
+
+  const WETH_ADDRESS = "0x251f7eacde75458b52dbc4995c439128b9ef98ca"
+  const TELLER_ADDRESS = "0x007FE70dc9797C4198528aE43d8195ffF82Bdc95"
+  const AUCTIONEER_ADDRESS = "0xfef9a53aa10ce2c9ab6519aee7df82767f504f55"
+  const BOND_TOKEN_ADDRESS = "0x0000000000000000000000000000000000000000"
+
+  const [tokenBalance, setTokenBalance] = useState(undefined)
+  const [tokenAllowance, setTokenAllowance] = useState(undefined)
+
+  const [allUserBonds, setAllUserBonds] = useState([])
+  const [marketData, setMarketData] = useState([])
+  const [marketPurchase, setMarketPurchase] = useState(undefined)
+  const [currentCapacity, setCurrentCapacity] = useState(undefined)
+
+  const [poolDisplay, setPoolDisplay] = useState(
+    TELLER_ADDRESS
+      ? TELLER_ADDRESS.toString().substring(0, 6) +
+          "..." +
+          TELLER_ADDRESS
+            .toString()
+            .substring(
+              TELLER_ADDRESS.toString().length - 4,
+              TELLER_ADDRESS.toString().length
+            )
+      : undefined
+  );
+
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
   const abiCoder = new ethers.utils.AbiCoder();
   const abiData =
@@ -31,6 +91,120 @@ export default function Bond() {
 
   console.log(abiData);
 
+  const { data: tokenBalanceData } = useBalance({
+    address: address,
+    token: WETH_ADDRESS,
+    enabled: WETH_ADDRESS != undefined && needsBalance,
+    watch: needsBalance,
+  });
+
+  useEffect(() => {
+    if (tokenBalanceData) {
+      setTokenBalance(tokenBalanceData)
+      setNeedsBalance(false)
+    }
+  }, [tokenBalance])
+
+  const { data: tokenAllowanceData } = useContractRead({
+    address: WETH_ADDRESS,
+    abi: methABI,
+    functionName: "allowance",
+    args: [address, chainProperties[networkName]["routerAddress"]],
+    chainId: chainId,
+    watch: needsAllowance,
+    enabled: WETH_ADDRESS != undefined,
+  });
+
+  useEffect(() => {
+    if (tokenAllowanceData) {
+      setTokenAllowance(tokenAllowanceData)
+      setNeedsAllowance(false)
+    }
+  }, [tokenAllowanceData])
+
+  async function getUserBonds() {
+    try {
+      const data = await fetchUserBonds("43");
+      console.log(data, "bond purchase data")
+      if (data["data"]) {
+        setAllUserBonds(
+          mapUserBondPurchases(data["data"].bondPurchases)
+        );
+      }
+    } catch (error) {
+      console.log("user bond subgraph error", error);
+    }
+  }
+
+  async function getMarket() {
+    try {
+      const data = await fetchBondMarket("43");
+      console.log(data["data"].markets, "market data")
+      if (data["data"]) {
+        setMarketData(
+          mapBondMarkets(data["data"].markets)
+        );
+      }
+    }
+    catch (error) {
+      console.log("market subgraph error", error);
+    }
+  }
+
+  useEffect(() => {
+    getMarket();
+    getUserBonds();
+    setNeedsSubgraph(false);
+  }, []);
+
+  useEffect(() => {
+    if (address && needsSubgraph) {
+      getMarket();
+      getUserBonds();
+      setNeedsSubgraph(false);
+    }
+  }, [needsSubgraph]);
+
+  console.log(marketData, "formatted market data")
+
+  const { data: marketPurchaseData } = useContractRead({
+    address: AUCTIONEER_ADDRESS,
+    abi: auctioneerABI,
+    functionName: "getMarketInfoForPurchase",
+    args: [43],
+    chainId: chainId,
+    watch: needsMarketPurchaseData,
+    enabled: needsMarketPurchaseData,
+  });
+
+  useEffect(() => {
+    if (marketPurchaseData) {
+      setMarketPurchase(marketPurchaseData)
+      setNeedsMarketPurchaseData(false)
+      console.log(marketPurchaseData, "market purchase data")
+    }
+  }, [marketPurchaseData])
+
+  const { data: currentCapacityData } = useContractRead({ 
+    address: AUCTIONEER_ADDRESS,
+    abi: auctioneerABI,
+    functionName: "currentCapacity",
+    args: [43],
+    chainId: chainId,
+    watch: needsCapacityData,
+    enabled: needsCapacityData,
+  });
+
+  useEffect(() => {
+    if (currentCapacityData) {
+      setCurrentCapacity(currentCapacityData)
+      setNeedsCapacityData(false)
+      console.log(currentCapacityData, "current capacity data")
+    }
+  }, [currentCapacityData])
+
+  const filledAmount = currentCapacity != undefined && marketData[0] != undefined ? (1 - (parseFloat(formatEther(currentCapacity))/ parseFloat(formatEther(marketData[0].capacity)))) * 100 : "0"
+
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
@@ -42,15 +216,15 @@ export default function Bond() {
             </div>
             <div className="flex flex-col gap-y-2">
               <div className="flex text-lg items-center text-white">
-                <h1>$FIN BOND</h1>
+                <h1>${marketData[0] != undefined ? marketData[0]?.payoutTokenSymbol : "FIN"} BOND</h1>
                 <a
-                  href={"https://goerli.arbiscan.io/address/" + "PoolAddress"}
+                  href={"https://goerli.arbiscan.io/address/" + TELLER_ADDRESS}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-x-3 text-grey1 group cursor-pointer"
                 >
                   <span className="-mb-1 text-light text-xs ml-8 group-hover:underline">
-                    0x123...456
+                    {poolDisplay}
                   </span>{" "}
                   <ExternalLinkIcon />
                 </a>
@@ -58,7 +232,7 @@ export default function Bond() {
               <div className="flex text-xs text-[#999999] items-center gap-x-3">
                 END DATE:{" "}
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  12/12/2023
+                  {marketData[0] != undefined ? convertTimestampToDateFormat(marketData[0]?.conclusion) : "Loading..."}
                 </span>
               </div>
             </div>
@@ -78,35 +252,35 @@ export default function Bond() {
             <div className="flex flex-col gap-y-3 mt-2">
               <div className="flex items-center gap-x-5 mt-3">
                 <div className="border border-main rounded-[4px] flex flex-col w-full items-center justify-center gap-y-4 h-32 bg-main1 ">
-                  <span className="text-main2/60 text-[13px]">BOND PRICE</span>
-                  <span className="text-main2 text-2xl md:text-4xl">$1.24</span>
+                  <span className="text-main2/60 text-[13px]">CURRENT BOND PRICE</span>
+                  <span className="text-main2 lg:text-4xl text-3xl">${}</span>
                 </div>
-                <div className=" rounded-[4px] flex flex-col w-full bg-[#2ECC71]/10 items-center justify-center gap-y-4 h-32">
+                {/*<div className=" rounded-[4px] flex flex-col w-full bg-[#2ECC71]/10 items-center justify-center gap-y-4 h-32">
                   <span className="text-[#2ECC71]/50 text-[13px]">
                     CURRENT DISCOUNT
                   </span>
                   <span className="text-[#2ECC71] text-2xl md:text-4xl">
                     1.53%
                   </span>
-                </div>
+                </div>*/}
               </div>
               <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-4 h-32">
                 <span className="text-grey1 text-[13px]">
                   TOTAL BONDED VALUE
                 </span>
-                <span className="text-white text-4xl">$353,452.53</span>
+                <span className="text-white lg:text-4xl text-3xl">$353,452.53</span>
               </div>
             </div>
             <div className="flex flex-col gap-y-3 mt-5">
               <div className="flex justify-between ">
                 <h1 className="uppercase text-white">REMAINING CAPACITY</h1>
                 <span>
-                  50,432.54 <span className="text-grey1">FIN</span>
+                  {currentCapacity != undefined ? formatEther(currentCapacity) : "0"} <span className="text-grey1">FIN</span>
                 </span>
               </div>
               <div className="bg-main2 relative h-10 rounded-full w-full">
-                <div className="absolute relative flex items-center justify-center h-[38px] bg-main1 w-[60%] rounded-full ml-[1px] mt-[1px]">
-                  <div className="text-sm text-main2">60% FILLED</div>
+                <div className={`absolute relative flex items-center justify-center h-[38px] bg-main1 rounded-full ml-[1px] mt-[1px] w-[${filledAmount}%]`}>
+                  <div className={`text-sm text-main2 ${filledAmount < "15" ? "hidden" : "hidden"}`}>{filledAmount}% FILLED</div>
                 </div>
               </div>
             </div>
@@ -136,13 +310,13 @@ export default function Bond() {
                   <span>BALANCE: 0</span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  <input className="bg-black outline-none  xl:w-60 md:w-48" />
+                  <input className="bg-transparent placeholder:text-grey1 w-full text-white text-3xl focus:ring-0 focus:ring-offset-0 focus:outline-none" />
                   <div className="flex items-center gap-x-2 ">
                     <button className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden">
                       MAX
                     </button>
                     <div className="flex items-center gap-x-2">
-                      <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
+                      <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px] min-w-[120px]">
                         <img
                           height="28"
                           width="25"
@@ -158,17 +332,26 @@ export default function Bond() {
                 <div className="flex justify-between w-full text-grey1">
                   YOU WILL GET <span className="text-white">60 FIN</span>
                 </div>
-                <div className="flex justify-between w-full text-grey1">
+                {/*<div className="flex justify-between w-full text-grey1">
                   DAILY UNLOCK <span className="text-white">0.5 FIN</span>
+                </div>*/}
+                <div className="flex justify-between w-full text-grey1">
+                  MAX PAYOUT PER TX <span className="text-white">{
+                    marketPurchase != undefined ? parseFloat(formatEther(marketPurchase.maxPayout_)).toFixed(2) : "0"
+                  } FIN</span>
                 </div>
                 <div className="flex justify-between w-full text-grey1">
-                  MAX BONDABLE <span className="text-white">6000 USDC</span>
-                </div>
-                <div className="flex justify-between w-full text-grey1">
-                  UNLOCK DATE <span className="text-white">2023.11.05</span>
+                  UNLOCK DATE <span className="text-white">
+                    {marketData[0] != undefined ?
+                      convertTimestampToDateFormat((Date.now() / 1000) + marketData[0]?.vesting) :
+                      ""}</span>
                 </div>
               </div>
-              {/*<BuyBondButton />*/}
+              {<BuyBondButton
+                inputAmount={ethers.utils.parseEther("100")}
+                setNeedsSubgraph={setNeedsSubgraph}
+                marketId={"43"}
+              />}
             </div>
           </div>
           </div>
@@ -207,52 +390,58 @@ export default function Bond() {
                     <th className="text-left pl-3 py-3 uppercase">DATE</th>
                     <th className="text-left uppercase">BOND AMOUNT</th>
                     <th className="text-left uppercase">PAYOUT AMOUNT</th>
-                    <th className="text-left uppercase">DISCOUNT</th>
-                    <th className="text-left uppercase">DAILY UNLOCK</th>
+                    {/*<th className="text-left uppercase">DISCOUNT</th>
+                    <th className="text-left uppercase">DAILY UNLOCK</th>*/}
                     <th className="text-left uppercase">UNLOCK DATE</th>
                     <th className="text-left uppercase">TRANSACTION</th>
-                    <th className="text-left uppercase">ADDRESS</th>
+                    {/*<th className="text-left uppercase">ADDRESS</th>*/}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-grey/70">
-                  <tr className="text-left text-xs py-2 md:text-sm bg-black cursor-pointer">
-                    <td className="pl-3 py-2.5">2023.10.28</td>
-                    <td className="">
-                      <div className="flex gap-x-1.5 items-center">
-                        <img
-                          className="w-6"
-                          src="/static/images/dai_icon.png"
-                        />
-                        500 USDC
-                      </div>
-                    </td>
-                    <td className="">
-                      <div className="flex gap-x-1.5 items-center">
-                        <img
-                          className="w-6"
-                          src="/static/images/fin_icon.png"
-                        />
-                        845 FIN
-                      </div>
-                    </td>
-                    <td className="">0.9%</td>
-                    <td className="">0.94 FIN</td>
-                    <td className="">2024.10.28</td>
-                    <td className="text-grey1">
-                      {" "}
-                      <div className="flex gap-x-1.5 items-center">
-                        0x123...456 <ExternalLinkIcon />
-                      </div>
-                    </td>
-                    <td className="text-grey1 w-min">
-                      <div className="flex gap-x-1.5 items-center">
-                        0x123...456 <ExternalLinkIcon />
-                      </div>
-                    </td>
-                    <td className="w-28">
+                  {allUserBonds.map((userBond) => {
+                    if (userBond.id != undefined) {
+                      return (
+                        <tr key={userBond} className="text-left text-xs py-2 md:text-sm bg-black cursor-pointer">
+                          <td className="pl-3 py-2">{convertTimestampToDateFormat(userBond.timestamp)}</td>
+                          <td className="">
+                            <div className="flex gap-x-1.5 items-center">
+                              <img
+                                className="w-6"
+                                src="/static/images/dai_icon.png"
+                              />
+                              {userBond.amount} {userBond.quoteTokenSymbol}
+                            </div>
+                          </td>
+                          <td className="">
+                            <div className="flex gap-x-1.5 items-center">
+                              <img
+                                className="w-6"
+                                src="/static/images/fin_icon.png"
+                              />
+                              {userBond.payout} {userBond.payoutTokenSymbol}
+                            </div>
+                          </td>
+                          {/*<td className="">0.9%</td>
+                          <td className="">0.94 FIN</td>*/}
+                          <td className="">{convertTimestampToDateFormat((Date.now() / 1000) + (marketData[0]?.vesting - userBond.timestamp))}</td>
+                          <td className="text-grey1">
+                            {" "}
+                            <div className="flex gap-x-1.5 items-center">
+                              {userBond.id} <ExternalLinkIcon />
+                            </div>
+                          </td>
+                          {/*<td className="text-grey1">
+                            <div className="flex gap-x-1.5 items-center">
+                              0x123...456 <ExternalLinkIcon />
+                            </div>
+                          </td>*/}
+                          <td className="w-28">
                     <ReedemBondButton />
                     </td>
-                  </tr>
+                        </tr>
+                      )
+                    }
+                  })}
                 </tbody>
               </table>
             </div>
