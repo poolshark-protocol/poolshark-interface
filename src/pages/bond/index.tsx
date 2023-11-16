@@ -36,6 +36,7 @@ export default function Bond() {
 
   const WETH_ADDRESS = "0x251f7eacde75458b52dbc4995c439128b9ef98ca"
   const TELLER_ADDRESS = "0x007FE70dc9797C4198528aE43d8195ffF82Bdc95"
+  const BOND_TOKEN_ADDRESS = "0x0000000000000000000000000000000000000000"
 
   const [tokenBalance, setTokenBalance] = useState(undefined)
   const [tokenAllowance, setTokenAllowance] = useState(undefined)
@@ -82,13 +83,13 @@ export default function Bond() {
   }, [tokenBalance])
 
   const { data: tokenAllowanceData } = useContractRead({
-    address: TELLER_ADDRESS,
+    address: BOND_TOKEN_ADDRESS,
     abi: bondTellerABI,
     functionName: "allowance",
     args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowance,
-    enabled: TELLER_ADDRESS != undefined,
+    enabled: BOND_TOKEN_ADDRESS != undefined,
   });
 
   useEffect(() => {
@@ -267,11 +268,11 @@ export default function Bond() {
                     {convertTimestampToDateFormat((Date.now() / 1000) + marketData[0].vesting)}</span>
                 </div>
               </div>
-              {/*<BuyBondButton
+              {<BuyBondButton
                 inputAmount={ethers.utils.parseEther("100")}
                 setNeedsSubgraph={setNeedsSubgraph}
-                marketId={marketData?.marketId}
-              />*/}
+                marketId={"43"}
+              />}
             </div>
           </div>
         </div>
@@ -317,41 +318,47 @@ export default function Bond() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-grey/70">
-                  <tr className="text-left text-xs py-2 md:text-sm bg-black cursor-pointer">
-                    <td className="pl-3 py-2">2023.10.28</td>
-                    <td className="">
-                      <div className="flex gap-x-1.5 items-center">
-                        <img
-                          className="w-6"
-                          src="/static/images/dai_icon.png"
-                        />
-                        500 USDC
-                      </div>
-                    </td>
-                    <td className="">
-                      <div className="flex gap-x-1.5 items-center">
-                        <img
-                          className="w-6"
-                          src="/static/images/fin_icon.png"
-                        />
-                        845 FIN
-                      </div>
-                    </td>
-                    {/*<td className="">0.9%</td>
-                    <td className="">0.94 FIN</td>*/}
-                    <td className="">2024.10.28</td>
-                    <td className="text-grey1">
-                      {" "}
-                      <div className="flex gap-x-1.5 items-center">
-                        0x123...456 <ExternalLinkIcon />
-                      </div>
-                    </td>
-                    <td className="text-grey1">
-                      <div className="flex gap-x-1.5 items-center">
-                        0x123...456 <ExternalLinkIcon />
-                      </div>
-                    </td>
-                  </tr>
+                  {allUserBonds.map((userBond) => {
+                    if (userBond.id != undefined) {
+                      return (
+                        <tr className="text-left text-xs py-2 md:text-sm bg-black cursor-pointer">
+                          <td className="pl-3 py-2">2023.10.28</td>
+                          <td className="">
+                            <div className="flex gap-x-1.5 items-center">
+                              <img
+                                className="w-6"
+                                src="/static/images/dai_icon.png"
+                              />
+                              500 USDC
+                            </div>
+                          </td>
+                          <td className="">
+                            <div className="flex gap-x-1.5 items-center">
+                              <img
+                                className="w-6"
+                                src="/static/images/fin_icon.png"
+                              />
+                              845 FIN
+                            </div>
+                          </td>
+                          {/*<td className="">0.9%</td>
+                          <td className="">0.94 FIN</td>*/}
+                          <td className="">2024.10.28</td>
+                          <td className="text-grey1">
+                            {" "}
+                            <div className="flex gap-x-1.5 items-center">
+                              0x123...456 <ExternalLinkIcon />
+                            </div>
+                          </td>
+                          <td className="text-grey1">
+                            <div className="flex gap-x-1.5 items-center">
+                              0x123...456 <ExternalLinkIcon />
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    }
+                  })}
                 </tbody>
               </table>
             </div>
