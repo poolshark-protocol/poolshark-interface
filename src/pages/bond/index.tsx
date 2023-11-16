@@ -16,6 +16,7 @@ import { convertTimestampToDateFormat } from "../../utils/time";
 import { formatEther } from "ethers/lib/utils.js";
 import { erc20 } from "../../abis/evm/erc20";
 import { methABI } from "../../abis/evm/meth";
+import { auctioneerABI } from "../../abis/evm/bondAuctioneer";
 
 export default function Bond() {
   const { address } = useAccount()
@@ -23,6 +24,8 @@ export default function Bond() {
   const [needsSubgraph, setNeedsSubgraph] = useState(true)
   const [needsBalance, setNeedsBalance] = useState(true)
   const [needsAllowance, setNeedsAllowance] = useState(true)
+  const [needsMarketPurchaseData, setNeedsMarketPurchaseData] = useState(true)
+  const [needsCapacityData, setNeedsCapacityData] = useState(true)
 
   const [
     chainId,
@@ -46,6 +49,8 @@ export default function Bond() {
 
   const [allUserBonds, setAllUserBonds] = useState([])
   const [marketData, setMarketData] = useState([])
+  const [marketPurchase, setMarketPurchase] = useState(undefined)
+  const [currentCapacity, setCurrentCapacity] = useState(undefined)
 
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
   const abiCoder = new ethers.utils.AbiCoder();
@@ -147,6 +152,42 @@ export default function Bond() {
 
   console.log(marketData, "formatted market data")
 
+  const { data: marketPurchaseData } = useContractRead({
+    address: AUCTIONEER_ADDRESS,
+    abi: auctioneerABI,
+    functionName: "getMarketInfoForPurchase",
+    args: [43],
+    chainId: chainId,
+    watch: needsMarketPurchaseData,
+    enabled: needsMarketPurchaseData,
+  });
+
+  useEffect(() => {
+    if (marketPurchaseData) {
+      setMarketPurchase(marketPurchaseData)
+      setNeedsMarketPurchaseData(false)
+      console.log(marketPurchaseData, "market purchase data")
+    }
+  }, [marketPurchaseData])
+
+  const { data: currentCapacityData } = useContractRead({ 
+    address: AUCTIONEER_ADDRESS,
+    abi: auctioneerABI,
+    functionName: "currentCapacity",
+    args: [43],
+    chainId: chainId,
+    watch: needsCapacityData,
+    enabled: needsCapacityData,
+  });
+
+  useEffect(() => {
+    if (currentCapacityData) {
+      setCurrentCapacity(currentCapacityData)
+      setNeedsCapacityData(false)
+      console.log(currentCapacityData, "current capacity data")
+    }
+  }, [currentCapacityData])
+
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
@@ -217,7 +258,7 @@ export default function Bond() {
               <div className="flex justify-between ">
                 <h1 className="uppercase text-white">REMAINING CAPACITY</h1>
                 <span>
-                  {marketData[0] != undefined ? formatEther(marketData[0].capacity) : "0"} <span className="text-grey1">FIN</span>
+                  {currentCapacity != undefined ? formatEther(currentCapacity) : "0"} <span className="text-grey1">FIN</span>
                 </span>
               </div>
               <div className="bg-main2 relative h-10 rounded-full w-full">
