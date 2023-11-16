@@ -14,6 +14,8 @@ import { fetchBondMarket, fetchUserBonds } from "../../utils/queries";
 import { mapBondMarkets, mapUserBondPurchases } from "../../utils/maps";
 import { convertTimestampToDateFormat } from "../../utils/time";
 import { formatEther } from "ethers/lib/utils.js";
+import { erc20 } from "../../abis/evm/erc20";
+import { methABI } from "../../abis/evm/meth";
 
 export default function Bond() {
   const { address } = useAccount()
@@ -36,6 +38,7 @@ export default function Bond() {
 
   const WETH_ADDRESS = "0x251f7eacde75458b52dbc4995c439128b9ef98ca"
   const TELLER_ADDRESS = "0x007FE70dc9797C4198528aE43d8195ffF82Bdc95"
+  const AUCTIONEER_ADDRESS = "0xfef9a53aa10ce2c9ab6519aee7df82767f504f55"
   const BOND_TOKEN_ADDRESS = "0x0000000000000000000000000000000000000000"
 
   const [tokenBalance, setTokenBalance] = useState(undefined)
@@ -84,7 +87,7 @@ export default function Bond() {
 
   const { data: tokenAllowanceData } = useContractRead({
     address: WETH_ADDRESS,
-    abi: bondTellerABI,
+    abi: methABI,
     functionName: "allowance",
     args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
@@ -191,8 +194,8 @@ export default function Bond() {
             <div className="flex flex-col gap-y-3 mt-2">
               <div className="flex items-center gap-x-5 mt-3">
                 <div className="border border-main rounded-[4px] flex flex-col w-full items-center justify-center gap-y-4 h-32 bg-main1 ">
-                  <span className="text-main2/60 text-[13px]">BOND PRICE</span>
-                  <span className="text-main2 text-2xl md:text-4xl">$1.24</span>
+                  <span className="text-main2/60 text-[13px]">CURRENT BOND PRICE</span>
+                  <span className="text-main2 text-2xl md:text-4xl">${}</span>
                 </div>
                 {/*<div className=" rounded-[4px] flex flex-col w-full bg-[#2ECC71]/10 items-center justify-center gap-y-4 h-32">
                   <span className="text-[#2ECC71]/50 text-[13px]">
