@@ -1135,7 +1135,6 @@ export default function Trade() {
                 </svg>
               </div>
             </div>
-
             <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
               <div className="flex items-end justify-between text-[11px] text-grey1">
                 <span>
@@ -1423,7 +1422,6 @@ export default function Trade() {
             ) : (
               <></>
             )}
-
             <div className="py-4">
               <div
                 className="flex px-2 cursor-pointer py-2 rounded-[4px]"
@@ -1450,7 +1448,6 @@ export default function Trade() {
                 <Option />
               </div>
             </div>
-
             {!limitTabSelected &&
             tokenIn.address != ZERO_ADDRESS &&
             tokenOut.address != ZERO_ADDRESS &&
@@ -1467,7 +1464,6 @@ export default function Trade() {
             ) : (
               <></>
             )}
-            ////
             {isDisconnected ? (
               <ConnectWalletButton xl={true} />
             ) : !limitTabSelected ? (

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
-import { useAccount } from "wagmi";
+import { useAccount, useSigner } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
@@ -17,6 +17,8 @@ import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
 import SwapRouterButton from "../Buttons/SwapRouterButton";
 import { chainProperties } from "../../utils/chains";
+import { getLimitTokenUsdPrice } from "../../utils/tokens";
+import { gasEstimateSwap } from "../../utils/gas";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -130,9 +132,39 @@ export default function MarketSwap() {
 
   const { address, isDisconnected, isConnected } = useAccount();
 
+  const { data: signer } = useSigner();
+
   /////////////////////////////Fetch Pools
   const [availablePools, setAvailablePools] = useState(undefined);
   const [quoteParams, setQuoteParams] = useState(undefined);
+
+  //BOTH
+  useEffect(() => {
+    if (
+      tokenIn.address != ZERO_ADDRESS &&
+      (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
+    ) {
+      getLimitTokenUsdPrice(
+        tokenIn.address,
+        setTokenInTradeUSDPrice,
+        limitSubgraph
+      );
+    }
+  }, [tokenIn.address]);
+
+  //BOTH
+  useEffect(() => {
+    if (
+      tokenOut.address != ZERO_ADDRESS &&
+      (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
+    ) {
+      getLimitTokenUsdPrice(
+        tokenOut.address,
+        setTokenInTradeUSDPrice,
+        limitSubgraph
+      );
+    }
+  }, [tokenOut.address]);
 
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
     const pools = await getSwapPools(
@@ -240,6 +272,36 @@ export default function MarketSwap() {
   ////////////////////////////////Gas
   const [swapGasFee, setSwapGasFee] = useState("$0.00");
   const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
+
+  //CAN BE SPLIT
+  useEffect(() => {
+    if (
+      !amountIn.eq(BN_ZERO) &&
+      !needsAllowanceIn &&
+      tradePoolData != undefined
+    ) {
+      updateGasFee();
+    }
+  }, [swapParams, tokenIn, tokenOut, lowerTick, upperTick, needsAllowanceIn]);
+
+  //MARKET
+  async function updateGasFee() {
+    if (tokenIn.userRouterAllowance?.gte(amountIn)) {
+      await gasEstimateSwap(
+        chainProperties[networkName]["routerAddress"],
+        swapPoolAddresses,
+        swapParams,
+        tokenIn,
+        tokenOut,
+        signer,
+        isConnected,
+        setSwapGasFee,
+        setSwapGasLimit
+      );
+    } else {
+      setSwapGasLimit(BN_ZERO);
+    }
+  }
 
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
