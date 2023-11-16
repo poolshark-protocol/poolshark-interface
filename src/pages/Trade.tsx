@@ -83,11 +83,9 @@ export default function Trade() {
     ]);
 
   const [
-    tradePoolAddress,
-    setTradePoolAddress,
     tradePoolData,
     setTradePoolData,
-    tradeParams,
+    tradeButton,
     pairSelected,
     setPairSelected,
     wethCall,
@@ -95,7 +93,6 @@ export default function Trade() {
     setTradeSlippage,
     tokenIn,
     setTokenIn,
-    setTokenInAmount,
     setTokenInBalance,
     setTokenInTradeAllowance,
     setTokenInTradeUSDPrice,
@@ -118,7 +115,7 @@ export default function Trade() {
     limitPriceString,
     setLimitPriceString,
     switchDirection,
-    setMintButtonState,
+    setTradeButtonState,
     needsRefetch,
     setNeedsRefetch,
     needsPosRefetch,
@@ -126,11 +123,9 @@ export default function Trade() {
     needsSnapshot,
     setNeedsSnapshot,
   ] = useTradeStore((s) => [
-    s.tradePoolAddress,
-    s.setTradePoolAddress,
     s.tradePoolData,
     s.setTradePoolData,
-    s.tradeParams,
+    s.tradeButton,
     s.pairSelected,
     s.setPairSelected,
     s.wethCall,
@@ -138,7 +133,6 @@ export default function Trade() {
     s.setTradeSlippage,
     s.tokenIn,
     s.setTokenIn,
-    s.setTokenInAmount,
     s.setTokenInBalance,
     s.setTokenInTradeAllowance,
     s.setTokenInTradeUSDPrice,
@@ -161,7 +155,7 @@ export default function Trade() {
     s.limitPriceString,
     s.setLimitPriceString,
     s.switchDirection,
-    s.setMintButtonState,
+    s.setTradeButtonState,
     s.needsRefetch,
     s.setNeedsRefetch,
     s.needsPosRefetch,
@@ -280,7 +274,7 @@ export default function Trade() {
     } else {
       if (bnValue.gt(BN_ZERO)) {
         if (wethCall) {
-          setDisplayIn(displayOut);
+          setDisplayIn(ethers.utils.formatUnits(bnValue, tokenOut.decimals));
           setAmountIn(bnValue);
         } else if (!limitTabSelected) {
           updatePools(bnValue, false);
@@ -943,7 +937,8 @@ export default function Trade() {
     if (
       !amountIn.eq(BN_ZERO) &&
       !needsAllowanceIn &&
-      tradePoolData != undefined
+      tradePoolData != undefined &&
+      !wethCall
     ) {
       if (!limitTabSelected) {
         updateGasFee();
@@ -951,10 +946,19 @@ export default function Trade() {
         updateMintFee();
       }
     } else if (wethCall) {
-      console.log('skipping gas estimate')
       updateWethFee();
     }
-  }, [swapParams, tokenIn, tokenOut, lowerTick, upperTick, needsAllowanceIn]);
+  }, [
+    swapParams,
+    tokenIn.address,
+    tokenOut.address,
+    tokenIn.native,
+    tokenIn.userRouterAllowance,
+    lowerTick,
+    upperTick,
+    needsAllowanceIn,
+    wethCall
+  ]);
 
   async function updateGasFee() {
     if (tokenIn.userRouterAllowance?.gte(amountIn) && !wethCall) {
@@ -995,7 +999,7 @@ export default function Trade() {
   }
 
   async function updateWethFee() {
-    console.log('weth allowance check')
+    console.log('weth allowance check', tokenIn.userRouterAllowance?.gte(amountIn))
     if (tokenIn.userRouterAllowance?.gte(amountIn) || tokenIn.native) {
       await gasEstimateWethCall(
         chainProperties[networkName]["wethAddress"],
@@ -1013,14 +1017,8 @@ export default function Trade() {
   ////////////////////////////////Mint Button State
 
   useEffect(() => {
-    if (amountIn) {
-      setTokenInAmount(amountIn);
-    }
-  }, [amountIn]);
-
-  useEffect(() => {
-    setMintButtonState();
-  }, [tradeParams.tokenInAmount, tradeParams.tokenOutAmount]);
+    setTradeButtonState();
+  }, [amountIn, tokenIn.userBalance, tokenIn.decimals]);
 
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
@@ -1460,6 +1458,7 @@ export default function Trade() {
             tokenIn.address != ZERO_ADDRESS &&
             tokenOut.address != ZERO_ADDRESS &&
             tradePoolData?.id == ZERO_ADDRESS &&
+            tradePoolData?.feeTierId != undefined &&
             !wethCall ? (
               <div className="flex gap-x-5 rounded-[4px] items-center text-xs p-2 border bg-dark border-grey mb-5">
                 <Range className="text-main2" />{" "}
@@ -1495,7 +1494,7 @@ export default function Trade() {
                   ) : !wethCall ? (
                     <SwapRouterButton
                       disabled={
-                        tradeParams.disabled ||
+                        tradeButton.disabled ||
                         needsAllowanceIn ||
                         swapGasLimit.eq(BN_ZERO)
                       }
@@ -1513,7 +1512,7 @@ export default function Trade() {
                   ) : (
                     tokenIn.native ? 
                       <SwapWrapNativeButton
-                        disabled={false}
+                        disabled={swapGasLimit.eq(BN_ZERO)}
                         routerAddress={
                           chainProperties[networkName]["routerAddress"]
                         }
@@ -1526,7 +1525,7 @@ export default function Trade() {
                         resetAfterSwap={resetAfterSwap}
                       />
                     : <SwapUnwrapNativeButton
-                      disabled={false}
+                      disabled={swapGasLimit.eq(BN_ZERO)}
                       routerAddress={
                         chainProperties[networkName]["routerAddress"]
                       }
@@ -1562,7 +1561,7 @@ export default function Trade() {
                     routerAddress={
                       chainProperties[networkName]["routerAddress"]
                     }
-                    disabled={mintGasLimit.eq(BN_ZERO)}
+                    disabled={mintGasLimit.eq(BN_ZERO) || tradeButton.disabled}
                     poolAddress={tradePoolData?.id}
                     to={address}
                     amount={amountIn}
@@ -1576,7 +1575,7 @@ export default function Trade() {
                   />
                 ) : (
                   <LimitCreateAndMintButton
-                    disabled={mintGasLimit.eq(BN_ZERO)}
+                    disabled={mintGasLimit.eq(BN_ZERO) || tradeButton.disabled}
                     routerAddress={
                       chainProperties["arbitrumGoerli"]["routerAddress"]
                     }

@@ -9,25 +9,20 @@ import {
   getLimitPoolFromFactory,
 } from "../utils/queries";
 import { parseUnits } from "../utils/math/valueMath";
+import { getTradeButtonDisabled, getTradeButtonMessage } from "../utils/buttons";
 
 type TradeState = {
-  //tradePoolAddress for current token pairs
-  tradePoolAddress: `0x${string}`;
   //tradePoolData contains all the info about the pool
   tradePoolData: any;
   feeTierTradeId: number;
   tradeSlippage: string;
   //Trade position data containing all the info about the position
   tradePositionData: any;
-  //trade params for minting position
-  tradeParams: {
-    tokenInAmount: BigNumber;
-    tokenOutAmount: BigNumber;
-    gasFee: string;
-    gasLimit: BigNumber;
+  // swap button state
+  tradeButton: {
     disabled: boolean;
     buttonMessage: string;
-  };
+  }
   limitPriceString: string;
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
@@ -55,7 +50,6 @@ type TradeState = {
 
 type TradeLimitAction = {
   //
-  setTradePoolAddress: (address: String) => void;
   setTradePoolData: (data: any) => void;
   setTradeSlippage: (tradeSlippage: string) => void;
   setTradePositionData: (tradePosition: any) => void;
@@ -65,13 +59,11 @@ type TradeLimitAction = {
   setWethCall: (wethCall: boolean) => void;
   //
   setTokenIn: (tokenOut: any, newToken: any, amount: string, isAmountIn: boolean) => void;
-  setTokenInAmount: (amount: BigNumber) => void;
   setTokenInTradeUSDPrice: (price: number) => void;
   setTokenInTradeAllowance: (allowance: BigNumber) => void;
   setTokenInBalance: (balance: string) => void;
   //
   setTokenOut: (tokenIn: any, newToken: any, amount: string, isAmountIn: boolean) => void;
-  setTokenOutAmount: (amount: BigNumber) => void;
   setTokenOutTradeUSDPrice: (price: number) => void;
   setTokenOutTradeAllowance: (allowance: BigNumber) => void;
   setTokenOutBalance: (balance: string) => void;
@@ -82,10 +74,6 @@ type TradeLimitAction = {
   setMinInput: (newMinTick: string) => void;
   setMaxInput: (newMaxTick: string) => void;
   //
-  setTradeGasFee: (gasFee: string) => void;
-  setTradeGasLimit: (gasLimit: BigNumber) => void;
-
-  //
   switchDirection: (isAmountIn: boolean, amount: string, amountSetter: any) => void;
   setTradePoolFromVolatility: (
     tokenIn: any,
@@ -93,12 +81,11 @@ type TradeLimitAction = {
     volatility: any,
     client: LimitSubgraph
   ) => void;
-
   resetTradeLimitParams: () => void;
   //
   setLimitPriceString: (limitPrice: string) => void;
   //
-  setMintButtonState: () => void;
+  setTradeButtonState: () => void;
   //
   setNeedsRefetch: (needsRefetch: boolean) => void;
   setNeedsPosRefetch: (needsPosRefetch: boolean) => void;
@@ -111,19 +98,14 @@ type TradeLimitAction = {
 
 const initialTradeState: TradeState = {
   //trade pools
-  tradePoolAddress: ZERO_ADDRESS as `0x${string}`,
   tradePoolData: {},
   tradePositionData: {},
   feeTierTradeId: 0,
   tradeSlippage: "0.1",
   //
-  tradeParams: {
-    tokenInAmount: BN_ZERO,
-    tokenOutAmount: BN_ZERO,
-    gasFee: "$0.00",
-    gasLimit: BN_ZERO,
+  tradeButton: {
     disabled: true,
-    buttonMessage: "",
+    buttonMessage: "Select Token",
   },
   //
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
@@ -174,14 +156,13 @@ const initialTradeState: TradeState = {
 
 export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   //trade pool
-  tradePoolAddress: initialTradeState.tradePoolAddress,
   tradePoolData: initialTradeState.tradePoolData,
   feeTierTradeId: initialTradeState.feeTierTradeId,
   tradeSlippage: initialTradeState.tradeSlippage,
   //trade position data
   tradePositionData: initialTradeState.tradePositionData,
-  //
-  tradeParams: initialTradeState.tradeParams,
+  // market swap button
+  tradeButton: initialTradeState.tradeButton,
   //true if both tokens selected, false if only one token selected
   pairSelected: initialTradeState.pairSelected,
   wethCall: initialTradeState.wethCall,
@@ -291,14 +272,6 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       }));
     }
   },
-  setTokenInAmount: (newAmount: BigNumber) => {
-    set((state) => ({
-      tradeParams: {
-        ...state.tradeParams,
-        tokenInAmount: newAmount,
-      },
-    }));
-  },
   setTokenInTradeUSDPrice: (newPrice: number) => {
     set((state) => ({
       tokenIn: { ...state.tokenIn, USDPrice: newPrice },
@@ -322,7 +295,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   setTokenOut: (tokenIn, newTokenOut: tokenSwap, amount: string, isAmountIn: boolean) => {
     //if tokenIn exists
     if (tokenIn.address != initialTradeState.tokenOut.address) {
-      console.log('token out set', newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase())
+      console.log('token out set', newTokenOut.native)
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
       // NATIVE: only flip tokens if 'isNative' also matches
       if (newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase() &&
@@ -362,15 +335,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         set((state) => ({
           tokenIn: {
             callId: tokenIn.address.localeCompare(newTokenOut.address) < 0 ? 0 : 1,
-            symbol: tokenIn.symbol,
-            name: tokenIn.name,
-            native: tokenIn.native ?? false,
-            logoURI: tokenIn.logoURI,
-            address: tokenIn.address,
-            decimals: tokenIn.decimals,
-            USDPrice: tokenIn.USDPrice,
-            userBalance: tokenIn.userBalance,
-            userRouterAllowance: tokenIn.userRouterAllowance,
+            ...tokenIn,
           },
           tokenOut: {
             callId: newTokenOut.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
@@ -379,6 +344,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           amountOut: isAmountIn ? state.amountOut : parseUnits(amount, newTokenOut.decimals),
           pairSelected: true,
           wethCall: newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase(),
+          needsBalanceOut: true,
         }));
       }
     } else {
@@ -395,16 +361,9 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         amountOut: isAmountIn ? state.amountOut : parseUnits(amount, newTokenOut.decimals),
         pairSelected: false,
         wethCall: false,
+        needsBalanceOut: true,
       }));
     }
-  },
-  setTokenOutAmount: (newAmount: BigNumber) => {
-    set((state) => ({
-      tradeParams: {
-        ...state.tradeParams,
-        tokenOutAmount: newAmount,
-      },
-    }));
   },
   setTokenOutBalance: (newBalance: string) => {
     set((state) => ({
@@ -441,11 +400,6 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       limitPriceString: !isNaN(parseFloat(limitPrice)) ? limitPrice : '0.00',
     }));
   },
-  setTradePoolAddress: (tradePoolAddress: `0x${string}`) => {
-    set(() => ({
-      tradePoolAddress: tradePoolAddress,
-    }));
-  },
   setTradePoolData: (tradePoolData: any) => {
     set(() => ({
       tradePoolData: tradePoolData,
@@ -461,61 +415,19 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       tradePositionData: tradePositionData,
     }));
   },
-  setTradeGasFee: (gasFee: string) => {
+  setTradeButtonState: () => {
     set((state) => ({
-      tradeParams: {
-        ...state.tradeParams,
-        gasFee: gasFee,
-      },
-    }));
-  },
-  setTradeGasLimit: (gasLimit: BigNumber) => {
-    set((state) => ({
-      tradeParams: {
-        ...state.tradeParams,
-        gasLimit: gasLimit,
-      },
-    }));
-  },
-
-  setMintButtonState: () => {
-    set((state) => ({
-      tradeParams: {
-        ...state.tradeParams,
-        buttonMessage:
-          state.tokenIn.userBalance <
-          parseFloat(
-            ethers.utils.formatUnits(
-              String(state.tradeParams.tokenInAmount),
-              state.tokenIn.decimals
-            )
-          )
-            ? "Insufficient Token Balance"
-            : parseFloat(
-                ethers.utils.formatUnits(
-                  String(state.tradeParams.tokenInAmount),
-                  state.tokenIn.decimals
-                )
-              ) == 0
-            ? "Enter Amount"
-            : "Mint Trade Position",
-        disabled:
-          state.tokenIn.userBalance <
-          parseFloat(
-            ethers.utils.formatUnits(
-              String(state.tradeParams.tokenInAmount),
-              state.tokenIn.decimals
-            )
-          )
-            ? true
-            : parseFloat(
-                ethers.utils.formatUnits(
-                  String(state.tradeParams.tokenInAmount),
-                  state.tokenIn.decimals
-                )
-              ) == 0
-            ? true
-            : false,
+      tradeButton: {
+        buttonMessage: getTradeButtonMessage(
+          state.tokenIn,
+          state.tokenOut,
+          state.amountIn
+        ),
+        disabled: getTradeButtonDisabled(
+          state.tokenIn,
+          state.tokenOut,
+          state.amountIn,
+        ),
       },
     }));
   },
@@ -604,7 +516,6 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == "10000")
         ) {
           set(() => ({
-            tradePoolAddress: pool["data"]["limitPools"][i]["id"],
             tradePoolData: pool["data"]["limitPools"][i],
             feeTierId: volatilityId,
           }));
@@ -618,14 +529,11 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   resetTradeLimitParams: () => {
     set({
       //trade pool & pair
-      tradePoolAddress: initialTradeState.tradePoolAddress,
       tradePoolData: initialTradeState.tradePoolData,
       tradeSlippage: initialTradeState.tradeSlippage,
       feeTierTradeId: initialTradeState.feeTierTradeId,
       //trade position data
       tradePositionData: initialTradeState.tradePositionData,
-      //trade mint
-      tradeParams: initialTradeState.tradeParams,
       //tokenIn
       tokenIn: initialTradeState.tokenIn,
       //tokenOut

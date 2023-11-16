@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { formatUnits } from "ethers/lib/utils.js";
 import { BN_ONE, BN_ZERO, ONE, ZERO_ADDRESS } from "./math/constants";
 import { token } from "./types";
@@ -16,6 +16,48 @@ export function getSwapRouterButtonMsgValue(
     } else {
         return BN_ZERO
     }
+}
+
+export function getTradeButtonMessage(
+    tokenIn: token,
+    tokenOut: token,
+    amountIn: BigNumber
+): string {
+    const amountInValue: number = parseFloat(
+        ethers.utils.formatUnits(
+          String(amountIn),
+          tokenIn.decimals
+        )
+    );
+    if (tokenIn.userBalance < amountInValue) {
+        return "Insufficient Token Balance"
+    } else if (amountInValue == 0) {
+        return "Enter Amount"
+    } else if (tokenIn.address == ZERO_ADDRESS || tokenOut.address == ZERO_ADDRESS) {
+        return "Select Token"
+    }
+    return ""
+}
+
+export function getTradeButtonDisabled(
+    tokenIn: token,
+    tokenOut: token,
+    amountIn: BigNumber
+): boolean {
+    const amountInValue: number = parseFloat(
+        ethers.utils.formatUnits(
+          String(amountIn),
+          tokenIn.decimals
+        )
+    );
+    if (tokenIn.userBalance < amountInValue) {
+        return true
+    } else if (amountInValue == 0) {
+        return true
+    } else if (tokenIn.address == ZERO_ADDRESS || tokenOut.address == ZERO_ADDRESS) {
+        return true
+    }
+    return false
 }
 
 export function getRangeMintButtonMessage(

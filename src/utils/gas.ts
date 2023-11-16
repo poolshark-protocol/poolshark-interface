@@ -44,7 +44,7 @@ export const gasEstimateWethCall = async (
         weth9ABI,
         provider
       );
-      console.log('weth call gas estimate')
+      console.log('weth call gas estimate', tokenOut.native, tokenIn.native)
       if (tokenIn.native) {
         gasUnits = await contract
           .connect(signer)
@@ -54,11 +54,13 @@ export const gasEstimateWethCall = async (
             }
           );
       } else if (tokenOut.native) {
+        
         gasUnits = await contract
           .connect(signer)
           .estimateGas.withdraw(
             amountIn
           );
+          console.log('estimate withdraw', gasUnits.toString())
       }
     //NATIVE: if tokenIn.native, send msg.value as amountIn
     //NATIVE: if tokenOut.native, send msg.value as 1 wei

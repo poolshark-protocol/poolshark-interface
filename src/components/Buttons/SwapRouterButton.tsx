@@ -32,8 +32,8 @@ export default function SwapRouterButton({
     state.networkName
   ]);
 
-  const [setNeedsAllowanceIn, setNeedsBalanceIn] = useRangeLimitStore(
-    (state) => [state.setNeedsAllowanceIn, state.setNeedsBalanceIn]
+  const [setNeedsAllowanceIn, setNeedsBalanceIn, setNeedsBalanceOut, tradeButton] = useRangeLimitStore(
+    (state) => [state.setNeedsAllowanceIn, state.setNeedsBalanceIn, state.setNeedsBalanceOut, state.tradeButton]
   );
 
   const [errorDisplay, setErrorDisplay] = useState(false);
@@ -68,6 +68,7 @@ export default function SwapRouterButton({
       resetAfterSwap()
       setNeedsAllowanceIn(true);
       setNeedsBalanceIn(true);
+      setNeedsBalanceOut(true);
     },
     onError() {
       setErrorDisplay(true);
@@ -81,7 +82,7 @@ export default function SwapRouterButton({
         disabled={disabled}
         onClick={(address) => (address ? write?.() : null)}
       >
-        Swap
+        { disabled && tradeButton.buttonMessage != '' ? tradeButton.buttonMessage : "Swap" }
       </button>
       <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay && (
