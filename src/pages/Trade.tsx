@@ -676,7 +676,7 @@ export default function Trade() {
     },
     onSuccess(data) {
       setNeedsAllowanceIn(false);
-      // console.log("Success allowance", tokenIn.symbol, tokenIn.userRouterAllowance, tokenOut.callId);
+      // console.log("Success allowance", tokenIn.symbol, tokenIn.userRouterAllowance?.gte(amountIn));
     },
   });
 
@@ -1020,7 +1020,7 @@ export default function Trade() {
 
   useEffect(() => {
     setTradeButtonState();
-  }, [amountIn, tokenIn.userBalance, tokenIn.decimals]);
+  }, [amountIn, tokenIn.userBalance, tokenIn.address, tokenOut.address, tokenIn.userRouterAllowance]);
 
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);

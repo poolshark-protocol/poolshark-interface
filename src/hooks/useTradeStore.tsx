@@ -345,6 +345,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           pairSelected: true,
           wethCall: newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase(),
           needsBalanceOut: true,
+          needsAllowanceIn: true
         }));
       }
     } else {
