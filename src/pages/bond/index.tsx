@@ -263,7 +263,8 @@ export default function Bond() {
                   MAX BONDABLE <span className="text-white">6000 USDC</span>
                 </div>
                 <div className="flex justify-between w-full text-grey1">
-                  UNLOCK DATE <span className="text-white">2023.11.05</span>
+                  UNLOCK DATE <span className="text-white">
+                    {convertTimestampToDateFormat((Date.now() / 1000) + marketData[0].vesting)}</span>
                 </div>
               </div>
               {/*<BuyBondButton
