@@ -307,7 +307,6 @@ export default function Trade() {
   const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
   const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
 
-
   //BOTH
   useEffect(() => {
     if (
@@ -335,7 +334,6 @@ export default function Trade() {
       );
     }
   }, [tokenOut.address]);
-
 
   // BOTH
   useEffect(() => {
