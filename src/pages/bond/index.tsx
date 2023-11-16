@@ -314,7 +314,7 @@ export default function Bond() {
                     <th className="text-left uppercase">DAILY UNLOCK</th>*/}
                     <th className="text-left uppercase">UNLOCK DATE</th>
                     <th className="text-left uppercase">TRANSACTION</th>
-                    <th className="text-left uppercase">ADDRESS</th>
+                    {/*<th className="text-left uppercase">ADDRESS</th>*/}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-grey/70">
@@ -322,14 +322,14 @@ export default function Bond() {
                     if (userBond.id != undefined) {
                       return (
                         <tr className="text-left text-xs py-2 md:text-sm bg-black cursor-pointer">
-                          <td className="pl-3 py-2">2023.10.28</td>
+                          <td className="pl-3 py-2">{convertTimestampToDateFormat(userBond.timestamp)}</td>
                           <td className="">
                             <div className="flex gap-x-1.5 items-center">
                               <img
                                 className="w-6"
                                 src="/static/images/dai_icon.png"
                               />
-                              500 USDC
+                              {userBond.amount} {userBond.quoteTokenSymbol}
                             </div>
                           </td>
                           <td className="">
@@ -338,23 +338,23 @@ export default function Bond() {
                                 className="w-6"
                                 src="/static/images/fin_icon.png"
                               />
-                              845 FIN
+                              {userBond.payout} {userBond.payoutTokenSymbol}
                             </div>
                           </td>
                           {/*<td className="">0.9%</td>
                           <td className="">0.94 FIN</td>*/}
-                          <td className="">2024.10.28</td>
+                          <td className="">{convertTimestampToDateFormat((Date.now() / 1000) + (marketData[0].vesting - userBond.timestamp))}</td>
                           <td className="text-grey1">
                             {" "}
                             <div className="flex gap-x-1.5 items-center">
-                              0x123...456 <ExternalLinkIcon />
+                              {userBond.id} <ExternalLinkIcon />
                             </div>
                           </td>
-                          <td className="text-grey1">
+                          {/*<td className="text-grey1">
                             <div className="flex gap-x-1.5 items-center">
                               0x123...456 <ExternalLinkIcon />
                             </div>
-                          </td>
+                          </td>*/}
                         </tr>
                       )
                     }
