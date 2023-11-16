@@ -1467,6 +1467,7 @@ export default function Trade() {
             ) : (
               <></>
             )}
+            ////
             {isDisconnected ? (
               <ConnectWalletButton xl={true} />
             ) : !limitTabSelected ? (
@@ -1557,6 +1558,7 @@ export default function Trade() {
           </div>
         </div>
       </div>
+      {/* from here is to stay on trade */}
       <div className="md:mb-20 mb-32 w-full">
         <div className="flex md:flex-row flex-col gap-y-3 item-end justify-between w-full">
           <h1 className="mt-1.5">Limit Orders</h1>
