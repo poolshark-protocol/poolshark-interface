@@ -263,7 +263,9 @@ export default function Bond() {
               </div>
               <div className="bg-main2 relative h-10 rounded-full w-full">
                 <div className="absolute relative flex items-center justify-center h-[38px] bg-main1 w-[60%] rounded-full ml-[1px] mt-[1px]">
-                  <div className="text-sm text-main2">{(1 - (parseFloat(formatEther(currentCapacity))/ parseFloat(formatEther(marketData[0].capacity)))) * 100}% FILLED</div>
+                  <div className="text-sm text-main2">{currentCapacity != undefined && marketData[0] != undefined ?
+                  (1 - (parseFloat(formatEther(currentCapacity))/ parseFloat(formatEther(marketData[0].capacity)))) * 100 :
+                  "0"}% FILLED</div>
                 </div>
               </div>
             </div>
@@ -305,7 +307,9 @@ export default function Bond() {
                   DAILY UNLOCK <span className="text-white">0.5 FIN</span>
                 </div>*/}
                 <div className="flex justify-between w-full text-grey1">
-                  MAX BONDABLE <span className="text-white">6000 USDC</span>
+                  MAX PAYOUT PER TX <span className="text-white">{
+                    marketPurchase != undefined ? parseFloat(formatEther(marketPurchase.maxPayout_)).toFixed(2) : "0"
+                  } FIN</span>
                 </div>
                 <div className="flex justify-between w-full text-grey1">
                   UNLOCK DATE <span className="text-white">
