@@ -1,8 +1,8 @@
-import { BigNumber, Contract, Signer, ethers } from "ethers";
+import { BigNumber, Signer, ethers } from "ethers";
 import { rangePoolABI } from "../abis/evm/rangePool";
 import { coverPoolABI } from "../abis/evm/coverPool";
 import { SwapParams, tokenCover, tokenRangeLimit, tokenSwap } from "./types";
-import { TickMath, roundTick } from "./math/tickMath";
+import { TickMath } from "./math/tickMath";
 import { fetchEthPrice } from "./queries";
 import { BN_ZERO } from "./math/constants";
 import { limitPoolABI } from "../abis/evm/limitPool";
@@ -10,10 +10,10 @@ import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { chainProperties } from "./chains";
 import JSBI from "jsbi";
 import { parseUnits } from "./math/valueMath";
-import { formatBytes32String } from "ethers/lib/utils.js";
 import { coverPoolTypes } from "./pools";
 import { getSwapRouterButtonMsgValue } from "./buttons";
 import { weth9ABI } from "../abis/evm/weth9";
+import { formatUnits } from "ethers/lib/utils.js";
 
 export interface gasEstimateResult {
   formattedPrice: string;
@@ -54,7 +54,6 @@ export const gasEstimateWethCall = async (
             }
           );
       } else if (tokenOut.native) {
-        
         gasUnits = await contract
           .connect(signer)
           .estimateGas.withdraw(
@@ -103,12 +102,18 @@ export const gasEstimateSwap = async (
     const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     let gasUnits: BigNumber;
+    console.log('msg value estimate', formatUnits(amountIn.toString()))
     if (poolRouter && isConnected) {
       const contract = new ethers.Contract(
         poolRouter,
         poolsharkRouterABI,
         provider
       );
+      console.log('before gas units', poolRouter, swapParams[0].amount.eq(amountIn), getSwapRouterButtonMsgValue(
+        tokenIn.native,
+        tokenOut.native,
+        amountIn
+      ))
       gasUnits = await contract
       .connect(signer)
       .estimateGas.multiSwapSplit(
@@ -122,6 +127,8 @@ export const gasEstimateSwap = async (
           )
         }
       );
+      console.log('after gas units')
+      console.log('gas units', gasUnits.toString())
     //NATIVE: if tokenIn.native, send msg.value as amountIn
     //NATIVE: if tokenOut.native, send msg.value as 1 wei
     } else {

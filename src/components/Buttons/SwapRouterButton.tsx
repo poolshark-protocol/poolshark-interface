@@ -42,6 +42,8 @@ export default function SwapRouterButton({
   const { address } = useAccount();
   const userAddress = address;
 
+  console.log('swap button state', disabled)
+
   const { config } = usePrepareContractWrite({
     address: routerAddress,
     abi: poolsharkRouterABI,

@@ -230,7 +230,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           },
           amountIn: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.amountIn,
           amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals),
-          needsAllowanceIn: true,
+          needsAllowanceIn: !newTokenIn.native ?? true,
           wethCall: state.tokenOut.address.toLowerCase() == state.tokenIn.address.toLowerCase(),
         }));
       } else {
@@ -268,7 +268,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         amountIn: isAmountIn ? parseUnits(amount, newTokenIn.decimals) : state.amountIn,
         pairSelected: false,
         wethCall: false,
-        needsAllowanceIn: true,
+        needsAllowanceIn: !newTokenIn.native,
       }));
     }
   },

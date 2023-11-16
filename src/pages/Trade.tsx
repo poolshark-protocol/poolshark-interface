@@ -681,7 +681,7 @@ export default function Trade() {
     },
     onSuccess(data) {
       setNeedsAllowanceIn(false);
-      // console.log("Success allowance", tokenIn.symbol, tokenIn.address, data.toString());
+      console.log("Success allowance", tokenIn.symbol, tokenIn.address, data.toString());
     },
   });
 
@@ -934,9 +934,12 @@ export default function Trade() {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
+    console.log('gas use effect', 
+
+    !needsAllowanceIn)
     if (
       !amountIn.eq(BN_ZERO) &&
-      !needsAllowanceIn &&
+      (!needsAllowanceIn || tokenIn.native) &&
       tradePoolData != undefined &&
       !wethCall
     ) {
@@ -953,16 +956,26 @@ export default function Trade() {
     tokenIn.address,
     tokenOut.address,
     tokenIn.native,
+    tokenIn.userBalance,
     tokenIn.userRouterAllowance,
     lowerTick,
     upperTick,
     needsAllowanceIn,
-    wethCall
+    wethCall,
+    amountIn
   ]);
 
   async function updateGasFee() {
-    if (tokenIn.userRouterAllowance?.gte(amountIn) && !wethCall) {
-      //NATIVE: send msg.value with estimate
+    console.log('gas fee check', tokenIn.userRouterAllowance?.gte(amountIn) && !wethCall)
+    if (
+        (
+          tokenIn.userRouterAllowance?.gte(amountIn) ||
+          (tokenIn.native && parseUnits(
+                                tokenIn.userBalance?.toString(),
+                                tokenIn.decimals
+                              ).gte(amountIn))
+        ) &&
+          !wethCall) {
       await gasEstimateSwap(
         chainProperties[networkName]["routerAddress"],
         swapPoolAddresses,
@@ -975,7 +988,9 @@ export default function Trade() {
         setSwapGasFee,
         setSwapGasLimit
       );
+      console.log('new gas limit', swapGasLimit.toString())
     } else {
+      console.log('zeroing out gas limit')
       setSwapGasLimit(BN_ZERO);
     }
   }
@@ -1480,7 +1495,8 @@ export default function Trade() {
                 {
                   //range buttons
                   tokenIn.userRouterAllowance?.lt(amountIn) &&
-                  !tokenIn.native ? (
+                  !tokenIn.native &&
+                  pairSelected ? (
                     <div>
                       <SwapRouterApproveButton
                         routerAddress={
@@ -1495,7 +1511,7 @@ export default function Trade() {
                     <SwapRouterButton
                       disabled={
                         tradeButton.disabled ||
-                        needsAllowanceIn ||
+                        (needsAllowanceIn && !tokenIn.native) ||
                         swapGasLimit.eq(BN_ZERO)
                       }
                       routerAddress={
