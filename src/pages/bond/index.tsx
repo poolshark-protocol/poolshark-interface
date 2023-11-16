@@ -52,6 +52,19 @@ export default function Bond() {
   const [marketPurchase, setMarketPurchase] = useState(undefined)
   const [currentCapacity, setCurrentCapacity] = useState(undefined)
 
+  const [poolDisplay, setPoolDisplay] = useState(
+    TELLER_ADDRESS
+      ? TELLER_ADDRESS.toString().substring(0, 6) +
+          "..." +
+          TELLER_ADDRESS
+            .toString()
+            .substring(
+              TELLER_ADDRESS.toString().length - 4,
+              TELLER_ADDRESS.toString().length
+            )
+      : undefined
+  );
+
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
   const abiCoder = new ethers.utils.AbiCoder();
   const abiData =
@@ -188,6 +201,8 @@ export default function Bond() {
     }
   }, [currentCapacityData])
 
+  const filledAmount = currentCapacity != undefined && marketData[0] != undefined ? (1 - (parseFloat(formatEther(currentCapacity))/ parseFloat(formatEther(marketData[0].capacity)))) * 100 : "0"
+
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
@@ -207,7 +222,7 @@ export default function Bond() {
                   className="flex items-center gap-x-3 text-grey1 group cursor-pointer"
                 >
                   <span className="-mb-1 text-light text-xs ml-8 group-hover:underline">
-                    {TELLER_ADDRESS}
+                    {poolDisplay}
                   </span>{" "}
                   <ExternalLinkIcon />
                 </a>
@@ -236,7 +251,7 @@ export default function Bond() {
               <div className="flex items-center gap-x-5 mt-3">
                 <div className="border border-main rounded-[4px] flex flex-col w-full items-center justify-center gap-y-4 h-32 bg-main1 ">
                   <span className="text-main2/60 text-[13px]">CURRENT BOND PRICE</span>
-                  <span className="text-main2 text-2xl md:text-4xl">${}</span>
+                  <span className="text-main2 lg:text-4xl text-3xl">${}</span>
                 </div>
                 {/*<div className=" rounded-[4px] flex flex-col w-full bg-[#2ECC71]/10 items-center justify-center gap-y-4 h-32">
                   <span className="text-[#2ECC71]/50 text-[13px]">
@@ -251,7 +266,7 @@ export default function Bond() {
                 <span className="text-grey1 text-[13px]">
                   TOTAL BONDED VALUE
                 </span>
-                <span className="text-white text-4xl">$353,452.53</span>
+                <span className="text-white lg:text-4xl text-3xl">$353,452.53</span>
               </div>
             </div>
             <div className="flex flex-col gap-y-3 mt-5">
@@ -262,10 +277,8 @@ export default function Bond() {
                 </span>
               </div>
               <div className="bg-main2 relative h-10 rounded-full w-full">
-                <div className="absolute relative flex items-center justify-center h-[38px] bg-main1 w-[60%] rounded-full ml-[1px] mt-[1px]">
-                  <div className="text-sm text-main2">{currentCapacity != undefined && marketData[0] != undefined ?
-                  (1 - (parseFloat(formatEther(currentCapacity))/ parseFloat(formatEther(marketData[0].capacity)))) * 100 :
-                  "0"}% FILLED</div>
+                <div className={`absolute relative flex items-center justify-center h-[38px] bg-main1 rounded-full ml-[1px] mt-[1px] w-[${filledAmount}%]`}>
+                  <div className={`text-sm text-main2 ${filledAmount < "15" ? "hidden" : "hidden"}`}>{filledAmount}% FILLED</div>
                 </div>
               </div>
             </div>
@@ -281,13 +294,13 @@ export default function Bond() {
                   <span>BALANCE: 0</span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  <input className="bg-black" />
+                  <input className="bg-transparent placeholder:text-grey1 w-full text-white text-3xl focus:ring-0 focus:ring-offset-0 focus:outline-none" />
                   <div className="flex items-center gap-x-2 ">
                     <button className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden">
                       MAX
                     </button>
                     <div className="flex items-center gap-x-2">
-                      <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
+                      <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px] min-w-[120px]">
                         <img
                           height="28"
                           width="25"
@@ -371,7 +384,7 @@ export default function Bond() {
                   {allUserBonds.map((userBond) => {
                     if (userBond.id != undefined) {
                       return (
-                        <tr className="text-left text-xs py-2 md:text-sm bg-black cursor-pointer">
+                        <tr key={userBond} className="text-left text-xs py-2 md:text-sm bg-black cursor-pointer">
                           <td className="pl-3 py-2">{convertTimestampToDateFormat(userBond.timestamp)}</td>
                           <td className="">
                             <div className="flex gap-x-1.5 items-center">
