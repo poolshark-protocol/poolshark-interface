@@ -263,7 +263,7 @@ export default function Bond() {
               </div>
               <div className="bg-main2 relative h-10 rounded-full w-full">
                 <div className="absolute relative flex items-center justify-center h-[38px] bg-main1 w-[60%] rounded-full ml-[1px] mt-[1px]">
-                  <div className="text-sm text-main2">60% FILLED</div>
+                  <div className="text-sm text-main2">{(1 - (parseFloat(formatEther(currentCapacity))/ parseFloat(formatEther(marketData[0].capacity)))) * 100}% FILLED</div>
                 </div>
               </div>
             </div>
