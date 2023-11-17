@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
-import { useAccount, useSigner } from "wagmi";
+import { useAccount, useContractRead, useSigner } from "wagmi";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
 import LimitSwapButton from "../Buttons/LimitSwapButton";
@@ -28,6 +28,7 @@ import LimitCreateAndMintButton from "../Buttons/LimitCreateAndMintButton";
 import inputFilter from "../../utils/inputFilter";
 import { getLimitTokenUsdPrice } from "../../utils/tokens";
 import { gasEstimateMintLimit } from "../../utils/gas";
+import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 
 export default function LimitSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -149,10 +150,32 @@ export default function LimitSwap() {
   const [availablePools, setAvailablePools] = useState(undefined);
   const [quoteParams, setQuoteParams] = useState(undefined);
 
-  const [limitPoolAddressList, setLimitPoolAddressList] = useState([]);
-  const [limitPositionSnapshotList, setLimitPositionSnapshotList] = useState<
-    any[]
-  >([]);
+  async function updatePools(amount: BigNumber, isAmountIn: boolean) {
+    const pools = await getSwapPools(
+      limitSubgraph,
+      tokenIn,
+      tokenOut,
+      setTradePoolData
+    );
+    const poolAdresses: string[] = [];
+    const quoteList: QuoteParams[] = [];
+    if (pools) {
+      for (let i = 0; i < pools.length; i++) {
+        const params: QuoteParams = {
+          priceLimit: tokenIn.callId == 0 ? minPriceBn : maxPriceBn,
+          amount: amount,
+          exactIn: isAmountIn,
+          zeroForOne: tokenIn.callId == 0,
+        };
+        quoteList[i] = params;
+        poolAdresses[i] = pools[i].id;
+      }
+    }
+    setAvailablePools(poolAdresses);
+    setQuoteParams(quoteList);
+  }
+
+  /////////////////////////tokens and amounts
 
   //BOTH
   useEffect(() => {
@@ -182,30 +205,43 @@ export default function LimitSwap() {
     }
   }, [tokenOut.address]);
 
-  async function updatePools(amount: BigNumber, isAmountIn: boolean) {
-    const pools = await getSwapPools(
-      limitSubgraph,
-      tokenIn,
-      tokenOut,
-      setTradePoolData
-    );
-    const poolAdresses: string[] = [];
-    const quoteList: QuoteParams[] = [];
-    if (pools) {
-      for (let i = 0; i < pools.length; i++) {
-        const params: QuoteParams = {
-          priceLimit: tokenIn.callId == 0 ? minPriceBn : maxPriceBn,
-          amount: amount,
-          exactIn: isAmountIn,
-          zeroForOne: tokenIn.callId == 0,
-        };
-        quoteList[i] = params;
-        poolAdresses[i] = pools[i].id;
-      }
+  const [limitPoolAddressList, setLimitPoolAddressList] = useState([]);
+  const [limitPositionSnapshotList, setLimitPositionSnapshotList] = useState<
+    any[]
+  >([]);
+
+  ///////////////////////////////Filled Amount
+  const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
+  const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
+
+  //BOTH
+  const { data: filledAmountList } = useContractRead({
+    address: chainProperties[networkName]["routerAddress"],
+    abi: poolsharkRouterABI,
+    functionName: "multiSnapshotLimit",
+    args: [limitPoolAddressList, limitPositionSnapshotList],
+    chainId: chainId,
+    watch: needsSnapshot,
+    enabled: isConnected && limitPoolAddressList.length > 0 && needsSnapshot,
+    onSuccess(data) {
+      // console.log("Success price filled amount", data);
+      // console.log("snapshot address list", limitPoolAddressList);
+      // console.log("snapshot params list", limitPositionSnapshotList);
+      setNeedsSnapshot(false);
+    },
+    onError(error) {
+      console.log("Error price Limit", error);
+    },
+  });
+
+  //BOTH
+  useEffect(() => {
+    if (filledAmountList) {
+      setLimitFilledAmountList(filledAmountList[0]);
+
+      setCurrentAmountOutList(filledAmountList[1]);
     }
-    setAvailablePools(poolAdresses);
-    setQuoteParams(quoteList);
-  }
+  }, [filledAmountList]);
 
   /////////////////////Double Input Boxes
   const [exactIn, setExactIn] = useState(true);

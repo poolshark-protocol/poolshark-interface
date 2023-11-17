@@ -140,33 +140,6 @@ export default function MarketSwap() {
   const [availablePools, setAvailablePools] = useState(undefined);
   const [quoteParams, setQuoteParams] = useState(undefined);
 
-  //BOTH
-  useEffect(() => {
-    if (
-      tokenIn.address != ZERO_ADDRESS &&
-      (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
-    ) {
-      getLimitTokenUsdPrice(
-        tokenIn.address,
-        setTokenInTradeUSDPrice,
-        limitSubgraph
-      );
-    }
-  }, [tokenIn.address]);
-
-  //BOTH
-  useEffect(() => {
-    if (
-      tokenOut.address != ZERO_ADDRESS &&
-      (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
-    ) {
-      getLimitTokenUsdPrice(
-        tokenOut.address,
-        setTokenInTradeUSDPrice,
-        limitSubgraph
-      );
-    }
-  }, [tokenOut.address]);
 
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
     const pools = await getSwapPools(
@@ -244,6 +217,8 @@ export default function MarketSwap() {
       setNeedsAllowanceIn(true);
     }
   }, [tokenIn.address, tokenOut.address]);
+
+  
 
   /////////////////////Double Input Boxes
   const [exactIn, setExactIn] = useState(true);
