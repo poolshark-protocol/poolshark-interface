@@ -601,7 +601,6 @@ export default function Trade() {
             setTokenInTradeUSDPrice
           );
         }
-        //NATIVE: if tradePoolData undefined query token usdPrice
         //TODO: check if cover and/or range pools present
       }
       if (tokenOut.address) {
@@ -613,7 +612,6 @@ export default function Trade() {
             setTokenOutTradeUSDPrice
           );
         }
-        //NATIVE: if tradePoolData undefined query token usdPrice
       }
     }
   }, [tradePoolData, tokenIn.address, tokenOut.address, tokenIn.native, tokenOut.native]);
@@ -937,6 +935,7 @@ export default function Trade() {
       if (!limitTabSelected) {
         updateGasFee();
       } else {
+        console.log('gas limit mint limit')
         updateMintFee();
       }
     } else if (wethCall) {
@@ -984,7 +983,8 @@ export default function Trade() {
   }
 
   async function updateMintFee() {
-    if (tokenIn.userRouterAllowance?.gte(amountIn) && lowerTick?.lt(upperTick))
+    console.log('gas limit check:', tokenIn.userRouterAllowance, tokenIn.userRouterAllowance?.gte(amountIn) && lowerTick?.lt(upperTick))
+    if ((tokenIn.native || tokenIn.userRouterAllowance?.gte(amountIn)) && lowerTick?.lt(upperTick))
       //NATIVE: send msg.value with estimate
       await gasEstimateMintLimit(
         tradePoolData.id,
@@ -1557,8 +1557,8 @@ export default function Trade() {
                     amount={amountIn}
                   />
                 ) : (
-                      tokenOut.address != ZERO_ADDRESS &&
-                      tradePoolData?.id == ZERO_ADDRESS
+                      tokenOut.address == ZERO_ADDRESS ||
+                      tradePoolData?.id != ZERO_ADDRESS
                     ) ? (
                   <LimitSwapButton
                     routerAddress={

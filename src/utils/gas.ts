@@ -11,7 +11,7 @@ import { chainProperties } from "./chains";
 import JSBI from "jsbi";
 import { parseUnits } from "./math/valueMath";
 import { coverPoolTypes } from "./pools";
-import { getSwapRouterButtonMsgValue } from "./buttons";
+import { getLimitSwapButtonMsgValue, getSwapRouterButtonMsgValue } from "./buttons";
 import { weth9ABI } from "../abis/evm/weth9";
 import { formatUnits } from "ethers/lib/utils.js";
 
@@ -59,8 +59,6 @@ export const gasEstimateWethCall = async (
             amountIn
           );
       }
-    //NATIVE: if tokenIn.native, send msg.value as amountIn
-    //NATIVE: if tokenOut.native, send msg.value as 1 wei
     } else {
       gasUnits = BigNumber.from(1000000);
     }
@@ -143,8 +141,8 @@ export const gasEstimateMintLimit = async (
   address: string,
   lowerTick: BigNumber,
   upperTick: BigNumber,
-  token0: tokenSwap,
-  token1: tokenSwap,
+  tokenIn: tokenSwap,
+  tokenOut: tokenSwap,
   bnInput: BigNumber,
   signer,
   setMintGasFee,
@@ -157,11 +155,12 @@ export const gasEstimateMintLimit = async (
     );
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
+    console.log('inside gas estimate', rangePoolRoute)
     if (!rangePoolRoute || !provider) {
       setMintGasFee("$0.00");
       setMintGasLimit(BN_ZERO);
     }
-    const zeroForOne = token0.address.localeCompare(token1.address) < 0;
+    const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
 
     const routerAddress = chainProperties[networkName]["routerAddress"];
     const routerContract = new ethers.Contract(
@@ -185,7 +184,13 @@ export const gasEstimateMintLimit = async (
           zeroForOne: zeroForOne,
           callbackData: ethers.utils.formatBytes32String(""),
         },
-      ]
+      ],
+      {
+        value: getLimitSwapButtonMsgValue(
+          tokenIn.native,
+          bnInput
+        )
+      }
     );
 
     const gasPrice = await provider.getGasPrice();

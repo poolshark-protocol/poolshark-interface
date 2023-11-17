@@ -4,6 +4,17 @@ import { BN_ONE, BN_ZERO, ONE, ZERO_ADDRESS } from "./math/constants";
 import { token } from "./types";
 import JSBI from "jsbi";
 
+export function getLimitSwapButtonMsgValue(
+    tokenInNative: boolean,
+    amountIn: BigNumber
+): BigNumber {
+    if (tokenInNative) {
+        return amountIn
+    } else {
+        return BN_ZERO
+    }
+}
+
 export function getSwapRouterButtonMsgValue(
     tokenInNative: boolean,
     tokenOutNative: boolean,

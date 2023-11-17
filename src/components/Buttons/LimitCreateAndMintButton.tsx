@@ -12,6 +12,7 @@ import { TickMath } from "../../utils/math/tickMath";
 import { ethers } from "ethers";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
   
   export default function LimitCreateAndMintButton({
     disabled,
@@ -60,8 +61,8 @@ import { useConfigStore } from "../../hooks/useConfigStore";
             poolTypeId: poolTypeId,
             tokenIn: token0.address,
             tokenOut: token1.address,
-            startPrice: TickMath.getSqrtRatioAtTick(upper),
-            swapFee: feeTier ?? 3000
+            startPrice: TickMath.getSqrtRatioAtTick(upper), //TODO: account for tick spacing
+            swapFee: feeTier
         }, // pool params
         [], // range positions
         [
@@ -74,14 +75,16 @@ import { useConfigStore } from "../../hooks/useConfigStore";
                 zeroForOne: zeroForOne,
                 callbackData: ethers.utils.formatBytes32String('')
             }
-        ] // limit positions
+        ], // limit positions
       ],
+      enabled: feeTier != undefined && routerAddress != ZERO_ADDRESS && gasLimit.gt(BN_ZERO),
       chainId: chainId,
       overrides: {
         gasLimit: gasLimit,
       },
       onSuccess() {},
       onError() {
+        console.log('limit create error display', zeroForOne, poolTypeId, gasLimit, chainId, feeTier)
         setErrorDisplay(true);
       },
     });

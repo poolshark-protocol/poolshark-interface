@@ -199,7 +199,7 @@ export const poolsharkRouterABI = [
         "type": "address"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -339,7 +339,7 @@ export const poolsharkRouterABI = [
         "type": "address"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -503,7 +503,7 @@ export const poolsharkRouterABI = [
     ],
     "name": "multiMintCover",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -563,7 +563,7 @@ export const poolsharkRouterABI = [
     ],
     "name": "multiMintLimit",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -618,7 +618,7 @@ export const poolsharkRouterABI = [
     ],
     "name": "multiMintRange",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -812,5 +812,9 @@ export const poolsharkRouterABI = [
     ],
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]
