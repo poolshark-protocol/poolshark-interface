@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
-import { useAccount, useSigner } from "wagmi";
+import { useAccount, useContractRead, useSigner } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import SelectToken from "../SelectToken";
-import { inputHandler } from "../../utils/math/valueMath";
+import { inputHandler, parseUnits } from "../../utils/math/valueMath";
 import { getSwapPools } from "../../utils/pools";
-import { QuoteParams } from "../../utils/types";
-import { maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
+import { QuoteParams, SwapParams } from "../../utils/types";
+import { TickMath, maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
 import { displayPoolPrice } from "../../utils/math/priceMath";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import Range from "../Icons/RangeIcon";
@@ -19,6 +19,8 @@ import SwapRouterButton from "../Buttons/SwapRouterButton";
 import { chainProperties } from "../../utils/chains";
 import { getLimitTokenUsdPrice } from "../../utils/tokens";
 import { gasEstimateSwap } from "../../utils/gas";
+import JSBI from "jsbi";
+import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -191,6 +193,58 @@ export default function MarketSwap() {
     setQuoteParams(quoteList);
   }
 
+  /////////////////////Tokens info and amounts
+
+  //BOTH
+  useEffect(() => {
+    if (
+      tokenIn.address != ZERO_ADDRESS &&
+      (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
+    ) {
+      getLimitTokenUsdPrice(
+        tokenIn.address,
+        setTokenInTradeUSDPrice,
+        limitSubgraph
+      );
+    }
+  }, [tokenIn.address]);
+
+  //BOTH
+  useEffect(() => {
+    if (
+      tokenOut.address != ZERO_ADDRESS &&
+      (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
+    ) {
+      getLimitTokenUsdPrice(
+        tokenOut.address,
+        setTokenInTradeUSDPrice,
+        limitSubgraph
+      );
+    }
+  }, [tokenOut.address]);
+
+  // BOTH
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
+      // adjust decimals when switching directions
+      updatePools(exactIn ? amountIn : amountOut, exactIn);
+      if (exactIn) {
+        if (!isNaN(parseFloat(displayIn))) {
+          const bnValue = parseUnits(displayIn, tokenIn.decimals);
+          setAmountIn(bnValue);
+          setAmounts(bnValue, true);
+        }
+      } else {
+        if (!isNaN(parseFloat(displayOut))) {
+          const bnValue = parseUnits(displayOut, tokenOut.decimals);
+          setAmountOut(bnValue);
+          setAmounts(bnValue, false);
+        }
+      }
+      setNeedsAllowanceIn(true);
+    }
+  }, [tokenIn.address, tokenOut.address]);
+
   /////////////////////Double Input Boxes
   const [exactIn, setExactIn] = useState(true);
 
@@ -251,9 +305,112 @@ export default function MarketSwap() {
     }
   };
 
+  
+
   ///////////////////////////////Swap Params
   const [swapPoolAddresses, setSwapPoolAddresses] = useState<string[]>([]);
   const [swapParams, setSwapParams] = useState<any[]>([]);
+
+  //MARKET
+  const { data: poolQuotes } = useContractRead({
+    address: chainProperties[networkName]["routerAddress"], //contract address,
+    abi: poolsharkRouterABI, // contract abi,
+    functionName: "multiQuote",
+    args: [availablePools, quoteParams, true],
+    chainId: chainId,
+    enabled: availablePools != undefined && quoteParams != undefined,
+    onError(error) {
+      console.log("Error multiquote", error);
+    },
+    onSuccess(data) {
+      // if (quoteParams[0])
+      // console.log("Success multiquote", quoteParams[0]?.exactIn, formatUnits(quoteParams[0]?.amount.toString(), exactIn ? tokenIn.decimals : tokenOut.decimals));
+      // console.log("multiquote results:", data)
+    },
+  });
+
+  //MARKET
+  useEffect(() => {
+    if (poolQuotes && poolQuotes[0]) {
+      if (exactIn) {
+        setAmountOut(poolQuotes[0].amountOut);
+        setDisplayOut(
+          parseFloat(
+            ethers.utils.formatUnits(
+              poolQuotes[0].amountOut.toString(),
+              tokenOut.decimals
+            )
+          ).toPrecision(6)
+        );
+      } else {
+        setAmountIn(poolQuotes[0].amountIn);
+        setDisplayIn(
+          parseFloat(
+            ethers.utils.formatUnits(
+              poolQuotes[0].amountIn.toString(),
+              tokenIn.decimals
+            )
+          ).toPrecision(6)
+        );
+      }
+      updateSwapParams(poolQuotes);
+    }
+  }, [poolQuotes, quoteParams, tradeSlippage]);
+
+  //MARKET
+  function updateSwapParams(poolQuotes: any) {
+    const poolAddresses: string[] = [];
+    const paramsList: SwapParams[] = [];
+    for (let i = 0; i < poolQuotes.length; i++) {
+      if (poolQuotes[i].pool != ZERO_ADDRESS) {
+        // push pool address for swap
+        poolAddresses.push(poolQuotes[i].pool);
+        // set base price from quote
+        const basePrice: number = parseFloat(
+          TickMath.getPriceStringAtSqrtPrice(
+            poolQuotes[i].priceAfter,
+            tokenIn,
+            tokenOut
+          )
+        );
+        // set price impact
+        if (poolQuotes[i].pool.toLowerCase() == tradePoolData.id) {
+          const currentPrice: number = parseFloat(
+            TickMath.getPriceStringAtSqrtPrice(
+              tradePoolData.poolPrice,
+              tokenIn,
+              tokenOut
+            )
+          );
+          setPriceImpact(
+            ((Math.abs(basePrice - currentPrice) * 100) / currentPrice).toFixed(
+              2
+            )
+          );
+        }
+        const priceDiff = basePrice * (parseFloat(tradeSlippage) / 100);
+        const limitPrice =
+          tokenIn.callId == 0 ? basePrice - priceDiff : basePrice + priceDiff;
+        const limitPriceJsbi: JSBI = TickMath.getSqrtPriceAtPriceString(
+          limitPrice.toString(),
+          tokenIn,
+          tokenOut
+        );
+        const priceLimitBn = BigNumber.from(String(limitPriceJsbi));
+        const params: SwapParams = {
+          to: address,
+          priceLimit: priceLimitBn,
+          amount: exactIn ? amountIn : amountOut,
+          exactIn: exactIn,
+          zeroForOne: tokenIn.callId == 0,
+          callbackData: ethers.utils.formatBytes32String(""),
+        };
+        paramsList.push(params);
+      }
+    }
+    setSwapPoolAddresses(poolAddresses);
+    setSwapParams(paramsList);
+  }
 
   const resetAfterSwap = () => {
     setDisplayIn("");
