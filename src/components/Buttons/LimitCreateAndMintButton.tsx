@@ -13,6 +13,7 @@ import { ethers } from "ethers";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
   
   export default function LimitCreateAndMintButton({
     disabled,
@@ -81,6 +82,10 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
       chainId: chainId,
       overrides: {
         gasLimit: gasLimit,
+        value: getLimitSwapButtonMsgValue(
+          tokenIn.native,
+          amount
+        )
       },
       onSuccess() {},
       onError() {

@@ -185,8 +185,8 @@ export default function RangePoolPreview() {
             BigNumber.from(String(
               rangePoolData?.poolPrice ?? '0'
             )),
-            tokenOrder ? tokenIn : tokenOut,
-            tokenOrder ? tokenOut : tokenIn,
+            tokenIn,
+            tokenOut,
             rangeMintParams.tokenInAmount,
             rangeMintParams.tokenOutAmount,
             signer,
