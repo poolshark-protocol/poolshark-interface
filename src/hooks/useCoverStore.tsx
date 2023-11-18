@@ -208,8 +208,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     //if tokenOut is selected
     if (tokenOut.symbol != "Select Token") {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
-      if (newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase() &&
-          newTokenIn.native == tokenOut.native) {
+      if (newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase()) {
         set((state) => ({
           tokenIn: {
             callId: state.tokenOut.callId,
@@ -245,14 +244,14 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         //if tokens are different
         set((state) => ({
           tokenIn: {
+            ...newTokenIn,
             callId:
               newTokenIn.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
-            ...newTokenIn,
           },
           tokenOut: {
+            ...tokenOut,
             callId:
               tokenOut.address.localeCompare(newTokenIn.address) < 0 ? 0 : 1,
-            ...tokenOut,
           },
           coverMintParams: {
             ...state.coverMintParams,
@@ -265,12 +264,12 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       //if tokenOut its not selected
       set((state) => ({
         tokenIn: {
-          callId: 1,
           ...newTokenIn,
+          callId: 1,
         },
         tokenOut: {
-          callId: 0,
           ...tokenOut,
+          callId: 0,
         },
         coverMintParams: {
           ...state.coverMintParams,
@@ -375,14 +374,15 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         //if tokens are different
         set(() => ({
           tokenIn: {
+            ...tokenIn,
             callId:
               tokenIn.address.localeCompare(newTokenOut.address) < 0 ? 0 : 1,
-            ...tokenIn,
+
           },
           tokenOut: {
+            ...newTokenOut,
             callId:
               newTokenOut.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
-            ...newTokenOut,
           },
           /// @dev - no change on token amounts until exact out is supported
           pairSelected: true,

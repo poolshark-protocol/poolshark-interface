@@ -279,16 +279,11 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         if (newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase()) {
           set((state) => ({
             tokenIn: {
+              ...newTokenIn,
               callId: state.tokenOut.callId,
-              name: state.tokenOut.name,
-              symbol: state.tokenOut.symbol,
-              native: state.tokenOut.native,
-              logoURI: state.tokenOut.logoURI,
               address: state.tokenOut.address,
               decimals: state.tokenOut.decimals,
               USDPrice: state.tokenOut.USDPrice,
-              userBalance: state.tokenOut.userBalance,
-              userRouterAllowance: state.tokenOut.userRouterAllowance,
             },
             tokenOut: {
               callId: state.tokenIn.callId,
@@ -424,16 +419,11 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               userRouterAllowance: state.tokenOut.userRouterAllowance,
             },
             tokenOut: {
+              ...newTokenOut,
               callId: state.tokenIn.callId,
-              name: state.tokenIn.name,
-              symbol: state.tokenIn.symbol,
-              native: state.tokenIn.native,
-              logoURI: state.tokenIn.logoURI,
               address: state.tokenIn.address,
               decimals: state.tokenIn.decimals,
               USDPrice: state.tokenIn.USDPrice,
-              userBalance: state.tokenIn.userBalance,
-              userRouterAllowance: state.tokenIn.userRouterAllowance,
             },
             rangeMintParams: {
               ...state.rangeMintParams,

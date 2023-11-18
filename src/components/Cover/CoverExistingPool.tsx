@@ -176,7 +176,7 @@ export default function CoverExistingPool({ goBack }) {
 
   const { data: tokenInBal } = useBalance({
     address: address,
-    token: tokenIn.address,
+    token: tokenIn.native ? undefined: tokenIn.address,
     enabled: tokenIn.address != undefined && needsBalance,
     watch: needsBalance,
     onSuccess(data) {

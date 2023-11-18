@@ -15,6 +15,17 @@ export function getLimitSwapButtonMsgValue(
     }
 }
 
+export function getCoverMintButtonMsgValue(
+    tokenInNative: boolean,
+    amountIn: BigNumber
+): BigNumber {
+    if (tokenInNative) {
+        return amountIn
+    } else {
+        return BN_ZERO
+    }
+}
+
 export function getRangeMintButtonMsgValue(
     tokenInNative: boolean,
     tokenOutNative: boolean,

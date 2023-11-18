@@ -11,7 +11,7 @@ import { chainProperties } from "./chains";
 import JSBI from "jsbi";
 import { parseUnits } from "./math/valueMath";
 import { coverPoolTypes } from "./pools";
-import { getLimitSwapButtonMsgValue, getRangeMintButtonMsgValue, getSwapRouterButtonMsgValue } from "./buttons";
+import { getCoverMintButtonMsgValue, getLimitSwapButtonMsgValue, getRangeMintButtonMsgValue, getSwapRouterButtonMsgValue } from "./buttons";
 import { weth9ABI } from "../abis/evm/weth9";
 import { formatUnits } from "ethers/lib/utils.js";
 
@@ -608,7 +608,13 @@ export const gasEstimateCoverMint = async (
             zeroForOne: zeroForOne,
             callbackData: ethers.utils.formatBytes32String(""),
           },
-        ]
+        ],
+        {
+          value: getCoverMintButtonMsgValue(
+            tokenIn.native,
+            amountIn
+          )
+        }
       );
     const price = await fetchEthPrice();
     const gasPrice = await provider.getGasPrice();
@@ -676,7 +682,13 @@ export const gasEstimateCoverCreateAndMint = async (
             callbackData: ethers.utils.formatBytes32String(""),
           },
         ] 
-        : [] // skip mint if !twapReady
+        : [], // skip mint if !twapReady
+        {
+          value: getCoverMintButtonMsgValue(
+            tokenIn.native,
+            amountIn
+          )
+        }
       );
     const price = await fetchEthPrice();
     const gasPrice = await provider.getGasPrice();
