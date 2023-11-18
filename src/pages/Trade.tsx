@@ -206,7 +206,6 @@ export default function Trade() {
     if (e.target.name === "tokenIn") {
       const [value, bnValue] = inputHandler(e, tokenIn);
       if (!pairSelected) {
-        console.log('pair not selected')
         setDisplayIn(value);
         setDisplayOut("");
         setAmountIn(bnValue);
