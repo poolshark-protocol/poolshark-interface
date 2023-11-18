@@ -19,6 +19,7 @@ import { useEffect } from "react";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { formatBytes32String } from "ethers/lib/utils.js";
 import { coverPoolTypes } from "../../utils/pools";
+import { getCoverMintButtonMsgValue } from "../../utils/buttons";
 
 export default function CoverCreateAndMintButton({
   routerAddress,
@@ -87,6 +88,10 @@ export default function CoverCreateAndMintButton({
     ],
     overrides: {
       gasLimit: gasLimit,
+      value: getCoverMintButtonMsgValue(
+        tokenIn.native,
+        amount
+      )
     },
     enabled: !disabled,
     chainId: chainId,

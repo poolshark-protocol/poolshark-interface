@@ -155,8 +155,8 @@ export default function CoverExistingPool({ goBack }) {
     functionName: "allowance",
     args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
-    watch: needsAllowance,
-    enabled: tokenIn.address != undefined,
+    watch: needsAllowance && !tokenIn.native,
+    enabled: tokenIn.address != ZERO_ADDRESS,
     onSuccess(data) {
       // setNeedsAllowance(false);
     },
@@ -177,7 +177,7 @@ export default function CoverExistingPool({ goBack }) {
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.native ? undefined: tokenIn.address,
-    enabled: tokenIn.address != undefined && needsBalance,
+    enabled: tokenIn.address != ZERO_ADDRESS && needsBalance,
     watch: needsBalance,
     onSuccess(data) {
       setNeedsBalance(false);
@@ -877,7 +877,7 @@ export default function CoverExistingPool({ goBack }) {
         </div>
       </div>
       {allowanceInCover ? (
-        allowanceInCover.lt(coverMintParams.tokenInAmount) ? (
+        allowanceInCover.lt(coverMintParams.tokenInAmount) && !tokenIn.native ? (
           <CoverMintApproveButton
             routerAddress={chainProperties[networkName]["routerAddress"]}
             approveToken={tokenIn.address}
