@@ -779,37 +779,47 @@ export default function Trade() {
     if (limitTabSelected && tradeSlippage) {
       if (exactIn) {
         if (!isNaN(parseFloat(limitPriceString))) {
-          const tokenOutAmount = getExpectedAmountOutFromInput(
-            Number(lowerTick),
-            Number(upperTick),
-            tokenIn.callId == 0,
-            amountIn
-          );
-          const tokenOutAmountDisplay = parseFloat(
-            ethers.utils.formatUnits(
-              tokenOutAmount.toString(),
-              tokenOut.decimals
-            )
-          ).toPrecision(6);
-          setDisplayOut(tokenOutAmountDisplay);
-          setAmountOut(tokenOutAmount);
+          if (wethCall) {
+            setDisplayOut(displayIn)
+            setAmountOut(amountIn)
+          } else {
+            const tokenOutAmount = getExpectedAmountOutFromInput(
+              Number(lowerTick),
+              Number(upperTick),
+              tokenIn.callId == 0,
+              amountIn
+            );
+            const tokenOutAmountDisplay = parseFloat(
+              ethers.utils.formatUnits(
+                tokenOutAmount.toString(),
+                tokenOut.decimals
+              )
+            ).toPrecision(6);
+            setDisplayOut(tokenOutAmountDisplay);
+            setAmountOut(tokenOutAmount);
+          }
         } else {
           setDisplayOut("");
           setAmountOut(BN_ZERO);
         }
       } else {
         if (!isNaN(parseFloat(limitPriceString))) {
-          const tokenInAmount = getExpectedAmountInFromOutput(
-            Number(lowerTick),
-            Number(upperTick),
-            tokenIn.callId == 0,
-            amountOut
-          );
-          const tokenInAmountDisplay = parseFloat(
-            ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
-          ).toPrecision(6);
-          setDisplayIn(tokenInAmountDisplay);
-          setAmountIn(tokenInAmount);
+          if (wethCall) {
+            setDisplayIn(displayOut)
+            setAmountIn(amountOut)
+          } else {
+            const tokenInAmount = getExpectedAmountInFromOutput(
+              Number(lowerTick),
+              Number(upperTick),
+              tokenIn.callId == 0,
+              amountOut
+            );
+            const tokenInAmountDisplay = parseFloat(
+              ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
+            ).toPrecision(6);
+            setDisplayIn(tokenInAmountDisplay);
+            setAmountIn(tokenInAmount);
+          }
         } else {
           setDisplayIn("");
           setAmountIn(BN_ZERO);
@@ -1387,6 +1397,7 @@ export default function Trade() {
                       placeholder="0"
                       value={limitPriceString}
                       type="text"
+                      disabled={wethCall}
                       onChange={(e) => {
                         if (e.target.value !== "" && e.target.value !== "0") {
                           setLimitPriceString(inputFilter(e.target.value));
