@@ -377,6 +377,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       address,
       rangePositionData.min,
       rangePositionData.max,
+      tokenIn,
+      tokenOut,
       rangeMintParams.tokenInAmount,
       rangeMintParams.tokenOutAmount,
       signer,

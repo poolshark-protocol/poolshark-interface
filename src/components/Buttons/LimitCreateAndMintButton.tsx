@@ -18,8 +18,8 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
     disabled,
     routerAddress,
     poolTypeId,
-    token0,
-    token1,
+    tokenIn,
+    tokenOut,
     feeTier,
     to,
     amount,
@@ -59,8 +59,8 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
       args: [
         {
             poolTypeId: poolTypeId,
-            tokenIn: token0.address,
-            tokenOut: token1.address,
+            tokenIn: tokenIn.address,
+            tokenOut: tokenOut.address,
             startPrice: TickMath.getSqrtRatioAtTick(upper), /// @notice ensure tick spacing is respected 
             swapFee: feeTier
         },  // pool params

@@ -1598,8 +1598,8 @@ export default function Trade() {
                       chainProperties["arbitrumGoerli"]["routerAddress"]
                     }
                     poolTypeId={limitPoolTypeIds["constant-product"]}
-                    token0={tokenIn}
-                    token1={tokenOut}
+                    tokenIn={tokenIn}
+                    tokenOut={tokenOut}
                     feeTier={3000} // default 0.3% fee
                     to={address}
                     amount={amountIn}
