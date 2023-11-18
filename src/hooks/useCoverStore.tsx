@@ -211,15 +211,10 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       if (newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase()) {
         set((state) => ({
           tokenIn: {
+            ...newTokenIn,
             callId: state.tokenOut.callId,
-            name: state.tokenOut.name,
-            symbol: state.tokenOut.symbol,
-            native: state.tokenOut.native,
-            logoURI: state.tokenOut.logoURI,
             address: state.tokenOut.address,
             decimals: state.tokenOut.decimals,
-            userBalance: state.tokenOut.userBalance,
-            userRouterAllowance: state.tokenOut.userRouterAllowance,
             coverUSDPrice: state.tokenOut.coverUSDPrice,
           },
           tokenOut: {
@@ -247,6 +242,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
             ...newTokenIn,
             callId:
               newTokenIn.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
+            native: newTokenIn.native ?? false,
           },
           tokenOut: {
             ...tokenOut,
@@ -266,6 +262,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         tokenIn: {
           ...newTokenIn,
           callId: 1,
+          native: newTokenIn.native ?? false,
         },
         tokenOut: {
           ...tokenOut,
@@ -337,8 +334,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     //if tokenIn exists
     if (tokenIn.symbol != "Select Token") {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
-      if (newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase() &&
-          newTokenOut.native == tokenIn.native) {
+      if (newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase()) {
         set((state) => ({
           tokenIn: {
             callId: state.tokenOut.callId,
@@ -353,15 +349,10 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
             coverUSDPrice: state.tokenOut.coverUSDPrice,
           },
           tokenOut: {
+            ...newTokenOut,
             callId: state.tokenIn.callId,
-            name: state.tokenIn.name,
-            symbol: state.tokenIn.symbol,
-            native: state.tokenIn.native,
-            logoURI: state.tokenIn.logoURI,
             address: state.tokenIn.address,
             decimals: state.tokenIn.decimals,
-            userBalance: state.tokenIn.userBalance,
-            userRouterAllowance: state.tokenIn.userRouterAllowance,
             coverUSDPrice: state.tokenIn.coverUSDPrice,
           },
           coverMintParams: {
@@ -383,6 +374,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
             ...newTokenOut,
             callId:
               newTokenOut.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
+            native: newTokenOut.native ?? false,
           },
           /// @dev - no change on token amounts until exact out is supported
           pairSelected: true,
