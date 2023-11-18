@@ -113,7 +113,7 @@ export default function CoverAddLiqButton({
           <>
             {buttonState === "amount" ? <>Input Amount</> : <></>}
             {buttonState === "balance" ? (
-              <>Not Enough {tokenSymbol}</>
+              <>Low {tokenSymbol} Balance</>
             ) : (
               <></>
             )}

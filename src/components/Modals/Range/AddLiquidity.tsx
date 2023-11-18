@@ -517,12 +517,12 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                     >
                       {buttonState === "amount" ? <>Input Amount</> : <></>}
                       {buttonState === "balance0" ? (
-                        <>Not Enough {tokenIn.symbol}</>
+                        <>Low {tokenIn.symbol} Balance</>
                       ) : (
                         <></>
                       )}
                       {buttonState === "balance1" ? (
-                        <>Not Enough {tokenOut.symbol}</>
+                        <>Low {tokenOut.symbol} Balance</>
                       ) : (
                         <></>
                       )}
