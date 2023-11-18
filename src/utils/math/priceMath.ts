@@ -39,6 +39,7 @@ export function getMarketPriceAboveBelowString(limitStringPriceQuote: string, pa
     let priceString
     if(pairSelected && !isNaN(parseFloat(limitStringPriceQuote))) {
         const percentDiff = parseFloat((limitPrice / basePrice * 100).toFixed(2))
+        if (isNaN(percentDiff)) return '0.00% above Market Price'
         if (percentDiff >= 100) {
             priceString = (percentDiff - 100).toFixed(2) + "% above Market Price"
         } else {

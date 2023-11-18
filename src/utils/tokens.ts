@@ -49,6 +49,7 @@ export const getLimitTokenUsdPrice = async (
     ) {
       const tokenUsdPrice = tokenData["data"]["tokens"]["0"]["usdPrice"];
       setTokenUSDPrice(tokenUsdPrice);
+      console.log('single token usd price:', tokenUsdPrice)
     } else {
       setTokenUSDPrice(0);
     }

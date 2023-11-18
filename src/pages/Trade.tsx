@@ -89,6 +89,7 @@ export default function Trade() {
     pairSelected,
     setPairSelected,
     wethCall,
+    startPrice,
     tradeSlippage,
     setTradeSlippage,
     tokenIn,
@@ -122,6 +123,7 @@ export default function Trade() {
     setNeedsPosRefetch,
     needsSnapshot,
     setNeedsSnapshot,
+    setStartPrice
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
@@ -129,6 +131,7 @@ export default function Trade() {
     s.pairSelected,
     s.setPairSelected,
     s.wethCall,
+    s.startPrice,
     s.tradeSlippage,
     s.setTradeSlippage,
     s.tokenIn,
@@ -162,6 +165,7 @@ export default function Trade() {
     s.setNeedsPosRefetch,
     s.needsSnapshot,
     s.setNeedsSnapshot,
+    s.setStartPrice,
   ]);
 
   //set Limit Fee tier Modal
@@ -323,6 +327,7 @@ export default function Trade() {
       tokenOut.address != ZERO_ADDRESS &&
       (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
     ) {
+      console.log('getting single token usd price')
       getLimitTokenUsdPrice(
         tokenOut.address,
         setTokenOutTradeUSDPrice,
@@ -604,6 +609,7 @@ export default function Trade() {
       }
       if (tokenOut.address) {
         if (tradePoolData.token0 && tradePoolData.token1) {
+          console.log('setting pool token usd price')
           // if limit pool fetch limit price
           fetchRangeTokenUSDPrice(
             tradePoolData,
@@ -698,6 +704,9 @@ export default function Trade() {
     setLimitPriceString(invertPrice(limitPriceString, false));
     setLowerPriceString(invertPrice(upperPriceString, false));
     setUpperPriceString(invertPrice(lowerPriceString, false));
+    if (tradePoolData?.id == ZERO_ADDRESS) {
+      setStartPrice(invertPrice(startPrice, false));
+    }
   };
 
   useEffect(() => {
@@ -723,7 +732,6 @@ export default function Trade() {
           limitPriceOrder ? lowerPriceString : upperPriceString,
           limitPriceOrder
         );
-
         setLowerTick(
           BigNumber.from(
             TickMath.getTickAtPriceString(
@@ -928,6 +936,34 @@ export default function Trade() {
       }
     }
   }
+  ////////////////////////////////Start Price
+  
+  useEffect(() => {
+    if (
+      tradePoolData?.id == ZERO_ADDRESS &&
+      startPrice &&
+      !isNaN(parseFloat(startPrice))
+    ) {
+      setTradePoolData({
+        id: ZERO_ADDRESS,
+        poolPrice: String(
+          TickMath.getSqrtPriceAtPriceString(
+            invertPrice(startPrice, limitPriceOrder),
+            tokenIn,
+            tokenOut
+          )
+        ),
+        tickAtPrice: TickMath.getTickAtPriceString(
+          invertPrice(startPrice, limitPriceOrder),
+          tokenIn,
+          tokenOut
+        ),
+        // hard set at 0.3% tier
+        feeTier: 3000,
+      });
+    }
+  }, [tradePoolData?.id, startPrice]);
+
   ////////////////////////////////Fee Estimations
   const [swapGasFee, setSwapGasFee] = useState("$0.00");
   const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
@@ -1251,7 +1287,7 @@ export default function Trade() {
                   )}
                 </span>
                 <span>
-                  {pairSelected ? "Balance: " + tokenOut.userBalance : <></>}
+                  {pairSelected ? "Balance: " + (!isNaN(tokenOut?.userBalance) ? tokenOut.userBalance : '0') : <></>}
                 </span>
               </div>
               <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
@@ -1431,6 +1467,9 @@ export default function Trade() {
                       placeholder="0"
                       id="startPrice"
                       type="text"
+                      onChange={(e) => {
+                        setStartPrice(inputFilter(e.target.value));
+                      }}
                     />
                   </span>
                 </div>
@@ -1600,7 +1639,7 @@ export default function Trade() {
                     poolTypeId={limitPoolTypeIds["constant-product"]}
                     tokenIn={tokenIn}
                     tokenOut={tokenOut}
-                    feeTier={3000} // default 0.3% fee
+                    feeTier={tradePoolData?.feeTier}
                     to={address}
                     amount={amountIn}
                     mintPercent={parseUnits("1", 24)}
