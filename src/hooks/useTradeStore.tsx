@@ -56,8 +56,6 @@ type TradeLimitAction = {
   //
   setPairSelected: (pairSelected: boolean) => void;
   //
-  setWethCall: (wethCall: boolean) => void;
-  //
   setTokenIn: (tokenOut: any, newToken: any, amount: string, isAmountIn: boolean) => void;
   setTokenInTradeUSDPrice: (price: number) => void;
   setTokenInTradeAllowance: (allowance: BigNumber) => void;
@@ -190,11 +188,6 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   setPairSelected: (pairSelected: boolean) => {
     set(() => ({
       pairSelected: pairSelected,
-    }));
-  },
-  setWethCall: (wethCall: boolean) => {
-    set(() => ({
-      wethCall: wethCall,
     }));
   },
   setTokenIn: (tokenOut, newTokenIn: tokenSwap, amount: string, isAmountIn: boolean) => {

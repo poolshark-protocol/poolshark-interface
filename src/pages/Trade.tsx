@@ -206,11 +206,11 @@ export default function Trade() {
     if (e.target.name === "tokenIn") {
       const [value, bnValue] = inputHandler(e, tokenIn);
       if (!pairSelected) {
+        console.log('pair not selected')
         setDisplayIn(value);
         setDisplayOut("");
         setAmountIn(bnValue);
-      }
-      if (!bnValue.eq(amountIn)) {
+      } else if (!bnValue.eq(amountIn)) {
         setDisplayIn(value);
         setAmountIn(bnValue);
         setAmounts(bnValue, true);
@@ -1228,7 +1228,8 @@ export default function Trade() {
                   tokenOut.address != ZERO_ADDRESS &&
                   !isNaN(tokenOut.decimals) &&
                   !isNaN(parseInt(amountOut.toString())) &&
-                  !isNaN(tokenOut.USDPrice) ? (
+                  !isNaN(tokenOut.USDPrice) &&
+                  amountOut.gt(BN_ZERO) ? (
                     (
                       parseFloat(
                         ethers.utils.formatUnits(
