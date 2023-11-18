@@ -41,7 +41,7 @@ export function getTradeButtonMessage(
         )
     );
     if (tokenIn.userBalance < amountInValue) {
-        return "Insufficient Token Balance"
+        return "Not Enough " + tokenIn.symbol
     } else if (amountInValue == 0) {
         return "Enter Amount"
     } else if (tokenIn.address == ZERO_ADDRESS || tokenOut.address == ZERO_ADDRESS) {
@@ -89,7 +89,7 @@ export function getRangeMintButtonMessage(
             tokenOut.decimals
         ))
     ) {
-        return "Insufficient Token Balance"
+        return "Not Enough " + tokenIn.symbol
     } else if (
         tokenInAmount.eq(BN_ZERO) && tokenOutAmount.eq(BN_ZERO)
     ) {
@@ -156,7 +156,7 @@ export function getCoverMintButtonMessage(
           )
         )
     ) {
-        return "Insufficient Token Balance"
+        return "Not Enough " + tokenIn.symbol
     } else if (
         tokenInAmount.eq(BN_ZERO) && inputPoolExists && twapReady
     ) {

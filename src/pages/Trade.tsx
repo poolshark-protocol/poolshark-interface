@@ -944,7 +944,6 @@ export default function Trade() {
       if (!limitTabSelected) {
         updateGasFee();
       } else {
-        console.log('gas limit mint limit')
         updateMintFee();
       }
     } else if (wethCall) {
