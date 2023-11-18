@@ -27,7 +27,7 @@ import {
   minPriceBn,
 } from "../utils/math/tickMath";
 import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
-import { gasEstimateMintLimit, gasEstimateSwap, gasEstimateWethCall } from "../utils/gas";
+import { gasEstimateCreateAndMintLimit, gasEstimateMintLimit, gasEstimateSwap, gasEstimateWethCall } from "../utils/gas";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
 import {
@@ -253,6 +253,7 @@ export default function Trade() {
         } else if (!limitTabSelected) {
           updatePools(bnValue, true);
         } else {
+          console.log('setting limit amounts', lowerTick, upperTick)
           const tokenOutAmount = getExpectedAmountOutFromInput(
             Number(lowerTick),
             Number(upperTick),
@@ -959,7 +960,10 @@ export default function Trade() {
           tokenOut
         ),
         // hard set at 0.3% tier
-        feeTier: 3000,
+        feeTier: {
+          feeAmount: 3000,
+          tickSpacing: 30
+        },
       });
     }
   }, [tradePoolData?.id, startPrice]);
@@ -1028,20 +1032,39 @@ export default function Trade() {
 
   async function updateMintFee() {
     if ((tokenIn.native || tokenIn.userRouterAllowance?.gte(amountIn)) && lowerTick?.lt(upperTick))
-      //NATIVE: send msg.value with estimate
-      await gasEstimateMintLimit(
-        tradePoolData.id,
-        address,
-        lowerTick,
-        upperTick,
-        tokenIn,
-        tokenOut,
-        amountIn,
-        signer,
-        setMintFee,
-        setMintGasLimit,
-        networkName
-      );
+      if (tradePoolData?.id != ZERO_ADDRESS) {
+        await gasEstimateMintLimit(
+          tradePoolData.id,
+          address,
+          lowerTick,
+          upperTick,
+          tokenIn,
+          tokenOut,
+          amountIn,
+          signer,
+          setMintFee,
+          setMintGasLimit,
+          networkName
+        );
+      } else {
+        await gasEstimateCreateAndMintLimit(
+          limitPoolTypeIds["constant-product"],
+          tradePoolData?.feeTier?.feeAmount ?? 3000,
+          address,
+          lowerTick,
+          upperTick,
+          tokenIn,
+          tokenOut,
+          amountIn,
+          tradePoolData?.feeTier?.tickSpacing ?? 30,
+          startPrice,
+          signer,
+          setMintFee,
+          setMintGasLimit,
+          networkName
+        )
+      }
+
   }
 
   async function updateWethFee() {
@@ -1639,7 +1662,7 @@ export default function Trade() {
                     poolTypeId={limitPoolTypeIds["constant-product"]}
                     tokenIn={tokenIn}
                     tokenOut={tokenOut}
-                    feeTier={tradePoolData?.feeTier}
+                    feeTier={tradePoolData?.feeTier?.feeAmount}
                     to={address}
                     amount={amountIn}
                     mintPercent={parseUnits("1", 24)}
