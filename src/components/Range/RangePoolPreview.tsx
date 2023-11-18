@@ -80,8 +80,7 @@ export default function RangePoolPreview() {
     functionName: "allowance",
     args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
-    watch: needsAllowanceIn && router.isReady,
-    //enabled: tokenIn.address,
+    watch: needsAllowanceIn && router.isReady && !tokenIn.native,
     onSuccess(data) {
       //setNeedsAllowanceIn(false);
     },
@@ -96,8 +95,7 @@ export default function RangePoolPreview() {
     functionName: "allowance",
     args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
-    watch: needsAllowanceOut && router.isReady,
-    //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
+    watch: needsAllowanceOut && router.isReady && !tokenOut.native,
     onSuccess(data) {
       //setNeedsAllowanceOut(false);
     },
@@ -158,6 +156,8 @@ export default function RangePoolPreview() {
                 parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
               )
             ),
+            tokenIn,
+            tokenOut,
             rangeMintParams.tokenInAmount,
             rangeMintParams.tokenOutAmount,
             signer,
@@ -274,7 +274,7 @@ export default function RangePoolPreview() {
                                     rangeMintParams.tokenInAmount,
                                     18
                                   )
-                                ).toFixed(3)}
+                                ).toPrecision(6)}
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
@@ -320,7 +320,7 @@ export default function RangePoolPreview() {
                                     rangeMintParams.tokenOutAmount,
                                     tokenOut.decimals
                                   )
-                                ).toFixed(3)}
+                                ).toPrecision(6)}
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
@@ -410,7 +410,7 @@ export default function RangePoolPreview() {
                         ) &&
                         tokenOut.userRouterAllowance?.lt(
                           rangeMintParams.tokenOutAmount
-                        ) ? (
+                        ) && !tokenIn.native && !tokenOut.native ? (
                           <RangeMintDoubleApproveButton
                             routerAddress={
                               chainProperties[networkName]["routerAddress"]
@@ -422,7 +422,7 @@ export default function RangePoolPreview() {
                           />
                         ) : tokenIn.userRouterAllowance?.lt(
                             rangeMintParams.tokenInAmount
-                          ) ? (
+                          ) && !tokenIn.native ? (
                           <RangeMintApproveButton
                             routerAddress={
                               chainProperties[networkName]["routerAddress"]
@@ -432,7 +432,7 @@ export default function RangePoolPreview() {
                           />
                         ) : tokenOut.userRouterAllowance?.lt(
                             rangeMintParams.tokenOutAmount
-                          ) ? (
+                          ) && !tokenOut.native ? (
                           <RangeMintApproveButton
                             routerAddress={
                               chainProperties[networkName]["routerAddress"]

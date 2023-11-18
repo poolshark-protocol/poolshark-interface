@@ -234,7 +234,6 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             callId:
               newTokenIn.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
             native: newTokenIn.native ?? false,
-
           },
           tokenOut: {
             ...tokenOut,
@@ -254,7 +253,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         tokenIn: {
           ...newTokenIn,
           callId: 1,
-
+          native: newTokenIn.native ?? false,
         },
         tokenOut: {
           ...tokenOut,
@@ -334,6 +333,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           tokenOut: {
             ...newTokenOut,
             callId: newTokenOut.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
+            native: newTokenOut.native ?? false,
           },
           amountOut: isAmountIn ? state.amountOut : parseUnits(amount, newTokenOut.decimals),
           pairSelected: true,
@@ -352,6 +352,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         tokenOut: {
           ...newTokenOut,
           callId: 1,
+          native: newTokenOut.native ?? false,
         },
         amountOut: isAmountIn ? state.amountOut : parseUnits(amount, newTokenOut.decimals),
         pairSelected: false,

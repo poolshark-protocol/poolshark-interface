@@ -15,6 +15,21 @@ export function getLimitSwapButtonMsgValue(
     }
 }
 
+export function getRangeMintButtonMsgValue(
+    tokenInNative: boolean,
+    tokenOutNative: boolean,
+    amountIn: BigNumber,
+    amountOut: BigNumber
+): BigNumber {
+    if (tokenInNative) {
+        return amountIn
+    } else if (tokenOutNative) {
+        return amountOut
+    } else {
+        return BN_ZERO
+    }
+}
+
 export function getSwapRouterButtonMsgValue(
     tokenInNative: boolean,
     tokenOutNative: boolean,
@@ -83,13 +98,16 @@ export function getRangeMintButtonMessage(
     if (tokenIn.userBalance < parseFloat(formatUnits(
             String(tokenInAmount),
             tokenIn.decimals
-        )) ||
+        ))
+    ) {
+        return "Low " + tokenIn.symbol + " Balance"
+    } else if (
         tokenOut.userBalance < parseFloat(formatUnits(
             String(tokenOutAmount),
             tokenOut.decimals
         ))
     ) {
-        return "Low " + tokenIn.symbol + " Balance"
+        return "Low " + tokenOut.symbol + " Balance"
     } else if (
         tokenInAmount.eq(BN_ZERO) && tokenOutAmount.eq(BN_ZERO)
     ) {

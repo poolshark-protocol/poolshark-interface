@@ -1,7 +1,7 @@
 import { BigNumber, Signer, ethers } from "ethers";
 import { rangePoolABI } from "../abis/evm/rangePool";
 import { coverPoolABI } from "../abis/evm/coverPool";
-import { SwapParams, tokenCover, tokenRangeLimit, tokenSwap } from "./types";
+import { SwapParams, token, tokenCover, tokenRangeLimit, tokenSwap } from "./types";
 import { TickMath } from "./math/tickMath";
 import { fetchEthPrice } from "./queries";
 import { BN_ZERO } from "./math/constants";
@@ -11,7 +11,7 @@ import { chainProperties } from "./chains";
 import JSBI from "jsbi";
 import { parseUnits } from "./math/valueMath";
 import { coverPoolTypes } from "./pools";
-import { getLimitSwapButtonMsgValue, getSwapRouterButtonMsgValue } from "./buttons";
+import { getLimitSwapButtonMsgValue, getRangeMintButtonMsgValue, getSwapRouterButtonMsgValue } from "./buttons";
 import { weth9ABI } from "../abis/evm/weth9";
 import { formatUnits } from "ethers/lib/utils.js";
 
@@ -358,8 +358,10 @@ export const gasEstimateRangeMint = async (
   address: string,
   lowerTick: BigNumber,
   upperTick: BigNumber,
-  amount0: BigNumber,
-  amount1: BigNumber,
+  tokenIn: token,
+  tokenOut: token,
+  amountIn: BigNumber,
+  amountOut: BigNumber,
   signer,
   networkName: string,
   positionId?: number
@@ -371,7 +373,7 @@ export const gasEstimateRangeMint = async (
     if (
       !rangePoolRoute ||
       !provider ||
-      (amount0.eq(BN_ZERO) && amount1.eq(BN_ZERO)) ||
+      (amountIn.eq(BN_ZERO) && amountOut.eq(BN_ZERO)) ||
       !signer
     ) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
@@ -392,11 +394,19 @@ export const gasEstimateRangeMint = async (
             lower: lowerTick,
             upper: upperTick,
             positionId: positionId ?? 0, /// @dev - 0 for new position; positionId for existing (i.e. adding liquidity)
-            amount0: amount0,
-            amount1: amount1,
+            amount0: amountIn,
+            amount1: amountOut,
             callbackData: ethers.utils.formatBytes32String(""),
           },
-        ]
+        ],
+        {
+          value: getRangeMintButtonMsgValue(
+            tokenIn.native,
+            tokenOut.native,
+            amountIn,
+            amountOut
+          )
+        }
       );
     const price = await fetchEthPrice();
     const gasPrice = await provider.getGasPrice();
