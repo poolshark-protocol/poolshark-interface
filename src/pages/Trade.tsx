@@ -330,7 +330,7 @@ export default function Trade() {
         limitSubgraph
       );
     }
-  }, [tokenIn.address, tokenOut.address]);
+  }, [tokenIn.address, tokenOut.address, tokenIn.native]);
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
@@ -774,7 +774,7 @@ export default function Trade() {
     ) {
       updateLimitTicks();
     }
-  }, [limitPriceString, tradeSlippage, priceRangeSelected, limitTabSelected]);
+  }, [limitPriceString, tradeSlippage, priceRangeSelected, limitTabSelected, tradePoolData.feeTier?.tickSpacing]);
 
   useEffect(() => {
     if (limitTabSelected && tradeSlippage) {
@@ -983,7 +983,6 @@ export default function Trade() {
   }
 
   async function updateMintFee() {
-    console.log('gas limit check:', tokenIn.userRouterAllowance, tokenIn.userRouterAllowance?.gte(amountIn) && lowerTick?.lt(upperTick))
     if ((tokenIn.native || tokenIn.userRouterAllowance?.gte(amountIn)) && lowerTick?.lt(upperTick))
       //NATIVE: send msg.value with estimate
       await gasEstimateMintLimit(
@@ -1402,10 +1401,12 @@ export default function Trade() {
             ) : (
               <></>
             )}
-            {limitTabSelected &&
+            {
+            limitTabSelected &&
             tokenIn.address != ZERO_ADDRESS &&
             tokenOut.address != ZERO_ADDRESS &&
-            tradePoolData?.id == ZERO_ADDRESS ? (
+            tradePoolData?.id == ZERO_ADDRESS &&
+            !wethCall ? (
               <div className="bg-dark border rounded-[4px] border-grey/50 p-5 mt-5">
                 <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
                   This pool does not exist so a starting price must be set in
@@ -1546,8 +1547,10 @@ export default function Trade() {
             ) : (
               //limit tab
               <>
-                {tokenIn.userRouterAllowance?.lt(amountIn) &&
-                  !tokenIn.native ? (
+                {
+                  tokenIn.userRouterAllowance?.lt(amountIn) &&
+                  !tokenIn.native &&
+                  pairSelected ? (
                   <SwapRouterApproveButton
                     routerAddress={
                       chainProperties[networkName]["routerAddress"]
@@ -1556,7 +1559,9 @@ export default function Trade() {
                     tokenSymbol={tokenIn.symbol}
                     amount={amountIn}
                   />
-                ) : (
+                ) : !wethCall ? 
+                  (
+                    (
                       tokenOut.address == ZERO_ADDRESS ||
                       tradePoolData?.id != ZERO_ADDRESS
                     ) ? (
@@ -1595,7 +1600,38 @@ export default function Trade() {
                     zeroForOne={tokenIn.callId == 0}
                     gasLimit={mintGasLimit}
                   />
-                )}
+                )
+              ) :
+              (
+                tokenIn.native ? 
+                  <SwapWrapNativeButton
+                    disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
+                    routerAddress={
+                      chainProperties[networkName]["routerAddress"]
+                    }
+                    wethAddress={
+                      chainProperties[networkName]["wethAddress"]
+                    }
+                    tokenInSymbol={tokenIn.symbol}
+                    amountIn={amountIn}
+                    gasLimit={swapGasLimit}
+                    resetAfterSwap={resetAfterSwap}
+                  />
+                : <SwapUnwrapNativeButton
+                  disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
+                  routerAddress={
+                    chainProperties[networkName]["routerAddress"]
+                  }
+                  wethAddress={
+                    chainProperties[networkName]["wethAddress"]
+                  }
+                  tokenInSymbol={tokenIn.symbol}
+                  amountIn={amountIn}
+                  gasLimit={swapGasLimit}
+                  resetAfterSwap={resetAfterSwap}
+                />
+              )
+              }
               </>
             )}
           </div>
