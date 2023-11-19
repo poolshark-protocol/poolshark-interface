@@ -253,7 +253,6 @@ export default function Trade() {
         } else if (!limitTabSelected) {
           updatePools(bnValue, true);
         } else {
-          console.log('setting limit amounts', lowerTick, upperTick)
           const tokenOutAmount = getExpectedAmountOutFromInput(
             Number(lowerTick),
             Number(upperTick),
@@ -328,7 +327,6 @@ export default function Trade() {
       tokenOut.address != ZERO_ADDRESS &&
       (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
     ) {
-      console.log('getting single token usd price')
       getLimitTokenUsdPrice(
         tokenOut.address,
         setTokenOutTradeUSDPrice,
@@ -610,7 +608,6 @@ export default function Trade() {
       }
       if (tokenOut.address) {
         if (tradePoolData.token0 && tradePoolData.token1) {
-          console.log('setting pool token usd price')
           // if limit pool fetch limit price
           fetchRangeTokenUSDPrice(
             tradePoolData,

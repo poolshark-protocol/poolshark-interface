@@ -35,7 +35,6 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
   async function getUserLimitPositionData() {
     //this should be range positions
     const data = await fetchRangePositions(limitSubgraph, address);
-    console.log("data", data);
     if (data["data"]) {
       const positions = data["data"].rangePositions;
       setAllRangePositions(mapUserRangePositions(positions));

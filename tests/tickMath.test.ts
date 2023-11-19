@@ -50,7 +50,6 @@ describe('TickMath tests', () => {
     const priceString = TickMath.getPriceStringAtSqrtPrice(priceString2)
     const tick = TickMath.getTickAtPriceString(priceString)
     // check priceString
-    console.log(priceString.toString())
     expect(tick).toStrictEqual(887272)
   });
 
@@ -59,7 +58,6 @@ describe('TickMath tests', () => {
     const priceString = TickMath.getPriceStringAtSqrtPrice(priceString2)
     const tick = TickMath.getTickAtPriceString(priceString)
     // check priceString
-    console.log(priceString.toString())
     expect(tick).toStrictEqual(-887272)
   });
 

@@ -98,11 +98,6 @@ import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
       },
       onSuccess() {},
       onError() {
-        console.log('limit create error display', BigNumber.from(String(TickMath.getSqrtPriceAtPriceString(
-          !isNaN(parseFloat(startPrice)) ? startPrice : '1.00',
-          tokenIn, tokenOut,
-          tradePoolData?.feeTier?.tickSpacing ?? 30
-        ))).toString(), amount.toString(), zeroForOne, poolTypeId, gasLimit.toString(), lower.toString(), upper.toString(), chainId, feeTier)
         setErrorDisplay(true);
       },
     });
