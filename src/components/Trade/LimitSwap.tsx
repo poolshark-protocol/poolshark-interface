@@ -202,25 +202,6 @@ export default function LimitSwap() {
     setQuoteParams(quoteList);
   }
 
-  const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
-    console.log("setAmounts", bnValue, isAmountIn);
-    if (isAmountIn) {
-      if (bnValue.gt(BN_ZERO)) {
-        updatePools(bnValue, true);
-      } else {
-        setDisplayOut("");
-        setAmountOut(BN_ZERO);
-      }
-    } else {
-      if (bnValue.gt(BN_ZERO)) {
-        updatePools(bnValue, false);
-      } else {
-        setDisplayIn("");
-        setAmountIn(BN_ZERO);
-      }
-    }
-  };
-
   /////////////////////////tokens and amounts
 
   //BOTH
@@ -385,12 +366,7 @@ export default function LimitSwap() {
     ) {
       updateLimitTicks();
     }
-  }, [
-    limitPriceString,
-    tradeSlippage,
-    priceRangeSelected,
-    amountIn || amountOut,
-  ]);
+  }, [limitPriceString, tradeSlippage, priceRangeSelected]);
 
   function updateLimitTicks() {
     const tickSpacing = tradePoolData.feeTier.tickSpacing;
@@ -536,6 +512,44 @@ export default function LimitSwap() {
       }
     }
   }, [lowerTick, upperTick, tokenIn.address, tokenOut.address]);
+
+  const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
+    if (isAmountIn) {
+      if (bnValue.gt(BN_ZERO)) {
+        const tokenOutAmount = getExpectedAmountOutFromInput(
+          Number(lowerTick),
+          Number(upperTick),
+          tokenIn.callId == 0,
+          bnValue
+        );
+        const tokenOutAmountDisplay = parseFloat(
+          ethers.utils.formatUnits(tokenOutAmount.toString(), tokenOut.decimals)
+        ).toPrecision(6);
+        setDisplayOut(tokenOutAmountDisplay);
+        setAmountOut(tokenOutAmount);
+      } else {
+        setDisplayOut("");
+        setAmountOut(BN_ZERO);
+      }
+    } else {
+      if (bnValue.gt(BN_ZERO)) {
+        const tokenInAmount = getExpectedAmountInFromOutput(
+          Number(lowerTick),
+          Number(upperTick),
+          tokenIn.callId == 0,
+          bnValue
+        );
+        const tokenInAmountDisplay = parseFloat(
+          ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
+        ).toPrecision(6);
+        setDisplayIn(tokenInAmountDisplay);
+        setAmountIn(tokenInAmount);
+      } else {
+        setDisplayIn("");
+        setAmountIn(BN_ZERO);
+      }
+    }
+  };
 
   ////////////////////////////////FeeTiers & Slippage
   const [priceImpact, setPriceImpact] = useState("0.00");
