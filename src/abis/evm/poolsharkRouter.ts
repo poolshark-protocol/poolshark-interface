@@ -10,6 +10,11 @@ export const poolsharkRouterABI = [
         "internalType": "address",
         "name": "coverPoolFactory_",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "wethAddress_",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -194,7 +199,7 @@ export const poolsharkRouterABI = [
         "type": "address"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -334,7 +339,7 @@ export const poolsharkRouterABI = [
         "type": "address"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -411,6 +416,56 @@ export const poolsharkRouterABI = [
             "type": "address"
           },
           {
+            "internalType": "uint160",
+            "name": "priceLimit",
+            "type": "uint160"
+          },
+          {
+            "internalType": "uint128",
+            "name": "amount",
+            "type": "uint128"
+          },
+          {
+            "internalType": "bool",
+            "name": "exactIn",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "zeroForOne",
+            "type": "bool"
+          },
+          {
+            "internalType": "bytes",
+            "name": "callbackData",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct PoolsharkStructs.SwapParams[]",
+        "name": "params",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "multiCall",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "pools",
+        "type": "address[]"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
             "internalType": "uint128",
             "name": "amount",
             "type": "uint128"
@@ -448,7 +503,7 @@ export const poolsharkRouterABI = [
     ],
     "name": "multiMintCover",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -508,7 +563,7 @@ export const poolsharkRouterABI = [
     ],
     "name": "multiMintLimit",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -563,7 +618,7 @@ export const poolsharkRouterABI = [
     ],
     "name": "multiMintRange",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -742,7 +797,24 @@ export const poolsharkRouterABI = [
     ],
     "name": "multiSwapSplit",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "wethAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]

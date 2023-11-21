@@ -1,39 +1,33 @@
 import { BigNumber, ethers } from "ethers";
-import { LimitSubgraph, tokenRangeLimit, tokenSwap } from "../utils/types";
+import { LimitSubgraph, tokenSwap } from "../utils/types";
 import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
-  tokenOneAddress,
   tokenZeroAddress,
 } from "../constants/contractAddresses";
 import { create } from "zustand";
 import {
   getLimitPoolFromFactory,
-  getRangePoolFromFactory,
 } from "../utils/queries";
-import inputFilter from "../utils/inputFilter";
 import { parseUnits } from "../utils/math/valueMath";
+import { getTradeButtonDisabled, getTradeButtonMessage } from "../utils/buttons";
 
 type TradeState = {
-  //tradePoolAddress for current token pairs
-  tradePoolAddress: `0x${string}`;
   //tradePoolData contains all the info about the pool
   tradePoolData: any;
   feeTierTradeId: number;
   tradeSlippage: string;
   //Trade position data containing all the info about the position
   tradePositionData: any;
-  //trade params for minting position
-  tradeParams: {
-    tokenInAmount: BigNumber;
-    tokenOutAmount: BigNumber;
-    gasFee: string;
-    gasLimit: BigNumber;
+  // swap button state
+  tradeButton: {
     disabled: boolean;
     buttonMessage: string;
-  };
+  }
   limitPriceString: string;
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
+  //true if wrapping ETH or unwrapping WETH
+  wethCall: boolean;
   //TokenIn defines the token on the left/up on a swap page
   tokenIn: tokenSwap;
   //TokenOut defines the token on the left/up on a swap page
@@ -56,7 +50,6 @@ type TradeState = {
 
 type TradeLimitAction = {
   //
-  setTradePoolAddress: (address: String) => void;
   setTradePoolData: (data: any) => void;
   setTradeSlippage: (tradeSlippage: string) => void;
   setTradePositionData: (tradePosition: any) => void;
@@ -64,13 +57,11 @@ type TradeLimitAction = {
   setPairSelected: (pairSelected: boolean) => void;
   //
   setTokenIn: (tokenOut: any, newToken: any, amount: string, isAmountIn: boolean) => void;
-  setTokenInAmount: (amount: BigNumber) => void;
   setTokenInTradeUSDPrice: (price: number) => void;
   setTokenInTradeAllowance: (allowance: BigNumber) => void;
   setTokenInBalance: (balance: string) => void;
   //
   setTokenOut: (tokenIn: any, newToken: any, amount: string, isAmountIn: boolean) => void;
-  setTokenOutAmount: (amount: BigNumber) => void;
   setTokenOutTradeUSDPrice: (price: number) => void;
   setTokenOutTradeAllowance: (allowance: BigNumber) => void;
   setTokenOutBalance: (balance: string) => void;
@@ -81,10 +72,6 @@ type TradeLimitAction = {
   setMinInput: (newMinTick: string) => void;
   setMaxInput: (newMaxTick: string) => void;
   //
-  setTradeGasFee: (gasFee: string) => void;
-  setTradeGasLimit: (gasLimit: BigNumber) => void;
-
-  //
   switchDirection: (isAmountIn: boolean, amount: string, amountSetter: any) => void;
   setTradePoolFromVolatility: (
     tokenIn: any,
@@ -92,12 +79,11 @@ type TradeLimitAction = {
     volatility: any,
     client: LimitSubgraph
   ) => void;
-
   resetTradeLimitParams: () => void;
   //
   setLimitPriceString: (limitPrice: string) => void;
   //
-  setMintButtonState: () => void;
+  setTradeButtonState: () => void;
   //
   setNeedsRefetch: (needsRefetch: boolean) => void;
   setNeedsPosRefetch: (needsPosRefetch: boolean) => void;
@@ -110,30 +96,27 @@ type TradeLimitAction = {
 
 const initialTradeState: TradeState = {
   //trade pools
-  tradePoolAddress: ZERO_ADDRESS as `0x${string}`,
   tradePoolData: {},
   tradePositionData: {},
   feeTierTradeId: 0,
   tradeSlippage: "0.1",
   //
-  tradeParams: {
-    tokenInAmount: BN_ZERO,
-    tokenOutAmount: BN_ZERO,
-    gasFee: "$0.00",
-    gasLimit: BN_ZERO,
+  tradeButton: {
     disabled: true,
-    buttonMessage: "",
+    buttonMessage: "Select Token",
   },
   //
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: false,
+  wethCall: false,
   //
   tokenIn: {
     callId: 0,
     name: "Wrapped Ether",
     symbol: "WETH",
+    native: false,
     logoURI:
-      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/native-eth-support/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
@@ -145,6 +128,7 @@ const initialTradeState: TradeState = {
     callId: 1,
     name: "Select Token",
     symbol: "Select Token",
+    native: false,
     logoURI: "",
     address: ZERO_ADDRESS as `0x${string}`,
     decimals: 18,
@@ -170,16 +154,16 @@ const initialTradeState: TradeState = {
 
 export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   //trade pool
-  tradePoolAddress: initialTradeState.tradePoolAddress,
   tradePoolData: initialTradeState.tradePoolData,
   feeTierTradeId: initialTradeState.feeTierTradeId,
   tradeSlippage: initialTradeState.tradeSlippage,
   //trade position data
   tradePositionData: initialTradeState.tradePositionData,
-  //
-  tradeParams: initialTradeState.tradeParams,
+  // market swap button
+  tradeButton: initialTradeState.tradeButton,
   //true if both tokens selected, false if only one token selected
   pairSelected: initialTradeState.pairSelected,
+  wethCall: initialTradeState.wethCall,
   //tokenIn
   tokenIn: initialTradeState.tokenIn,
   //tokenOut
@@ -210,12 +194,14 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     //if tokenOut is selected
     if (tokenOut.address != initialTradeState.tokenOut.address) {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to initialState
-      if (newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase()) {
+      if (newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase() &&
+          newTokenIn.native == tokenOut.native) {
         set((state) => ({
           tokenIn: {
             callId: state.tokenOut.callId,
             name: state.tokenOut.name,
             symbol: state.tokenOut.symbol,
+            native: state.tokenOut.native,
             logoURI: state.tokenOut.logoURI,
             address: state.tokenOut.address,
             decimals: state.tokenOut.decimals,
@@ -227,6 +213,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             callId: state.tokenIn.callId,
             name: state.tokenIn.name,
             symbol: state.tokenIn.symbol,
+            native: state.tokenIn.native,
             logoURI: state.tokenIn.logoURI,
             address: state.tokenIn.address,
             decimals: state.tokenIn.decimals,
@@ -236,50 +223,48 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           },
           amountIn: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.amountIn,
           amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals),
-          needsAllowanceIn: true
+          needsAllowanceIn: !newTokenIn.native ?? true,
+          wethCall: state.tokenOut.address.toLowerCase() == state.tokenIn.address.toLowerCase(),
         }));
       } else {
         //if tokens are different
         set((state) => ({
           tokenIn: {
+            ...newTokenIn,
             callId:
               newTokenIn.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
-            ...newTokenIn,
+            native: newTokenIn.native ?? false,
           },
           tokenOut: {
+            ...tokenOut,
             callId:
               tokenOut.address.localeCompare(newTokenIn.address) < 0 ? 0 : 1,
-            ...tokenOut
           },
           amountIn: isAmountIn ? parseUnits(amount, newTokenIn.decimals) : state.amountIn,
+          // if wethCall
           pairSelected: true,
           needsAllowanceIn: true,
+          wethCall: newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase(),
         }));
       }
     } else {
-      //if tokenOut its not selected
+      //if tokenOut is not selected
       set((state) => ({
         tokenIn: {
-          callId: 1,
           ...newTokenIn,
+          callId: 1,
+          native: newTokenIn.native ?? false,
         },
         tokenOut: {
-          callId: 0,
           ...tokenOut,
+          callId: 0,
         },
         amountIn: isAmountIn ? parseUnits(amount, newTokenIn.decimals) : state.amountIn,
         pairSelected: false,
-        needsAllowanceIn: true,
+        wethCall: false,
+        needsAllowanceIn: !newTokenIn.native,
       }));
     }
-  },
-  setTokenInAmount: (newAmount: BigNumber) => {
-    set((state) => ({
-      tradeParams: {
-        ...state.tradeParams,
-        tokenInAmount: newAmount,
-      },
-    }));
   },
   setTokenInTradeUSDPrice: (newPrice: number) => {
     set((state) => ({
@@ -305,12 +290,15 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     //if tokenIn exists
     if (tokenIn.address != initialTradeState.tokenOut.address) {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
-      if (newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase()) {
+      // NATIVE: only flip tokens if 'isNative' also matches
+      if (newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase() &&
+          newTokenOut.native == tokenIn.native) {
         set((state) => ({
           tokenIn: {
             callId: state.tokenOut.callId,
             name: state.tokenOut.name,
             symbol: state.tokenOut.symbol,
+            native: state.tokenOut.native,
             logoURI: state.tokenOut.logoURI,
             address: state.tokenOut.address,
             decimals: state.tokenOut.decimals,
@@ -322,6 +310,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             callId: state.tokenIn.callId,
             name: state.tokenIn.name,
             symbol: state.tokenIn.symbol,
+            native: state.tokenIn.native,
             logoURI: state.tokenIn.logoURI,
             address: state.tokenIn.address,
             decimals: state.tokenIn.decimals,
@@ -331,53 +320,46 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           },
           amountIn: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.amountIn,
           amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals),
-          needsAllowanceIn: true
+          needsAllowanceIn: true,
+          wethCall: newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase(),
         }));
       } else {
         //if tokens are different
         set((state) => ({
           tokenIn: {
+            ...tokenIn,
             callId: tokenIn.address.localeCompare(newTokenOut.address) < 0 ? 0 : 1,
-            symbol: tokenIn.symbol,
-            name: tokenIn.name,
-            logoURI: tokenIn.logoURI,
-            address: tokenIn.address,
-            decimals: tokenIn.decimals,
-            USDPrice: tokenIn.USDPrice,
-            userBalance: tokenIn.userBalance,
-            userRouterAllowance: tokenIn.userRouterAllowance,
           },
           tokenOut: {
-            callId: newTokenOut.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
             ...newTokenOut,
+            callId: newTokenOut.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
+            native: newTokenOut.native ?? false,
           },
           amountOut: isAmountIn ? state.amountOut : parseUnits(amount, newTokenOut.decimals),
           pairSelected: true,
+          wethCall: newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase(),
+          needsBalanceOut: true,
+          needsAllowanceIn: true
         }));
       }
     } else {
-      //if tokenIn its not selected
+      //if tokenIn is not selected
       set((state) => ({
         tokenIn: {
-          callId: 0,
           ...tokenIn,
+          callId: 0,
         },
         tokenOut: {
-          callId: 1,
           ...newTokenOut,
+          callId: 1,
+          native: newTokenOut.native ?? false,
         },
         amountOut: isAmountIn ? state.amountOut : parseUnits(amount, newTokenOut.decimals),
         pairSelected: false,
+        wethCall: false,
+        needsBalanceOut: true,
       }));
     }
-  },
-  setTokenOutAmount: (newAmount: BigNumber) => {
-    set((state) => ({
-      tradeParams: {
-        ...state.tradeParams,
-        tokenOutAmount: newAmount,
-      },
-    }));
   },
   setTokenOutBalance: (newBalance: string) => {
     set((state) => ({
@@ -414,11 +396,6 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       limitPriceString: !isNaN(parseFloat(limitPrice)) ? limitPrice : '0.00',
     }));
   },
-  setTradePoolAddress: (tradePoolAddress: `0x${string}`) => {
-    set(() => ({
-      tradePoolAddress: tradePoolAddress,
-    }));
-  },
   setTradePoolData: (tradePoolData: any) => {
     set(() => ({
       tradePoolData: tradePoolData,
@@ -434,61 +411,19 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       tradePositionData: tradePositionData,
     }));
   },
-  setTradeGasFee: (gasFee: string) => {
+  setTradeButtonState: () => {
     set((state) => ({
-      tradeParams: {
-        ...state.tradeParams,
-        gasFee: gasFee,
-      },
-    }));
-  },
-  setTradeGasLimit: (gasLimit: BigNumber) => {
-    set((state) => ({
-      tradeParams: {
-        ...state.tradeParams,
-        gasLimit: gasLimit,
-      },
-    }));
-  },
-
-  setMintButtonState: () => {
-    set((state) => ({
-      tradeParams: {
-        ...state.tradeParams,
-        buttonMessage:
-          state.tokenIn.userBalance <
-          parseFloat(
-            ethers.utils.formatUnits(
-              String(state.tradeParams.tokenInAmount),
-              state.tokenIn.decimals
-            )
-          )
-            ? "Insufficient Token Balance"
-            : parseFloat(
-                ethers.utils.formatUnits(
-                  String(state.tradeParams.tokenInAmount),
-                  state.tokenIn.decimals
-                )
-              ) == 0
-            ? "Enter Amount"
-            : "Mint Trade Position",
-        disabled:
-          state.tokenIn.userBalance <
-          parseFloat(
-            ethers.utils.formatUnits(
-              String(state.tradeParams.tokenInAmount),
-              state.tokenIn.decimals
-            )
-          )
-            ? true
-            : parseFloat(
-                ethers.utils.formatUnits(
-                  String(state.tradeParams.tokenInAmount),
-                  state.tokenIn.decimals
-                )
-              ) == 0
-            ? true
-            : false,
+      tradeButton: {
+        buttonMessage: getTradeButtonMessage(
+          state.tokenIn,
+          state.tokenOut,
+          state.amountIn
+        ),
+        disabled: getTradeButtonDisabled(
+          state.tokenIn,
+          state.tokenOut,
+          state.amountIn,
+        ),
       },
     }));
   },
@@ -533,6 +468,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         callId: state.tokenOut.callId,
         name: state.tokenOut.name,
         symbol: state.tokenOut.symbol,
+        native: state.tokenOut.native,
         logoURI: state.tokenOut.logoURI,
         address: state.tokenOut.address,
         decimals: state.tokenOut.decimals,
@@ -544,6 +480,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         callId: state.tokenIn.callId,
         name: state.tokenIn.name,
         symbol: state.tokenIn.symbol,
+        native: state.tokenIn.native,
         logoURI: state.tokenIn.logoURI,
         address: state.tokenIn.address,
         decimals: state.tokenIn.decimals,
@@ -575,7 +512,6 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == "10000")
         ) {
           set(() => ({
-            tradePoolAddress: pool["data"]["limitPools"][i]["id"],
             tradePoolData: pool["data"]["limitPools"][i],
             feeTierId: volatilityId,
           }));
@@ -589,14 +525,11 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   resetTradeLimitParams: () => {
     set({
       //trade pool & pair
-      tradePoolAddress: initialTradeState.tradePoolAddress,
       tradePoolData: initialTradeState.tradePoolData,
       tradeSlippage: initialTradeState.tradeSlippage,
       feeTierTradeId: initialTradeState.feeTierTradeId,
       //trade position data
       tradePositionData: initialTradeState.tradePositionData,
-      //trade mint
-      tradeParams: initialTradeState.tradeParams,
       //tokenIn
       tokenIn: initialTradeState.tokenIn,
       //tokenOut

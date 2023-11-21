@@ -134,8 +134,8 @@ const initialCoverState: CoverState = {
     callId: 0,
     name: "Wrapped Ether",
     symbol: "WETH",
-    logoURI:
-      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+    native: false,
+    logoURI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/native-eth-support/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
@@ -147,8 +147,8 @@ const initialCoverState: CoverState = {
     callId: 1,
     name: "DAI",
     symbol: "DAI",
-    logoURI:
-      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
+    native: false,
+    logoURI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/native-eth-support/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
     address: tokenOneAddress,
     decimals: 18,
     userBalance: 0.0,
@@ -211,20 +211,17 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       if (newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase()) {
         set((state) => ({
           tokenIn: {
+            ...newTokenIn,
             callId: state.tokenOut.callId,
-            name: state.tokenOut.name,
-            symbol: state.tokenOut.symbol,
-            logoURI: state.tokenOut.logoURI,
             address: state.tokenOut.address,
             decimals: state.tokenOut.decimals,
-            userBalance: state.tokenOut.userBalance,
-            userRouterAllowance: state.tokenOut.userRouterAllowance,
             coverUSDPrice: state.tokenOut.coverUSDPrice,
           },
           tokenOut: {
             callId: state.tokenIn.callId,
             name: state.tokenIn.name,
             symbol: state.tokenIn.symbol,
+            native: state.tokenIn.native,
             logoURI: state.tokenIn.logoURI,
             address: state.tokenIn.address,
             decimals: state.tokenIn.decimals,
@@ -242,14 +239,15 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         //if tokens are different
         set((state) => ({
           tokenIn: {
+            ...newTokenIn,
             callId:
               newTokenIn.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
-            ...newTokenIn,
+            native: newTokenIn.native ?? false,
           },
           tokenOut: {
+            ...tokenOut,
             callId:
               tokenOut.address.localeCompare(newTokenIn.address) < 0 ? 0 : 1,
-            ...tokenOut,
           },
           coverMintParams: {
             ...state.coverMintParams,
@@ -262,12 +260,13 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       //if tokenOut its not selected
       set((state) => ({
         tokenIn: {
-          callId: 1,
           ...newTokenIn,
+          callId: 1,
+          native: newTokenIn.native ?? false,
         },
         tokenOut: {
-          callId: 0,
           ...tokenOut,
+          callId: 0,
         },
         coverMintParams: {
           ...state.coverMintParams,
@@ -341,6 +340,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
             callId: state.tokenOut.callId,
             name: state.tokenOut.name,
             symbol: state.tokenOut.symbol,
+            native: state.tokenOut.native,
             logoURI: state.tokenOut.logoURI,
             address: state.tokenOut.address,
             decimals: state.tokenOut.decimals,
@@ -349,14 +349,10 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
             coverUSDPrice: state.tokenOut.coverUSDPrice,
           },
           tokenOut: {
+            ...newTokenOut,
             callId: state.tokenIn.callId,
-            name: state.tokenIn.name,
-            symbol: state.tokenIn.symbol,
-            logoURI: state.tokenIn.logoURI,
             address: state.tokenIn.address,
             decimals: state.tokenIn.decimals,
-            userBalance: state.tokenIn.userBalance,
-            userRouterAllowance: state.tokenIn.userRouterAllowance,
             coverUSDPrice: state.tokenIn.coverUSDPrice,
           },
           coverMintParams: {
@@ -369,14 +365,16 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         //if tokens are different
         set(() => ({
           tokenIn: {
+            ...tokenIn,
             callId:
               tokenIn.address.localeCompare(newTokenOut.address) < 0 ? 0 : 1,
-            ...tokenIn,
+
           },
           tokenOut: {
+            ...newTokenOut,
             callId:
               newTokenOut.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
-            ...newTokenOut,
+            native: newTokenOut.native ?? false,
           },
           /// @dev - no change on token amounts until exact out is supported
           pairSelected: true,
@@ -524,6 +522,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         callId: state.tokenOut.callId,
         name: state.tokenOut.name,
         symbol: state.tokenOut.symbol,
+        native: state.tokenOut.native,
         logoURI: state.tokenOut.logoURI,
         address: state.tokenOut.address,
         decimals: state.tokenOut.decimals,
@@ -535,6 +534,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         callId: state.tokenIn.callId,
         name: state.tokenIn.name,
         symbol: state.tokenIn.symbol,
+        native: state.tokenIn.native,
         logoURI: state.tokenIn.logoURI,
         address: state.tokenIn.address,
         decimals: state.tokenIn.decimals,

@@ -198,10 +198,24 @@ export default function AddLiquidity({}) {
       const tickAtPrice = rangePoolData.tickAtPrice;
       if (rangePoolAddress != ZERO_ADDRESS && rangePrice == undefined) {
         setMinInput(
-          TickMath.getPriceStringAtTick(tickAtPrice - 7000, tokenIn, tokenOut)
+          invertPrice(
+            TickMath.getPriceStringAtTick(
+              priceOrder == (tokenIn.callId == 0) ? tickAtPrice - 7000
+                                                  : tickAtPrice - -7000,
+              tokenIn, tokenOut
+            ),
+            priceOrder == (tokenIn.callId == 0)
+          )
         );
         setMaxInput(
-          TickMath.getPriceStringAtTick(tickAtPrice - -7000, tokenIn, tokenOut)
+          invertPrice(
+            TickMath.getPriceStringAtTick(
+              priceOrder == (tokenIn.callId == 0) ? tickAtPrice - -7000
+                                                  : tickAtPrice - 7000,
+              tokenIn, tokenOut
+            ),
+            priceOrder == (tokenIn.callId == 0)
+          )
         );
       }
       setRangePrice(
@@ -257,8 +271,8 @@ export default function AddLiquidity({}) {
 
   const { data: tokenInBal } = useBalance({
     address: address,
-    token: tokenIn.address,
-    enabled: tokenIn.address != undefined && needsBalanceIn,
+    token: tokenIn.native ? undefined: tokenIn.address,
+    enabled: tokenIn.address != ZERO_ADDRESS,
     watch: needsBalanceIn,
     onSuccess(data) {
       setNeedsBalanceIn(false);
@@ -267,22 +281,25 @@ export default function AddLiquidity({}) {
 
   const { data: tokenOutBal } = useBalance({
     address: address,
-    token: tokenOut.address,
-    enabled: tokenOut.address != undefined && needsBalanceOut,
+    token: tokenOut.native ? undefined : tokenOut.address,
+    enabled: tokenOut.address != ZERO_ADDRESS,
     watch: needsBalanceOut,
     onSuccess(data) {
       setNeedsBalanceOut(false);
     },
+    onError(err) {
+      console.log("token out error", err)
+    }
   });
 
   useEffect(() => {
     if (isConnected) {
       setTokenInBalance(
-        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+        tokenInBal?.formatted.toString()
       );
       if (pairSelected) {
         setTokenOutBalance(
-          parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
+          tokenOutBal?.formatted.toString()
         );
       }
     }
@@ -307,7 +324,7 @@ export default function AddLiquidity({}) {
         );
       }
     }
-  }, [rangePoolData.token0, rangePoolData.token1]);
+  }, [rangePoolData.token0, rangePoolData.token1, tokenIn.native, tokenOut.native]);
 
   ////////////////////////////////Prices and Ticks
   const [rangePrice, setRangePrice] = useState(undefined);
@@ -620,7 +637,7 @@ export default function AddLiquidity({}) {
                     ).toFixed(2)
                   : "?.??"}
               </span>
-              <span>BALANCE: {tokenIn.userBalance ?? 0}</span>
+              <span>BALANCE: {tokenIn.userBalance?.toPrecision(6) ?? 0}</span>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
               {inputBoxIn(
@@ -672,7 +689,7 @@ export default function AddLiquidity({}) {
                     ).toFixed(2)
                   : "?.??"}
               </span>
-              <span>BALANCE: {tokenOut.userBalance ?? 0}</span>
+              <span>BALANCE: {tokenOut.userBalance?.toPrecision(6) ?? 0}</span>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
               {inputBoxOut(

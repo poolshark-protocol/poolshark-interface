@@ -149,7 +149,7 @@ export default function CreateCover(props: any) {
     functionName: "allowance",
     args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
-    watch: needsAllowance,
+    watch: needsAllowance && !tokenIn.native,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
       // setNeedsAllowance(false);
@@ -170,7 +170,7 @@ export default function CreateCover(props: any) {
 
   const { data: tokenInBal } = useBalance({
     address: address,
-    token: tokenIn.address,
+    token: tokenIn.native ? undefined : tokenIn.address,
     enabled: tokenIn.address != undefined && needsBalance,
     watch: needsBalance,
     onSuccess(data) {
@@ -839,7 +839,7 @@ export default function CreateCover(props: any) {
         </div>
       </div>
       {allowanceInCover ? (
-        allowanceInCover.lt(coverMintParams.tokenInAmount) ? (
+        allowanceInCover.lt(coverMintParams.tokenInAmount) && !tokenIn.native ? (
           <CoverMintApproveButton
             routerAddress={chainProperties[networkName]["routerAddress"]}
             approveToken={tokenIn.address}

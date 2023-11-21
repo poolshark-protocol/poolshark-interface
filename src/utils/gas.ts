@@ -1,8 +1,8 @@
-import { BigNumber, Contract, Signer, ethers } from "ethers";
+import { BigNumber, Signer, ethers } from "ethers";
 import { rangePoolABI } from "../abis/evm/rangePool";
 import { coverPoolABI } from "../abis/evm/coverPool";
-import { SwapParams, tokenCover, tokenRangeLimit, tokenSwap } from "./types";
-import { TickMath, roundTick } from "./math/tickMath";
+import { SwapParams, token, tokenCover, tokenRangeLimit, tokenSwap } from "./types";
+import { TickMath } from "./math/tickMath";
 import { fetchEthPrice } from "./queries";
 import { BN_ZERO } from "./math/constants";
 import { limitPoolABI } from "../abis/evm/limitPool";
@@ -10,13 +10,73 @@ import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { chainProperties } from "./chains";
 import JSBI from "jsbi";
 import { parseUnits } from "./math/valueMath";
-import { formatBytes32String } from "ethers/lib/utils.js";
 import { coverPoolTypes } from "./pools";
+import { getCoverMintButtonMsgValue, getLimitSwapButtonMsgValue, getRangeMintButtonMsgValue, getSwapRouterButtonMsgValue } from "./buttons";
+import { weth9ABI } from "../abis/evm/weth9";
+import { formatUnits } from "ethers/lib/utils.js";
 
 export interface gasEstimateResult {
   formattedPrice: string;
   gasUnits: BigNumber;
 }
+
+export const gasEstimateWethCall = async (
+  wethAddress: string,
+  tokenIn: tokenSwap,
+  tokenOut: tokenSwap,
+  amountIn: BigNumber,
+  signer: Signer,
+  isConnected: boolean,
+  setGasFee,
+  setGasLimit
+): Promise<void> => {
+  try {
+    const provider = new ethers.providers.JsonRpcProvider(
+      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
+    );
+    const ethUsdQuery = await fetchEthPrice();
+    const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
+    const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
+    let gasUnits: BigNumber;
+    if (wethAddress && isConnected) {
+      const contract = new ethers.Contract(
+        wethAddress,
+        weth9ABI,
+        provider
+      );
+      if (tokenIn.native) {
+        gasUnits = await contract
+          .connect(signer)
+          .estimateGas.deposit(
+            {
+              value: amountIn
+            }
+          );
+      } else if (tokenOut.native) {
+        gasUnits = await contract
+          .connect(signer)
+          .estimateGas.withdraw(
+            amountIn
+          );
+      }
+    } else {
+      gasUnits = BigNumber.from(1000000);
+    }
+    const gasPrice = await provider.getGasPrice();
+    const networkFeeWei = gasPrice.mul(gasUnits);
+    const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
+    const networkFeeUsd = networkFeeEth * Number(ethUsdPrice);
+    const formattedPrice: string = networkFeeUsd.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+    setGasFee(formattedPrice);
+    setGasLimit(gasUnits.mul(200).div(100));
+  } catch (error) {
+    setGasFee("$0.00");
+    setGasLimit(BigNumber.from(1000000));
+  }
+};
 
 export const gasEstimateSwap = async (
   poolRouter: string,
@@ -24,6 +84,7 @@ export const gasEstimateSwap = async (
   swapParams: SwapParams[],
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
+  amountIn: BigNumber,
   signer: Signer,
   isConnected: boolean,
   setGasFee,
@@ -44,8 +105,18 @@ export const gasEstimateSwap = async (
         provider
       );
       gasUnits = await contract
-        .connect(signer)
-        .estimateGas.multiSwapSplit(poolAddresses, swapParams);
+      .connect(signer)
+      .estimateGas.multiSwapSplit(
+        poolAddresses,
+        swapParams,
+        {
+          value: getSwapRouterButtonMsgValue(
+            tokenIn.native,
+            tokenOut.native,
+            amountIn
+          )
+        }
+      );
     } else {
       gasUnits = BigNumber.from(1000000);
     }
@@ -70,8 +141,8 @@ export const gasEstimateMintLimit = async (
   address: string,
   lowerTick: BigNumber,
   upperTick: BigNumber,
-  token0: tokenSwap,
-  token1: tokenSwap,
+  tokenIn: tokenSwap,
+  tokenOut: tokenSwap,
   bnInput: BigNumber,
   signer,
   setMintGasFee,
@@ -84,11 +155,12 @@ export const gasEstimateMintLimit = async (
     );
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
+    console.log('inside gas estimate', rangePoolRoute)
     if (!rangePoolRoute || !provider) {
       setMintGasFee("$0.00");
       setMintGasLimit(BN_ZERO);
     }
-    const zeroForOne = token0.address.localeCompare(token1.address) < 0;
+    const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
 
     const routerAddress = chainProperties[networkName]["routerAddress"];
     const routerContract = new ethers.Contract(
@@ -97,6 +169,8 @@ export const gasEstimateMintLimit = async (
       provider
     );
     let gasUnits: BigNumber;
+    //NATIVE: if tokenIn.native, send msg.value as amountIn
+    //NATIVE: if tokenOut.native, send msg.value as 1 wei
     gasUnits = await routerContract.connect(signer).estimateGas.multiMintLimit(
       [rangePoolRoute],
       [
@@ -110,7 +184,13 @@ export const gasEstimateMintLimit = async (
           zeroForOne: zeroForOne,
           callbackData: ethers.utils.formatBytes32String(""),
         },
-      ]
+      ],
+      {
+        value: getLimitSwapButtonMsgValue(
+          tokenIn.native,
+          bnInput
+        )
+      }
     );
 
     const gasPrice = await provider.getGasPrice();
@@ -136,8 +216,8 @@ export const gasEstimateCreateAndMintLimit = async (
   address: string,
   lowerTick: BigNumber,
   upperTick: BigNumber,
-  token0: tokenSwap,
-  token1: tokenSwap,
+  tokenIn: tokenSwap,
+  tokenOut: tokenSwap,
   bnInput: BigNumber,
   signer,
   setMintGasFee,
@@ -155,7 +235,7 @@ export const gasEstimateCreateAndMintLimit = async (
       setMintGasLimit(BN_ZERO);
     }
     const recipient = address;
-    const zeroForOne = token0.address.localeCompare(token1.address) < 0;
+    const zeroForOne = tokenIn.callId == 0;
 
     const routerAddress = chainProperties[networkName]["routerAddress"];
     const routerContract = new ethers.Contract(
@@ -170,8 +250,8 @@ export const gasEstimateCreateAndMintLimit = async (
       .estimateGas.createLimitPoolAndMint(
         {
           poolTypeId: poolTypeId,
-          tokenIn: token0.address,
-          tokenOut: token1.address,
+          tokenIn: tokenIn.address,
+          tokenOut: tokenOut.address,
           startPrice: TickMath.getSqrtRatioAtTick(Number(upperTick)),
           swapFee: feeTier,
         }, // pool params
@@ -187,7 +267,13 @@ export const gasEstimateCreateAndMintLimit = async (
             zeroForOne: zeroForOne,
             callbackData: ethers.utils.formatBytes32String(""),
           },
-        ] // limit positions
+        ], // limit positions
+        {
+          value: getLimitSwapButtonMsgValue(
+            tokenIn.native,
+            bnInput
+          )
+        }
       );
     const gasPrice = await provider.getGasPrice();
     const networkFeeWei = gasPrice.mul(gasUnits);
@@ -278,8 +364,10 @@ export const gasEstimateRangeMint = async (
   address: string,
   lowerTick: BigNumber,
   upperTick: BigNumber,
-  amount0: BigNumber,
-  amount1: BigNumber,
+  tokenIn: token,
+  tokenOut: token,
+  amountIn: BigNumber,
+  amountOut: BigNumber,
   signer,
   networkName: string,
   positionId?: number
@@ -291,7 +379,7 @@ export const gasEstimateRangeMint = async (
     if (
       !rangePoolRoute ||
       !provider ||
-      (amount0.eq(BN_ZERO) && amount1.eq(BN_ZERO)) ||
+      (amountIn.eq(BN_ZERO) && amountOut.eq(BN_ZERO)) ||
       !signer
     ) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
@@ -312,11 +400,19 @@ export const gasEstimateRangeMint = async (
             lower: lowerTick,
             upper: upperTick,
             positionId: positionId ?? 0, /// @dev - 0 for new position; positionId for existing (i.e. adding liquidity)
-            amount0: amount0,
-            amount1: amount1,
+            amount0: tokenIn.callId == 0 ? amountIn : amountOut,
+            amount1: tokenIn.callId == 0 ? amountOut : amountIn,
             callbackData: ethers.utils.formatBytes32String(""),
           },
-        ]
+        ],
+        {
+          value: getRangeMintButtonMsgValue(
+            tokenIn.native,
+            tokenOut.native,
+            amountIn,
+            amountOut
+          )
+        }
       );
     const price = await fetchEthPrice();
     const gasPrice = await provider.getGasPrice();
@@ -342,10 +438,10 @@ export const gasEstimateRangeCreateAndMint = async (
   lowerTick: BigNumber,
   upperTick: BigNumber,
   startPrice: BigNumber,
-  token0: tokenRangeLimit,
-  token1: tokenRangeLimit,
-  amount0: BigNumber,
-  amount1: BigNumber,
+  tokenIn: tokenRangeLimit,
+  tokenOut: tokenRangeLimit,
+  amountIn: BigNumber,
+  amountOut: BigNumber,
   signer,
   networkName: string,
   positionId?: number
@@ -354,7 +450,7 @@ export const gasEstimateRangeCreateAndMint = async (
     const provider = new ethers.providers.JsonRpcProvider(
       "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
-    if (!provider || (amount0.eq(BN_ZERO) && amount1.eq(BN_ZERO))) {
+    if (!provider || (amountIn.eq(BN_ZERO) && amountOut.eq(BN_ZERO))) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     if (
@@ -380,8 +476,8 @@ export const gasEstimateRangeCreateAndMint = async (
       .estimateGas.createLimitPoolAndMint(
         {
           poolTypeId: poolTypeId,
-          tokenIn: token0.address,
-          tokenOut: token1.address,
+          tokenIn: tokenIn.address,
+          tokenOut: tokenOut.address,
           startPrice: startPrice,
           swapFee: feeTier,
         }, // pool params
@@ -391,12 +487,20 @@ export const gasEstimateRangeCreateAndMint = async (
             lower: lowerTick,
             upper: upperTick,
             positionId: positionId ?? 0, /// @dev - 0 for new position; positionId for existing (i.e. adding liquidity)
-            amount0: amount0,
-            amount1: amount1,
+            amount0: tokenIn.callId == 0 ? amountIn : amountOut,
+            amount1: tokenIn.callId == 0 ? amountOut : amountIn,
             callbackData: ethers.utils.formatBytes32String(""),
           },
         ], // range positions
-        [] // limit positions
+        [], // limit positions
+        {
+          value: getRangeMintButtonMsgValue(
+            tokenIn.native,
+            tokenOut.native,
+            amountIn,
+            amountOut
+          )
+        }
       );
     const price = await fetchEthPrice();
     const gasPrice = await provider.getGasPrice();
@@ -504,7 +608,13 @@ export const gasEstimateCoverMint = async (
             zeroForOne: zeroForOne,
             callbackData: ethers.utils.formatBytes32String(""),
           },
-        ]
+        ],
+        {
+          value: getCoverMintButtonMsgValue(
+            tokenIn.native,
+            amountIn
+          )
+        }
       );
     const price = await fetchEthPrice();
     const gasPrice = await provider.getGasPrice();
@@ -572,7 +682,13 @@ export const gasEstimateCoverCreateAndMint = async (
             callbackData: ethers.utils.formatBytes32String(""),
           },
         ] 
-        : [] // skip mint if !twapReady
+        : [], // skip mint if !twapReady
+        {
+          value: getCoverMintButtonMsgValue(
+            tokenIn.native,
+            amountIn
+          )
+        }
       );
     const price = await fetchEthPrice();
     const gasPrice = await provider.getGasPrice();

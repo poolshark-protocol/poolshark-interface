@@ -12,6 +12,7 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { ethers } from "ethers";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
 
 export default function LimitSwapButton({
   disabled,
@@ -38,17 +39,23 @@ export default function LimitSwapButton({
     setNeedsBalanceIn,
     setNeedsSnapshot,
     setNeedsPosRefetch,
+    tokenIn,
+    tokenOut,
   ] = useTradeStore((state) => [
     state.setNeedsRefetch,
     state.setNeedsAllowanceIn,
     state.setNeedsBalanceIn,
     state.setNeedsSnapshot,
     state.setNeedsPosRefetch,
+    state.tokenIn,
+    state.tokenOut,
   ]);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
   useEffect(() => {}, [disabled]);
+
+  console.log('limit gas limit', gasLimit.toString())
 
   const { config } = usePrepareContractWrite({
     address: routerAddress,
@@ -73,8 +80,13 @@ export default function LimitSwapButton({
     enabled: poolAddress != undefined && poolAddress != ZERO_ADDRESS,
     overrides: {
       gasLimit: gasLimit,
+      value: getLimitSwapButtonMsgValue(
+        tokenIn.native,
+        amount
+      )
     },
     onError() {
+      console.log('errored limit swap button')
       setErrorDisplay(true);
     },
   });

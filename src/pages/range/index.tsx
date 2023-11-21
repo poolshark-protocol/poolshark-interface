@@ -121,9 +121,8 @@ export default function Range() {
               <p className="text-sm text-white/40 font-light">
                 Provide liquidity and support the leading directional liquidity
                 platform. One of the main advantages of providing liquidity to
-                an AMM is the capital efficiency it offers. Preventing idle
-                money allows LPs bootstrapping liquidity for a token pair to be
-                able to earn fees.
+                a Range AMM is the capital efficiency it offers. Liquidity providers
+                bootstrap market swaps for a token pair in return for a share of trading fees.
               </p>
             </div>
             <button

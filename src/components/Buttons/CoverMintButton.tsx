@@ -17,6 +17,7 @@ import PositionMintModal from "../Modals/PositionMint";
 import { BN_ZERO } from "../../utils/math/constants";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { getCoverMintButtonMsgValue } from "../../utils/buttons";
 
 export default function CoverMintButton({
   routerAddress,
@@ -41,11 +42,13 @@ export default function CoverMintButton({
   ]);
 
   const [
+    tokenIn,
     setNeedsRefetch,
     setNeedsPosRefetch,
     setNeedsAllowance,
     setNeedsBalance,
   ] = useCoverStore((state) => [
+    state.tokenIn,
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
     state.setNeedsAllowance,
@@ -74,6 +77,10 @@ export default function CoverMintButton({
     ],
     overrides: {
       gasLimit: gasLimit,
+      value: getCoverMintButtonMsgValue(
+        tokenIn.native,
+        amount
+      )
     },
     enabled: !disabled,
     chainId: chainId,

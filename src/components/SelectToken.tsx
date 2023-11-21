@@ -71,7 +71,7 @@ export default function SelectToken(props) {
       const chainName = chainIdsToNamesForGitTokenList[chainId];
       axios
         .get(
-          `https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/arb-testnet-updates/blockchains/${
+          `https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/native-eth-support/blockchains/${
             chainName === undefined ? "ethereum" : "arbitrum-goerli"
           }/tokenlist.json`
         )
@@ -126,6 +126,7 @@ export default function SelectToken(props) {
       symbol: coin?.symbol,
       logoURI: coin?.logoURI,
       decimals: coin?.decimals,
+      native: coin?.native ?? false
     };
     if (props.amount != undefined && props.isAmountIn != undefined) {
       if (props.type === "in") {
@@ -137,6 +138,7 @@ export default function SelectToken(props) {
             symbol: coin?.symbol,
             logoURI: coin?.logoURI,
             decimals: coin?.decimals,
+            native: coin?.native ?? false,
           },
           props.amount,
           props.isAmountIn
@@ -150,6 +152,7 @@ export default function SelectToken(props) {
             symbol: coin?.symbol,
             logoURI: coin?.logoURI,
             decimals: coin?.decimals,
+            native: coin?.native ?? false,
           },
           props.amount,
           props.isAmountIn
@@ -163,6 +166,7 @@ export default function SelectToken(props) {
           symbol: coin?.symbol,
           logoURI: coin?.logoURI,
           decimals: coin?.decimals,
+          native: coin?.native ?? false,
         });
       } else {
         props.setTokenOut(props.tokenIn, {
@@ -171,6 +175,7 @@ export default function SelectToken(props) {
           symbol: coin?.symbol,
           logoURI: coin?.logoURI,
           decimals: coin?.decimals,
+          native: coin?.native ?? false,
         });
       }
     }
@@ -247,7 +252,7 @@ export default function SelectToken(props) {
                         ) {
                           return (
                             <CoinListButton
-                              key={coin.symbol + "top"}
+                              key={coin.id + coin.symbol}
                               coin={coin}
                               chooseToken={chooseToken}
                             />
@@ -276,7 +281,7 @@ export default function SelectToken(props) {
                             ) {
                               return (
                                 <CoinListItem
-                                  key={coin.symbol}
+                                  key={coin.id+coin.symbol}
                                   coin={coin}
                                   chooseToken={chooseToken}
                                 />

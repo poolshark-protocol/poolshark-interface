@@ -2,7 +2,6 @@ import { useState, useEffect, Fragment } from "react";
 import {
   ChevronDownIcon,
   XMarkIcon,
-  ArrowLongRightIcon,
 } from "@heroicons/react/20/solid";
 import SelectToken from "../components/SelectToken";
 import useInputBox from "../hooks/useInputBox";
@@ -19,7 +18,6 @@ import { BigNumber, ethers } from "ethers";
 import {
   chainIdsToNamesForGitTokenList,
   chainProperties,
-  supportedNetworkNames,
 } from "../utils/chains";
 import SwapRouterApproveButton from "../components/Buttons/SwapRouterApproveButton";
 import {
@@ -29,7 +27,7 @@ import {
   minPriceBn,
 } from "../utils/math/tickMath";
 import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
-import { gasEstimateMintLimit, gasEstimateSwap } from "../utils/gas";
+import { gasEstimateMintLimit, gasEstimateSwap, gasEstimateWethCall } from "../utils/gas";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
 import {
@@ -58,6 +56,8 @@ import { inputHandler, parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
 import { useConfigStore } from "../hooks/useConfigStore";
 import Range from "../components/Icons/RangeIcon";
+import SwapWrapNativeButton from "../components/Buttons/SwapWrapNativeButton";
+import SwapUnwrapNativeButton from "../components/Buttons/SwapUnwrapNativeButton";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -83,18 +83,16 @@ export default function Trade() {
     ]);
 
   const [
-    tradePoolAddress,
-    setTradePoolAddress,
     tradePoolData,
     setTradePoolData,
-    tradeParams,
+    tradeButton,
     pairSelected,
     setPairSelected,
+    wethCall,
     tradeSlippage,
     setTradeSlippage,
     tokenIn,
     setTokenIn,
-    setTokenInAmount,
     setTokenInBalance,
     setTokenInTradeAllowance,
     setTokenInTradeUSDPrice,
@@ -117,7 +115,7 @@ export default function Trade() {
     limitPriceString,
     setLimitPriceString,
     switchDirection,
-    setMintButtonState,
+    setTradeButtonState,
     needsRefetch,
     setNeedsRefetch,
     needsPosRefetch,
@@ -125,18 +123,16 @@ export default function Trade() {
     needsSnapshot,
     setNeedsSnapshot,
   ] = useTradeStore((s) => [
-    s.tradePoolAddress,
-    s.setTradePoolAddress,
     s.tradePoolData,
     s.setTradePoolData,
-    s.tradeParams,
+    s.tradeButton,
     s.pairSelected,
     s.setPairSelected,
+    s.wethCall,
     s.tradeSlippage,
     s.setTradeSlippage,
     s.tokenIn,
     s.setTokenIn,
-    s.setTokenInAmount,
     s.setTokenInBalance,
     s.setTokenInTradeAllowance,
     s.setTokenInTradeUSDPrice,
@@ -159,7 +155,7 @@ export default function Trade() {
     s.limitPriceString,
     s.setLimitPriceString,
     s.switchDirection,
-    s.setMintButtonState,
+    s.setTradeButtonState,
     s.needsRefetch,
     s.setNeedsRefetch,
     s.needsPosRefetch,
@@ -213,8 +209,7 @@ export default function Trade() {
         setDisplayIn(value);
         setDisplayOut("");
         setAmountIn(bnValue);
-      }
-      if (!bnValue.eq(amountIn)) {
+      } else if (!bnValue.eq(amountIn)) {
         setDisplayIn(value);
         setAmountIn(bnValue);
         setAmounts(bnValue, true);
@@ -248,8 +243,12 @@ export default function Trade() {
   const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
     if (isAmountIn) {
       if (bnValue.gt(BN_ZERO)) {
-        if (!limitTabSelected) updatePools(bnValue, true);
-        else {
+        if (wethCall) {
+          setDisplayOut(ethers.utils.formatUnits(bnValue, tokenIn.decimals));
+          setAmountOut(bnValue);
+        } else if (!limitTabSelected) {
+          updatePools(bnValue, true);
+        } else {
           const tokenOutAmount = getExpectedAmountOutFromInput(
             Number(lowerTick),
             Number(upperTick),
@@ -271,8 +270,12 @@ export default function Trade() {
       }
     } else {
       if (bnValue.gt(BN_ZERO)) {
-        if (!limitTabSelected) updatePools(bnValue, false);
-        else {
+        if (wethCall) {
+          setDisplayIn(ethers.utils.formatUnits(bnValue, tokenOut.decimals));
+          setAmountIn(bnValue);
+        } else if (!limitTabSelected) {
+          updatePools(bnValue, false);
+        } else {
           const tokenInAmount = getExpectedAmountInFromOutput(
             Number(lowerTick),
             Number(upperTick),
@@ -313,7 +316,7 @@ export default function Trade() {
         limitSubgraph
       );
     }
-  }, [tokenIn.address]);
+  }, [tokenIn.address, tokenOut.address, tokenIn.native]);
 
   useEffect(() => {
     if (
@@ -322,16 +325,18 @@ export default function Trade() {
     ) {
       getLimitTokenUsdPrice(
         tokenOut.address,
-        setTokenInTradeUSDPrice,
+        setTokenOutTradeUSDPrice,
         limitSubgraph
       );
     }
-  }, [tokenOut.address]);
+  }, [tokenIn.address, tokenOut.address, tokenIn.native]);
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
-      updatePools(exactIn ? amountIn : amountOut, exactIn);
+      if (!wethCall)
+        // only update pools if !wethCall
+        updatePools(exactIn ? amountIn : amountOut, exactIn);
       if (exactIn) {
         if (!isNaN(parseFloat(displayIn))) {
           const bnValue = parseUnits(displayIn, tokenIn.decimals);
@@ -345,7 +350,8 @@ export default function Trade() {
           setAmounts(bnValue, false);
         }
       }
-      setNeedsAllowanceIn(true);
+      if (!tokenIn.native)
+        setNeedsAllowanceIn(true);
     }
   }, [tokenIn.address, tokenOut.address]);
 
@@ -380,7 +386,7 @@ export default function Trade() {
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
     chainId: chainId,
-    enabled: availablePools != undefined && quoteParams != undefined,
+    enabled: availablePools != undefined && quoteParams != undefined && !wethCall,
     onError(error) {
       console.log("Error multiquote", error);
     },
@@ -392,7 +398,7 @@ export default function Trade() {
   });
 
   useEffect(() => {
-    if (!limitTabSelected) {
+    if (!limitTabSelected && !wethCall) {
       if (poolQuotes && poolQuotes[0]) {
         if (exactIn) {
           setAmountOut(poolQuotes[0].amountOut);
@@ -438,7 +444,7 @@ export default function Trade() {
         );
 
         // set price impact
-        if (poolQuotes[i].pool.toLowerCase() == tradePoolData.id) {
+        if (poolQuotes[i].pool?.toLowerCase() == tradePoolData.id?.toLowerCase()) {
           const currentPrice: number = parseFloat(
             TickMath.getPriceStringAtSqrtPrice(
               tradePoolData.poolPrice,
@@ -500,7 +506,6 @@ export default function Trade() {
   useEffect(() => {
     if (filledAmountList) {
       setLimitFilledAmountList(filledAmountList[0]);
-
       setCurrentAmountOutList(filledAmountList[1]);
     }
   }, [filledAmountList]);
@@ -608,13 +613,13 @@ export default function Trade() {
         }
       }
     }
-  }, [tradePoolData, tokenIn.address, tokenOut.address]);
+  }, [tradePoolData, tokenIn.address, tokenOut.address, tokenIn.native, tokenOut.native]);
 
   ////////////////////////////////Balances
 
   const { data: tokenInBal } = useBalance({
     address: address,
-    token: tokenIn.address,
+    token: tokenIn.native ? undefined : tokenIn.address,
     enabled: tokenIn.address != undefined && needsBalanceIn,
     watch: needsBalanceIn,
     onSuccess(data) {
@@ -626,7 +631,7 @@ export default function Trade() {
 
   const { data: tokenOutBal } = useBalance({
     address: address,
-    token: tokenOut.address,
+    token: tokenOut.native ? undefined: tokenOut.address,
     enabled: tokenOut.address != undefined && needsBalanceOut,
     watch: needsBalanceOut,
     onSuccess(data) {
@@ -641,14 +646,14 @@ export default function Trade() {
       setTokenInBalance(
         !isNaN(parseFloat(tokenInBal?.formatted.toString()))
           ? parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
-          : "0"
+          : "0.00"
       );
     }
     if (tokenOutBal) {
       setTokenOutBalance(
         !isNaN(parseFloat(tokenOutBal?.formatted.toString()))
           ? parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
-          : "0"
+          : "0.00"
       );
     }
   }, [tokenInBal, tokenOutBal]);
@@ -662,13 +667,13 @@ export default function Trade() {
     args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowanceIn,
-    enabled: tokenIn.address != ZERO_ADDRESS,
+    enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
     onError(error) {
       console.log("Error allowance", error);
     },
     onSuccess(data) {
       setNeedsAllowanceIn(false);
-      // console.log("Success allowance", tokenIn.symbol, tokenIn.address, data.toString());
+      // console.log("Success allowance", tokenIn.symbol, tokenIn.userRouterAllowance?.gte(amountIn));
     },
   });
 
@@ -768,43 +773,53 @@ export default function Trade() {
     ) {
       updateLimitTicks();
     }
-  }, [limitPriceString, tradeSlippage, priceRangeSelected, limitTabSelected]);
+  }, [limitPriceString, tradeSlippage, priceRangeSelected, limitTabSelected, tradePoolData.feeTier?.tickSpacing]);
 
   useEffect(() => {
     if (limitTabSelected && tradeSlippage) {
       if (exactIn) {
         if (!isNaN(parseFloat(limitPriceString))) {
-          const tokenOutAmount = getExpectedAmountOutFromInput(
-            Number(lowerTick),
-            Number(upperTick),
-            tokenIn.callId == 0,
-            amountIn
-          );
-          const tokenOutAmountDisplay = parseFloat(
-            ethers.utils.formatUnits(
-              tokenOutAmount.toString(),
-              tokenOut.decimals
-            )
-          ).toPrecision(6);
-          setDisplayOut(tokenOutAmountDisplay);
-          setAmountOut(tokenOutAmount);
+          if (wethCall) {
+            setDisplayOut(displayIn)
+            setAmountOut(amountIn)
+          } else {
+            const tokenOutAmount = getExpectedAmountOutFromInput(
+              Number(lowerTick),
+              Number(upperTick),
+              tokenIn.callId == 0,
+              amountIn
+            );
+            const tokenOutAmountDisplay = parseFloat(
+              ethers.utils.formatUnits(
+                tokenOutAmount.toString(),
+                tokenOut.decimals
+              )
+            ).toPrecision(6);
+            setDisplayOut(tokenOutAmountDisplay);
+            setAmountOut(tokenOutAmount);
+          }
         } else {
           setDisplayOut("");
           setAmountOut(BN_ZERO);
         }
       } else {
         if (!isNaN(parseFloat(limitPriceString))) {
-          const tokenInAmount = getExpectedAmountInFromOutput(
-            Number(lowerTick),
-            Number(upperTick),
-            tokenIn.callId == 0,
-            amountOut
-          );
-          const tokenInAmountDisplay = parseFloat(
-            ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
-          ).toPrecision(6);
-          setDisplayIn(tokenInAmountDisplay);
-          setAmountIn(tokenInAmount);
+          if (wethCall) {
+            setDisplayIn(displayOut)
+            setAmountIn(amountOut)
+          } else {
+            const tokenInAmount = getExpectedAmountInFromOutput(
+              Number(lowerTick),
+              Number(upperTick),
+              tokenIn.callId == 0,
+              amountOut
+            );
+            const tokenInAmountDisplay = parseFloat(
+              ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
+            ).toPrecision(6);
+            setDisplayIn(tokenInAmountDisplay);
+            setAmountIn(tokenInAmount);
+          }
         } else {
           setDisplayIn("");
           setAmountIn(BN_ZERO);
@@ -922,25 +937,49 @@ export default function Trade() {
   useEffect(() => {
     if (
       !amountIn.eq(BN_ZERO) &&
-      !needsAllowanceIn &&
-      tradePoolData != undefined
+      (!needsAllowanceIn || tokenIn.native) &&
+      tradePoolData != undefined &&
+      !wethCall
     ) {
       if (!limitTabSelected) {
         updateGasFee();
       } else {
         updateMintFee();
       }
+    } else if (wethCall) {
+      updateWethFee();
     }
-  }, [swapParams, tokenIn, tokenOut, lowerTick, upperTick, needsAllowanceIn]);
+  }, [
+    swapParams,
+    tokenIn.address,
+    tokenOut.address,
+    tokenIn.native,
+    tokenIn.userBalance,
+    tokenIn.userRouterAllowance,
+    lowerTick,
+    upperTick,
+    needsAllowanceIn,
+    wethCall,
+    amountIn
+  ]);
 
   async function updateGasFee() {
-    if (tokenIn.userRouterAllowance?.gte(amountIn)) {
+    if (
+        (
+          tokenIn.userRouterAllowance?.gte(amountIn) ||
+          (tokenIn.native && parseUnits(
+                                tokenIn.userBalance?.toString(),
+                                tokenIn.decimals
+                              ).gte(amountIn))
+        ) &&
+          !wethCall) {
       await gasEstimateSwap(
         chainProperties[networkName]["routerAddress"],
         swapPoolAddresses,
         swapParams,
         tokenIn,
         tokenOut,
+        amountIn,
         signer,
         isConnected,
         setSwapGasFee,
@@ -952,7 +991,8 @@ export default function Trade() {
   }
 
   async function updateMintFee() {
-    if (tokenIn.userRouterAllowance?.gte(amountIn) && lowerTick?.lt(upperTick))
+    if ((tokenIn.native || tokenIn.userRouterAllowance?.gte(amountIn)) && lowerTick?.lt(upperTick))
+      //NATIVE: send msg.value with estimate
       await gasEstimateMintLimit(
         tradePoolData.id,
         address,
@@ -968,17 +1008,26 @@ export default function Trade() {
       );
   }
 
+  async function updateWethFee() {
+    if (tokenIn.userRouterAllowance?.gte(amountIn) || tokenIn.native) {
+      await gasEstimateWethCall(
+        chainProperties[networkName]["wethAddress"],
+        tokenIn,
+        tokenOut,
+        amountIn,
+        signer,
+        isConnected,
+        setSwapGasFee,
+        setSwapGasLimit
+      )
+    }
+  }
+
   ////////////////////////////////Mint Button State
 
   useEffect(() => {
-    if (amountIn) {
-      setTokenInAmount(amountIn);
-    }
-  }, [amountIn]);
-
-  useEffect(() => {
-    setMintButtonState();
-  }, [tradeParams.tokenInAmount, tradeParams.tokenOutAmount]);
+    setTradeButtonState();
+  }, [amountIn, tokenIn.userBalance, tokenIn.address, tokenOut.address, tokenIn.userRouterAllowance]);
 
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
@@ -1016,7 +1065,7 @@ export default function Trade() {
               <div className="ml-auto text-xs">
                 {(
                   (parseFloat(
-                    ethers.utils.formatUnits(amountOut, tokenOut.decimals)
+                    ethers.utils.formatUnits(amountOut ?? BN_ZERO, tokenOut.decimals)
                   ) *
                     (100 - parseFloat(tradeSlippage))) /
                   100
@@ -1105,7 +1154,7 @@ export default function Trade() {
                   ~$
                   {!isNaN(parseInt(amountIn.toString())) &&
                   !isNaN(tokenIn.decimals) &&
-                  !isNaN(tokenOut.USDPrice)
+                  !isNaN(tokenIn.USDPrice)
                     ? (
                         parseFloat(
                           ethers.utils.formatUnits(
@@ -1187,7 +1236,8 @@ export default function Trade() {
                   tokenOut.address != ZERO_ADDRESS &&
                   !isNaN(tokenOut.decimals) &&
                   !isNaN(parseInt(amountOut.toString())) &&
-                  !isNaN(tokenOut.USDPrice) ? (
+                  !isNaN(tokenOut.USDPrice) &&
+                  amountOut.gt(BN_ZERO) ? (
                     (
                       parseFloat(
                         ethers.utils.formatUnits(
@@ -1346,6 +1396,7 @@ export default function Trade() {
                       placeholder="0"
                       value={limitPriceString}
                       type="text"
+                      disabled={wethCall}
                       onChange={(e) => {
                         if (e.target.value !== "" && e.target.value !== "0") {
                           setLimitPriceString(inputFilter(e.target.value));
@@ -1360,10 +1411,12 @@ export default function Trade() {
             ) : (
               <></>
             )}
-            {limitTabSelected &&
+            {
+            limitTabSelected &&
             tokenIn.address != ZERO_ADDRESS &&
             tokenOut.address != ZERO_ADDRESS &&
-            tradePoolData?.id == ZERO_ADDRESS ? (
+            tradePoolData?.id == ZERO_ADDRESS &&
+            !wethCall ? (
               <div className="bg-dark border rounded-[4px] border-grey/50 p-5 mt-5">
                 <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
                   This pool does not exist so a starting price must be set in
@@ -1394,6 +1447,7 @@ export default function Trade() {
                 <div className="flex-none text-xs uppercase text-[#C9C9C9]">
                   {"1 " + tokenIn.symbol} ={" "}
                   {displayPoolPrice(
+                    wethCall,
                     pairSelected,
                     tradePoolData?.poolPrice,
                     tokenIn,
@@ -1416,7 +1470,9 @@ export default function Trade() {
             {!limitTabSelected &&
             tokenIn.address != ZERO_ADDRESS &&
             tokenOut.address != ZERO_ADDRESS &&
-            tradePoolData?.id == ZERO_ADDRESS ? (
+            tradePoolData?.id == ZERO_ADDRESS &&
+            tradePoolData?.feeTierId != undefined &&
+            !wethCall ? (
               <div className="flex gap-x-5 rounded-[4px] items-center text-xs p-2 border bg-dark border-grey mb-5">
                 <Range className="text-main2" />{" "}
                 <span className="text-grey3 flex flex-col gap-y-[-2px]">
@@ -1436,7 +1492,9 @@ export default function Trade() {
               <>
                 {
                   //range buttons
-                  tokenIn.userRouterAllowance?.lt(amountIn) ? (
+                  tokenIn.userRouterAllowance?.lt(amountIn) &&
+                  !tokenIn.native &&
+                  pairSelected ? (
                     <div>
                       <SwapRouterApproveButton
                         routerAddress={
@@ -1447,18 +1505,49 @@ export default function Trade() {
                         amount={amountIn}
                       />
                     </div>
-                  ) : (
+                  ) : !wethCall ? (
                     <SwapRouterButton
                       disabled={
-                        tradeParams.disabled ||
-                        needsAllowanceIn ||
+                        tradeButton.disabled ||
+                        (needsAllowanceIn && !tokenIn.native) ||
                         swapGasLimit.eq(BN_ZERO)
                       }
                       routerAddress={
                         chainProperties[networkName]["routerAddress"]
                       }
+                      amountIn={amountIn}
+                      tokenInNative={tokenIn.native ?? false}
+                      tokenOutNative={tokenOut.native ?? false}
                       poolAddresses={swapPoolAddresses}
                       swapParams={swapParams ?? {}}
+                      gasLimit={swapGasLimit}
+                      resetAfterSwap={resetAfterSwap}
+                    />
+                  ) : (
+                    tokenIn.native ? 
+                      <SwapWrapNativeButton
+                        disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
+                        routerAddress={
+                          chainProperties[networkName]["routerAddress"]
+                        }
+                        wethAddress={
+                          chainProperties[networkName]["wethAddress"]
+                        }
+                        tokenInSymbol={tokenIn.symbol}
+                        amountIn={amountIn}
+                        gasLimit={swapGasLimit}
+                        resetAfterSwap={resetAfterSwap}
+                      />
+                    : <SwapUnwrapNativeButton
+                      disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
+                      routerAddress={
+                        chainProperties[networkName]["routerAddress"]
+                      }
+                      wethAddress={
+                        chainProperties[networkName]["wethAddress"]
+                      }
+                      tokenInSymbol={tokenIn.symbol}
+                      amountIn={amountIn}
                       gasLimit={swapGasLimit}
                       resetAfterSwap={resetAfterSwap}
                     />
@@ -1468,7 +1557,10 @@ export default function Trade() {
             ) : (
               //limit tab
               <>
-                {tokenIn.userRouterAllowance?.lt(amountIn) ? (
+                {
+                  tokenIn.userRouterAllowance?.lt(amountIn) &&
+                  !tokenIn.native &&
+                  pairSelected ? (
                   <SwapRouterApproveButton
                     routerAddress={
                       chainProperties[networkName]["routerAddress"]
@@ -1477,12 +1569,17 @@ export default function Trade() {
                     tokenSymbol={tokenIn.symbol}
                     amount={amountIn}
                   />
-                ) : tradePoolData?.id != ZERO_ADDRESS ? (
+                ) : !wethCall ? 
+                  (
+                    (
+                      tokenOut.address == ZERO_ADDRESS ||
+                      tradePoolData?.id != ZERO_ADDRESS
+                    ) ? (
                   <LimitSwapButton
                     routerAddress={
                       chainProperties[networkName]["routerAddress"]
                     }
-                    disabled={mintGasLimit.eq(BN_ZERO)}
+                    disabled={mintGasLimit.eq(BN_ZERO) || tradeButton.disabled}
                     poolAddress={tradePoolData?.id}
                     to={address}
                     amount={amountIn}
@@ -1496,13 +1593,13 @@ export default function Trade() {
                   />
                 ) : (
                   <LimitCreateAndMintButton
-                    disabled={mintGasLimit.eq(BN_ZERO)}
+                    disabled={mintGasLimit.eq(BN_ZERO) || tradeButton.disabled}
                     routerAddress={
                       chainProperties["arbitrumGoerli"]["routerAddress"]
                     }
                     poolTypeId={limitPoolTypeIds["constant-product"]}
-                    token0={tokenIn}
-                    token1={tokenOut}
+                    tokenIn={tokenIn}
+                    tokenOut={tokenOut}
                     feeTier={3000} // default 0.3% fee
                     to={address}
                     amount={amountIn}
@@ -1513,7 +1610,38 @@ export default function Trade() {
                     zeroForOne={tokenIn.callId == 0}
                     gasLimit={mintGasLimit}
                   />
-                )}
+                )
+              ) :
+              (
+                tokenIn.native ? 
+                  <SwapWrapNativeButton
+                    disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
+                    routerAddress={
+                      chainProperties[networkName]["routerAddress"]
+                    }
+                    wethAddress={
+                      chainProperties[networkName]["wethAddress"]
+                    }
+                    tokenInSymbol={tokenIn.symbol}
+                    amountIn={amountIn}
+                    gasLimit={swapGasLimit}
+                    resetAfterSwap={resetAfterSwap}
+                  />
+                : <SwapUnwrapNativeButton
+                  disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
+                  routerAddress={
+                    chainProperties[networkName]["routerAddress"]
+                  }
+                  wethAddress={
+                    chainProperties[networkName]["wethAddress"]
+                  }
+                  tokenInSymbol={tokenIn.symbol}
+                  amountIn={amountIn}
+                  gasLimit={swapGasLimit}
+                  resetAfterSwap={resetAfterSwap}
+                />
+              )
+              }
               </>
             )}
           </div>
