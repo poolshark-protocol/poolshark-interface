@@ -370,7 +370,7 @@ export default function Trade() {
     }
   }, [filledAmountList]);
 
-  //////////////////////Get Pools Data
+  //////////////////////Position Data
 
   //BOTH
   const [allLimitPositions, setAllLimitPositions] = useState([]);

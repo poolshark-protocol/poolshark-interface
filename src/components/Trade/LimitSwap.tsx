@@ -150,6 +150,29 @@ export default function LimitSwap() {
   const [availablePools, setAvailablePools] = useState(undefined);
   const [quoteParams, setQuoteParams] = useState(undefined);
 
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
+      // adjust decimals when switching directions
+      updatePools(exactIn ? amountIn : amountOut, exactIn);
+      if (exactIn) {
+        if (!isNaN(parseFloat(displayIn))) {
+          const bnValue = parseUnits(displayIn, tokenIn.decimals);
+          setAmountIn(bnValue);
+          setAmounts(bnValue, true);
+        }
+      } else {
+        if (!isNaN(parseFloat(displayOut))) {
+          const bnValue = parseUnits(displayOut, tokenOut.decimals);
+          setAmountOut(bnValue);
+          setAmounts(bnValue, false);
+        }
+      }
+      setNeedsAllowanceIn(true);
+    }
+  }, [tokenIn.address, tokenOut.address]);
+
+  
+
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
     const pools = await getSwapPools(
       limitSubgraph,
@@ -174,6 +197,25 @@ export default function LimitSwap() {
     setAvailablePools(poolAdresses);
     setQuoteParams(quoteList);
   }
+
+  const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
+    if (isAmountIn) {
+      if (bnValue.gt(BN_ZERO)) {
+        updatePools(bnValue, true);
+      } else {
+        setDisplayOut("");
+        setAmountOut(BN_ZERO);
+      }
+    } else {
+      if (bnValue.gt(BN_ZERO)) {
+        updatePools(bnValue, false);
+      } else {
+        setDisplayIn("");
+        setAmountIn(BN_ZERO);
+      }
+    }
+  };
+  
 
   /////////////////////////tokens and amounts
 
@@ -282,24 +324,6 @@ export default function LimitSwap() {
         }
       }
       setExactIn(false);
-    }
-  };
-
-  const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
-    if (isAmountIn) {
-      if (bnValue.gt(BN_ZERO)) {
-        updatePools(bnValue, true);
-      } else {
-        setDisplayOut("");
-        setAmountOut(BN_ZERO);
-      }
-    } else {
-      if (bnValue.gt(BN_ZERO)) {
-        updatePools(bnValue, false);
-      } else {
-        setDisplayIn("");
-        setAmountIn(BN_ZERO);
-      }
     }
   };
 
@@ -474,6 +498,18 @@ export default function LimitSwap() {
         networkName
       );
   }
+
+  ////////////////////////////////Button State
+
+  useEffect(() => {
+    if (amountIn) {
+      setTokenInAmount(amountIn);
+    }
+  }, [amountIn]);
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [tradeParams.tokenInAmount, tradeParams.tokenOutAmount]);
 
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
