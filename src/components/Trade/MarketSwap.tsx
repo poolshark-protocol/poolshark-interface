@@ -217,7 +217,6 @@ export default function MarketSwap() {
       setNeedsAllowanceIn(true);
     }
   }, [tokenIn.address, tokenOut.address]);
-
   
 
   /////////////////////Double Input Boxes
@@ -286,7 +285,6 @@ export default function MarketSwap() {
   const [swapPoolAddresses, setSwapPoolAddresses] = useState<string[]>([]);
   const [swapParams, setSwapParams] = useState<any[]>([]);
 
-  //MARKET
   const { data: poolQuotes } = useContractRead({
     address: chainProperties[networkName]["routerAddress"], //contract address,
     abi: poolsharkRouterABI, // contract abi,
@@ -298,13 +296,9 @@ export default function MarketSwap() {
       console.log("Error multiquote", error);
     },
     onSuccess(data) {
-      // if (quoteParams[0])
-      // console.log("Success multiquote", quoteParams[0]?.exactIn, formatUnits(quoteParams[0]?.amount.toString(), exactIn ? tokenIn.decimals : tokenOut.decimals));
-      // console.log("multiquote results:", data)
     },
   });
 
-  //MARKET
   useEffect(() => {
     if (poolQuotes && poolQuotes[0]) {
       if (exactIn) {
@@ -332,7 +326,6 @@ export default function MarketSwap() {
     }
   }, [poolQuotes, quoteParams, tradeSlippage]);
 
-  //MARKET
   function updateSwapParams(poolQuotes: any) {
     const poolAddresses: string[] = [];
     const paramsList: SwapParams[] = [];
@@ -405,7 +398,6 @@ export default function MarketSwap() {
   const [swapGasFee, setSwapGasFee] = useState("$0.00");
   const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
 
-  //CAN BE SPLIT
   useEffect(() => {
     if (
       !amountIn.eq(BN_ZERO) &&
@@ -416,7 +408,6 @@ export default function MarketSwap() {
     }
   }, [swapParams, tokenIn, tokenOut, lowerTick, upperTick, needsAllowanceIn]);
 
-  //MARKET
   async function updateGasFee() {
     if (tokenIn.userRouterAllowance?.gte(amountIn)) {
       await gasEstimateSwap(

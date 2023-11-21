@@ -31,6 +31,7 @@ import inputFilter from "../../utils/inputFilter";
 import { getLimitTokenUsdPrice } from "../../utils/tokens";
 import { gasEstimateMintLimit } from "../../utils/gas";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+import { CoinStatus, bn } from "fuels";
 
 export default function LimitSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -153,6 +154,7 @@ export default function LimitSwap() {
   const [quoteParams, setQuoteParams] = useState(undefined);
 
   useEffect(() => {
+    console.log("useEffect");
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
       updatePools(exactIn ? amountIn : amountOut, exactIn);
@@ -171,6 +173,8 @@ export default function LimitSwap() {
       }
       setNeedsAllowanceIn(true);
     }
+    /* console.log("amountOut", amountOut);
+    console.log("displayOut", displayOut); */
   }, [tokenIn.address, tokenOut.address]);
 
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
@@ -199,6 +203,7 @@ export default function LimitSwap() {
   }
 
   const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
+    console.log("setAmounts", bnValue, isAmountIn);
     if (isAmountIn) {
       if (bnValue.gt(BN_ZERO)) {
         updatePools(bnValue, true);
@@ -245,40 +250,6 @@ export default function LimitSwap() {
       );
     }
   }, [tokenOut.address]);
-
-  const [limitPoolAddressList, setLimitPoolAddressList] = useState([]);
-  const [limitPositionSnapshotList, setLimitPositionSnapshotList] = useState<
-    any[]
-  >([]);
-
-  ///////////////////////////////Filled Amount
-  const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
-  const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
-
-  //BOTH
-  const { data: filledAmountList } = useContractRead({
-    address: chainProperties[networkName]["routerAddress"],
-    abi: poolsharkRouterABI,
-    functionName: "multiSnapshotLimit",
-    args: [limitPoolAddressList, limitPositionSnapshotList],
-    chainId: chainId,
-    watch: needsSnapshot,
-    enabled: isConnected && limitPoolAddressList.length > 0 && needsSnapshot,
-    onSuccess(data) {
-      setNeedsSnapshot(false);
-    },
-    onError(error) {
-      console.log("Error price Limit", error);
-    },
-  });
-
-  useEffect(() => {
-    if (filledAmountList) {
-      setLimitFilledAmountList(filledAmountList[0]);
-
-      setCurrentAmountOutList(filledAmountList[1]);
-    }
-  }, [filledAmountList]);
 
   /////////////////////Double Input Boxes
   const [exactIn, setExactIn] = useState(true);
@@ -379,7 +350,13 @@ export default function LimitSwap() {
         );
       }
     }
-  }, [lowerPriceString, upperPriceString, priceRangeSelected]);
+  }, [
+    lowerPriceString,
+    upperPriceString,
+    priceRangeSelected,
+    tokenIn,
+    tokenOut,
+  ]);
 
   const handlePriceSwitch = () => {
     setLimitPriceOrder(!limitPriceOrder);
@@ -408,51 +385,12 @@ export default function LimitSwap() {
     ) {
       updateLimitTicks();
     }
-  }, [limitPriceString, tradeSlippage, priceRangeSelected]);
-
-  //LIMIT
-  useEffect(() => {
-    if (tradeSlippage) {
-      if (exactIn) {
-        if (!isNaN(parseFloat(limitPriceString))) {
-          const tokenOutAmount = getExpectedAmountOutFromInput(
-            Number(lowerTick),
-            Number(upperTick),
-            tokenIn.callId == 0,
-            amountIn
-          );
-          const tokenOutAmountDisplay = parseFloat(
-            ethers.utils.formatUnits(
-              tokenOutAmount.toString(),
-              tokenOut.decimals
-            )
-          ).toPrecision(6);
-          setDisplayOut(tokenOutAmountDisplay);
-          setAmountOut(tokenOutAmount);
-        } else {
-          setDisplayOut("");
-          setAmountOut(BN_ZERO);
-        }
-      } else {
-        if (!isNaN(parseFloat(limitPriceString))) {
-          const tokenInAmount = getExpectedAmountInFromOutput(
-            Number(lowerTick),
-            Number(upperTick),
-            tokenIn.callId == 0,
-            amountOut
-          );
-          const tokenInAmountDisplay = parseFloat(
-            ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
-          ).toPrecision(6);
-          setDisplayIn(tokenInAmountDisplay);
-          setAmountIn(tokenInAmount);
-        } else {
-          setDisplayIn("");
-          setAmountIn(BN_ZERO);
-        }
-      }
-    }
-  }, [lowerTick, upperTick, tokenIn.address, tokenOut.address]);
+  }, [
+    limitPriceString,
+    tradeSlippage,
+    priceRangeSelected,
+    amountIn || amountOut,
+  ]);
 
   function updateLimitTicks() {
     const tickSpacing = tradePoolData.feeTier.tickSpacing;
@@ -554,6 +492,50 @@ export default function LimitSwap() {
       }
     }
   }
+
+  //LIMIT
+  useEffect(() => {
+    if (tradeSlippage) {
+      if (exactIn) {
+        if (!isNaN(parseFloat(limitPriceString))) {
+          const tokenOutAmount = getExpectedAmountOutFromInput(
+            Number(lowerTick),
+            Number(upperTick),
+            tokenIn.callId == 0,
+            amountIn
+          );
+          const tokenOutAmountDisplay = parseFloat(
+            ethers.utils.formatUnits(
+              tokenOutAmount.toString(),
+              tokenOut.decimals
+            )
+          ).toPrecision(6);
+          setDisplayOut(tokenOutAmountDisplay);
+          setAmountOut(tokenOutAmount);
+        } else {
+          setDisplayOut("");
+          setAmountOut(BN_ZERO);
+        }
+      } else {
+        if (!isNaN(parseFloat(limitPriceString))) {
+          const tokenInAmount = getExpectedAmountInFromOutput(
+            Number(lowerTick),
+            Number(upperTick),
+            tokenIn.callId == 0,
+            amountOut
+          );
+          const tokenInAmountDisplay = parseFloat(
+            ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
+          ).toPrecision(6);
+          setDisplayIn(tokenInAmountDisplay);
+          setAmountIn(tokenInAmount);
+        } else {
+          setDisplayIn("");
+          setAmountIn(BN_ZERO);
+        }
+      }
+    }
+  }, [lowerTick, upperTick, tokenIn.address, tokenOut.address]);
 
   ////////////////////////////////FeeTiers & Slippage
   const [priceImpact, setPriceImpact] = useState("0.00");

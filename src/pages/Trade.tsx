@@ -64,16 +64,7 @@ import LimitSwap from "../components/Trade/LimitSwap";
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
   const { data: signer } = useSigner();
-  const {
-    inputBox: inputBoxIn,
-    display: displayIn,
-    setDisplay: setDisplayIn,
-  } = useInputBox();
-  const {
-    inputBox: inputBoxOut,
-    display: displayOut,
-    setDisplay: setDisplayOut,
-  } = useInputBox();
+ 
 
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
     useConfigStore((state) => [
