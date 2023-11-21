@@ -155,7 +155,6 @@ export const gasEstimateMintLimit = async (
     );
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
-    console.log('inside gas estimate', rangePoolRoute)
     if (!rangePoolRoute || !provider) {
       setMintGasFee("$0.00");
       setMintGasLimit(BN_ZERO);
@@ -219,6 +218,8 @@ export const gasEstimateCreateAndMintLimit = async (
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
   bnInput: BigNumber,
+  tickSpacing: number,
+  startPrice: string,
   signer,
   setMintGasFee,
   setMintGasLimit,
@@ -243,7 +244,11 @@ export const gasEstimateCreateAndMintLimit = async (
       poolsharkRouterABI,
       provider
     );
-
+      console.log('create and mint check:', TickMath.getSqrtPriceAtPriceString(
+        !isNaN(parseFloat(startPrice)) ? startPrice : '1.00',
+        tokenIn, tokenOut,
+        tickSpacing ?? 30
+      ).toString(), lowerTick.toString(), upperTick.toString(), feeTier.toString(), bnInput.toString())
     let gasUnits: BigNumber;
     gasUnits = await routerContract
       .connect(signer)
@@ -252,7 +257,11 @@ export const gasEstimateCreateAndMintLimit = async (
           poolTypeId: poolTypeId,
           tokenIn: tokenIn.address,
           tokenOut: tokenOut.address,
-          startPrice: TickMath.getSqrtRatioAtTick(Number(upperTick)),
+          startPrice: BigNumber.from(String(TickMath.getSqrtPriceAtPriceString(
+            !isNaN(parseFloat(startPrice)) ? startPrice : '1.00',
+            tokenIn, tokenOut,
+            tickSpacing ?? 30
+          ))),
           swapFee: feeTier,
         }, // pool params
         [], // range positions

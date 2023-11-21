@@ -46,6 +46,8 @@ type TradeState = {
   needsBalanceIn: boolean;
   needsBalanceOut: boolean;
   needsSnapshot: boolean;
+  //Start price for pool creation
+  startPrice: string;
 };
 
 type TradeLimitAction = {
@@ -92,6 +94,7 @@ type TradeLimitAction = {
   setNeedsBalanceIn: (needsBalance: boolean) => void;
   setNeedsBalanceOut: (needsBalance: boolean) => void;
   setNeedsSnapshot: (needsSnapshot: boolean) => void;
+  setStartPrice: (startPrice: string) => void;
 };
 
 const initialTradeState: TradeState = {
@@ -150,6 +153,7 @@ const initialTradeState: TradeState = {
   needsBalanceIn: true,
   needsBalanceOut: false,
   needsSnapshot: true,
+  startPrice: "",
 };
 
 export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
@@ -184,6 +188,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   needsBalanceIn: initialTradeState.needsBalanceIn,
   needsBalanceOut: initialTradeState.needsBalanceOut,
   needsSnapshot: initialTradeState.needsSnapshot,
+  startPrice: initialTradeState.startPrice,
   //actions
   setPairSelected: (pairSelected: boolean) => {
     set(() => ({
@@ -462,6 +467,11 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       needsSnapshot: needsSnapshot,
     }));
   },
+  setStartPrice: (startPrice: string) => {
+    set({
+      startPrice: startPrice
+    })
+  },
   switchDirection: (isAmountIn: boolean, amount: string) => {
     set((state) => ({
       tokenIn: {
@@ -521,7 +531,6 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       console.log(error);
     }
   },
-
   resetTradeLimitParams: () => {
     set({
       //trade pool & pair

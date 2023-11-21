@@ -9,7 +9,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import { TickMath } from "../../utils/math/tickMath";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
@@ -38,11 +38,15 @@ import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
     ]);
 
     const [
+      startPrice,
+      tradePoolData,
       setNeedsRefetch,
       setNeedsAllowanceIn,
       setNeedsBalanceIn,
       setNeedsSnapshot,
     ] = useTradeStore((state) => [
+      state.startPrice,
+      state.tradePoolData,
       state.setNeedsRefetch,
       state.setNeedsAllowanceIn,
       state.setNeedsBalanceIn,
@@ -62,8 +66,12 @@ import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
             poolTypeId: poolTypeId,
             tokenIn: tokenIn.address,
             tokenOut: tokenOut.address,
-            startPrice: TickMath.getSqrtRatioAtTick(upper), /// @notice ensure tick spacing is respected 
-            swapFee: feeTier
+            startPrice: BigNumber.from(String(TickMath.getSqrtPriceAtPriceString(
+              !isNaN(parseFloat(startPrice)) ? startPrice : '1.00',
+              tokenIn, tokenOut,
+              tradePoolData?.feeTier?.tickSpacing ?? 30
+            ))),
+            swapFee: feeTier ?? 3000
         },  // pool params
         [], // range positions
         [
@@ -71,6 +79,7 @@ import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
                 to: to,
                 amount: amount,
                 mintPercent: mintPercent,
+                positionId: BN_ZERO,
                 lower: lower,
                 upper: upper,
                 zeroForOne: zeroForOne,
@@ -78,7 +87,7 @@ import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
             }
         ], // limit positions
       ],
-      enabled: feeTier != undefined && routerAddress != ZERO_ADDRESS && gasLimit.gt(BN_ZERO),
+      enabled: feeTier != undefined && gasLimit.gt(BN_ZERO),
       chainId: chainId,
       overrides: {
         gasLimit: gasLimit,
@@ -89,7 +98,6 @@ import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
       },
       onSuccess() {},
       onError() {
-        console.log('limit create error display', zeroForOne, poolTypeId, gasLimit, chainId, feeTier)
         setErrorDisplay(true);
       },
     });

@@ -75,21 +75,19 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
       isConnected &&
       tokenIn.address != undefined && needsAllowance,
     onSuccess(data) {
-      console.log("Success");
       setNeedsAllowance(false);
-      console.log("Allowance", data);
     },
     onError(error) {
       console.log("Error allowance", error);
     },
     onSettled(data, error) {
-      console.log("current allowance", allowanceIn)
-      console.log("Allowance Settled", {
-        data,
-        error,
-        limitPoolAddress,
-        tokenIn,
-      });
+      // console.log("current allowance", allowanceIn)
+      // console.log("Allowance Settled", {
+      //   data,
+      //   error,
+      //   limitPoolAddress,
+      //   tokenIn,
+      // });
     },
   });
 

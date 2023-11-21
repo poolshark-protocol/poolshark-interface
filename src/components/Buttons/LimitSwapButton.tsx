@@ -55,8 +55,6 @@ export default function LimitSwapButton({
 
   useEffect(() => {}, [disabled]);
 
-  console.log('limit gas limit', gasLimit.toString())
-
   const { config } = usePrepareContractWrite({
     address: routerAddress,
     abi: poolsharkRouterABI,
@@ -86,7 +84,6 @@ export default function LimitSwapButton({
       )
     },
     onError() {
-      console.log('errored limit swap button')
       setErrorDisplay(true);
     },
   });
@@ -96,7 +93,6 @@ export default function LimitSwapButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      console.log("success");
       setSuccessDisplay(true);
       resetAfterSwap();
       setNeedsAllowanceIn(true);

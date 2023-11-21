@@ -64,8 +64,6 @@ export default function LimitRemoveLiqButton({
   const [gasLimit, setGasLimit] = useState(BN_ZERO);
 
   const updateClaimTick = async () => {
-    console.log(Number(epochLast), "epochLast")
-
     const tick = await getClaimTick(
       poolAddress,
       Number(lower),

@@ -288,11 +288,6 @@ export default function ViewLimit() {
           (position) => position.id == positionId
         );
         if (position != undefined) {
-          console.log(
-            "round back negative",
-            roundDown(-755, 10),
-            roundUp(-755, 10)
-          );
           setLimitPoolAddress(position.poolId);
           setNeedsSnapshot(true);
           setLimitPositionData({
