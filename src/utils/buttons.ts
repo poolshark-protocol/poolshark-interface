@@ -66,7 +66,7 @@ export function getTradeButtonMessage(
           tokenIn.decimals
         )
     );
-    if (tokenIn.userBalance < amountInValue) {
+    if (tokenIn.userBalance < amountInValue && tokenIn.address != ZERO_ADDRESS) {
         return "Low " + tokenIn.symbol + " Balance"
     } else if (amountInValue == 0) {
         return "Enter Amount"
