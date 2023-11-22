@@ -327,6 +327,7 @@ export default function Trade() {
       tokenOut.address != ZERO_ADDRESS &&
       (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
     ) {
+      console.log('fetching token out usd price')
       getLimitTokenUsdPrice(
         tokenOut.address,
         setTokenOutTradeUSDPrice,
@@ -1212,13 +1213,12 @@ export default function Trade() {
                   !isNaN(tokenIn.decimals) &&
                   !isNaN(tokenIn.USDPrice)
                     ? (
-                        parseFloat(
-                          ethers.utils.formatUnits(
-                            amountIn ?? BN_ZERO,
-                            tokenIn.decimals
-                          )
+                        (
+                          !isNaN(parseFloat(displayIn))
+                          ? parseFloat(displayIn)
+                          : 0
                         ) * (tokenIn.USDPrice ?? 0)
-                      ).toFixed(2)
+                    ).toFixed(2)
                     : (0).toFixed(2)}
                 </span>
                 <span>BALANCE: {tokenIn.userBalance}</span>
@@ -1284,27 +1284,20 @@ export default function Trade() {
               <div className="flex items-end justify-between text-[11px] text-grey1">
                 <span>
                   ~$
-                  {pairSelected &&
-                  !amountIn.eq(BN_ZERO) &&
-                  amountIn != undefined &&
-                  lowerTick != undefined &&
-                  upperTick != undefined &&
-                  tokenOut.address != ZERO_ADDRESS &&
-                  !isNaN(tokenOut.decimals) &&
-                  !isNaN(parseInt(amountOut.toString())) &&
-                  !isNaN(tokenOut.USDPrice) &&
-                  amountOut.gt(BN_ZERO) ? (
-                    (
-                      parseFloat(
-                        ethers.utils.formatUnits(
-                          amountOut ?? BN_ZERO,
-                          tokenOut.decimals
-                        )
-                      ) * (tokenOut.USDPrice ?? 0)
-                    ).toFixed(2)
-                  ) : (
-                    <>{(0).toFixed(2)}</>
-                  )}
+                  {
+                    !isNaN(tokenOut.decimals) &&
+                    !isNaN(tokenOut.USDPrice) ? (
+                      (
+                        (
+                          !isNaN(parseFloat(displayOut))
+                          ? parseFloat(displayOut)
+                          : 0
+                        ) * (tokenOut.USDPrice ?? 0)
+                      ).toFixed(2)
+                    ) : (
+                      <>{(0).toFixed(2)}</>
+                    )
+                  }
                 </span>
                 <span>
                   {pairSelected ? "Balance: " + (!isNaN(tokenOut?.userBalance) ? tokenOut.userBalance : '0') : <></>}
