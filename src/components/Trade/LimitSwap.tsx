@@ -11,7 +11,8 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { BigNumber, ethers } from "ethers";
 import { inputHandler, parseUnits } from "../../utils/math/valueMath";
 import { getSwapPools, limitPoolTypeIds } from "../../utils/pools";
-import { QuoteParams } from "../../utils/types";
+import { QuoteParams, SwapParams } from "../../utils/types";
+
 import {
   TickMath,
   invertPrice,
@@ -36,6 +37,8 @@ import {
 } from "../../utils/gas";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { CoinStatus, bn } from "fuels";
+import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
+import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 
 export default function LimitSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -91,7 +94,7 @@ export default function LimitSwap() {
     setNeedsPosRefetch,
     needsSnapshot,
     setNeedsSnapshot,
-    setStartPrice
+    setStartPrice,
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
@@ -136,7 +139,6 @@ export default function LimitSwap() {
     s.setStartPrice,
   ]);
 
-
   const {
     inputBox: inputBoxIn,
     display: displayIn,
@@ -153,6 +155,8 @@ export default function LimitSwap() {
   const { data: signer } = useSigner();
 
   const [priceRangeSelected, setPriceRangeSelected] = useState(false);
+
+  const [swapParams, setSwapParams] = useState<any[]>([]);
 
   /////////////////////////////Fetch Pools
   const [availablePools, setAvailablePools] = useState(undefined);
@@ -606,7 +610,7 @@ export default function LimitSwap() {
         // hard set at 0.3% tier
         feeTier: {
           feeAmount: 3000,
-          tickSpacing: 30
+          tickSpacing: 30,
         },
       });
     }
@@ -615,6 +619,9 @@ export default function LimitSwap() {
   ////////////////////////////////Gas
   const [mintFee, setMintFee] = useState("$0.00");
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
+  ////////////////////////////////Gas
+  const [swapGasFee, setSwapGasFee] = useState("$0.00");
+  const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
     if (
@@ -698,14 +705,14 @@ export default function LimitSwap() {
   ////////////////////////////////Button State
 
   useEffect(() => {
-    if (amountIn) {
-      setTokenInAmount(amountIn);
-    }
-  }, [amountIn]);
-
-  useEffect(() => {
     setTradeButtonState();
-  }, [amountIn, tokenIn.userBalance, tokenIn.address, tokenOut.address, tokenIn.userRouterAllowance]);
+  }, [
+    amountIn,
+    tokenIn.userBalance,
+    tokenIn.address,
+    tokenOut.address,
+    tokenIn.userRouterAllowance,
+  ]);
 
   ////////////////////////////////Expanded
   const [expanded, setExpanded] = useState(false);
@@ -774,13 +781,15 @@ export default function LimitSwap() {
           </svg>
         </div>
       </div>
+
       <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
         <div className="flex items-end justify-between text-[11px] text-grey1">
           <span>
+            {" "}
             ~$
             {!isNaN(parseInt(amountIn.toString())) &&
             !isNaN(tokenIn.decimals) &&
-            !isNaN(tokenOut.USDPrice)
+            !isNaN(tokenIn.USDPrice)
               ? (
                   parseFloat(
                     ethers.utils.formatUnits(
@@ -810,9 +819,7 @@ export default function LimitSwap() {
               >
                 MAX
               </button>
-            ) : (
-              <></>
-            )}
+            ) : null}
             <SelectToken
               index="0"
               key="in"
@@ -864,7 +871,8 @@ export default function LimitSwap() {
             tokenOut.address != ZERO_ADDRESS &&
             !isNaN(tokenOut.decimals) &&
             !isNaN(parseInt(amountOut.toString())) &&
-            !isNaN(tokenOut.USDPrice) ? (
+            !isNaN(tokenOut.USDPrice) &&
+            amountOut.gt(BN_ZERO) ? (
               (
                 parseFloat(
                   ethers.utils.formatUnits(
@@ -878,7 +886,12 @@ export default function LimitSwap() {
             )}
           </span>
           <span>
-            {pairSelected ? "Balance: " + tokenOut.userBalance : <></>}
+            {pairSelected ? (
+              "Balance: " +
+              (!isNaN(tokenOut?.userBalance) ? tokenOut.userBalance : "0")
+            ) : (
+              <></>
+            )}
           </span>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
@@ -1014,6 +1027,7 @@ export default function LimitSwap() {
               placeholder="0"
               value={limitPriceString}
               type="text"
+              disabled={wethCall}
               onChange={(e) => {
                 if (e.target.value !== "" && e.target.value !== "0") {
                   setLimitPriceString(inputFilter(e.target.value));
@@ -1027,7 +1041,8 @@ export default function LimitSwap() {
       </div>
       {tokenIn.address != ZERO_ADDRESS &&
       tokenOut.address != ZERO_ADDRESS &&
-      tradePoolData?.id == ZERO_ADDRESS ? (
+      tradePoolData?.id == ZERO_ADDRESS &&
+      !wethCall ? (
         <div className="bg-dark border rounded-[4px] border-grey/50 p-5 mt-5">
           <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
             This pool does not exist so a starting price must be set in order to
@@ -1042,6 +1057,9 @@ export default function LimitSwap() {
                 placeholder="0"
                 id="startPrice"
                 type="text"
+                onChange={(e) => {
+                  setStartPrice(inputFilter(e.target.value));
+                }}
               />
             </span>
           </div>
@@ -1057,6 +1075,7 @@ export default function LimitSwap() {
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
             {"1 " + tokenIn.symbol} ={" "}
             {displayPoolPrice(
+              wethCall,
               pairSelected,
               tradePoolData?.poolPrice,
               tokenIn,
@@ -1080,44 +1099,71 @@ export default function LimitSwap() {
         <ConnectWalletButton xl={true} />
       ) : (
         <>
-          {tokenIn.userRouterAllowance?.lt(amountIn) ? (
+          {tokenIn.userRouterAllowance?.lt(amountIn) &&
+          !tokenIn.native &&
+          pairSelected ? (
             <SwapRouterApproveButton
               routerAddress={chainProperties[networkName]["routerAddress"]}
               approveToken={tokenIn.address}
               tokenSymbol={tokenIn.symbol}
               amount={amountIn}
             />
-          ) : tradePoolData?.id != ZERO_ADDRESS ? (
-            <LimitSwapButton
+          ) : !wethCall ? (
+            tokenOut.address == ZERO_ADDRESS ||
+            tradePoolData?.id != ZERO_ADDRESS ? (
+              <LimitSwapButton
+                routerAddress={chainProperties[networkName]["routerAddress"]}
+                disabled={mintGasLimit.eq(BN_ZERO) || tradeButton.disabled}
+                poolAddress={tradePoolData?.id}
+                to={address}
+                amount={amountIn}
+                mintPercent={parseUnits("1", 24)}
+                lower={lowerTick}
+                upper={upperTick}
+                closeModal={() => {}}
+                zeroForOne={tokenIn.callId == 0}
+                gasLimit={mintGasLimit}
+                resetAfterSwap={resetAfterSwap}
+              />
+            ) : (
+              <LimitCreateAndMintButton
+                disabled={mintGasLimit.eq(BN_ZERO) || tradeButton.disabled}
+                routerAddress={
+                  chainProperties["arbitrumGoerli"]["routerAddress"]
+                }
+                poolTypeId={limitPoolTypeIds["constant-product"]}
+                tokenIn={tokenIn}
+                tokenOut={tokenOut}
+                feeTier={tradePoolData?.feeTier?.feeAmount}
+                to={address}
+                amount={amountIn}
+                mintPercent={parseUnits("1", 24)}
+                lower={lowerTick}
+                upper={upperTick}
+                closeModal={() => {}}
+                zeroForOne={tokenIn.callId == 0}
+                gasLimit={mintGasLimit}
+              />
+            )
+          ) : tokenIn.native ? (
+            <SwapWrapNativeButton
+              disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
               routerAddress={chainProperties[networkName]["routerAddress"]}
-              disabled={mintGasLimit.eq(BN_ZERO)}
-              poolAddress={tradePoolData?.id}
-              to={address}
-              amount={amountIn}
-              mintPercent={parseUnits("1", 24)}
-              lower={lowerTick}
-              upper={upperTick}
-              closeModal={() => {}}
-              zeroForOne={tokenIn.callId == 0}
-              gasLimit={mintGasLimit}
+              wethAddress={chainProperties[networkName]["wethAddress"]}
+              tokenInSymbol={tokenIn.symbol}
+              amountIn={amountIn}
+              gasLimit={swapGasLimit}
               resetAfterSwap={resetAfterSwap}
             />
           ) : (
-            <LimitCreateAndMintButton
-              disabled={mintGasLimit.eq(BN_ZERO)}
-              routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
-              poolTypeId={limitPoolTypeIds["constant-product"]}
-              token0={tokenIn}
-              token1={tokenOut}
-              feeTier={3000} // default 0.3% fee
-              to={address}
-              amount={amountIn}
-              mintPercent={parseUnits("1", 24)}
-              lower={lowerTick}
-              upper={upperTick}
-              closeModal={() => {}}
-              zeroForOne={tokenIn.callId == 0}
-              gasLimit={mintGasLimit}
+            <SwapUnwrapNativeButton
+              disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
+              routerAddress={chainProperties[networkName]["routerAddress"]}
+              wethAddress={chainProperties[networkName]["wethAddress"]}
+              tokenInSymbol={tokenIn.symbol}
+              amountIn={amountIn}
+              gasLimit={swapGasLimit}
+              resetAfterSwap={resetAfterSwap}
             />
           )}
         </>
