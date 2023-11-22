@@ -327,7 +327,6 @@ export default function Trade() {
       tokenOut.address != ZERO_ADDRESS &&
       (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
     ) {
-      console.log('fetching token out usd price')
       getLimitTokenUsdPrice(
         tokenOut.address,
         setTokenOutTradeUSDPrice,
