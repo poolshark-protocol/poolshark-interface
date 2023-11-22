@@ -18,7 +18,6 @@ export default function SelectToken(props) {
   const { address } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
   const [customInput, setCustomInput] = useState("");
-  const [displayTokenList, setDisplayTokenList] = useState([]);
   const [tokenInfo, setTokenInfo] = useState(undefined);
 
   const [
@@ -28,6 +27,8 @@ export default function SelectToken(props) {
     setListedTokenList,
     searchtokenList,
     setSearchTokenList,
+    displayTokenList,
+    setDisplayTokenList,
   ] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
@@ -35,6 +36,8 @@ export default function SelectToken(props) {
     state.setListedTokenList,
     state.searchtokenList,
     state.setSearchTokenList,
+    state.displayTokenList,
+    state.setDisplayTokenList,
   ]);
 
   const {
@@ -65,42 +68,6 @@ export default function SelectToken(props) {
     };
     fetch();
   }, [tokenInfo]);
-
-  useEffect(() => {
-    const fetch = async () => {
-      const chainName = chainIdsToNamesForGitTokenList[chainId];
-      axios
-        .get(
-          `https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/native-eth-support/blockchains/${
-            chainName === undefined ? "ethereum" : "arbitrum-goerli"
-          }/tokenlist.json`
-        )
-        .then(function (response) {
-          const coins = {
-            listed_tokens: response.data.listed_tokens,
-            search_tokens: response.data.search_tokens,
-          } as coinsList;
-          for (let i = 0; i < coins.listed_tokens?.length; i++) {
-            coins.listed_tokens[i].address = coins.listed_tokens[i].id;
-          }
-          if (coins.listed_tokens != undefined) {
-            setListedTokenList(coins.listed_tokens);
-            setDisplayTokenList(coins.listed_tokens);
-          }
-          for (let i = 0; i < coins.search_tokens?.length; i++) {
-            coins.search_tokens[i].address = coins.search_tokens[i].id;
-          }
-          if (coins.search_tokens != undefined) {
-            setSearchTokenList(coins.search_tokens);
-          }
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    };
-    fetch();
-  }, [chainId, address]);
-
 
   useEffect(() => {
     const fetch = async () => {

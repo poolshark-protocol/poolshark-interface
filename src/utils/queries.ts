@@ -416,7 +416,7 @@ export const fetchCoverPositions = (client: CoverSubgraph, address: string) => {
         }
     `;
     client
-      .query({
+      ?.query({
         query: gql(positionsQuery),
         variables: {
           owner: address,

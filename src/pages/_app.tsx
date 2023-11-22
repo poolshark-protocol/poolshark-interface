@@ -15,7 +15,9 @@ import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton';
 import { isMobile } from "react-device-detect";
 import { Analytics } from '@vercel/analytics/react'
 import { useConfigStore } from '../hooks/useConfigStore';
-import { chainProperties, supportedNetworkNames } from '../utils/chains';
+import { chainIdsToNamesForGitTokenList, chainProperties, supportedNetworkNames } from '../utils/chains';
+import axios from 'axios';
+import { coinsList } from '../utils/types';
 
 
 const { chains, provider } = configureChains(
@@ -68,12 +70,18 @@ function MyApp({ Component, pageProps }) {
     setLimitSubgraph,
     setCoverSubgraph,
     setCoverFactoryAddress,
+    setListedTokenList,
+    setSearchTokenList,
+    setDisplayTokenList,
   ] = useConfigStore((state) => [
     state.setChainId,
     state.setNetworkName,
     state.setLimitSubgraph,
     state.setCoverSubgraph,
     state.setCoverFactoryAddress,
+    state.setListedTokenList,
+    state.setSearchTokenList,
+    state.setDisplayTokenList
   ]);
 
   const {
@@ -82,6 +90,37 @@ function MyApp({ Component, pageProps }) {
 
   useEffect(() => {
     setChainId(chainId)
+    const fetchTokenMetadata = async () => {
+      const chainName = chainIdsToNamesForGitTokenList[chainId];
+      axios.get(
+        `https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/native-eth-support/blockchains/${
+          chainName === undefined ? "ethereum" : "arbitrum-goerli"
+        }/tokenlist.json`
+      ).then(
+        function (response) {
+          const coins = {
+            listed_tokens: response.data.listed_tokens,
+            search_tokens: response.data.search_tokens,
+          } as coinsList;
+          for (let i = 0; i < coins.listed_tokens?.length; i++) {
+            coins.listed_tokens[i].address = coins.listed_tokens[i].id;
+          }
+          if (coins.listed_tokens != undefined) {
+            setListedTokenList(coins.listed_tokens);
+            setDisplayTokenList(coins.listed_tokens);
+          }
+          for (let i = 0; i < coins.search_tokens?.length; i++) {
+            coins.search_tokens[i].address = coins.search_tokens[i].id;
+          }
+          if (coins.search_tokens != undefined) {
+            setSearchTokenList(coins.search_tokens);
+          }
+        }
+      ).catch(function (error) {
+        console.log(error);
+      });
+    };
+    fetchTokenMetadata();
   }, [chainId]);
 
   useEffect(() => {
