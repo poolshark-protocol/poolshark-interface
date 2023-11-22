@@ -39,8 +39,8 @@ export const getClaimTick = async (
         );
     // check data length
     const claimTickDataLength = isCover
-      ? claimTickQuery["data"]["ticks"].length
-      : claimTickQuery["data"]["limitTicks"].length;
+      ? claimTickQuery["data"]["ticks"]?.length
+      : claimTickQuery["data"]["limitTicks"]?.length;
     // set claim tick if found
     if (claimTickDataLength > 0) {
       if (setAddLiqDisabled != undefined) {
@@ -86,8 +86,8 @@ export const getClaimTick = async (
         );
     // check data length
     const claimTickDataLength = isCover
-      ? claimTickQuery["data"]["ticks"].length
-      : claimTickQuery["data"]["limitTicks"].length;
+      ? claimTickQuery["data"]["ticks"]?.length
+      : claimTickQuery["data"]["limitTicks"]?.length;
     // set claim tick if found
     if (claimTickDataLength > 0) {
       if (setAddLiqDisabled != undefined) {

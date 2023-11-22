@@ -37,7 +37,6 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
   const [sliderController, setSliderController] = useState(false);
 
   useEffect(() => {
-    console.log("amounts", sliderValue);
     setBurnPercent(parseUnits(String(sliderValue), 36));
     setSliderOutput(
       ((parseFloat(currentAmountOut) * sliderValue) / 100).toPrecision(6)

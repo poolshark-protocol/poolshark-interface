@@ -29,7 +29,11 @@ import { chainProperties } from "../../utils/chains";
 import LimitCreateAndMintButton from "../Buttons/LimitCreateAndMintButton";
 import inputFilter from "../../utils/inputFilter";
 import { getLimitTokenUsdPrice } from "../../utils/tokens";
-import { gasEstimateMintLimit } from "../../utils/gas";
+import {
+  gasEstimateCreateAndMintLimit,
+  gasEstimateMintLimit,
+  gasEstimateWethCall,
+} from "../../utils/gas";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { CoinStatus, bn } from "fuels";
 
@@ -47,18 +51,17 @@ export default function LimitSwap() {
   const [stateChainName, setStateChainName] = useState();
 
   const [
-    tradePoolAddress,
-    setTradePoolAddress,
     tradePoolData,
     setTradePoolData,
-    tradeParams,
+    tradeButton,
     pairSelected,
     setPairSelected,
+    wethCall,
+    startPrice,
     tradeSlippage,
     setTradeSlippage,
     tokenIn,
     setTokenIn,
-    setTokenInAmount,
     setTokenInBalance,
     setTokenInTradeAllowance,
     setTokenInTradeUSDPrice,
@@ -81,26 +84,26 @@ export default function LimitSwap() {
     limitPriceString,
     setLimitPriceString,
     switchDirection,
-    setMintButtonState,
+    setTradeButtonState,
     needsRefetch,
     setNeedsRefetch,
     needsPosRefetch,
     setNeedsPosRefetch,
     needsSnapshot,
     setNeedsSnapshot,
+    setStartPrice
   ] = useTradeStore((s) => [
-    s.tradePoolAddress,
-    s.setTradePoolAddress,
     s.tradePoolData,
     s.setTradePoolData,
-    s.tradeParams,
+    s.tradeButton,
     s.pairSelected,
     s.setPairSelected,
+    s.wethCall,
+    s.startPrice,
     s.tradeSlippage,
     s.setTradeSlippage,
     s.tokenIn,
     s.setTokenIn,
-    s.setTokenInAmount,
     s.setTokenInBalance,
     s.setTokenInTradeAllowance,
     s.setTokenInTradeUSDPrice,
@@ -123,14 +126,16 @@ export default function LimitSwap() {
     s.limitPriceString,
     s.setLimitPriceString,
     s.switchDirection,
-    s.setMintButtonState,
+    s.setTradeButtonState,
     s.needsRefetch,
     s.setNeedsRefetch,
     s.needsPosRefetch,
     s.setNeedsPosRefetch,
     s.needsSnapshot,
     s.setNeedsSnapshot,
+    s.setStartPrice,
   ]);
+
 
   const {
     inputBox: inputBoxIn,
@@ -154,10 +159,11 @@ export default function LimitSwap() {
   const [quoteParams, setQuoteParams] = useState(undefined);
 
   useEffect(() => {
-    console.log("useEffect");
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
-      updatePools(exactIn ? amountIn : amountOut, exactIn);
+      if (!wethCall)
+        // only update pools if !wethCall
+        updatePools(exactIn ? amountIn : amountOut, exactIn);
       if (exactIn) {
         if (!isNaN(parseFloat(displayIn))) {
           const bnValue = parseUnits(displayIn, tokenIn.decimals);
@@ -171,12 +177,11 @@ export default function LimitSwap() {
           setAmounts(bnValue, false);
         }
       }
-      setNeedsAllowanceIn(true);
+      if (!tokenIn.native) setNeedsAllowanceIn(true);
     }
-    /* console.log("amountOut", amountOut);
-    console.log("displayOut", displayOut); */
   }, [tokenIn.address, tokenOut.address]);
 
+  //can go to utils
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
     const pools = await getSwapPools(
       limitSubgraph,
@@ -242,8 +247,7 @@ export default function LimitSwap() {
         setDisplayIn(value);
         setDisplayOut("");
         setAmountIn(bnValue);
-      }
-      if (!bnValue.eq(amountIn)) {
+      } else if (!bnValue.eq(amountIn)) {
         setDisplayIn(value);
         setAmountIn(bnValue);
         setAmounts(bnValue, true);
@@ -366,7 +370,12 @@ export default function LimitSwap() {
     ) {
       updateLimitTicks();
     }
-  }, [limitPriceString, tradeSlippage, priceRangeSelected]);
+  }, [
+    limitPriceString,
+    tradeSlippage,
+    priceRangeSelected,
+    tradePoolData.feeTier?.tickSpacing,
+  ]);
 
   function updateLimitTicks() {
     const tickSpacing = tradePoolData.feeTier.tickSpacing;
@@ -469,11 +478,13 @@ export default function LimitSwap() {
     }
   }
 
-  //LIMIT
   useEffect(() => {
-    if (tradeSlippage) {
-      if (exactIn) {
-        if (!isNaN(parseFloat(limitPriceString))) {
+    if (exactIn) {
+      if (!isNaN(parseFloat(limitPriceString))) {
+        if (wethCall) {
+          setDisplayOut(displayIn);
+          setAmountOut(amountIn);
+        } else {
           const tokenOutAmount = getExpectedAmountOutFromInput(
             Number(lowerTick),
             Number(upperTick),
@@ -488,12 +499,17 @@ export default function LimitSwap() {
           ).toPrecision(6);
           setDisplayOut(tokenOutAmountDisplay);
           setAmountOut(tokenOutAmount);
-        } else {
-          setDisplayOut("");
-          setAmountOut(BN_ZERO);
         }
       } else {
-        if (!isNaN(parseFloat(limitPriceString))) {
+        setDisplayOut("");
+        setAmountOut(BN_ZERO);
+      }
+    } else {
+      if (!isNaN(parseFloat(limitPriceString))) {
+        if (wethCall) {
+          setDisplayIn(displayOut);
+          setAmountIn(amountOut);
+        } else {
           const tokenInAmount = getExpectedAmountInFromOutput(
             Number(lowerTick),
             Number(upperTick),
@@ -505,10 +521,10 @@ export default function LimitSwap() {
           ).toPrecision(6);
           setDisplayIn(tokenInAmountDisplay);
           setAmountIn(tokenInAmount);
-        } else {
-          setDisplayIn("");
-          setAmountIn(BN_ZERO);
         }
+      } else {
+        setDisplayIn("");
+        setAmountIn(BN_ZERO);
       }
     }
   }, [lowerTick, upperTick, tokenIn.address, tokenOut.address]);
@@ -516,34 +532,47 @@ export default function LimitSwap() {
   const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
     if (isAmountIn) {
       if (bnValue.gt(BN_ZERO)) {
-        const tokenOutAmount = getExpectedAmountOutFromInput(
-          Number(lowerTick),
-          Number(upperTick),
-          tokenIn.callId == 0,
-          bnValue
-        );
-        const tokenOutAmountDisplay = parseFloat(
-          ethers.utils.formatUnits(tokenOutAmount.toString(), tokenOut.decimals)
-        ).toPrecision(6);
-        setDisplayOut(tokenOutAmountDisplay);
-        setAmountOut(tokenOutAmount);
+        if (wethCall) {
+          setDisplayOut(ethers.utils.formatUnits(bnValue, tokenIn.decimals));
+          setAmountOut(bnValue);
+        } else {
+          const tokenOutAmount = getExpectedAmountOutFromInput(
+            Number(lowerTick),
+            Number(upperTick),
+            tokenIn.callId == 0,
+            bnValue
+          );
+          const tokenOutAmountDisplay = parseFloat(
+            ethers.utils.formatUnits(
+              tokenOutAmount.toString(),
+              tokenOut.decimals
+            )
+          ).toPrecision(6);
+          setDisplayOut(tokenOutAmountDisplay);
+          setAmountOut(tokenOutAmount);
+        }
       } else {
         setDisplayOut("");
         setAmountOut(BN_ZERO);
       }
     } else {
       if (bnValue.gt(BN_ZERO)) {
-        const tokenInAmount = getExpectedAmountInFromOutput(
-          Number(lowerTick),
-          Number(upperTick),
-          tokenIn.callId == 0,
-          bnValue
-        );
-        const tokenInAmountDisplay = parseFloat(
-          ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
-        ).toPrecision(6);
-        setDisplayIn(tokenInAmountDisplay);
-        setAmountIn(tokenInAmount);
+        if (wethCall) {
+          setDisplayIn(ethers.utils.formatUnits(bnValue, tokenOut.decimals));
+          setAmountIn(bnValue);
+        } else {
+          const tokenInAmount = getExpectedAmountInFromOutput(
+            Number(lowerTick),
+            Number(upperTick),
+            tokenIn.callId == 0,
+            bnValue
+          );
+          const tokenInAmountDisplay = parseFloat(
+            ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
+          ).toPrecision(6);
+          setDisplayIn(tokenInAmountDisplay);
+          setAmountIn(tokenInAmount);
+        }
       } else {
         setDisplayIn("");
         setAmountIn(BN_ZERO);
@@ -554,6 +583,35 @@ export default function LimitSwap() {
   ////////////////////////////////FeeTiers & Slippage
   const [priceImpact, setPriceImpact] = useState("0.00");
 
+  useEffect(() => {
+    if (
+      tradePoolData?.id == ZERO_ADDRESS &&
+      startPrice &&
+      !isNaN(parseFloat(startPrice))
+    ) {
+      setTradePoolData({
+        id: ZERO_ADDRESS,
+        poolPrice: String(
+          TickMath.getSqrtPriceAtPriceString(
+            invertPrice(startPrice, limitPriceOrder),
+            tokenIn,
+            tokenOut
+          )
+        ),
+        tickAtPrice: TickMath.getTickAtPriceString(
+          invertPrice(startPrice, limitPriceOrder),
+          tokenIn,
+          tokenOut
+        ),
+        // hard set at 0.3% tier
+        feeTier: {
+          feeAmount: 3000,
+          tickSpacing: 30
+        },
+      });
+    }
+  }, [tradePoolData?.id, startPrice]);
+
   ////////////////////////////////Gas
   const [mintFee, setMintFee] = useState("$0.00");
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
@@ -561,28 +619,80 @@ export default function LimitSwap() {
   useEffect(() => {
     if (
       !amountIn.eq(BN_ZERO) &&
-      !needsAllowanceIn &&
-      tradePoolData != undefined
+      (!needsAllowanceIn || tokenIn.native) &&
+      tradePoolData != undefined &&
+      !wethCall
     ) {
       updateMintFee();
+    } else if (wethCall) {
+      updateWethFee();
     }
-  }, [tokenIn, tokenOut, lowerTick, upperTick, needsAllowanceIn]);
+  }, [
+    swapParams,
+    tokenIn.address,
+    tokenOut.address,
+    tokenIn.native,
+    tokenIn.userBalance,
+    tokenIn.userRouterAllowance,
+    lowerTick,
+    upperTick,
+    needsAllowanceIn,
+    wethCall,
+    amountIn,
+  ]);
 
   async function updateMintFee() {
-    if (tokenIn.userRouterAllowance?.gte(amountIn) && lowerTick?.lt(upperTick))
-      await gasEstimateMintLimit(
-        tradePoolData.id,
-        address,
-        lowerTick,
-        upperTick,
+    if (
+      (tokenIn.native || tokenIn.userRouterAllowance?.gte(amountIn)) &&
+      lowerTick?.lt(upperTick)
+    )
+      if (tradePoolData?.id != ZERO_ADDRESS) {
+        await gasEstimateMintLimit(
+          tradePoolData.id,
+          address,
+          lowerTick,
+          upperTick,
+          tokenIn,
+          tokenOut,
+          amountIn,
+          signer,
+          setMintFee,
+          setMintGasLimit,
+          networkName
+        );
+      } else {
+        await gasEstimateCreateAndMintLimit(
+          limitPoolTypeIds["constant-product"],
+          tradePoolData?.feeTier?.feeAmount ?? 3000,
+          address,
+          lowerTick,
+          upperTick,
+          tokenIn,
+          tokenOut,
+          amountIn,
+          tradePoolData?.feeTier?.tickSpacing ?? 30,
+          startPrice,
+          signer,
+          setMintFee,
+          setMintGasLimit,
+          networkName
+        );
+      }
+  }
+
+  async function updateWethFee() {
+    if (tokenIn.userRouterAllowance?.gte(amountIn) || tokenIn.native) {
+      await gasEstimateWethCall(
+        chainProperties[networkName]["wethAddress"],
         tokenIn,
         tokenOut,
         amountIn,
         signer,
-        setMintFee,
-        setMintGasLimit,
-        networkName
+        isConnected,
+        setSwapGasFee,
+        setSwapGasLimit
       );
+    }
   }
 
   ////////////////////////////////Button State
@@ -594,8 +704,8 @@ export default function LimitSwap() {
   }, [amountIn]);
 
   useEffect(() => {
-    setMintButtonState();
-  }, [tradeParams.tokenInAmount, tradeParams.tokenOutAmount]);
+    setTradeButtonState();
+  }, [amountIn, tokenIn.userBalance, tokenIn.address, tokenOut.address, tokenIn.userRouterAllowance]);
 
   ////////////////////////////////Expanded
   const [expanded, setExpanded] = useState(false);

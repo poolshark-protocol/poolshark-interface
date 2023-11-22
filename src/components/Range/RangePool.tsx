@@ -49,6 +49,7 @@ export default function RangePool({ rangePool, href }) {
       pathname: href,
       query: {
         feeTier: rangePool.feeTier,
+        poolId: rangePool.poolId,
       },
     });
   };

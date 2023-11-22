@@ -50,7 +50,6 @@ describe('TickMath tests', () => {
     const priceString = TickMath.getPriceStringAtSqrtPrice(priceString2)
     const tick = TickMath.getTickAtPriceString(priceString)
     // check priceString
-    console.log(priceString.toString())
     expect(tick).toStrictEqual(887272)
   });
 
@@ -59,7 +58,6 @@ describe('TickMath tests', () => {
     const priceString = TickMath.getPriceStringAtSqrtPrice(priceString2)
     const tick = TickMath.getTickAtPriceString(priceString)
     // check priceString
-    console.log(priceString.toString())
     expect(tick).toStrictEqual(-887272)
   });
 
@@ -84,7 +82,6 @@ describe('TickMath tests', () => {
     const upperTick = 100
     const amountOut = getExpectedAmountOut(lowerTick, upperTick, true, BigNumber.from('20051041647900280328782'))
     // check amount out
-    console.log('amount out zeroForOne=true', amountOut.toString())
     expect(amountOut.toString()).toStrictEqual('100501226962305120351')
   });
 
@@ -93,7 +90,6 @@ describe('TickMath tests', () => {
     const upperTick = 0
     const amountOut = getExpectedAmountOut(lowerTick, upperTick, false, BigNumber.from('20051041647900280328782'))
     // check amount out
-    console.log('amount out zeroForOne=false', amountOut.toString())
     expect(amountOut.toString()).toStrictEqual('100501226962305120351')
   });
 });

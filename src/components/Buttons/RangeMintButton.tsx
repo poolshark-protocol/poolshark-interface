@@ -11,6 +11,7 @@ import { ethers } from "ethers";
 import PositionMintModal from "../Modals/PositionMint";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { getRangeMintButtonMsgValue } from "../../utils/buttons";
 
 export default function RangeMintButton({
   disabled,
@@ -37,6 +38,9 @@ export default function RangeMintButton({
   ]);
 
   const [
+    tokenIn,
+    tokenOut,
+    rangeMintParams,
     setNeedsRefetch,
     setNeedsPosRefetch,
     setNeedsAllowanceIn,
@@ -44,6 +48,9 @@ export default function RangeMintButton({
     setNeedsBalanceIn,
     setNeedsBalanceOut,
   ] = useRangeLimitStore((state) => [
+    state.tokenIn,
+    state.tokenOut,
+    state.rangeMintParams,
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
     state.setNeedsAllowanceIn,
@@ -77,6 +84,12 @@ export default function RangeMintButton({
     chainId: chainId,
     overrides: {
       gasLimit: gasLimit,
+      value: getRangeMintButtonMsgValue(
+        tokenIn.native,
+        tokenOut.native,
+        rangeMintParams.tokenInAmount,
+        rangeMintParams.tokenOutAmount
+      )
     },
     onSuccess() {},
     onError() {

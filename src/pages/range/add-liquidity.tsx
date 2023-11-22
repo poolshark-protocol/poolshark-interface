@@ -23,19 +23,17 @@ import { inputHandler, parseUnits } from "../../utils/math/valueMath";
 import SelectToken from "../../components/SelectToken";
 import { feeTierMap, feeTiers } from "../../utils/pools";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { fetchRangePools } from "../../utils/queries";
 
 export default function AddLiquidity({}) {
-  const [
-    chainId,
-    networkName,
-    limitSubgraph,
-    coverSubgraph,
-  ] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-    state.limitSubgraph,
-    state.coverSubgraph,
-  ]);
+  const [chainId, networkName, limitSubgraph, coverSubgraph, logoMap] =
+    useConfigStore((state) => [
+      state.chainId,
+      state.networkName,
+      state.limitSubgraph,
+      state.coverSubgraph,
+      state.logoMap,
+    ]);
 
   const [
     rangePoolAddress,
@@ -108,8 +106,16 @@ export default function AddLiquidity({}) {
   ]);
 
   const { address, isConnected } = useAccount();
-  const { inputBox: inputBoxIn, setDisplay: setDisplayIn, display: displayIn } = useInputBox();
-  const { inputBox: inputBoxOut, setDisplay: setDisplayOut, display: displayOut } = useInputBox();
+  const {
+    inputBox: inputBoxIn,
+    setDisplay: setDisplayIn,
+    display: displayIn,
+  } = useInputBox();
+  const {
+    inputBox: inputBoxOut,
+    setDisplay: setDisplayOut,
+    display: displayOut,
+  } = useInputBox();
   const [showTooltip, setShowTooltip] = useState(false);
   const [amountInSetLast, setAmountInSetLast] = useState(true);
   const [amountInDisabled, setAmountInDisabled] = useState(false);
@@ -121,7 +127,7 @@ export default function AddLiquidity({}) {
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address != ZERO_ADDRESS) {
       setPairSelected(true);
       if (rangePoolData.feeTier != undefined) {
-        updatePools(parseInt(rangePoolData.feeTier.feeAmount))
+        updatePools(parseInt(rangePoolData.feeTier.feeAmount));
       }
     } else {
       setPairSelected(false);
@@ -139,7 +145,37 @@ export default function AddLiquidity({}) {
   }, [router.query.feeTier]);
 
   async function updatePools(feeAmount: number) {
-    setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
+    const data = await fetchRangePools(limitSubgraph);
+    console.log("data", data);
+    if (data["data"]) {
+      const pools = data["data"].limitPools;
+      const pool = pools.find(
+        (pool) =>
+          pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
+      );
+      console.log("logoMap", logoMap);
+      const tokenIn = {
+        name: pool.token0.symbol,
+        address: pool.token0.id,
+        logoURI: logoMap[pool.token0.symbol],
+        symbol: pool.token0.symbol,
+        decimals: pool.token0.decimals,
+        userBalance: pool.token0.balance,
+        callId: 0,
+      };
+      const tokenOut = {
+        name: pool.token1.symbol,
+        address: pool.token1.id,
+        logoURI: logoMap[pool.token1.symbol],
+        symbol: pool.token1.symbol,
+        decimals: pool.token1.decimals,
+        userBalance: pool.token1.balance,
+        callId: 1,
+      };
+      setTokenIn(tokenOut, tokenIn, "0", true);
+      setTokenOut(tokenIn, tokenOut, "0", false);
+      setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
+    }
   }
 
   //sames as updatePools but triggered from the html
@@ -162,10 +198,24 @@ export default function AddLiquidity({}) {
       const tickAtPrice = rangePoolData.tickAtPrice;
       if (rangePoolAddress != ZERO_ADDRESS && rangePrice == undefined) {
         setMinInput(
-          TickMath.getPriceStringAtTick(tickAtPrice - 7000, tokenIn, tokenOut)
+          invertPrice(
+            TickMath.getPriceStringAtTick(
+              priceOrder == (tokenIn.callId == 0) ? tickAtPrice - 7000
+                                                  : tickAtPrice - -7000,
+              tokenIn, tokenOut
+            ),
+            priceOrder == (tokenIn.callId == 0)
+          )
         );
         setMaxInput(
-          TickMath.getPriceStringAtTick(tickAtPrice - -7000, tokenIn, tokenOut)
+          invertPrice(
+            TickMath.getPriceStringAtTick(
+              priceOrder == (tokenIn.callId == 0) ? tickAtPrice - -7000
+                                                  : tickAtPrice - 7000,
+              tokenIn, tokenOut
+            ),
+            priceOrder == (tokenIn.callId == 0)
+          )
         );
       }
       setRangePrice(
@@ -221,8 +271,8 @@ export default function AddLiquidity({}) {
 
   const { data: tokenInBal } = useBalance({
     address: address,
-    token: tokenIn.address,
-    enabled: tokenIn.address != undefined && needsBalanceIn,
+    token: tokenIn.native ? undefined: tokenIn.address,
+    enabled: tokenIn.address != ZERO_ADDRESS,
     watch: needsBalanceIn,
     onSuccess(data) {
       setNeedsBalanceIn(false);
@@ -231,22 +281,25 @@ export default function AddLiquidity({}) {
 
   const { data: tokenOutBal } = useBalance({
     address: address,
-    token: tokenOut.address,
-    enabled: tokenOut.address != undefined && needsBalanceOut,
+    token: tokenOut.native ? undefined : tokenOut.address,
+    enabled: tokenOut.address != ZERO_ADDRESS,
     watch: needsBalanceOut,
     onSuccess(data) {
       setNeedsBalanceOut(false);
     },
+    onError(err) {
+      console.log("token out error", err)
+    }
   });
 
   useEffect(() => {
     if (isConnected) {
       setTokenInBalance(
-        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+        tokenInBal?.formatted.toString()
       );
       if (pairSelected) {
         setTokenOutBalance(
-          parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
+          tokenOutBal?.formatted.toString()
         );
       }
     }
@@ -271,7 +324,7 @@ export default function AddLiquidity({}) {
         );
       }
     }
-  }, [rangePoolData.token0, rangePoolData.token1]);
+  }, [rangePoolData.token0, rangePoolData.token1, tokenIn.native, tokenOut.native]);
 
   ////////////////////////////////Prices and Ticks
   const [rangePrice, setRangePrice] = useState(undefined);
@@ -393,7 +446,7 @@ export default function AddLiquidity({}) {
             // warn the user the input is invalid
           }
         }
-        setLiquidityAmount(liquidity)
+        setLiquidityAmount(liquidity);
         const outputJsbi = JSBI.greaterThan(liquidity, ZERO)
           ? isToken0
             ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
@@ -584,7 +637,7 @@ export default function AddLiquidity({}) {
                     ).toFixed(2)
                   : "?.??"}
               </span>
-              <span>BALANCE: {tokenIn.userBalance ?? 0}</span>
+              <span>BALANCE: {tokenIn.userBalance?.toPrecision(6) ?? 0}</span>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
               {inputBoxIn(
@@ -636,7 +689,7 @@ export default function AddLiquidity({}) {
                     ).toFixed(2)
                   : "?.??"}
               </span>
-              <span>BALANCE: {tokenOut.userBalance ?? 0}</span>
+              <span>BALANCE: {tokenOut.userBalance?.toPrecision(6) ?? 0}</span>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
               {inputBoxOut(
@@ -819,12 +872,28 @@ export default function AddLiquidity({}) {
                 </div>
               )}
 
-              {(rangeMintParams.tokenInAmount?.gt(BN_ZERO) || rangeMintParams.tokenOutAmount?.gt(BN_ZERO)) && JSBI.lessThanOrEqual(rangeMintParams.liquidityAmount, ONE) ? (<div className=" text-red-600 bg-red-900/30 text-[10px] md:text-[11px] flex items-center md:gap-x-5 gap-x-3 p-2 rounded-[8px]">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="md:w-9 w-12">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-                </svg>
-                Liquidity size too small: please add more tokens or decrease the price range.
-              </div>) : <></>}
+              {(rangeMintParams.tokenInAmount?.gt(BN_ZERO) ||
+                rangeMintParams.tokenOutAmount?.gt(BN_ZERO)) &&
+              JSBI.lessThanOrEqual(rangeMintParams.liquidityAmount, ONE) ? (
+                <div className=" text-red-600 bg-red-900/30 text-[10px] md:text-[11px] flex items-center md:gap-x-5 gap-x-3 p-2 rounded-[8px]">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="md:w-9 w-12"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Liquidity size too small: please add more tokens or decrease
+                  the price range.
+                </div>
+              ) : (
+                <></>
+              )}
             </div>
           </div>
         </div>

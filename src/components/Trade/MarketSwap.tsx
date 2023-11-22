@@ -36,18 +36,17 @@ export default function MarketSwap() {
   const [stateChainName, setStateChainName] = useState();
 
   const [
-    tradePoolAddress,
-    setTradePoolAddress,
     tradePoolData,
     setTradePoolData,
-    tradeParams,
+    tradeButton,
     pairSelected,
     setPairSelected,
+    wethCall,
+    startPrice,
     tradeSlippage,
     setTradeSlippage,
     tokenIn,
     setTokenIn,
-    setTokenInAmount,
     setTokenInBalance,
     setTokenInTradeAllowance,
     setTokenInTradeUSDPrice,
@@ -70,26 +69,26 @@ export default function MarketSwap() {
     limitPriceString,
     setLimitPriceString,
     switchDirection,
-    setMintButtonState,
+    setTradeButtonState,
     needsRefetch,
     setNeedsRefetch,
     needsPosRefetch,
     setNeedsPosRefetch,
     needsSnapshot,
     setNeedsSnapshot,
+    setStartPrice
   ] = useTradeStore((s) => [
-    s.tradePoolAddress,
-    s.setTradePoolAddress,
     s.tradePoolData,
     s.setTradePoolData,
-    s.tradeParams,
+    s.tradeButton,
     s.pairSelected,
     s.setPairSelected,
+    s.wethCall,
+    s.startPrice,
     s.tradeSlippage,
     s.setTradeSlippage,
     s.tokenIn,
     s.setTokenIn,
-    s.setTokenInAmount,
     s.setTokenInBalance,
     s.setTokenInTradeAllowance,
     s.setTokenInTradeUSDPrice,
@@ -112,14 +111,16 @@ export default function MarketSwap() {
     s.limitPriceString,
     s.setLimitPriceString,
     s.switchDirection,
-    s.setMintButtonState,
+    s.setTradeButtonState,
     s.needsRefetch,
     s.setNeedsRefetch,
     s.needsPosRefetch,
     s.setNeedsPosRefetch,
     s.needsSnapshot,
     s.setNeedsSnapshot,
+    s.setStartPrice,
   ]);
+
 
   const {
     inputBox: inputBoxIn,
@@ -140,7 +141,7 @@ export default function MarketSwap() {
   const [availablePools, setAvailablePools] = useState(undefined);
   const [quoteParams, setQuoteParams] = useState(undefined);
 
-
+  //can go to utils
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
     const pools = await getSwapPools(
       limitSubgraph,
@@ -196,11 +197,12 @@ export default function MarketSwap() {
     }
   }, [tokenOut.address]);
 
-  // BOTH
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
-      updatePools(exactIn ? amountIn : amountOut, exactIn);
+      if (!wethCall)
+        // only update pools if !wethCall
+        updatePools(exactIn ? amountIn : amountOut, exactIn);
       if (exactIn) {
         if (!isNaN(parseFloat(displayIn))) {
           const bnValue = parseUnits(displayIn, tokenIn.decimals);
@@ -214,10 +216,9 @@ export default function MarketSwap() {
           setAmounts(bnValue, false);
         }
       }
-      setNeedsAllowanceIn(true);
+      if (!tokenIn.native) setNeedsAllowanceIn(true);
     }
   }, [tokenIn.address, tokenOut.address]);
-  
 
   /////////////////////Double Input Boxes
   const [exactIn, setExactIn] = useState(true);
@@ -229,8 +230,7 @@ export default function MarketSwap() {
         setDisplayIn(value);
         setDisplayOut("");
         setAmountIn(bnValue);
-      }
-      if (!bnValue.eq(amountIn)) {
+      } else if (!bnValue.eq(amountIn)) {
         setDisplayIn(value);
         setAmountIn(bnValue);
         setAmounts(bnValue, true);
@@ -279,8 +279,6 @@ export default function MarketSwap() {
     }
   };
 
-  
-
   ///////////////////////////////Swap Params
   const [swapPoolAddresses, setSwapPoolAddresses] = useState<string[]>([]);
   const [swapParams, setSwapParams] = useState<any[]>([]);
@@ -291,12 +289,12 @@ export default function MarketSwap() {
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
     chainId: chainId,
-    enabled: availablePools != undefined && quoteParams != undefined,
+    enabled:
+      availablePools != undefined && quoteParams != undefined && !wethCall,
     onError(error) {
       console.log("Error multiquote", error);
     },
-    onSuccess(data) {
-    },
+    onSuccess(data) {},
   });
 
   useEffect(() => {
@@ -333,6 +331,7 @@ export default function MarketSwap() {
       if (poolQuotes[i].pool != ZERO_ADDRESS) {
         // push pool address for swap
         poolAddresses.push(poolQuotes[i].pool);
+
         // set base price from quote
         const basePrice: number = parseFloat(
           TickMath.getPriceStringAtSqrtPrice(
@@ -341,8 +340,11 @@ export default function MarketSwap() {
             tokenOut
           )
         );
+
         // set price impact
-        if (poolQuotes[i].pool.toLowerCase() == tradePoolData.id) {
+        if (
+          poolQuotes[i].pool?.toLowerCase() == tradePoolData.id?.toLowerCase()
+        ) {
           const currentPrice: number = parseFloat(
             TickMath.getPriceStringAtSqrtPrice(
               tradePoolData.poolPrice,
@@ -356,6 +358,7 @@ export default function MarketSwap() {
             )
           );
         }
+
         const priceDiff = basePrice * (parseFloat(tradeSlippage) / 100);
         const limitPrice =
           tokenIn.callId == 0 ? basePrice - priceDiff : basePrice + priceDiff;
@@ -380,6 +383,8 @@ export default function MarketSwap() {
     setSwapParams(paramsList);
   }
 
+  
+
   const resetAfterSwap = () => {
     setDisplayIn("");
     setDisplayOut("");
@@ -401,21 +406,44 @@ export default function MarketSwap() {
   useEffect(() => {
     if (
       !amountIn.eq(BN_ZERO) &&
-      !needsAllowanceIn &&
-      tradePoolData != undefined
+      (!needsAllowanceIn || tokenIn.native) &&
+      tradePoolData != undefined &&
+      !wethCall
     ) {
       updateGasFee();
+    } else if (wethCall) {
+      updateWethFee();
     }
-  }, [swapParams, tokenIn, tokenOut, lowerTick, upperTick, needsAllowanceIn]);
+  }, [
+    swapParams,
+    tokenIn.address,
+    tokenOut.address,
+    tokenIn.native,
+    tokenIn.userBalance,
+    tokenIn.userRouterAllowance,
+    lowerTick,
+    upperTick,
+    needsAllowanceIn,
+    wethCall,
+    amountIn,
+  ]);
 
   async function updateGasFee() {
-    if (tokenIn.userRouterAllowance?.gte(amountIn)) {
+    if (
+      (tokenIn.userRouterAllowance?.gte(amountIn) ||
+        (tokenIn.native &&
+          parseUnits(tokenIn.userBalance?.toString(), tokenIn.decimals).gte(
+            amountIn
+          ))) &&
+      !wethCall
+    ) {
       await gasEstimateSwap(
         chainProperties[networkName]["routerAddress"],
         swapPoolAddresses,
         swapParams,
         tokenIn,
         tokenOut,
+        amountIn,
         signer,
         isConnected,
         setSwapGasFee,
@@ -425,6 +453,33 @@ export default function MarketSwap() {
       setSwapGasLimit(BN_ZERO);
     }
   }
+
+  async function updateWethFee() {
+    if (tokenIn.userRouterAllowance?.gte(amountIn) || tokenIn.native) {
+      await gasEstimateWethCall(
+        chainProperties[networkName]["wethAddress"],
+        tokenIn,
+        tokenOut,
+        amountIn,
+        signer,
+        isConnected,
+        setSwapGasFee,
+        setSwapGasLimit
+      );
+    }
+  }
+
+  /////////////////////////////Button States
+
+  useEffect(() => {
+    setTradeButtonState();
+  }, [
+    amountIn,
+    tokenIn.userBalance,
+    tokenIn.address,
+    tokenOut.address,
+    tokenIn.userRouterAllowance,
+  ]);
 
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);

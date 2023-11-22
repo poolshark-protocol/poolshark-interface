@@ -22,8 +22,9 @@ export function precision(price: JSBD): number {
     return stringArr[1].length
 }
 
-export function displayPoolPrice(pairSelected: boolean, poolPrice: any, tokenA: token, tokenB: token): string {
-    if (!pairSelected || !poolPrice) return ' '
+export function displayPoolPrice(wethCall: boolean, pairSelected: boolean, poolPrice: any, tokenA: token, tokenB: token): string {
+    if (wethCall) return ' 1'
+    if (!pairSelected || !poolPrice) return ' ?'
     const token0 = tokenA.address.localeCompare(tokenB.address) < 0 ? tokenA : tokenB
     const tokenOrder = token0.address == tokenA.address ? true : false
     return invertPrice(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(poolPrice), tokenA, tokenB), tokenOrder)
@@ -38,6 +39,7 @@ export function getMarketPriceAboveBelowString(limitStringPriceQuote: string, pa
     let priceString
     if(pairSelected && !isNaN(parseFloat(limitStringPriceQuote))) {
         const percentDiff = parseFloat((limitPrice / basePrice * 100).toFixed(2))
+        if (isNaN(percentDiff)) return '0.00% above Market Price'
         if (percentDiff >= 100) {
             priceString = (percentDiff - 100).toFixed(2) + "% above Market Price"
         } else {
