@@ -1,21 +1,19 @@
 import Navbar from "../../components/Navbar";
 import { fetchRangePools, fetchRangePositions } from "../../utils/queries";
 import { useState, useEffect } from "react";
-import { useAccount, useProvider } from "wagmi";
+import { useAccount } from "wagmi";
 import { mapRangePools, mapUserRangePositions } from "../../utils/maps";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { useCoverStore } from "../../hooks/useCoverStore";
 import InfoIcon from "../../components/Icons/InfoIcon";
 import SearchIcon from "../../components/Icons/SearchIcon";
 import UserIcon from "../../components/Icons/UserIcon";
 import UserRangePool from "../../components/Range/UserRangePool";
 import PoolIcon from "../../components/Icons/PoolIcon";
 import RangePool from "../../components/Range/RangePool";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { tokenRangeLimit } from "../../utils/types";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { chainProperties, supportedNetworkNames } from "../../utils/chains";
+import { chainProperties } from "../../utils/chains";
 
 export default function Range() {
   const { address, isDisconnected } = useAccount();
@@ -119,10 +117,16 @@ export default function Range() {
                 BECOME A LIQUIDITY PROVIDER AND EARN FEES
               </h1>
               <p className="text-sm text-white/40 font-light">
-                Provide liquidity and support the leading directional liquidity
-                platform. One of the main advantages of providing liquidity to
-                a Range AMM is the capital efficiency it offers. Liquidity providers
-                bootstrap market swaps for a token pair in return for a share of trading fees.
+                Range LPs bootstrap
+                token swaps in return for a share of trading fees.
+                <br/><br/>
+                The main advantage of range-bound liquidity is
+                earning more fees with less capital.
+                <br/>
+                Wider price ranges are recommended to
+                reduce losses when removing liquidity.
+                <br/><br/>
+                Provide liquidity and start earning FIN rewards now.
               </p>
             </div>
             <button
@@ -167,10 +171,9 @@ export default function Range() {
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">How it works</h1>
               <p className="text-sm text-grey3 font-light">
-                Range Pools are a custom implementation of range-bound
-                liquidity. Range includes a dynamic fee system to increase fee
+                Range Pools use a dynamic fee system to increase fee
                 revenue.
-                <br />
+                <br/>
                 LPs earn more fees on large price swings to reduce loss to
                 arbitrageurs.
                 <br />
@@ -178,7 +181,7 @@ export default function Range() {
                 <span className="text-xs">
                   Tighter ranges increase fee revenue.
                 </span>
-                <br />
+                
                 <br />
                 <span className="text-xs">Wider ranges decrease LVR risk.</span>
               </p>
