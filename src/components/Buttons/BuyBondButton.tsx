@@ -10,6 +10,8 @@ import { SuccessToast } from "../Toasts/Success";
   export default function BuyBondButton({
     inputAmount,
     setNeedsSubgraph,
+    setNeedsBalance,
+    setNeedsAllowance,
     marketId,
   }) {
     const [
@@ -49,6 +51,8 @@ import { SuccessToast } from "../Toasts/Success";
     const { isLoading } = useWaitForTransaction({
       hash: data?.hash,
       onSuccess() {
+        setNeedsBalance(true);
+        setNeedsAllowance(true);
         setNeedsSubgraph(true);
       },
       onError() {

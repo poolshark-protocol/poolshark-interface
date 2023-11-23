@@ -296,7 +296,7 @@ export default function Bond() {
               <div className="border border-grey bg-black rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
                   <span>~$0.00</span>
-                  <span>BALANCE: 0</span>
+                  <span>BALANCE: {tokenBalance != undefined ? formatEther(tokenBalance.value) : "0"}</span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                   {inputBox("0", {
@@ -347,8 +347,10 @@ export default function Bond() {
                 </div>
               </div>
               {<BuyBondButton
-                inputAmount={ethers.utils.parseEther("100")}
+                inputAmount={bnInput}
                 setNeedsSubgraph={setNeedsSubgraph}
+                setNeedsBalance={setNeedsBalance}
+                setNeedsAllowance={setNeedsAllowance}
                 marketId={"43"}
               />}
             </div>
