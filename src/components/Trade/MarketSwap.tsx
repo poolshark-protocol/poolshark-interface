@@ -44,41 +44,21 @@ export default function MarketSwap() {
     pairSelected,
     setPairSelected,
     wethCall,
-    startPrice,
     tradeSlippage,
     setTradeSlippage,
     tokenIn,
     setTokenIn,
-    setTokenInBalance,
-    setTokenInTradeAllowance,
     setTokenInTradeUSDPrice,
     tokenOut,
     setTokenOut,
-    setTokenOutBalance,
-    setTokenOutTradeUSDPrice,
     amountIn,
     setAmountIn,
     amountOut,
     setAmountOut,
     needsAllowanceIn,
     setNeedsAllowanceIn,
-    needsAllowanceOut,
-    setNeedsAllowanceOut,
-    needsBalanceIn,
-    setNeedsBalanceIn,
-    needsBalanceOut,
-    setNeedsBalanceOut,
-    limitPriceString,
-    setLimitPriceString,
     switchDirection,
     setTradeButtonState,
-    needsRefetch,
-    setNeedsRefetch,
-    needsPosRefetch,
-    setNeedsPosRefetch,
-    needsSnapshot,
-    setNeedsSnapshot,
-    setStartPrice,
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
@@ -86,41 +66,21 @@ export default function MarketSwap() {
     s.pairSelected,
     s.setPairSelected,
     s.wethCall,
-    s.startPrice,
     s.tradeSlippage,
     s.setTradeSlippage,
     s.tokenIn,
     s.setTokenIn,
-    s.setTokenInBalance,
-    s.setTokenInTradeAllowance,
     s.setTokenInTradeUSDPrice,
     s.tokenOut,
     s.setTokenOut,
-    s.setTokenOutBalance,
-    s.setTokenOutTradeUSDPrice,
     s.amountIn,
     s.setAmountIn,
     s.amountOut,
     s.setAmountOut,
     s.needsAllowanceIn,
     s.setNeedsAllowanceIn,
-    s.needsAllowanceOut,
-    s.setNeedsAllowanceOut,
-    s.needsBalanceIn,
-    s.setNeedsBalanceIn,
-    s.needsBalanceOut,
-    s.setNeedsBalanceOut,
-    s.limitPriceString,
-    s.setLimitPriceString,
     s.switchDirection,
     s.setTradeButtonState,
-    s.needsRefetch,
-    s.setNeedsRefetch,
-    s.needsPosRefetch,
-    s.setNeedsPosRefetch,
-    s.needsSnapshot,
-    s.setNeedsSnapshot,
-    s.setStartPrice,
   ]);
 
   const {
@@ -168,9 +128,8 @@ export default function MarketSwap() {
     setQuoteParams(quoteList);
   }
 
-  /////////////////////Tokens info and amounts
+  /////////////////////Tokens info setting
 
-  //BOTH
   useEffect(() => {
     if (
       tokenIn.address != ZERO_ADDRESS &&
@@ -184,7 +143,6 @@ export default function MarketSwap() {
     }
   }, [tokenIn.address]);
 
-  //BOTH
   useEffect(() => {
     if (
       tokenOut.address != ZERO_ADDRESS &&
@@ -220,6 +178,34 @@ export default function MarketSwap() {
       if (!tokenIn.native) setNeedsAllowanceIn(true);
     }
   }, [tokenIn.address, tokenOut.address]);
+
+  const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
+    if (isAmountIn) {
+      if (bnValue.gt(BN_ZERO)) {
+        if (wethCall) {
+          setDisplayOut(ethers.utils.formatUnits(bnValue, tokenIn.decimals));
+          setAmountOut(bnValue);
+        } else {
+          updatePools(bnValue, true);
+        }
+      } else {
+        setDisplayOut("");
+        setAmountOut(BN_ZERO);
+      }
+    } else {
+      if (bnValue.gt(BN_ZERO)) {
+        if (wethCall) {
+          setDisplayIn(ethers.utils.formatUnits(bnValue, tokenOut.decimals));
+          setAmountIn(bnValue);
+        } else {
+          updatePools(bnValue, false);
+        }
+      } else {
+        setDisplayIn("");
+        setAmountIn(BN_ZERO);
+      }
+    }
+  };
 
   /////////////////////Double Input Boxes
   const [exactIn, setExactIn] = useState(true);
@@ -259,24 +245,6 @@ export default function MarketSwap() {
         }
       }
       setExactIn(false);
-    }
-  };
-
-  const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
-    if (isAmountIn) {
-      if (bnValue.gt(BN_ZERO)) {
-        updatePools(bnValue, true);
-      } else {
-        setDisplayOut("");
-        setAmountOut(BN_ZERO);
-      }
-    } else {
-      if (bnValue.gt(BN_ZERO)) {
-        updatePools(bnValue, false);
-      } else {
-        setDisplayIn("");
-        setAmountIn(BN_ZERO);
-      }
     }
   };
 
@@ -332,7 +300,6 @@ export default function MarketSwap() {
       if (poolQuotes[i].pool != ZERO_ADDRESS) {
         // push pool address for swap
         poolAddresses.push(poolQuotes[i].pool);
-
         // set base price from quote
         const basePrice: number = parseFloat(
           TickMath.getPriceStringAtSqrtPrice(
@@ -341,7 +308,6 @@ export default function MarketSwap() {
             tokenOut
           )
         );
-
         // set price impact
         if (
           poolQuotes[i].pool?.toLowerCase() == tradePoolData.id?.toLowerCase()
@@ -359,7 +325,6 @@ export default function MarketSwap() {
             )
           );
         }
-
         const priceDiff = basePrice * (parseFloat(tradeSlippage) / 100);
         const limitPrice =
           tokenIn.callId == 0 ? basePrice - priceDiff : basePrice + priceDiff;
@@ -391,10 +356,6 @@ export default function MarketSwap() {
     setAmountOut(BN_ZERO);
   };
 
-  /////////////////////////////Ticks
-  const [lowerTick, setLowerTick] = useState(BN_ZERO);
-  const [upperTick, setUpperTick] = useState(BN_ZERO);
-
   ////////////////////////////////FeeTiers & Slippage
   const [priceImpact, setPriceImpact] = useState("0.00");
 
@@ -420,8 +381,6 @@ export default function MarketSwap() {
     tokenIn.native,
     tokenIn.userBalance,
     tokenIn.userRouterAllowance,
-    lowerTick,
-    upperTick,
     needsAllowanceIn,
     wethCall,
     amountIn,
@@ -534,26 +493,8 @@ export default function MarketSwap() {
     }
   };
 
-
-  /////////////////////////////Rendering Settings
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
   return (
-    <div className="p-4">
-      <div className="flex items-center justify-between w-full">
-        <span className="text-[11px] text-grey1">FROM</span>
-        <div className="cursor-pointer" onClick={() => setIsSettingsOpen(true)}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="w-5 h-5 hover:opacity-60"
-          >
-            <path d="M10 3.75a2 2 0 10-4 0 2 2 0 004 0zM17.25 4.5a.75.75 0 000-1.5h-5.5a.75.75 0 000 1.5h5.5zM5 3.75a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75zM4.25 17a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zM17.25 17a.75.75 0 000-1.5h-5.5a.75.75 0 000 1.5h5.5zM9 10a.75.75 0 01-.75.75h-5.5a.75.75 0 010-1.5h5.5A.75.75 0 019 10zM17.25 10.75a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zM14 10a2 2 0 10-4 0 2 2 0 004 0zM10 16.25a2 2 0 10-4 0 2 2 0 004 0z" />
-          </svg>
-        </div>
-      </div>
-
+    <div>
       <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
         <div className="flex items-end justify-between text-[11px] text-grey1">
           <span>

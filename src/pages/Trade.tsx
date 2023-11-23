@@ -1,9 +1,4 @@
 import { useState, useEffect, Fragment } from "react";
-import { ChevronDownIcon, XMarkIcon } from "@heroicons/react/20/solid";
-import SelectToken from "../components/SelectToken";
-import useInputBox from "../hooks/useInputBox";
-import { Transition, Dialog } from "@headlessui/react";
-import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import {
   erc20ABI,
   useAccount,
@@ -25,24 +20,11 @@ import {
 } from "../utils/math/tickMath";
 import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
-  gasEstimateCreateAndMintLimit,
-  gasEstimateMintLimit,
-  gasEstimateSwap,
-  gasEstimateWethCall,
-} from "../utils/gas";
-import inputFilter from "../utils/inputFilter";
-import LimitSwapButton from "../components/Buttons/LimitSwapButton";
-import {
   fetchRangeTokenUSDPrice,
   getLimitTokenUsdPrice,
 } from "../utils/tokens";
-import { getSwapPools, limitPoolTypeIds } from "../utils/pools";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
-import { QuoteParams, SwapParams } from "../utils/types";
 import { useTradeStore } from "../hooks/useTradeStore";
-import SwapRouterButton from "../components/Buttons/SwapRouterButton";
-import JSBI from "jsbi";
-import LimitCreateAndMintButton from "../components/Buttons/LimitCreateAndMintButton";
 import { fetchLimitPositions } from "../utils/queries";
 import { getClaimTick, mapUserLimitPositions } from "../utils/maps";
 import {
@@ -62,6 +44,9 @@ import MarketSwap from "../components/Trade/MarketSwap";
 import LimitSwap from "../components/Trade/LimitSwap";
 import SwapWrapNativeButton from "../components/Buttons/SwapWrapNativeButton";
 import SwapUnwrapNativeButton from "../components/Buttons/SwapUnwrapNativeButton";
+import { Dialog, Transition } from "@headlessui/react";
+import { XMarkIcon } from "@heroicons/react/20/solid";
+import inputFilter from "../utils/inputFilter";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -574,7 +559,25 @@ export default function Trade() {
               LIMIT SWAP
             </button>
           </div>
-          {!limitTabSelected ? <MarketSwap /> : <LimitSwap />}
+          <div className="p-4">
+            <div className="flex items-center justify-between w-full">
+              <span className="text-[11px] text-grey1">FROM</span>
+              <div
+                className="cursor-pointer"
+                onClick={() => setIsSettingsOpen(true)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="w-5 h-5 hover:opacity-60"
+                >
+                  <path d="M10 3.75a2 2 0 10-4 0 2 2 0 004 0zM17.25 4.5a.75.75 0 000-1.5h-5.5a.75.75 0 000 1.5h5.5zM5 3.75a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75zM4.25 17a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zM17.25 17a.75.75 0 000-1.5h-5.5a.75.75 0 000 1.5h5.5zM9 10a.75.75 0 01-.75.75h-5.5a.75.75 0 010-1.5h5.5A.75.75 0 019 10zM17.25 10.75a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zM14 10a2 2 0 10-4 0 2 2 0 004 0zM10 16.25a2 2 0 10-4 0 2 2 0 004 0z" />
+                </svg>
+              </div>
+            </div>
+            {!limitTabSelected ? <MarketSwap /> : <LimitSwap />}
+          </div>
         </div>
       </div>
       {/* from here is to stay on trade */}
