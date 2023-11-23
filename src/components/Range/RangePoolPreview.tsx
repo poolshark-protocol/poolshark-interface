@@ -68,8 +68,6 @@ export default function RangePoolPreview() {
     setIsOpen(false);
   }
 
-  console.log('token in approve state:', tokenIn.userRouterAllowance)
-
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 

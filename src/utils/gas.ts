@@ -244,11 +244,6 @@ export const gasEstimateCreateAndMintLimit = async (
       poolsharkRouterABI,
       provider
     );
-      console.log('create and mint check:', TickMath.getSqrtPriceAtPriceString(
-        !isNaN(parseFloat(startPrice)) ? startPrice : '1.00',
-        tokenIn, tokenOut,
-        tickSpacing ?? 30
-      ).toString(), lowerTick.toString(), upperTick.toString(), feeTier.toString(), bnInput.toString())
     let gasUnits: BigNumber;
     gasUnits = await routerContract
       .connect(signer)

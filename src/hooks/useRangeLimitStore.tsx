@@ -274,9 +274,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     },
     setTokenIn: (tokenOut, newTokenIn: tokenRangeLimit, amount: string, isAmountIn: boolean) => {
       //if tokenOut is selected
-      console.log('range allowance reset in', newTokenIn.symbol)
       if (tokenOut.symbol != "Select Token") {
-        console.log('range allowance token flip')
         //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
         if (newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase()) {
           set((state) => ({
@@ -314,7 +312,6 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
             needsAllowanceOut: true,
           }));
         } else {
-          console.log('range allowance token select 1', newTokenIn.userRouterAllowance)
           //if tokens are different
           set((state) => ({
             tokenIn: {
@@ -343,7 +340,6 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           }));
         }
       } else {
-        console.log('range allowance token select 2')
         //if tokenOut its not selected
         set((state) => ({
           tokenIn: {
@@ -391,7 +387,6 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       }));
     },
     setTokenInRangeAllowance: (newAllowance: BigNumber) => {
-      console.log('range allowance set', newAllowance)
       set((state) => ({
         tokenIn: { ...state.tokenIn, userRouterAllowance: newAllowance },
       }));
@@ -407,7 +402,6 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       }));
     },
     setTokenOut: (tokenIn, newTokenOut: tokenRangeLimit, amount: string, isAmountIn: boolean) => {
-      console.log('range allowance reset out', newTokenOut.symbol)
       //if tokenIn exists
       if (
         tokenIn.address != initialRangeLimitState.tokenOut.address ||
@@ -416,7 +410,6 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         
         //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
         if (newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase()) {
-          console.log('range allowance reset out same address')
           set((state) => ({
             tokenIn: {
               callId: state.tokenOut.callId,
@@ -452,7 +445,6 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
             needsAllowanceOut: true
           }));
         } else {
-          console.log('range allowance reset out diff address')
           //if tokens are different
           set((state) => ({
             tokenIn: {
@@ -482,7 +474,6 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           }));
         }
       } else {
-        console.log('range allowance reset out select 1')
         //if tokenIn its not selected
         set((state) => ({
           tokenIn: { ...tokenIn, callId: 0 },

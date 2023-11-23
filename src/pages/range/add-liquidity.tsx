@@ -137,10 +137,6 @@ export default function AddLiquidity({}) {
   }, [tokenIn.address, tokenOut.address]);
 
   useEffect(() => {
-    console.log('range allowance update', tokenIn.userRouterAllowance)
-  }, [tokenIn.userRouterAllowance]);
-
-  useEffect(() => {
     if (
       router.query.feeTier &&
       !isNaN(parseInt(router.query.feeTier.toString())) &&
@@ -151,8 +147,8 @@ export default function AddLiquidity({}) {
   }, [router.query.feeTier]);
 
   async function updatePools(feeAmount: number) {
+    /// @notice - this should filter by the poolId in the actual query
     const data = await fetchRangePools(limitSubgraph);
-    console.log("data", data);
     if (data["data"]) {
       const pools = data["data"].limitPools;
       const pool = pools.find(
@@ -177,7 +173,6 @@ export default function AddLiquidity({}) {
         userBalance: pool.token1.balance,
         callId: 1,
       };
-      console.log('range allowance match pool')
       setTokenIn(tokenOut, tokenIn, "0", true);
       setTokenOut(tokenIn, tokenOut, "0", false);
       setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
@@ -245,7 +240,6 @@ export default function AddLiquidity({}) {
     watch: needsAllowanceIn,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
-      console.log('range allowance new', allowanceInRange)
       //setNeedsAllowanceIn(false);
     },
     onError(error) {
@@ -270,7 +264,6 @@ export default function AddLiquidity({}) {
   });
 
   useEffect(() => {
-    console.log('range allowance in', allowanceInRange)
     if (allowanceInRange != undefined)
       setTokenInAllowance(allowanceInRange);
     setTokenOutAllowance(allowanceOutRange);
