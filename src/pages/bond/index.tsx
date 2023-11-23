@@ -28,6 +28,7 @@ export default function Bond() {
   const [needsAllowance, setNeedsAllowance] = useState(true)
   const [needsMarketPurchaseData, setNeedsMarketPurchaseData] = useState(true)
   const [needsCapacityData, setNeedsCapacityData] = useState(true)
+  const [needsMarketPriceData, setNeedsMarketPriceData] = useState(true)
 
   const [
     chainId,
@@ -55,6 +56,7 @@ export default function Bond() {
   const [marketData, setMarketData] = useState([])
   const [marketPurchase, setMarketPurchase] = useState(undefined)
   const [currentCapacity, setCurrentCapacity] = useState(undefined)
+  const [marketPrice, setMarketPrice] = useState(undefined)
 
   const [poolDisplay, setPoolDisplay] = useState(
     TELLER_ADDRESS
@@ -205,6 +207,24 @@ export default function Bond() {
     }
   }, [currentCapacityData])
 
+  const { data: marketPriceData } = useContractRead({ 
+    address: AUCTIONEER_ADDRESS,
+    abi: auctioneerABI,
+    functionName: "marketPrice",
+    args: [43],
+    chainId: chainId,
+    watch: needsMarketPriceData,
+    enabled: needsMarketPriceData,
+  });
+
+  useEffect(() => {
+    if (marketPriceData) {
+      setMarketPrice(currentCapacityData)
+      setNeedsMarketPriceData(false)
+      console.log(marketPriceData, "current market price data")
+    }
+  }, [marketPriceData])
+
   const filledAmount = currentCapacity != undefined && marketData[0] != undefined ? (1 - (parseFloat(formatEther(currentCapacity))/ parseFloat(formatEther(marketData[0].capacity)))) * 100 : "0"
 
   return (
@@ -329,7 +349,9 @@ export default function Bond() {
               </div>
               <div className="flex flex-col gap-y-4 border-grey border rounded-[4px] text-xs p-5">
                 <div className="flex justify-between w-full text-grey1">
-                  YOU WILL GET <span className="text-white">60 FIN</span>
+                  YOU WILL GET <span className="text-white">{bnInput != undefined && marketPrice != undefined ?
+                  parseFloat(formatEther(bnInput)) * parseFloat(formatEther(marketPrice)) :
+                  "0"} FIN</span>
                 </div>
                 {/*<div className="flex justify-between w-full text-grey1">
                   DAILY UNLOCK <span className="text-white">0.5 FIN</span>
