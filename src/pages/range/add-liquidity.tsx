@@ -125,6 +125,8 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address != ZERO_ADDRESS) {
+      refetchAllowanceIn();
+      refetchAllowanceOut();
       setPairSelected(true);
       if (rangePoolData.feeTier != undefined) {
         updatePools(parseInt(rangePoolData.feeTier.feeAmount));
@@ -133,6 +135,10 @@ export default function AddLiquidity({}) {
       setPairSelected(false);
     }
   }, [tokenIn.address, tokenOut.address]);
+
+  useEffect(() => {
+    console.log('range allowance update', tokenIn.userRouterAllowance)
+  }, [tokenIn.userRouterAllowance]);
 
   useEffect(() => {
     if (
@@ -171,6 +177,7 @@ export default function AddLiquidity({}) {
         userBalance: pool.token1.balance,
         callId: 1,
       };
+      console.log('range allowance match pool')
       setTokenIn(tokenOut, tokenIn, "0", true);
       setTokenOut(tokenIn, tokenOut, "0", false);
       setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
@@ -229,7 +236,7 @@ export default function AddLiquidity({}) {
   ]);
 
   ////////////////////////////////Allowances
-  const { data: allowanceInRange } = useContractRead({
+  const { data: allowanceInRange, refetch: refetchAllowanceIn } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
@@ -238,6 +245,7 @@ export default function AddLiquidity({}) {
     watch: needsAllowanceIn,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
+      console.log('range allowance new', allowanceInRange)
       //setNeedsAllowanceIn(false);
     },
     onError(error) {
@@ -245,7 +253,7 @@ export default function AddLiquidity({}) {
     },
   });
 
-  const { data: allowanceOutRange } = useContractRead({
+  const { data: allowanceOutRange, refetch: refetchAllowanceOut } = useContractRead({
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
@@ -262,7 +270,9 @@ export default function AddLiquidity({}) {
   });
 
   useEffect(() => {
-    setTokenInAllowance(allowanceInRange);
+    console.log('range allowance in', allowanceInRange)
+    if (allowanceInRange != undefined)
+      setTokenInAllowance(allowanceInRange);
     setTokenOutAllowance(allowanceOutRange);
   }, [allowanceInRange, allowanceOutRange]);
 

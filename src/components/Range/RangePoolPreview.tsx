@@ -35,28 +35,16 @@ export default function RangePoolPreview() {
     rangePositionData,
     rangeMintParams,
     tokenIn,
-    setTokenInAllowance,
     tokenOut,
     priceOrder,
-    setTokenOutAllowance,
-    needsAllowanceIn,
-    needsAllowanceOut,
-    setNeedsAllowanceIn,
-    setNeedsAllowanceOut,
   ] = useRangeLimitStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,
     state.rangeMintParams,
     state.tokenIn,
-    state.setTokenInRangeAllowance,
     state.tokenOut,
     state.priceOrder,
-    state.setTokenOutRangeAllowance,
-    state.needsAllowanceIn,
-    state.needsAllowanceOut,
-    state.setNeedsAllowanceIn,
-    state.setNeedsAllowanceOut,
   ]);
   // fee amount
 
@@ -73,48 +61,14 @@ export default function RangePoolPreview() {
   const { address } = useAccount();
   const signer = new ethers.VoidSigner(address, provider);
 
-  ////////////////////////////////Allowances
-  const { data: allowanceInRange } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, chainProperties[networkName]["routerAddress"]],
-    chainId: chainId,
-    watch: needsAllowanceIn && router.isReady && !tokenIn.native,
-    onSuccess(data) {
-      //setNeedsAllowanceIn(false);
-    },
-    onError(error) {
-      console.log("Error allowance", error);
-    },
-  });
-
-  const { data: allowanceOutRange } = useContractRead({
-    address: tokenOut.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, chainProperties[networkName]["routerAddress"]],
-    chainId: chainId,
-    watch: needsAllowanceOut && router.isReady && !tokenOut.native,
-    onSuccess(data) {
-      //setNeedsAllowanceOut(false);
-    },
-    onError(error) {
-      console.log("Error allowance", error);
-    },
-  });
-
-  useEffect(() => {
-    setTokenInAllowance(allowanceInRange);
-    setTokenOutAllowance(allowanceOutRange);
-  }, [allowanceInRange, allowanceOutRange]);
-
   ///////////////////////////////Modal
   const [isOpen, setIsOpen] = useState(false);
 
   function closeModal() {
     setIsOpen(false);
   }
+
+  console.log('token in approve state:', tokenIn.userRouterAllowance)
 
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
@@ -128,13 +82,13 @@ export default function RangePoolPreview() {
         rangePositionData.upperPrice &&
         Number(rangePositionData.lowerPrice) <
           Number(rangePositionData.upperPrice) &&
-        allowanceInRange?.gte(rangeMintParams.tokenInAmount) &&
-        allowanceOutRange?.gte(rangeMintParams.tokenOutAmount) &&
+        tokenIn.userRouterAllowance?.gte(rangeMintParams.tokenInAmount) &&
+        tokenOut.userRouterAllowance?.gte(rangeMintParams.tokenOutAmount) &&
         JSBI.greaterThan(rangeMintParams.liquidityAmount, ONE)
     ) {
       updateGasFee();
     }
-  }, [rangeMintParams.liquidityAmount, allowanceInRange, allowanceOutRange, rangePositionData.lowerPrice, rangePositionData.upperPrice]);
+  }, [rangeMintParams.liquidityAmount, tokenIn.userRouterAllowance, tokenOut.userRouterAllowance, rangePositionData.lowerPrice, rangePositionData.upperPrice]);
 
   async function updateGasFee() {
     const newGasFee =
