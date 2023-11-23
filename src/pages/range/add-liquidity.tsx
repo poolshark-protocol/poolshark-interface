@@ -153,7 +153,6 @@ export default function AddLiquidity({}) {
         (pool) =>
           pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
       );
-      console.log("logoMap", logoMap);
       const tokenIn = {
         name: pool.token0.symbol,
         address: pool.token0.id,
