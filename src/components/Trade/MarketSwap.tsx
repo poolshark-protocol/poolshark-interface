@@ -534,7 +534,6 @@ export default function MarketSwap() {
     }
   };
 
-  console.log("displayIn", displayIn);
 
   /////////////////////////////Rendering Settings
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
