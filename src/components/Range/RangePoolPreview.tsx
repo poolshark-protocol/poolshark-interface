@@ -272,7 +272,7 @@ export default function RangePoolPreview() {
                                 {parseFloat(
                                   ethers.utils.formatUnits(
                                     rangeMintParams.tokenInAmount,
-                                    18
+                                    tokenIn.decimals
                                   )
                                 ).toPrecision(6)}
                               </div>
@@ -328,7 +328,7 @@ export default function RangePoolPreview() {
                                   {!isNaN(tokenOut.USDPrice) ? ((
                                     Number(tokenOut.USDPrice) *
                                     Number(
-                                      ethers.utils.formatUnits(rangeMintParams.tokenOutAmount, 18)
+                                      ethers.utils.formatUnits(rangeMintParams.tokenOutAmount, tokenOut.decimals)
                                     )
                                   ).toFixed(2)) : '?.??'}
                                 </div>
