@@ -17,6 +17,8 @@ import { formatEther } from "ethers/lib/utils.js";
 import { erc20 } from "../../abis/evm/erc20";
 import { methABI } from "../../abis/evm/meth";
 import { auctioneerABI } from "../../abis/evm/bondAuctioneer";
+import useInputBox from "../../hooks/useInputBox";
+import { tokenSwap } from "../../utils/types";
 
 export default function Bond() {
   const { address } = useAccount()
@@ -38,6 +40,8 @@ export default function Bond() {
     state.limitSubgraph,
     state.coverSubgraph
   ]);
+
+  const { bnInput, inputBox, display } = useInputBox();
 
   const WETH_ADDRESS = "0x251f7eacde75458b52dbc4995c439128b9ef98ca"
   const TELLER_ADDRESS = "0x007FE70dc9797C4198528aE43d8195ffF82Bdc95"
@@ -295,7 +299,17 @@ export default function Bond() {
                   <span>BALANCE: 0</span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  <input className="bg-transparent placeholder:text-grey1 w-full text-white text-3xl focus:ring-0 focus:ring-offset-0 focus:outline-none" />
+                  {inputBox("0", {
+                    callId: 0,
+                    name: marketData[0]?.quoteTokenName,
+                    symbol: marketData[0]?.quoteTokenSymbol,
+                    logoURI: "",
+                    address: marketData[0]?.quoteTokenAddress,
+                    decimals: marketData[0]?.quoteTokenDecimals,
+                    userBalance: tokenBalance,
+                    userRouterAllowance: BigNumber.from(0),
+                    USDPrice: 0,
+                  } as tokenSwap)}
                   <div className="flex items-center gap-x-2 ">
                     <button className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden">
                       MAX
