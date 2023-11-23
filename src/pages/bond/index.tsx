@@ -42,7 +42,7 @@ export default function Bond() {
     state.coverSubgraph
   ]);
 
-  const { bnInput, inputBox, display } = useInputBox();
+  const { bnInput, inputBox, display, maxBalance } = useInputBox();
 
   const WETH_ADDRESS = "0x251f7eacde75458b52dbc4995c439128b9ef98ca"
   const TELLER_ADDRESS = "0x007FE70dc9797C4198528aE43d8195ffF82Bdc95"
@@ -331,7 +331,14 @@ export default function Bond() {
                     USDPrice: 0,
                   } as tokenSwap)}
                   <div className="flex items-center gap-x-2 ">
-                    <button className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden">
+                    <button 
+                      className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden"
+                      onClick={() => {
+                        maxBalance(
+                          tokenBalance != undefined ? formatEther(tokenBalance.value) : "0", 
+                          "0", 
+                          marketData != undefined ? marketData[0].quoteTokenDecimals : 18);
+                      }}>
                       MAX
                     </button>
                     <div className="flex items-center gap-x-2">
@@ -339,9 +346,9 @@ export default function Bond() {
                         <img
                           height="28"
                           width="25"
-                          src="/static/images/dai_icon.png"
+                          src="/static/images/eth_icon.png"
                         />
-                        USDC
+                        WETH
                       </div>
                     </div>
                   </div>
