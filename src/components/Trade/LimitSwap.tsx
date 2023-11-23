@@ -859,7 +859,9 @@ export default function LimitSwap() {
         <div className="flex items-end justify-between text-[11px] text-grey1">
           <span>
             ~$
-            {!isNaN(tokenOut.decimals) && !isNaN(tokenOut.USDPrice) ? (
+            {!isNaN(tokenOut.decimals) &&
+            !isNaN(tokenOut.USDPrice) &&
+            displayIn != "" ? (
               (
                 (!isNaN(parseFloat(displayOut)) ? parseFloat(displayOut) : 0) *
                 (tokenOut.USDPrice ?? 0)
@@ -878,7 +880,15 @@ export default function LimitSwap() {
           </span>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-          {<div>{inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)}</div>}
+          {
+            <div>
+              <div>
+                {displayIn
+                  ? inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)
+                  : 0}
+              </div>
+            </div>
+          }
           <div className="flex items-center gap-x-2">
             <SelectToken
               key={"out"}
