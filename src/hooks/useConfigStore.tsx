@@ -10,6 +10,7 @@ type ConfigState = {
   coverFactoryAddress: string;
   listedtokenList: any;
   searchtokenList: any;
+  displayTokenList: any;
   logoMap: any;
 };
 
@@ -22,6 +23,7 @@ type ConfigAction = {
   setCoverFactoryAddress: (coverFactoryAddress: string) => void;
   setListedTokenList: (listedtokenList: any) => void;
   setSearchTokenList: (searchtokenList: any) => void;
+  setDisplayTokenList: (displayTokenList: any) => void;
 };
 
 const initialConfigState: ConfigState = {
@@ -33,6 +35,7 @@ const initialConfigState: ConfigState = {
   coverFactoryAddress: undefined,
   listedtokenList: undefined,
   searchtokenList: undefined,
+  displayTokenList: undefined,
   logoMap: {},
 };
 
@@ -45,6 +48,7 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
   coverFactoryAddress: initialConfigState.coverFactoryAddress,
   listedtokenList: initialConfigState.listedtokenList,
   searchtokenList: initialConfigState.searchtokenList,
+  displayTokenList: initialConfigState.displayTokenList,
   logoMap: initialConfigState.logoMap,
   setChainId: (chainId: number) => {
     set(() => ({
@@ -90,6 +94,11 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
   setSearchTokenList: (searchtokenList: any) => {
     set(() => ({
       searchtokenList: searchtokenList,
+    }));
+  },
+  setDisplayTokenList: (displaytokenList: any) => {
+    set(() => ({
+      displayTokenList: displaytokenList,
     }));
   },
 }));

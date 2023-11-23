@@ -562,12 +562,8 @@ export default function MarketSwap() {
             !isNaN(tokenIn.decimals) &&
             !isNaN(tokenIn.USDPrice)
               ? (
-                  parseFloat(
-                    ethers.utils.formatUnits(
-                      amountIn ?? BN_ZERO,
-                      tokenIn.decimals
-                    )
-                  ) * (tokenIn.USDPrice ?? 0)
+                  (!isNaN(parseFloat(displayIn)) ? parseFloat(displayIn) : 0) *
+                  (tokenIn.USDPrice ?? 0)
                 ).toFixed(2)
               : (0).toFixed(2)}
           </span>
@@ -634,23 +630,10 @@ export default function MarketSwap() {
         <div className="flex items-end justify-between text-[11px] text-grey1">
           <span>
             ~$
-            {pairSelected &&
-            !amountIn.eq(BN_ZERO) &&
-            amountIn != undefined &&
-            lowerTick != undefined &&
-            upperTick != undefined &&
-            tokenOut.address != ZERO_ADDRESS &&
-            !isNaN(tokenOut.decimals) &&
-            !isNaN(parseInt(amountOut.toString())) &&
-            !isNaN(tokenOut.USDPrice) &&
-            amountOut.gt(BN_ZERO) ? (
+            {!isNaN(tokenOut.decimals) && !isNaN(tokenOut.USDPrice) ? (
               (
-                parseFloat(
-                  ethers.utils.formatUnits(
-                    amountOut ?? BN_ZERO,
-                    tokenOut.decimals
-                  )
-                ) * (tokenOut.USDPrice ?? 0)
+                (!isNaN(parseFloat(displayOut)) ? parseFloat(displayOut) : 0) *
+                (tokenOut.USDPrice ?? 0)
               ).toFixed(2)
             ) : (
               <>{(0).toFixed(2)}</>
@@ -729,54 +712,60 @@ export default function MarketSwap() {
       )}
       {isDisconnected ? (
         <ConnectWalletButton xl={true} />
-      ) : //range buttons
-      tokenIn.userRouterAllowance?.lt(amountIn) &&
-        !tokenIn.native &&
-        pairSelected ? (
-        <div>
-          <SwapRouterApproveButton
-            routerAddress={chainProperties[networkName]["routerAddress"]}
-            approveToken={tokenIn.address}
-            tokenSymbol={tokenIn.symbol}
-            amount={amountIn}
-          />
-        </div>
-      ) : !wethCall ? (
-        <SwapRouterButton
-          disabled={
-            tradeButton.disabled ||
-            (needsAllowanceIn && !tokenIn.native) ||
-            swapGasLimit.eq(BN_ZERO)
-          }
-          routerAddress={chainProperties[networkName]["routerAddress"]}
-          amountIn={amountIn}
-          tokenInNative={tokenIn.native ?? false}
-          tokenOutNative={tokenOut.native ?? false}
-          poolAddresses={swapPoolAddresses}
-          swapParams={swapParams ?? {}}
-          gasLimit={swapGasLimit}
-          resetAfterSwap={resetAfterSwap}
-        />
-      ) : tokenIn.native ? (
-        <SwapWrapNativeButton
-          disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
-          routerAddress={chainProperties[networkName]["routerAddress"]}
-          wethAddress={chainProperties[networkName]["wethAddress"]}
-          tokenInSymbol={tokenIn.symbol}
-          amountIn={amountIn}
-          gasLimit={swapGasLimit}
-          resetAfterSwap={resetAfterSwap}
-        />
       ) : (
-        <SwapUnwrapNativeButton
-          disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
-          routerAddress={chainProperties[networkName]["routerAddress"]}
-          wethAddress={chainProperties[networkName]["wethAddress"]}
-          tokenInSymbol={tokenIn.symbol}
-          amountIn={amountIn}
-          gasLimit={swapGasLimit}
-          resetAfterSwap={resetAfterSwap}
-        />
+        <>
+          {
+            //range buttons
+            tokenIn.userRouterAllowance?.lt(amountIn) &&
+            !tokenIn.native &&
+            pairSelected ? (
+              <div>
+                <SwapRouterApproveButton
+                  routerAddress={chainProperties[networkName]["routerAddress"]}
+                  approveToken={tokenIn.address}
+                  tokenSymbol={tokenIn.symbol}
+                  amount={amountIn}
+                />
+              </div>
+            ) : !wethCall ? (
+              <SwapRouterButton
+                disabled={
+                  tradeButton.disabled ||
+                  (needsAllowanceIn && !tokenIn.native) ||
+                  swapGasLimit.eq(BN_ZERO)
+                }
+                routerAddress={chainProperties[networkName]["routerAddress"]}
+                amountIn={amountIn}
+                tokenInNative={tokenIn.native ?? false}
+                tokenOutNative={tokenOut.native ?? false}
+                poolAddresses={swapPoolAddresses}
+                swapParams={swapParams ?? {}}
+                gasLimit={swapGasLimit}
+                resetAfterSwap={resetAfterSwap}
+              />
+            ) : tokenIn.native ? (
+              <SwapWrapNativeButton
+                disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
+                routerAddress={chainProperties[networkName]["routerAddress"]}
+                wethAddress={chainProperties[networkName]["wethAddress"]}
+                tokenInSymbol={tokenIn.symbol}
+                amountIn={amountIn}
+                gasLimit={swapGasLimit}
+                resetAfterSwap={resetAfterSwap}
+              />
+            ) : (
+              <SwapUnwrapNativeButton
+                disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
+                routerAddress={chainProperties[networkName]["routerAddress"]}
+                wethAddress={chainProperties[networkName]["wethAddress"]}
+                tokenInSymbol={tokenIn.symbol}
+                amountIn={amountIn}
+                gasLimit={swapGasLimit}
+                resetAfterSwap={resetAfterSwap}
+              />
+            )
+          }
+        </>
       )}
     </div>
   );
