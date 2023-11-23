@@ -23,6 +23,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { ZERO_ADDRESS } from "../../utils/math/constants";
 import { chainProperties, supportedNetworkNames } from "../../utils/chains";
 import { tokenRangeLimit } from "../../utils/types";
+import RangeStakeButton from "../../components/Buttons/RangeStakeButton";
 
 export default function ViewRange() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -461,6 +462,7 @@ export default function ViewRange() {
             </div>
           </div>
           <div className="flex items-center gap-x-4 w-full md:w-auto">
+            <RangeStakeButton/>
             <button
               className="bg-main1 border w-full border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
               onClick={() => setIsAddOpen(true)}

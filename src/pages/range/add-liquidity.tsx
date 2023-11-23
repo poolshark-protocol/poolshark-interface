@@ -921,6 +921,12 @@ export default function AddLiquidity({}) {
             ))}
           </div>
         </div>
+        <div className="bg-green-500/10 w-full p-6 border border-green-500/30 mt-8 rounded-[4px]">
+          <div className="flex items-center justify-between">
+            
+          <label className="text-green-500 cursor-pointer"><input type="checkbox" className="cursor-pointer"/> STAKE RANGE POSITION</label><span className="text-green-500/40 underline text-sm">How does it work?</span>
+          </div>
+        </div>
         <div className="bg-dark mt-8"></div>
         <RangePoolPreview />
       </div>
