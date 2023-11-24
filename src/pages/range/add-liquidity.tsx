@@ -125,6 +125,8 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address != ZERO_ADDRESS) {
+      refetchAllowanceIn();
+      refetchAllowanceOut();
       setPairSelected(true);
       if (rangePoolData.feeTier != undefined) {
         updatePools(parseInt(rangePoolData.feeTier.feeAmount));
@@ -145,15 +147,14 @@ export default function AddLiquidity({}) {
   }, [router.query.feeTier]);
 
   async function updatePools(feeAmount: number) {
+    /// @notice - this should filter by the poolId in the actual query
     const data = await fetchRangePools(limitSubgraph);
-    console.log("data", data);
     if (data["data"]) {
       const pools = data["data"].limitPools;
       const pool = pools.find(
         (pool) =>
           pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
       );
-      console.log("logoMap", logoMap);
       const tokenIn = {
         name: pool.token0.symbol,
         address: pool.token0.id,
@@ -230,7 +231,7 @@ export default function AddLiquidity({}) {
   ]);
 
   ////////////////////////////////Allowances
-  const { data: allowanceInRange } = useContractRead({
+  const { data: allowanceInRange, refetch: refetchAllowanceIn } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
@@ -246,7 +247,7 @@ export default function AddLiquidity({}) {
     },
   });
 
-  const { data: allowanceOutRange } = useContractRead({
+  const { data: allowanceOutRange, refetch: refetchAllowanceOut } = useContractRead({
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
@@ -263,7 +264,8 @@ export default function AddLiquidity({}) {
   });
 
   useEffect(() => {
-    setTokenInAllowance(allowanceInRange);
+    if (allowanceInRange != undefined)
+      setTokenInAllowance(allowanceInRange);
     setTokenOutAllowance(allowanceOutRange);
   }, [allowanceInRange, allowanceOutRange]);
 
