@@ -284,6 +284,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               address: state.tokenOut.address,
               decimals: state.tokenOut.decimals,
               USDPrice: state.tokenOut.USDPrice,
+              userRouterAllowance: state.tokenOut.userRouterAllowance ?? BN_ZERO
             },
             tokenOut: {
               callId: state.tokenIn.callId,
@@ -295,7 +296,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               decimals: state.tokenIn.decimals,
               USDPrice: state.tokenIn.USDPrice,
               userBalance: state.tokenIn.userBalance,
-              userRouterAllowance: state.tokenIn.userRouterAllowance,
+              userRouterAllowance: state.tokenIn.userRouterAllowance ?? BN_ZERO,
             },
             rangeMintParams: {
               ...state.rangeMintParams,
@@ -318,11 +319,13 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               callId:
                 newTokenIn.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
               native: newTokenIn.native ?? false,
+              userRouterAllowance: BN_ZERO
             },
             tokenOut: {
               ...tokenOut,
               callId:
                 tokenOut.address.localeCompare(newTokenIn.address) < 0 ? 0 : 1,
+              userRouterAllowance: BN_ZERO
             },
             pairSelected: true,
             rangeMintParams: {
@@ -343,6 +346,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
             ...newTokenIn,
             callId: 1,
             native: newTokenIn.native ?? false,
+            userRouterAllowance: state.tokenIn?.userRouterAllowance ?? BN_ZERO
           },
           tokenOut: {
             ...tokenOut,
@@ -403,6 +407,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         tokenIn.address != initialRangeLimitState.tokenOut.address ||
         tokenIn.symbol != "Select Token"
       ) {
+        
         //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
         if (newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase()) {
           set((state) => ({
@@ -416,7 +421,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               decimals: state.tokenOut.decimals,
               USDPrice: state.tokenOut.USDPrice,
               userBalance: state.tokenOut.userBalance,
-              userRouterAllowance: state.tokenOut.userRouterAllowance,
+              userRouterAllowance: state.tokenOut.userRouterAllowance ?? BN_ZERO
             },
             tokenOut: {
               ...newTokenOut,
@@ -424,6 +429,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               address: state.tokenIn.address,
               decimals: state.tokenIn.decimals,
               USDPrice: state.tokenIn.USDPrice,
+              userRouterAllowance: state.tokenIn.userRouterAllowance ?? BN_ZERO
             },
             rangeMintParams: {
               ...state.rangeMintParams,
@@ -442,15 +448,17 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           //if tokens are different
           set((state) => ({
             tokenIn: {
-              ...tokenIn,
+              ...state.tokenIn,
               callId:
-                tokenIn.address.localeCompare(newTokenOut.address) < 0 ? 0 : 1,
+                state.tokenIn.address.localeCompare(newTokenOut.address) < 0 ? 0 : 1,
+              userRouterAllowance: state.tokenIn.userRouterAllowance ?? BN_ZERO
             },
             tokenOut: {
               ...newTokenOut,
               callId:
                 newTokenOut.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
               native: newTokenOut.native ?? false,
+              userRouterAllowance: BN_ZERO
             },
             rangeMintParams: {
               ...state.rangeMintParams,
@@ -461,14 +469,15 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               tokenOutAmount: isAmountIn ? state.limitMintParams.tokenOutAmount : parseUnits(amount, newTokenOut.decimals),
             },
             pairSelected: true,
+            needsAllowanceIn: true,
             needsAllowanceOut: true
           }));
         }
       } else {
         //if tokenIn its not selected
         set((state) => ({
-          tokenIn: { callId: 0, ...tokenIn},
-          tokenOut: { callId: 1, ...newTokenOut},
+          tokenIn: { ...tokenIn, callId: 0 },
+          tokenOut: { ...newTokenOut, callId: 1},
           rangeMintParams: {
             ...state.rangeMintParams,
             tokenOutAmount: isAmountIn ? state.rangeMintParams.tokenOutAmount : parseUnits(amount, newTokenOut.decimals),

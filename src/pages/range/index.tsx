@@ -158,6 +158,7 @@ export default function Range() {
                   pathname: "/range/add-liquidity",
                   query: {
                     feeTier: allRangePools[0].feeTier ?? 1000,
+                    poolId: allRangePools[0].poolId,
                   },
                 });
               }}

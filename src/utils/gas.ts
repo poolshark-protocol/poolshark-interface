@@ -168,8 +168,6 @@ export const gasEstimateMintLimit = async (
       provider
     );
     let gasUnits: BigNumber;
-    //NATIVE: if tokenIn.native, send msg.value as amountIn
-    //NATIVE: if tokenOut.native, send msg.value as 1 wei
     gasUnits = await routerContract.connect(signer).estimateGas.multiMintLimit(
       [rangePoolRoute],
       [
@@ -244,11 +242,6 @@ export const gasEstimateCreateAndMintLimit = async (
       poolsharkRouterABI,
       provider
     );
-      console.log('create and mint check:', TickMath.getSqrtPriceAtPriceString(
-        !isNaN(parseFloat(startPrice)) ? startPrice : '1.00',
-        tokenIn, tokenOut,
-        tickSpacing ?? 30
-      ).toString(), lowerTick.toString(), upperTick.toString(), feeTier.toString(), bnInput.toString())
     let gasUnits: BigNumber;
     gasUnits = await routerContract
       .connect(signer)
