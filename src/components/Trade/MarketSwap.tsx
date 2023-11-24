@@ -448,7 +448,7 @@ export default function MarketSwap() {
         <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
-            <div className="ml-auto text-xs">
+            <div className={`ml-auto text-xs ${pairSelected ? "text-white" : "text-[#4C4C4C]"}`}>
               {pairSelected
                 ? parseFloat(
                     ethers.utils.formatUnits(
@@ -461,7 +461,7 @@ export default function MarketSwap() {
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            <div className="ml-auto text-xs">{swapGasFee}</div>
+            <div className={`ml-auto text-xs ${tokenIn.userRouterAllowance?.lt(amountIn) ? "text-[#4C4C4C]" : "text-white" }`}>{tokenIn.userRouterAllowance?.lt(amountIn) ? "Approve Token" : swapGasFee}</div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">
