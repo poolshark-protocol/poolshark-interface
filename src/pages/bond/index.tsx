@@ -279,8 +279,9 @@ export default function Bond() {
                 </span>
               </div>
               <div className="bg-main2 relative h-10 rounded-full w-full">
+              <div className={`text-sm text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`}>{filledAmount}% FILLED</div>
                 <div className={`absolute relative flex items-center justify-center h-[38px] bg-main1 rounded-full ml-[1px] mt-[1px] w-[${filledAmount}%]`}>
-                  <div className={`text-sm text-main2 ${filledAmount < "15" ? "hidden" : "hidden"}`}>{filledAmount}% FILLED</div>
+                  
                 </div>
               </div>
             </div>
