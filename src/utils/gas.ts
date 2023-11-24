@@ -168,8 +168,6 @@ export const gasEstimateMintLimit = async (
       provider
     );
     let gasUnits: BigNumber;
-    //NATIVE: if tokenIn.native, send msg.value as amountIn
-    //NATIVE: if tokenOut.native, send msg.value as 1 wei
     gasUnits = await routerContract.connect(signer).estimateGas.multiMintLimit(
       [rangePoolRoute],
       [
