@@ -90,8 +90,8 @@ export default function Navbar({ create, setCreate }: NavOptions) {
           </div>
         </div>
       </div>
-      <div className="fixed bottom-3 left-0 w-full md:hidden z-50 px-3 md:px-0">
-        <div className="m-auto border flex w-full justify-center border-grey shadow-lg rounded-[4px] p-[10px] bg-black">
+      <div className="fixed bottom-0 left-0 w-full md:hidden z-50 ">
+        <div className="m-auto border-t flex w-full justify-center border-grey shadow-lg p-[10px] bg-black">
           <div className="flex">
             <Link href="/">
             <div
