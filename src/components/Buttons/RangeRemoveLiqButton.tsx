@@ -12,6 +12,8 @@ import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { chainProperties } from "../../utils/chains";
+import { rangeStakerABI } from "../../abis/evm/rangeStaker";
 
 export default function RangeRemoveLiqButton({
   poolAddress,
@@ -21,6 +23,7 @@ export default function RangeRemoveLiqButton({
   closeModal,
   setIsOpen,
   gasLimit,
+  staked,
   disabled,
 }) {
   const [
@@ -46,11 +49,33 @@ export default function RangeRemoveLiqButton({
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
-  const { config } = usePrepareContractWrite({
-    address: poolAddress,
-    abi: rangePoolABI,
-    functionName: "burnRange",
+  const { config } = !staked ? 
+    usePrepareContractWrite({
+      address: poolAddress,
+      abi: rangePoolABI,
+      functionName: "burnRange",
+      args: [
+        {
+          to: address,
+          positionId: positionId,
+          burnPercent: burnPercent
+        }
+      ],
+      chainId: chainId,
+      enabled: positionId != undefined && !staked,
+      overrides: {
+        gasLimit: gasLimit,
+      },
+      onError(err) {
+          console.log('burn errored')
+      },
+    })
+  : usePrepareContractWrite({
+    address: chainProperties[networkName]["rangeStakerAddress"],
+    abi: rangeStakerABI,
+    functionName: "burnRangeStake",
     args: [
+      poolAddress,
       {
         to: address,
         positionId: positionId,
@@ -58,9 +83,12 @@ export default function RangeRemoveLiqButton({
       }
     ],
     chainId: chainId,
-    enabled: positionId != undefined,
+    enabled: positionId != undefined && staked,
     overrides: {
       gasLimit: gasLimit,
+    },
+    onError(err) {
+        console.log('burn errored')
     },
   });
 

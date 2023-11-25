@@ -14,6 +14,7 @@ import { coverPoolTypes } from "./pools";
 import { getCoverMintButtonMsgValue, getLimitSwapButtonMsgValue, getRangeMintButtonMsgValue, getRangeMintInputData, getSwapRouterButtonMsgValue } from "./buttons";
 import { weth9ABI } from "../abis/evm/weth9";
 import { formatUnits } from "ethers/lib/utils.js";
+import { rangeStakerABI } from "../abis/evm/rangeStaker";
 
 export interface gasEstimateResult {
   formattedPrice: string;
@@ -523,11 +524,61 @@ export const gasEstimateRangeCreateAndMint = async (
   }
 };
 
+export const gasEstimateRangeUnstake = async(
+  rangePoolAddress: string,
+  address: string,
+  positionId: number,
+  networkName: string,
+  signer
+): Promise<gasEstimateResult> => {
+  try {
+  const provider = new ethers.providers.JsonRpcProvider(
+    "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
+  );
+  if (
+    !rangePoolAddress ||
+    !provider ||
+    !signer ||
+    !positionId
+  ) {
+    return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
+  }
+  const rangeStakerAddress = chainProperties[networkName]["rangeStakerAddress"]
+  const contract = new ethers.Contract(
+    rangeStakerAddress,
+    rangeStakerABI,
+    provider
+  );
+  const gasUnits =
+    await contract.connect(signer).estimateGas.unstakeRange({
+      to: address,
+      pool: rangePoolAddress,
+      positionId: positionId,
+    });
+  const price = await fetchEthPrice();
+  const gasPrice = await provider.getGasPrice();
+  const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
+  const networkFeeWei = gasPrice.mul(gasUnits);
+  const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
+  const networkFeeUsd = networkFeeEth * ethUsdPrice;
+  const formattedPrice: string = networkFeeUsd.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
+  return { formattedPrice, gasUnits };
+  } catch (error) {
+    console.log("stake gas error", error);
+    return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
+  }
+}
+
 export const gasEstimateRangeBurn = async (
   rangePoolRoute: string,
   address: string,
   positionId: number,
   burnPercent: BigNumber,
+  staked: boolean,
+  networkName: string,
   signer
 ): Promise<gasEstimateResult> => {
   try {
@@ -543,16 +594,28 @@ export const gasEstimateRangeBurn = async (
     ) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
+    const rangeStakerAddress = chainProperties[networkName]["rangeStakerAddress"]
     const contract = new ethers.Contract(
-      rangePoolRoute,
-      rangePoolABI,
+      !staked ? rangePoolRoute : rangeStakerAddress,
+      !staked ? rangePoolABI : rangeStakerABI,
       provider
     );
-    const gasUnits = await contract.connect(signer).estimateGas.burnRange({
-      to: address,
-      positionId: positionId,
-      burnPercent: burnPercent,
-    });
+    console.log('about to estimate gas units', staked, !staked, rangePoolRoute)
+    const gasUnits = !staked ? 
+      await contract.connect(signer).estimateGas.burnRange({
+        to: address,
+        positionId: positionId,
+        burnPercent: burnPercent,
+      })
+    : await contract.connect(signer).estimateGas.burnRangeStake(
+      rangePoolRoute,
+      {
+        to: address,
+        positionId: positionId,
+        burnPercent: burnPercent
+      }
+    );
+    console.log('estimated gas units')
     const price = await fetchEthPrice();
     const gasPrice = await provider.getGasPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
@@ -565,7 +628,7 @@ export const gasEstimateRangeBurn = async (
     });
     return { formattedPrice, gasUnits };
   } catch (error) {
-    console.log("gas error", error);
+    console.log("burn gas error", error);
     return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
   }
 };

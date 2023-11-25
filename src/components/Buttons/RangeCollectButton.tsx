@@ -11,8 +11,10 @@ import React, { useState } from "react";
 import { BN_ONE } from '../../utils/math/constants';
 import { useRangeLimitStore } from '../../hooks/useRangeLimitStore';
 import { useConfigStore } from '../../hooks/useConfigStore';
+import { rangeStakerABI } from '../../abis/evm/rangeStaker';
+import { chainProperties } from '../../utils/chains';
 
-export default function RangeCollectButton({ poolAddress, address, positionId }) {
+export default function RangeCollectButton({ poolAddress, address, positionId, staked }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -33,18 +35,39 @@ export default function RangeCollectButton({ poolAddress, address, positionId })
     state.setNeedsBalanceOut
   ]);
 
-  const { config } = usePrepareContractWrite({
+  const { config } = !staked ? usePrepareContractWrite({
       address: poolAddress,
       abi: rangePoolABI,
       functionName: "burnRange",
-      enabled: positionId != undefined,
+      enabled: positionId != undefined && !staked,
       args:[[
           address,
           positionId,
           BN_ONE
         ]],
       chainId: chainId,
+      onError(err) {
+        console.log('compound error')
+      },
   })
+  : usePrepareContractWrite({
+    address: chainProperties[networkName]["rangeStakerAddress"],
+    abi: rangeStakerABI,
+    functionName: "burnRangeStake",
+    args: [
+      poolAddress,
+      {
+        to: address,
+        positionId: positionId,
+        burnPercent: BN_ONE
+      }
+    ],
+    chainId: chainId,
+    enabled: positionId != undefined && staked,
+    onError(err) {
+        console.log('burn errored')
+    },
+  });
 
   const { data, isSuccess, write } = useContractWrite(config)
 

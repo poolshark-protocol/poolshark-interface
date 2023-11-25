@@ -60,9 +60,9 @@ export const chainProperties = {
             decimals: 18,
         },
         chainId: '0x66EED',
-        wethAddress: '0x4Cd24CdDFD0b2ADf3EF17A203Bc34eAF650A380D' as `0x${string}`,
-        routerAddress: '0x54b902b7e761521d2e8d2ad803b6bd5490905795' as `0x${string}`,
-        rangeStakerAddress: '0x71ba21b68e849c462aad14a76daf47328449d2fa' as `0x${string}`,
+        wethAddress: '0xefb283ef3167ca2ee9d93b201af15e2af3f6e8c7' as `0x${string}`,
+        routerAddress: '0x4b5a159109bb997135e9b2bb6e486e2101466881' as `0x${string}`,
+        rangeStakerAddress: '0x40c86c77b0dccc962809a90352920c6a89d874cc' as `0x${string}`,
         coverPoolFactory: '0x5c032AEC3a62AEC6a337D5f2aaA94905ecCBF06B' as `0x${string}`,
         coverSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli',
         limitSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2'

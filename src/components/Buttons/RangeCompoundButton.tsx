@@ -8,10 +8,12 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { BN_ZERO } from '../../utils/math/constants';
+import { BN_ONE, BN_ZERO } from '../../utils/math/constants';
 import { useConfigStore } from '../../hooks/useConfigStore';
+import { rangeStakerABI } from '../../abis/evm/rangeStaker';
+import { chainProperties } from '../../utils/chains';
 
-export default function RangeCompoundButton({ poolAddress, address, positionId }) {
+export default function RangeCompoundButton({ poolAddress, address, positionId, staked }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -25,18 +27,39 @@ export default function RangeCompoundButton({ poolAddress, address, positionId }
   ]);
 
   //TO-DO: assess if collectFees() or collect true in burn
-  const { config } = usePrepareContractWrite({
+  const { config } = !staked ? usePrepareContractWrite({
       address: poolAddress,
       abi: rangePoolABI,
       functionName: "burnRange",
-      enabled: positionId != undefined,
+      enabled: positionId != undefined && !staked,
       args:[[
           address,
           positionId,
           BN_ZERO
         ]],
       chainId: chainId,
+      onError(err) {
+          console.log('compound error')
+      },
   })
+  : usePrepareContractWrite({
+    address: chainProperties[networkName]["rangeStakerAddress"],
+    abi: rangeStakerABI,
+    functionName: "burnRangeStake",
+    args: [
+      poolAddress,
+      {
+        to: address,
+        positionId: positionId,
+        burnPercent: BN_ZERO
+      }
+    ],
+    chainId: chainId,
+    enabled: positionId != undefined && staked,
+    onError(err) {
+        console.log('burn errored')
+    },
+  });
 
   const { data, isSuccess, write } = useContractWrite(config)
 

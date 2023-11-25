@@ -21,7 +21,7 @@ import RangeCollectButton from "../../components/Buttons/RangeCollectButton";
 import router from "next/router";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { ZERO_ADDRESS } from "../../utils/math/constants";
-import { chainProperties, supportedNetworkNames } from "../../utils/chains";
+import { chainProperties } from "../../utils/chains";
 import { tokenRangeLimit } from "../../utils/types";
 import RangeStakeButton from "../../components/Buttons/RangeStakeButton";
 import RangeUnstakeButton from "../../components/Buttons/RangeUnstakeButton";
@@ -494,7 +494,7 @@ export default function ViewRange() {
             </div>
           </div>
           <div className="flex items-center gap-x-4 w-full md:w-auto">
-            {rangePositionData?.staked ? <RangeUnstakeButton/> 
+            {rangePositionData?.staked ? <RangeUnstakeButton address={address} rangePoolAddress={rangePoolData?.id} positionId={rangePositionData.positionId} signer={signer}/> 
                                        : <RangeStakeButton/>} 
             <button
               className="bg-main1 border w-full border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
@@ -749,11 +749,13 @@ export default function ViewRange() {
                 poolAddress={rangePoolAddress}
                 address={address}
                 positionId={rangePositionData.positionId}
+                staked={rangePositionData.staked ?? true}
               />
               <RangeCollectButton
                 poolAddress={rangePoolAddress}
                 address={address}
                 positionId={rangePositionData.positionId}
+                staked={rangePositionData.staked ?? true}
               />
             </div>
           </div>
@@ -765,6 +767,7 @@ export default function ViewRange() {
             isOpen={isRemoveOpen}
             setIsOpen={setIsRemoveOpen}
             signer={signer}
+            staked={rangePositionData.staked ?? true}
           />
           <AddLiquidity isOpen={isAddOpen} setIsOpen={setIsAddOpen} />
         </>

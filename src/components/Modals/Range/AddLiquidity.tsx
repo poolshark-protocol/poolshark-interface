@@ -382,6 +382,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       rangeMintParams.tokenInAmount,
       rangeMintParams.tokenOutAmount,
       signer,
+      rangePositionData.staked,
       networkName,
       rangePositionData.positionId
     );
