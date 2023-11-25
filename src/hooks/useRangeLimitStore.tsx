@@ -31,6 +31,7 @@ type RangeLimitState = {
     disabled: boolean;
     buttonMessage: string;
     liquidityAmount: JSBI;
+    stakeFlag: boolean;
   };
   //limitPoolAddress for current token pairs
   limitPoolAddress: `0x${string}`;
@@ -145,6 +146,7 @@ type RangeLimitAction = {
   setCurrentAmountOut: (currentAmountOut: string) => void;
   setStartPrice: (startPrice: string) => void;
   setLimitAddLiqDisabled: (limitAddLiqDisabled: boolean) => void;
+  setStakeFlag: (stakeFlag: boolean) => void;
 };
 
 const initialRangeLimitState: RangeLimitState = {
@@ -162,6 +164,7 @@ const initialRangeLimitState: RangeLimitState = {
     gasLimit: BN_ZERO,
     disabled: true,
     buttonMessage: "",
+    stakeFlag: false,
   },
   //limit pools
   limitPoolAddress: ZERO_ADDRESS as `0x${string}`,
@@ -768,6 +771,14 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     setStartPrice: (startPrice: string) =>  {
       set(() => ({
         startPrice: startPrice
+      }))
+    },
+    setStakeFlag: (stakeFlag: boolean) => {
+      set((state) => ({
+        rangeMintParams: {
+          ...state.rangeMintParams,
+          stakeFlag: stakeFlag
+        }
       }))
     },
     resetRangeLimitParams: () => {

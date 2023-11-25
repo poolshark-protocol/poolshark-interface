@@ -11,7 +11,7 @@ import { chainProperties } from "./chains";
 import JSBI from "jsbi";
 import { parseUnits } from "./math/valueMath";
 import { coverPoolTypes } from "./pools";
-import { getCoverMintButtonMsgValue, getLimitSwapButtonMsgValue, getRangeMintButtonMsgValue, getSwapRouterButtonMsgValue } from "./buttons";
+import { getCoverMintButtonMsgValue, getLimitSwapButtonMsgValue, getRangeMintButtonMsgValue, getRangeMintInputData, getSwapRouterButtonMsgValue } from "./buttons";
 import { weth9ABI } from "../abis/evm/weth9";
 import { formatUnits } from "ethers/lib/utils.js";
 
@@ -371,6 +371,7 @@ export const gasEstimateRangeMint = async (
   amountIn: BigNumber,
   amountOut: BigNumber,
   signer,
+  stakeFlag: boolean,
   networkName: string,
   positionId?: number
 ): Promise<gasEstimateResult> => {
@@ -384,9 +385,11 @@ export const gasEstimateRangeMint = async (
       (amountIn.eq(BN_ZERO) && amountOut.eq(BN_ZERO)) ||
       !signer
     ) {
+      console.log('gas early return')
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     const routerAddress = chainProperties[networkName]["routerAddress"];
+    const rangeStakerAddress = chainProperties[networkName]["rangeStakerAddress"]
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
@@ -404,7 +407,7 @@ export const gasEstimateRangeMint = async (
             positionId: positionId ?? 0, /// @dev - 0 for new position; positionId for existing (i.e. adding liquidity)
             amount0: tokenIn.callId == 0 ? amountIn : amountOut,
             amount1: tokenIn.callId == 0 ? amountOut : amountIn,
-            callbackData: ethers.utils.formatBytes32String(""),
+            callbackData: getRangeMintInputData(stakeFlag, rangeStakerAddress),
           },
         ],
         {

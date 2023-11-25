@@ -31,6 +31,8 @@ export default function RangeMintApproveButton({
     state.setNeedsAllowanceIn,
   ]);
 
+  console.log('approve button token', approveToken.symbol)
+
   const { config: t0 } = usePrepareContractWrite({
     address: approveToken.address,
     abi: erc20ABI,

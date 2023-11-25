@@ -61,10 +61,10 @@ export const chainProperties = {
         },
         chainId: '0x66EED',
         wethAddress: '0x4Cd24CdDFD0b2ADf3EF17A203Bc34eAF650A380D' as `0x${string}`,
-        routerAddress: '0xEE5856991F98204E10e1Dc4571231708A0b7f20b' as `0x${string}`,
+        routerAddress: '0x54b902b7e761521d2e8d2ad803b6bd5490905795' as `0x${string}`,
+        rangeStakerAddress: '0x71ba21b68e849c462aad14a76daf47328449d2fa' as `0x${string}`,
         coverPoolFactory: '0x5c032AEC3a62AEC6a337D5f2aaA94905ecCBF06B' as `0x${string}`,
-        limitPoolFactory: '0xbd6d010bcecc7440a72889546411e0edbb333ea2',
         coverSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli',
-        limitSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/b186d77afc6626a1269b519ee3367053/staging-limit-arbitrumGoerli'
+        limitSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2'
     },
 };

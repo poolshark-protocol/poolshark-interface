@@ -11,7 +11,8 @@ import { ethers } from "ethers";
 import PositionMintModal from "../Modals/PositionMint";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { getRangeMintButtonMsgValue } from "../../utils/buttons";
+import { getRangeMintButtonMsgValue, getRangeMintInputData } from "../../utils/buttons";
+import { chainProperties } from "../../utils/chains";
 
 export default function RangeMintButton({
   disabled,
@@ -77,7 +78,7 @@ export default function RangeMintButton({
           positionId: positionId,
           amount0: amount0,
           amount1: amount1,
-          callbackData: ethers.utils.formatBytes32String(""),
+          callbackData: getRangeMintInputData(rangeMintParams.stakeFlag, chainProperties[networkName]["rangeStakerAddress"]),
         },
       ],
     ],
@@ -138,7 +139,7 @@ export default function RangeMintButton({
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center flex items-center justify-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         onClick={() => write?.()}
       >
-        {gasLimit.lte(BN_ZERO) ? <Loader/> : buttonMessage}
+        {gasLimit.lte(BN_ZERO) && !disabled ? <Loader/> : buttonMessage}
       </button>
     </>
   );

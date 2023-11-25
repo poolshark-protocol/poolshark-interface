@@ -78,6 +78,7 @@ export const getRangePoolFromFactory = (
             token1 {
               usdPrice
             }
+            poolToken
           }
         }
         `;
@@ -728,6 +729,7 @@ export const fetchRangePositions = (client: LimitSubgraph, address: string) => {
             id
             positionId
             owner
+            staked
             lower
             upper
             liquidity

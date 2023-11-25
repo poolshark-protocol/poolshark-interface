@@ -68,6 +68,8 @@ export default function RangePoolPreview() {
     setIsOpen(false);
   }
 
+  console.log('token out allowance', tokenOut.userRouterAllowance)
+
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
@@ -76,8 +78,6 @@ export default function RangePoolPreview() {
     (
         (rangeMintParams.tokenInAmount?.gt(BN_ZERO) ||
         rangeMintParams.tokenOutAmount?.gt(BN_ZERO)) && 
-        rangePositionData.lowerPrice &&
-        rangePositionData.upperPrice &&
         Number(rangePositionData.lowerPrice) <
           Number(rangePositionData.upperPrice) &&
         tokenIn.userRouterAllowance?.gte(rangeMintParams.tokenInAmount) &&
@@ -86,7 +86,7 @@ export default function RangePoolPreview() {
     ) {
       updateGasFee();
     }
-  }, [rangeMintParams.liquidityAmount, tokenIn.userRouterAllowance, tokenOut.userRouterAllowance, rangePositionData.lowerPrice, rangePositionData.upperPrice]);
+  }, [rangeMintParams.stakeFlag, rangeMintParams.liquidityAmount, tokenIn.userRouterAllowance, tokenOut.userRouterAllowance, rangePositionData.lowerPrice, rangePositionData.upperPrice]);
 
   async function updateGasFee() {
     const newGasFee =
@@ -113,6 +113,7 @@ export default function RangePoolPreview() {
             rangeMintParams.tokenInAmount,
             rangeMintParams.tokenOutAmount,
             signer,
+            rangeMintParams.stakeFlag,
             networkName
           )
         : await gasEstimateRangeCreateAndMint(
@@ -144,6 +145,7 @@ export default function RangePoolPreview() {
             signer,
             networkName
           );
+          console.log('gas limit set', newGasFee.gasUnits.toString())
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
 

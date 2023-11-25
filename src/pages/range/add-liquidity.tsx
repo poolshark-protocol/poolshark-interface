@@ -69,6 +69,7 @@ export default function AddLiquidity({}) {
     setNeedsBalanceOut,
     setRangePoolData,
     setStartPrice,
+    setStakeFlag,
   ] = useRangeLimitStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
@@ -103,6 +104,7 @@ export default function AddLiquidity({}) {
     state.setNeedsBalanceOut,
     state.setRangePoolData,
     state.setStartPrice,
+    state.setStakeFlag,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -192,7 +194,7 @@ export default function AddLiquidity({}) {
     });
   };
 
-  //this sets the default position price delta
+  //this sets the default position price range
   useEffect(() => {
     if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
       const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
@@ -237,9 +239,10 @@ export default function AddLiquidity({}) {
     functionName: "allowance",
     args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
-    watch: needsAllowanceIn,
+    watch: true,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
+      console.log('allowance in fetched', allowanceInRange?.toString())
       //setNeedsAllowanceIn(false);
     },
     onError(error) {
@@ -253,9 +256,9 @@ export default function AddLiquidity({}) {
     functionName: "allowance",
     args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
-    watch: needsAllowanceOut,
-    enabled: tokenOut.address != undefined,
+    watch: true,
     onSuccess(data) {
+      console.log('allowance out fetched', allowanceOutRange?.toString())
       //setNeedsAllowanceOut(false);
     },
     onError(error) {
@@ -264,9 +267,8 @@ export default function AddLiquidity({}) {
   });
 
   useEffect(() => {
-    if (allowanceInRange != undefined)
       setTokenInAllowance(allowanceInRange);
-    setTokenOutAllowance(allowanceOutRange);
+      setTokenOutAllowance(allowanceOutRange);
   }, [allowanceInRange, allowanceOutRange]);
 
   ////////////////////////////////Token Balances
@@ -275,7 +277,7 @@ export default function AddLiquidity({}) {
     address: address,
     token: tokenIn.native ? undefined: tokenIn.address,
     enabled: tokenIn.address != ZERO_ADDRESS,
-    watch: needsBalanceIn,
+    watch: true,
     onSuccess(data) {
       setNeedsBalanceIn(false);
     },
@@ -285,7 +287,7 @@ export default function AddLiquidity({}) {
     address: address,
     token: tokenOut.native ? undefined : tokenOut.address,
     enabled: tokenOut.address != ZERO_ADDRESS,
-    watch: needsBalanceOut,
+    watch: true,
     onSuccess(data) {
       setNeedsBalanceOut(false);
     },
@@ -407,8 +409,10 @@ export default function AddLiquidity({}) {
         tokenOut,
         parseInt(rangePoolData.feeTier?.tickSpacing ?? "100")
       );
+      console.log('ticks:', lower, upper, rangePoolData.feeTier.tickSpacing)
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lower);
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upper);
+      console.log('prices:', String(rangeSqrtPrice), String(lowerSqrtPrice), String(upperSqrtPrice))
       if (amountSet.gt(BN_ZERO)) {
         let liquidity = ZERO;
         if (
@@ -436,7 +440,9 @@ export default function AddLiquidity({}) {
             // warn the user the input is invalid
           }
         } else if (JSBI.greaterThanOrEqual(rangeSqrtPrice, upperSqrtPrice)) {
+          console.log('above range')
           if (!isToken0) {
+            console.log('grabbing liquidity', inputBn.toString())
             liquidity = DyDxMath.getLiquidityForAmounts(
               lowerSqrtPrice,
               upperSqrtPrice,
@@ -444,17 +450,26 @@ export default function AddLiquidity({}) {
               inputBn,
               BN_ZERO
             );
+            console.log('liquidity found:', String(liquidity))
           } else {
             // warn the user the input is invalid
           }
         }
         setLiquidityAmount(liquidity);
-        const outputJsbi = JSBI.greaterThan(liquidity, ZERO)
-          ? isToken0
-            ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
-            : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
-          : ZERO;
+        let outputJsbi;
+        // if current price in-range calculate other token amount
+        if (JSBI.lessThan(rangeSqrtPrice, upperSqrtPrice) && 
+              JSBI.greaterThan(rangeSqrtPrice, lowerSqrtPrice)) {
+          outputJsbi = JSBI.greaterThan(liquidity, ZERO)
+            ? isToken0
+              ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
+              : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
+            : ZERO;
+        } else {
+          outputJsbi = ZERO
+        }
         const outputBn = BigNumber.from(String(outputJsbi));
+        console.log('setting token out amount', outputBn.toString())
         // set amount based on inputBn
         if (amountInSet) {
           setTokenInAmount(inputBn);
@@ -926,7 +941,7 @@ export default function AddLiquidity({}) {
         <div className="bg-green-500/10 w-full p-6 border border-green-500/30 mt-8 rounded-[4px]">
           <div className="flex items-center justify-between">
             
-          <label className="text-green-500 cursor-pointer"><input type="checkbox" className="cursor-pointer"/> STAKE RANGE POSITION</label><span className="text-green-500/40 underline text-sm">How does it work?</span>
+          <label className="text-green-500 cursor-pointer"><input type="checkbox" checked={rangeMintParams.stakeFlag} onChange={() => {setStakeFlag(!rangeMintParams.stakeFlag)}} className="cursor-pointer"/> STAKE RANGE POSITION</label><span className="text-green-500/40 underline text-sm">How does it work?</span>
           </div>
         </div>
         <div className="bg-dark mt-8"></div>

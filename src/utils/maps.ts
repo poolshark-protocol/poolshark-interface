@@ -125,6 +125,7 @@ export function mapUserRangePositions(rangePositions) {
       id: rangePosition.id,
       positionId: rangePosition.positionId,
       poolId: rangePosition.pool.id,
+      staked: rangePosition.staked,
       tokenZero: rangePosition.pool.token0,
       valueTokenZero: rangePosition.pool.token0.usdPrice,
       tokenOne: rangePosition.pool.token1,
