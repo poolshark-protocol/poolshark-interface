@@ -26,6 +26,7 @@ import { tokenRangeLimit } from "../../utils/types";
 import RangeStakeButton from "../../components/Buttons/RangeStakeButton";
 import RangeUnstakeButton from "../../components/Buttons/RangeUnstakeButton";
 import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
+import { rangePoolFactoryABI } from "../../abis/evm/rangePoolFactory";
 
 export default function ViewRange() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -98,7 +99,7 @@ export default function ViewRange() {
   const [amount1FeesUsd, setAmount1FeesUsd] = useState(0.0);
   const [isPoolCopied, setIsPoolCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [stakeApproved, setStakeApproved] = useState(false);
+  const [stakeApproved, setStakeApproved] = useState(undefined);
 
   const [poolDisplay, setPoolDisplay] = useState(
     rangePoolAddress != ("" as string)
@@ -401,7 +402,7 @@ export default function ViewRange() {
     chainId: chainId,
     watch: true,
     enabled:
-      isConnected,
+      rangePositionData.staked != undefined && !rangePositionData.staked,
     onSuccess() {
       console.log('approval erc1155 fetched')
     },
@@ -410,12 +411,13 @@ export default function ViewRange() {
     },
   });
 
+  // store erc-1155 approval status
   useEffect(() => {
-    console.log('type:', typeof(stakeApproveStatus))
-    // setStakeApproved(stakeApproveStatus)
+    console.log('approve state', stakeApproveStatus)
+    setStakeApproved(stakeApproveStatus)
   }, [stakeApproveStatus]);
 
-  // store approval status
+
   // estimate gas based on staked status for add/remove
 
 
@@ -495,7 +497,7 @@ export default function ViewRange() {
           </div>
           <div className="flex items-center gap-x-4 w-full md:w-auto">
             {rangePositionData?.staked ? <RangeUnstakeButton address={address} rangePoolAddress={rangePoolData?.id} positionId={rangePositionData.positionId} signer={signer}/> 
-                                       : <RangeStakeButton/>} 
+                                       : <RangeStakeButton address={address} rangePoolAddress={rangePoolData?.id} rangePoolTokenAddress={rangePoolData?.poolToken} positionId={rangePositionData.positionId} signer={signer} stakeApproved={stakeApproved}/>} 
             <button
               className="bg-main1 border w-full border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
               onClick={() => setIsAddOpen(true)}

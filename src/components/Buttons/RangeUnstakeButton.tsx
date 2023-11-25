@@ -63,6 +63,7 @@ const [
     }, [positionId, rangePoolAddress]);
 
     async function updateGasFee() {
+      console.log('updating unstake gas fee')
       const newGasFee = await gasEstimateRangeUnstake(
         rangePoolAddress,
         address,
@@ -70,6 +71,7 @@ const [
         networkName,
         signer
       );
+      console.log('unstake gas limit', newGasFee.gasUnits.toString())
       setUnstakeGasLimit(newGasFee.gasUnits.mul(130).div(100));
     }
 
@@ -92,7 +94,6 @@ const [
         onSuccess() {},
         onError() {
           console.log('error unstaked')
-            setErrorDisplay(true);
         },
     });
 
