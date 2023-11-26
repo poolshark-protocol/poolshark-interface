@@ -49,28 +49,23 @@ export default function RangeRemoveLiqButton({
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
-  const { config } = !staked ? 
-    usePrepareContractWrite({
-      address: poolAddress,
-      abi: rangePoolABI,
-      functionName: "burnRange",
-      args: [
-        {
-          to: address,
-          positionId: positionId,
-          burnPercent: burnPercent
-        }
-      ],
-      chainId: chainId,
-      enabled: positionId != undefined && !staked,
-      overrides: {
-        gasLimit: gasLimit,
-      },
-      onError(err) {
-          console.log('burn errored')
-      },
-    })
-  : usePrepareContractWrite({
+  const { config: burnConfig } = usePrepareContractWrite({
+    address: poolAddress,
+    abi: rangePoolABI,
+    functionName: "burnRange",
+    enabled: positionId != undefined && !staked,
+    args:[[
+        address,
+        positionId,
+        burnPercent
+      ]],
+    chainId: chainId,
+    onError(err) {
+      console.log('compound error')
+    },
+  });
+
+  const { config: burnStakeConfig } = usePrepareContractWrite({
     address: chainProperties[networkName]["rangeStakerAddress"],
     abi: rangeStakerABI,
     functionName: "burnRangeStake",
@@ -84,15 +79,16 @@ export default function RangeRemoveLiqButton({
     ],
     chainId: chainId,
     enabled: positionId != undefined && staked,
-    overrides: {
-      gasLimit: gasLimit,
-    },
     onError(err) {
-        console.log('burn errored')
+        console.log('compound stake errored')
     },
   });
 
-  const { data, write } = useContractWrite(config);
+  const { data: burnData, write: burnWrite } = useContractWrite(burnConfig)
+  const { data: burnStakeData, write: burnStakeWrite } = useContractWrite(burnStakeConfig)
+
+  const data = !staked ? burnData : burnStakeData
+  const write = !staked ? burnWrite : burnStakeWrite
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,

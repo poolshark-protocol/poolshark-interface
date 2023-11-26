@@ -47,7 +47,7 @@ export default function RangeCollectButton({ poolAddress, address, positionId, s
         ]],
       chainId: chainId,
       onError(err) {
-        console.log('compound error')
+        console.log('collect error')
       },
   });
 
@@ -66,7 +66,7 @@ export default function RangeCollectButton({ poolAddress, address, positionId, s
     chainId: chainId,
     enabled: positionId != undefined && staked,
     onError(err) {
-        console.log('burn errored')
+        console.log('collect stake error')
     },
   });
 
