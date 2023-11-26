@@ -71,7 +71,7 @@ export default function RangeCollectButton({ poolAddress, address, positionId, s
   });
 
   const { data: burnData, write: burnWrite } = useContractWrite(burnConfig)
-  const { data: burnStakeData, write: burnStakeWrite } = useContractWrite(burnConfig)
+  const { data: burnStakeData, write: burnStakeWrite } = useContractWrite(burnStakeConfig)
 
   const data = !staked ? burnData : burnStakeData
   const write = !staked ? burnWrite : burnStakeWrite
