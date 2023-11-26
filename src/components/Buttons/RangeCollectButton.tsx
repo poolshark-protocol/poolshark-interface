@@ -35,7 +35,7 @@ export default function RangeCollectButton({ poolAddress, address, positionId, s
     state.setNeedsBalanceOut
   ]);
 
-  const { config } = !staked ? usePrepareContractWrite({
+  const { config: burnConfig } = usePrepareContractWrite({
       address: poolAddress,
       abi: rangePoolABI,
       functionName: "burnRange",
@@ -49,8 +49,9 @@ export default function RangeCollectButton({ poolAddress, address, positionId, s
       onError(err) {
         console.log('compound error')
       },
-  })
-  : usePrepareContractWrite({
+  });
+
+  const { config: burnStakeConfig } = usePrepareContractWrite({
     address: chainProperties[networkName]["rangeStakerAddress"],
     abi: rangeStakerABI,
     functionName: "burnRangeStake",
@@ -69,7 +70,11 @@ export default function RangeCollectButton({ poolAddress, address, positionId, s
     },
   });
 
-  const { data, isSuccess, write } = useContractWrite(config)
+  const { data: burnData, write: burnWrite } = useContractWrite(burnConfig)
+  const { data: burnStakeData, write: burnStakeWrite } = useContractWrite(burnConfig)
+
+  const data = !staked ? burnData : burnStakeData
+  const write = !staked ? burnWrite : burnStakeWrite
 
   const {isLoading} = useWaitForTransaction({
     hash: data?.hash,
