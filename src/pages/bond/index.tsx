@@ -239,8 +239,12 @@ export default function Bond() {
     }
   }, [needsSubgraph]);
 
-  const filledAmount = currentCapacity != undefined && marketData[0] != undefined ? (1 - (parseFloat(formatEther(currentCapacity))/ parseFloat(formatEther(marketData[0].capacity)))) * 100 : "0"
+  const filledAmount = 
+    currentCapacity != undefined && marketData[0] != undefined ? 
+    (1 - (parseFloat(formatEther(currentCapacity))/ parseFloat(formatEther(marketData[0].capacity)))) * 100 : 
+    "0";
 
+  
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
@@ -289,7 +293,9 @@ export default function Bond() {
               <div className="flex items-center gap-x-5 mt-3">
                 <div className="border border-main rounded-[4px] flex flex-col w-full items-center justify-center gap-y-4 h-32 bg-main1 ">
                   <span className="text-main2/60 text-[13px]">CURRENT BOND PRICE</span>
-                  <span className="text-main2 lg:text-4xl text-3xl">${}</span>
+                  <span className="text-main2 lg:text-4xl text-3xl">${ethPrice != undefined && marketPrice != undefined ?
+                  (ethPrice * (1 / parseFloat(formatEther(marketPrice)))).toFixed(4) :
+                  "0"}</span>
                 </div>
                 {/*<div className=" rounded-[4px] flex flex-col w-full bg-[#2ECC71]/10 items-center justify-center gap-y-4 h-32">
                   <span className="text-[#2ECC71]/50 text-[13px]">
@@ -329,7 +335,7 @@ export default function Bond() {
             <div className="flex flex-col gap-y-7">
               <div className="border border-grey bg-black rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
-                  <span>~$0.00</span>
+                  <span>~${ethPrice != undefined && display != "" ? (parseFloat(display) * ethPrice).toFixed(2) : "0.00"}</span>
                   <span>BALANCE: {tokenBalance != undefined ? formatEther(tokenBalance.value) : "0"}</span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
