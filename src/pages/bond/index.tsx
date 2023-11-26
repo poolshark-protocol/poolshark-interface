@@ -446,7 +446,7 @@ export default function Bond() {
                     {/*<th className="text-left uppercase">DISCOUNT</th>
                     <th className="text-left uppercase">DAILY UNLOCK</th>*/}
                     <th className="text-left uppercase">UNLOCK DATE</th>
-                    <th className="text-left uppercase">TRANSACTION</th>
+                    <th className="text-left uppercase">TRANSACTION HASH</th>
                     {/*<th className="text-left uppercase">ADDRESS</th>*/}
                   </tr>
                 </thead>
