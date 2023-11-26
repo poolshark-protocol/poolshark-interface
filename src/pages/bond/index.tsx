@@ -366,7 +366,7 @@ export default function Bond() {
                         <img
                           height="28"
                           width="25"
-                          src="/static/images/eth_icon.png"
+                          src="/static/images/weth_icon.png"
                         />
                         WETH
                       </div>
@@ -456,7 +456,7 @@ export default function Bond() {
                             <div className="flex gap-x-1.5 items-center">
                               <img
                                 className="w-6"
-                                src="/static/images/dai_icon.png"
+                                src="/static/images/weth_icon.png"
                               />
                               {userBond.amount} {userBond.quoteTokenSymbol}
                             </div>
