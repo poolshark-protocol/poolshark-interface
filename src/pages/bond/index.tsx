@@ -10,7 +10,7 @@ import {
 } from "../../utils/chains";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { bondTellerABI } from "../../abis/evm/bondTeller";
-import { fetchBondMarket, fetchUserBonds } from "../../utils/queries";
+import { fetchBondMarket, fetchEthPrice, fetchUserBonds } from "../../utils/queries";
 import { mapBondMarkets, mapUserBondPurchases } from "../../utils/maps";
 import { convertTimestampToDateFormat } from "../../utils/time";
 import { formatEther } from "ethers/lib/utils.js";
@@ -57,6 +57,7 @@ export default function Bond() {
   const [marketPurchase, setMarketPurchase] = useState(undefined)
   const [currentCapacity, setCurrentCapacity] = useState(undefined)
   const [marketPrice, setMarketPrice] = useState(undefined)
+  const [ethPrice, setEthPrice] = useState(undefined)
 
   const [poolDisplay, setPoolDisplay] = useState(
     TELLER_ADDRESS
@@ -224,6 +225,19 @@ export default function Bond() {
       console.log(marketPriceData, "current market price data")
     }
   }, [marketPriceData])
+
+  const getEthUsdPrice = async () => {
+    const price = await fetchEthPrice();
+    const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
+
+    setEthPrice(ethUsdPrice);
+  };
+
+  useEffect(() => {
+    if (needsSubgraph) {
+      getEthUsdPrice();
+    }
+  }, [needsSubgraph]);
 
   const filledAmount = currentCapacity != undefined && marketData[0] != undefined ? (1 - (parseFloat(formatEther(currentCapacity))/ parseFloat(formatEther(marketData[0].capacity)))) * 100 : "0"
 
