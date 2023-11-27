@@ -45,8 +45,9 @@ export default function Bond() {
   const { bnInput, inputBox, display, maxBalance } = useInputBox();
 
   const WETH_ADDRESS = "0x251f7eacde75458b52dbc4995c439128b9ef98ca"
-  const TELLER_ADDRESS = "0x007FE70dc9797C4198528aE43d8195ffF82Bdc95"
+  const TELLER_ADDRESS = "0x007F7735baF391e207E3aA380bb53c4Bd9a5Fed6"
   const AUCTIONEER_ADDRESS = "0xfef9a53aa10ce2c9ab6519aee7df82767f504f55"
+  const FPA_FIXED_TERM_ADDRESS = "0xF7F9A96cDBFEFd70BDa14a8f30EC503b16bCe9b1"
   const BOND_TOKEN_ADDRESS = "0x0000000000000000000000000000000000000000"
 
   const [tokenBalance, setTokenBalance] = useState(undefined)
