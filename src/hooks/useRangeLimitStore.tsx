@@ -2,8 +2,8 @@ import { BigNumber } from "ethers";
 import { LimitSubgraph, token, tokenRangeLimit } from "../utils/types";
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
-  tokenOneAddress,
-  tokenZeroAddress,
+  daiAddress,
+  wethAddress,
 } from "../constants/contractAddresses";
 import { create } from "zustand";
 import {
@@ -183,12 +183,12 @@ const initialRangeLimitState: RangeLimitState = {
   pairSelected: false,
   //
   tokenIn: {
-    callId: 0,
+    callId: wethAddress.localeCompare(daiAddress) < 0 ? 0 : 1,
     name: "Wrapped Ether",
     symbol: "WETH",
     native: false,
     logoURI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
-    address: tokenZeroAddress,
+    address: wethAddress,
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: BigNumber.from(0),
@@ -196,12 +196,12 @@ const initialRangeLimitState: RangeLimitState = {
   } as tokenRangeLimit,
   //
   tokenOut: {
-    callId: 1,
+    callId: daiAddress.localeCompare(wethAddress) < 0 ? 0 : 1,
     name: "DAI",
     symbol: "DAI",
     native: false,
     logoURI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
-    address: tokenOneAddress,
+    address: daiAddress,
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: BigNumber.from(0),

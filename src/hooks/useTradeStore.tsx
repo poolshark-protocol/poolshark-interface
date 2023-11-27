@@ -2,7 +2,7 @@ import { BigNumber, ethers } from "ethers";
 import { LimitSubgraph, tokenSwap } from "../utils/types";
 import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
-  tokenZeroAddress,
+  wethAddress,
 } from "../constants/contractAddresses";
 import { create } from "zustand";
 import {
@@ -120,7 +120,7 @@ const initialTradeState: TradeState = {
     native: false,
     logoURI:
       "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
-    address: tokenZeroAddress,
+    address: wethAddress,
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: BigNumber.from(0),
