@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import { SuccessToast } from "../Toasts/Success";
+import { BigNumber } from "ethers";
 
   
   export default function BuyBondButton({
@@ -40,6 +41,9 @@ import { SuccessToast } from "../Toasts/Success";
         inputAmount,
       ],
       chainId: chainId,
+      overrides: {
+        gasLimit: BigNumber.from(1000000),
+      },
       onSuccess() {},
       onError() {
         setErrorDisplay(true);
