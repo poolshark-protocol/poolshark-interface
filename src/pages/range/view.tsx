@@ -415,10 +415,6 @@ export default function ViewRange() {
     setStakeApproved(stakeApproveStatus)
   }, [stakeApproveStatus]);
 
-
-  // estimate gas based on staked status for add/remove
-
-
   ////////////////////////////////Mint Button Handler
 
   useEffect(() => {
