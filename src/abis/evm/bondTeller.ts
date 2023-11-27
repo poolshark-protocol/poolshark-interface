@@ -27,11 +27,6 @@ export const bondTellerABI = [
     },
     {
       "inputs": [],
-      "name": "CreateFail",
-      "type": "error"
-    },
-    {
-      "inputs": [],
       "name": "Teller_InvalidCallback",
       "type": "error"
     },
@@ -76,6 +71,31 @@ export const bondTellerABI = [
       "inputs": [],
       "name": "Teller_UnsupportedToken",
       "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "approved",
+          "type": "bool"
+        }
+      ],
+      "name": "ApprovalForAll",
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -132,9 +152,9 @@ export const bondTellerABI = [
       "inputs": [
         {
           "indexed": false,
-          "internalType": "contract ERC20BondToken",
-          "name": "bondToken",
-          "type": "address"
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
         },
         {
           "indexed": true,
@@ -149,7 +169,7 @@ export const bondTellerABI = [
           "type": "uint48"
         }
       ],
-      "name": "ERC20BondTokenCreated",
+      "name": "ERC1155BondTokenCreated",
       "type": "event"
     },
     {
@@ -169,6 +189,80 @@ export const bondTellerABI = [
         }
       ],
       "name": "OwnerUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256[]",
+          "name": "ids",
+          "type": "uint256[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "TransferBatch",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "TransferSingle",
       "type": "event"
     },
     {
@@ -198,13 +292,24 @@ export const bondTellerABI = [
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "bondTokenImplementation",
-      "outputs": [
+      "inputs": [
         {
-          "internalType": "contract ERC20BondToken",
+          "internalType": "address",
           "name": "",
           "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -213,25 +318,43 @@ export const bondTellerABI = [
     {
       "inputs": [
         {
-          "internalType": "contract ERC20",
-          "name": "",
-          "type": "address"
+          "internalType": "address[]",
+          "name": "owners",
+          "type": "address[]"
         },
         {
-          "internalType": "uint48",
-          "name": "",
-          "type": "uint48"
+          "internalType": "uint256[]",
+          "name": "ids",
+          "type": "uint256[]"
         }
       ],
-      "name": "bondTokens",
+      "name": "balanceOfBatch",
       "outputs": [
         {
-          "internalType": "contract ERC20BondToken",
-          "name": "",
-          "type": "address"
+          "internalType": "uint256[]",
+          "name": "balances",
+          "type": "uint256[]"
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "tokenIds_",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "amounts_",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "batchRedeem",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -273,9 +396,9 @@ export const bondTellerABI = [
       "name": "create",
       "outputs": [
         {
-          "internalType": "contract ERC20BondToken",
+          "internalType": "uint256",
           "name": "",
-          "type": "address"
+          "type": "uint256"
         },
         {
           "internalType": "uint256",
@@ -315,55 +438,12 @@ export const bondTellerABI = [
       "name": "deploy",
       "outputs": [
         {
-          "internalType": "contract ERC20BondToken",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "contract ERC20",
-          "name": "underlying_",
-          "type": "address"
-        },
-        {
-          "internalType": "uint48",
-          "name": "expiry_",
-          "type": "uint48"
-        }
-      ],
-      "name": "getBondToken",
-      "outputs": [
-        {
-          "internalType": "contract ERC20BondToken",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "uint256",
-          "name": "id_",
+          "name": "",
           "type": "uint256"
         }
       ],
-      "name": "getBondTokenForMarket",
-      "outputs": [
-        {
-          "internalType": "contract ERC20BondToken",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -380,6 +460,78 @@ export const bondTellerABI = [
           "internalType": "uint48",
           "name": "",
           "type": "uint48"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ERC20",
+          "name": "underlying_",
+          "type": "address"
+        },
+        {
+          "internalType": "uint48",
+          "name": "expiry_",
+          "type": "uint48"
+        }
+      ],
+      "name": "getTokenId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId_",
+          "type": "uint256"
+        }
+      ],
+      "name": "getTokenNameAndSymbol",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "isApprovedForAll",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
         }
       ],
       "stateMutability": "view",
@@ -458,9 +610,9 @@ export const bondTellerABI = [
     {
       "inputs": [
         {
-          "internalType": "contract ERC20BondToken",
-          "name": "token_",
-          "type": "address"
+          "internalType": "uint256",
+          "name": "tokenId_",
+          "type": "uint256"
         },
         {
           "internalType": "uint256",
@@ -514,6 +666,90 @@ export const bondTellerABI = [
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "ids",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "safeBatchTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "safeTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "approved",
+          "type": "bool"
+        }
+      ],
+      "name": "setApprovalForAll",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -580,5 +816,63 @@ export const bondTellerABI = [
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes4",
+          "name": "interfaceId",
+          "type": "bytes4"
+        }
+      ],
+      "name": "supportsInterface",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "tokenMetadata",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "active",
+          "type": "bool"
+        },
+        {
+          "internalType": "contract ERC20",
+          "name": "underlying",
+          "type": "address"
+        },
+        {
+          "internalType": "uint8",
+          "name": "decimals",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint48",
+          "name": "expiry",
+          "type": "uint48"
+        },
+        {
+          "internalType": "uint256",
+          "name": "supply",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     }
-  ]
+]

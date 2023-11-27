@@ -826,4 +826,4 @@ export const auctioneerABI = [
       "stateMutability": "view",
       "type": "function"
     }
-  ]
+]
