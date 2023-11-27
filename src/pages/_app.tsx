@@ -93,7 +93,7 @@ function MyApp({ Component, pageProps }) {
     const fetchTokenMetadata = async () => {
       const chainName = chainIdsToNamesForGitTokenList[chainId];
       axios.get(
-        `https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/native-eth-support/blockchains/${
+        `https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/${
           chainName === undefined ? "ethereum" : "arbitrum-goerli"
         }/tokenlist.json`
       ).then(

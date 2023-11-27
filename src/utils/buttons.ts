@@ -41,6 +41,34 @@ export function getRangeMintButtonMsgValue(
     }
 }
 
+export function getRangeMintInputData(stakeFlag: boolean, stakeAddress: string): any {
+    console.log('stake flag', stakeFlag)
+    if (stakeFlag)
+        return ethers.utils.defaultAbiCoder.encode(
+            [
+                {
+                    components: [
+                        {
+                            //@ts-ignore
+                            internalType: "address",
+                            name: "staker",
+                            type: "address",
+                        },
+                    ],
+                    name: "params",
+                    type: "tuple",
+                }
+            ],
+            [
+                {
+                    staker: stakeAddress
+                }
+            ]
+        )
+    else
+        return ethers.utils.formatBytes32String('')
+}
+
 export function getSwapRouterButtonMsgValue(
     tokenInNative: boolean,
     tokenOutNative: boolean,

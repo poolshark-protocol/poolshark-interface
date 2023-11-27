@@ -25,7 +25,7 @@ export const supportedNetworkNames = {
 export const chainProperties = {
     mainnet: {
         chainName: 'Ethereum Mainnet',
-        logo:"https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/native-eth-support/blockchains/ethereum/logo.png",
+        logo:"https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/logo.png",
         rpcUrls: ['https://eth-mainnet.public.blastapi.io'],
         blockExplorerUrls: ['https://etherscan.io/'],
         nativeCurrency: {
@@ -60,11 +60,11 @@ export const chainProperties = {
             decimals: 18,
         },
         chainId: '0x66EED',
-        wethAddress: '0x4Cd24CdDFD0b2ADf3EF17A203Bc34eAF650A380D' as `0x${string}`,
-        routerAddress: '0xEE5856991F98204E10e1Dc4571231708A0b7f20b' as `0x${string}`,
+        wethAddress: '0xefb283ef3167ca2ee9d93b201af15e2af3f6e8c7' as `0x${string}`,
+        routerAddress: '0x86C3Dd58a69a601ED0e29cc8C592bCCd49Bd2c68' as `0x${string}`,
+        rangeStakerAddress: '0x40c86c77b0dccc962809a90352920c6a89d874cc' as `0x${string}`,
         coverPoolFactory: '0x5c032AEC3a62AEC6a337D5f2aaA94905ecCBF06B' as `0x${string}`,
-        limitPoolFactory: '0xbd6d010bcecc7440a72889546411e0edbb333ea2',
         coverSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli',
-        limitSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/b186d77afc6626a1269b519ee3367053/staging-limit-arbitrumGoerli'
+        limitSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2'
     },
 };

@@ -54,11 +54,12 @@ export abstract class DyDxMath {
     let dy = JSBI.BigInt(dyBN.toString())
     let dx = JSBI.BigInt(dxBN.toString())
     let priceDiff = JSBI.subtract(priceUpper, priceLower)
+
     if (JSBI.lessThanOrEqual(priceDiff, ZERO))
       return ZERO
-    if (JSBI.equal(priceUpper, currentPrice)) {
+    if (JSBI.lessThanOrEqual(priceUpper, currentPrice)) {
       liquidity = PrecisionMath.mulDivRoundingUp(dy, Q96_BI, JSBI.subtract(priceUpper, priceLower));
-    } else if (JSBI.equal(currentPrice, priceLower)) {
+    } else if (JSBI.lessThanOrEqual(currentPrice, priceLower)) {
       liquidity = PrecisionMath.mulDivRoundingUp(
         dx,
         PrecisionMath.mulDivRoundingUp(priceLower, priceUpper, Q96_BI),

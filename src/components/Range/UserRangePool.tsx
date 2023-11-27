@@ -285,13 +285,9 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
                 setTokenAddressFromId(rangePosition.tokenOne)
               )}{" "}
               <span className="text-grey1">
-                {rangePosition.zeroForOne
-                  ? rangePosition.tokenOne.symbol
-                  : rangePosition.tokenZero.symbol}{" "}
-                PER{" "}
-                {rangePosition.zeroForOne
-                  ? rangePosition.tokenZero.symbol
-                  : rangePosition.tokenOne.symbol}
+                {rangePosition.tokenOne.symbol}
+                {" "}PER{" "}
+                {rangePosition.tokenZero.symbol}
               </span>
             </div>
           </div>

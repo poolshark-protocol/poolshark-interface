@@ -13,8 +13,17 @@ import { useAccount, useSigner } from "wagmi";
 import { gasEstimateRangeBurn } from "../../../utils/gas";
 import { parseUnits } from "../../../utils/math/valueMath";
 import { formatUnits } from "ethers/lib/utils.js";
+import { useConfigStore } from "../../../hooks/useConfigStore";
 
-export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
+export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked }) {
+  const [
+    chainId,
+    networkName
+  ] = useConfigStore((state) => [
+    state.chainId,
+    state.networkName
+  ]);
+  
   const [
     rangePoolAddress,
     rangePositionData,
@@ -147,11 +156,14 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
   ]);
 
   async function updateGasFee() {
+    if (rangePositionData.staked == undefined) return
     const newBurnGasFee = await gasEstimateRangeBurn(
       rangePositionData.poolId,
       address,
       rangePositionData.positionId,
       burnPercent,
+      staked,
+      networkName,
       signer
     );
     if (
@@ -323,6 +335,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
                   gasLimit={burnGasLimit}
                   setIsOpen={setIsOpen}
                   disabled={burnGasLimit.eq(BN_ZERO)}
+                  staked={rangePositionData.staked ?? true}
                 />
               </Dialog.Panel>
             </Transition.Child>

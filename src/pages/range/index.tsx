@@ -130,37 +130,40 @@ export default function Range() {
               </p>
             </div>
             <button
+              disabled={allRangePools.length == 0}
               onClick={() => {
                 resetRangeLimitParams();
-                const tokenIn = {
-                  name: allRangePools[0].tokenZero.symbol,
-                  address: allRangePools[0].tokenZero.id,
-                  logoURI: logoMap[allRangePools[0].tokenZero.symbol],
-                  symbol: allRangePools[0].tokenZero.symbol,
-                  decimals: allRangePools[0].tokenZero.decimals,
-                } as tokenRangeLimit;
-                const tokenOut = {
-                  name: allRangePools[0].tokenOne.symbol,
-                  address: allRangePools[0].tokenOne.id,
-                  logoURI: logoMap[allRangePools[0].tokenOne.symbol],
-                  symbol: allRangePools[0].tokenOne.symbol,
-                  decimals: allRangePools[0].tokenOne.decimals,
-                } as tokenRangeLimit;
-                setTokenIn(tokenOut, tokenIn, "0", true);
-                setTokenOut(tokenIn, tokenOut, "0", false);
-                setRangePoolFromFeeTier(
-                  tokenIn,
-                  tokenOut,
-                  allRangePools[0].feeTier.toString(),
-                  limitSubgraph
-                );
-                router.push({
-                  pathname: "/range/add-liquidity",
-                  query: {
-                    feeTier: allRangePools[0].feeTier ?? 1000,
-                    poolId: allRangePools[0].poolId,
-                  },
-                });
+                if (allRangePools?.length > 0) {
+                  const tokenIn = {
+                    name: allRangePools[0].tokenZero.symbol,
+                    address: allRangePools[0].tokenZero.id,
+                    logoURI: logoMap[allRangePools[0].tokenZero.symbol],
+                    symbol: allRangePools[0].tokenZero.symbol,
+                    decimals: allRangePools[0].tokenZero.decimals,
+                  } as tokenRangeLimit;
+                  const tokenOut = {
+                    name: allRangePools[0].tokenOne.symbol,
+                    address: allRangePools[0].tokenOne.id,
+                    logoURI: logoMap[allRangePools[0].tokenOne.symbol],
+                    symbol: allRangePools[0].tokenOne.symbol,
+                    decimals: allRangePools[0].tokenOne.decimals,
+                  } as tokenRangeLimit;
+                  setTokenIn(tokenOut, tokenIn, "0", true);
+                  setTokenOut(tokenIn, tokenOut, "0", false);
+                  setRangePoolFromFeeTier(
+                    tokenIn,
+                    tokenOut,
+                    allRangePools[0].feeTier.toString(),
+                    limitSubgraph
+                  );
+                  router.push({
+                    pathname: "/range/add-liquidity",
+                    query: {
+                      feeTier: allRangePools[0].feeTier ?? 1000,
+                      poolId: allRangePools[0].poolId,
+                    },
+                  });
+                }
               }}
               className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
                 hover:opacity-80"

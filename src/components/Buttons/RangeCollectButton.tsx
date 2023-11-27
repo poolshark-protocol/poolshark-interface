@@ -11,8 +11,10 @@ import React, { useState } from "react";
 import { BN_ONE } from '../../utils/math/constants';
 import { useRangeLimitStore } from '../../hooks/useRangeLimitStore';
 import { useConfigStore } from '../../hooks/useConfigStore';
+import { rangeStakerABI } from '../../abis/evm/rangeStaker';
+import { chainProperties } from '../../utils/chains';
 
-export default function RangeCollectButton({ poolAddress, address, positionId }) {
+export default function RangeCollectButton({ poolAddress, address, positionId, staked }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -33,20 +35,46 @@ export default function RangeCollectButton({ poolAddress, address, positionId })
     state.setNeedsBalanceOut
   ]);
 
-  const { config } = usePrepareContractWrite({
+  const { config: burnConfig } = usePrepareContractWrite({
       address: poolAddress,
       abi: rangePoolABI,
       functionName: "burnRange",
-      enabled: positionId != undefined,
+      enabled: positionId != undefined && !staked,
       args:[[
           address,
           positionId,
           BN_ONE
         ]],
       chainId: chainId,
-  })
+      onError(err) {
+        console.log('collect error')
+      },
+  });
 
-  const { data, isSuccess, write } = useContractWrite(config)
+  const { config: burnStakeConfig } = usePrepareContractWrite({
+    address: chainProperties[networkName]["rangeStakerAddress"],
+    abi: rangeStakerABI,
+    functionName: "burnRangeStake",
+    args: [
+      poolAddress,
+      {
+        to: address,
+        positionId: positionId,
+        burnPercent: BN_ONE
+      }
+    ],
+    chainId: chainId,
+    enabled: positionId != undefined && staked,
+    onError(err) {
+        console.log('collect stake error')
+    },
+  });
+
+  const { data: burnData, write: burnWrite } = useContractWrite(burnConfig)
+  const { data: burnStakeData, write: burnStakeWrite } = useContractWrite(burnStakeConfig)
+
+  const data = !staked ? burnData : burnStakeData
+  const write = !staked ? burnWrite : burnStakeWrite
 
   const {isLoading} = useWaitForTransaction({
     hash: data?.hash,

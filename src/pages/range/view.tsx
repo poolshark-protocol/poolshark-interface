@@ -21,8 +21,12 @@ import RangeCollectButton from "../../components/Buttons/RangeCollectButton";
 import router from "next/router";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { ZERO_ADDRESS } from "../../utils/math/constants";
-import { chainProperties, supportedNetworkNames } from "../../utils/chains";
+import { chainProperties } from "../../utils/chains";
 import { tokenRangeLimit } from "../../utils/types";
+import RangeStakeButton from "../../components/Buttons/RangeStakeButton";
+import RangeUnstakeButton from "../../components/Buttons/RangeUnstakeButton";
+import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
+import { rangePoolFactoryABI } from "../../abis/evm/rangePoolFactory";
 
 export default function ViewRange() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -95,6 +99,7 @@ export default function ViewRange() {
   const [amount1FeesUsd, setAmount1FeesUsd] = useState(0.0);
   const [isPoolCopied, setIsPoolCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [stakeApproved, setStakeApproved] = useState(undefined);
 
   const [poolDisplay, setPoolDisplay] = useState(
     rangePoolAddress != ("" as string)
@@ -244,6 +249,7 @@ export default function ViewRange() {
           setTokenIn(tokenOutNew, tokenInNew, "0", true);
           setTokenOut(tokenInNew, tokenOutNew, "0", false);
           setRangePositionData(position);
+          console.log('staked flag', position.staked)
           setRangePoolFromFeeTier(
             tokenInNew,
             tokenOutNew,
@@ -386,6 +392,35 @@ export default function ViewRange() {
     }
   }
 
+  ////////////////////////////////Range Staking
+
+  const { data: stakeApproveStatus } = useContractRead({
+    address: rangePoolData.poolToken,
+    abi: positionERC1155ABI,
+    functionName: "isApprovedForAll",
+    args: [address, chainProperties[networkName]["rangeStakerAddress"]],
+    chainId: chainId,
+    watch: true,
+    enabled:
+      rangePositionData.staked != undefined && !rangePositionData.staked,
+    onSuccess() {
+      console.log('approval erc1155 fetched')
+    },
+    onError(error) {
+      console.log("Error isApprovedForAll", rangePoolData.poolToken, error);
+    },
+  });
+
+  // store erc-1155 approval status
+  useEffect(() => {
+    console.log('approve state', stakeApproveStatus)
+    setStakeApproved(stakeApproveStatus)
+  }, [stakeApproveStatus]);
+
+
+  // estimate gas based on staked status for add/remove
+
+
   ////////////////////////////////Mint Button Handler
 
   useEffect(() => {
@@ -461,6 +496,8 @@ export default function ViewRange() {
             </div>
           </div>
           <div className="flex items-center gap-x-4 w-full md:w-auto">
+            {rangePositionData?.staked ? <RangeUnstakeButton address={address} rangePoolAddress={rangePoolData?.id} positionId={rangePositionData.positionId} signer={signer}/> 
+                                       : <RangeStakeButton address={address} rangePoolAddress={rangePoolData?.id} rangePoolTokenAddress={rangePoolData?.poolToken} positionId={rangePositionData.positionId} signer={signer} stakeApproved={stakeApproved}/>} 
             <button
               className="bg-main1 border w-full border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
               onClick={() => setIsAddOpen(true)}
@@ -493,7 +530,7 @@ export default function ViewRange() {
                   {isLoading ? (
                     <div className="h-4 w-14 bg-grey/60 animate-pulse rounded-[4px]" />
                   ) : (
-                    <span>~${amount0Usd}</span>
+                    <span>~${amount0Usd.toFixed(2)}</span>
                   )}
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
@@ -524,7 +561,7 @@ export default function ViewRange() {
                   {isLoading ? (
                     <div className="h-4 w-14 bg-grey/60 animate-pulse rounded-[4px]" />
                   ) : (
-                    <span>~${amount1Usd}</span>
+                    <span>~${amount1Usd.toFixed(2)}</span>
                   )}
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
@@ -714,11 +751,13 @@ export default function ViewRange() {
                 poolAddress={rangePoolAddress}
                 address={address}
                 positionId={rangePositionData.positionId}
+                staked={rangePositionData.staked ?? true}
               />
               <RangeCollectButton
                 poolAddress={rangePoolAddress}
                 address={address}
                 positionId={rangePositionData.positionId}
+                staked={rangePositionData.staked ?? true}
               />
             </div>
           </div>
@@ -730,6 +769,7 @@ export default function ViewRange() {
             isOpen={isRemoveOpen}
             setIsOpen={setIsRemoveOpen}
             signer={signer}
+            staked={rangePositionData.staked ?? true}
           />
           <AddLiquidity isOpen={isAddOpen} setIsOpen={setIsAddOpen} />
         </>
