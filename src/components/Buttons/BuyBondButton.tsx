@@ -23,7 +23,7 @@ import { SuccessToast } from "../Toasts/Success";
     const [errorDisplay, setErrorDisplay] = useState(false);
     const [successDisplay, setSuccessDisplay] = useState(false);
 
-    const TELLER_ADDRESS = "0x007FE70dc9797C4198528aE43d8195ffF82Bdc95"
+    const TELLER_ADDRESS = "0x007F7735baF391e207E3aA380bb53c4Bd9a5Fed6"
     const NULL_REFERRER = "0x0000000000000000000000000000000000000000"
 
     const { address } = useAccount();
