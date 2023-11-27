@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import { SuccessToast } from "../Toasts/Success";
+import { methABI } from "../../abis/evm/meth";
 
   
   export default function ApproveBondButton({
@@ -27,7 +28,7 @@ import { SuccessToast } from "../Toasts/Success";
     
     const { config } = usePrepareContractWrite({
       address: WETH_ADDRESS,
-      abi: bondTellerABI,
+      abi: methABI,
       functionName: "approve",
       args: [
         TELLER_ADDRESS,

@@ -19,6 +19,7 @@ import { methABI } from "../../abis/evm/meth";
 import { auctioneerABI } from "../../abis/evm/bondAuctioneer";
 import useInputBox from "../../hooks/useInputBox";
 import { tokenSwap } from "../../utils/types";
+import ApproveBondButton from "../../components/Buttons/ApproveBondButton";
 
 export default function Bond() {
   const { address } = useAccount()
@@ -405,13 +406,18 @@ export default function Bond() {
                       ""}</span>
                 </div>
               </div>
-              {<BuyBondButton
-                inputAmount={bnInput}
-                setNeedsSubgraph={setNeedsSubgraph}
-                setNeedsBalance={setNeedsBalance}
-                setNeedsAllowance={setNeedsAllowance}
-                marketId={"44"}
-              />}
+              {tokenAllowance > bnInput ?
+                <BuyBondButton
+                  inputAmount={bnInput}
+                  setNeedsSubgraph={setNeedsSubgraph}
+                  setNeedsBalance={setNeedsBalance}
+                  setNeedsAllowance={setNeedsAllowance}
+                  marketId={"44"}
+                /> :
+                <ApproveBondButton
+                  inputAmount={bnInput}
+                  setNeedsAllowance={setNeedsAllowance}
+                />}
             </div>
           </div>
         </div>
