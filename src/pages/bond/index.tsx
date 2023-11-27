@@ -313,7 +313,7 @@ export default function Bond() {
                 <span className="text-white lg:text-4xl text-3xl">
                   ${
                     marketData[0] != undefined && ethPrice != undefined ? 
-                    marketData[0].totalBondedAmount * ethPrice : 
+                    (marketData[0].totalBondedAmount * ethPrice).toFixed(2) : 
                     "0"
                   } / ${
                       ethPrice != undefined && marketData[0] != undefined && marketPrice != undefined ? 
