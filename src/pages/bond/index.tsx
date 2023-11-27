@@ -88,8 +88,8 @@ export default function Bond() {
         formattedPrice: "1000000000000000",
         depositInterval: "3600",
         vesting: "7200",
-        start: "1699545600",
-        duration: "604800",
+        start: "1701044700",
+        duration: "864000",
         scaleAdjustment: "0"
       }]
     )
