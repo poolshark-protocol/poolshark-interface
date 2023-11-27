@@ -413,7 +413,7 @@ export default function Bond() {
                   setNeedsSubgraph={setNeedsSubgraph}
                   setNeedsBalance={setNeedsBalance}
                   setNeedsAllowance={setNeedsAllowance}
-                  marketId={"45"}
+                  marketId={BigNumber.from(45)}
                 /> :
                 <ApproveBondButton
                   inputAmount={bnInput}
