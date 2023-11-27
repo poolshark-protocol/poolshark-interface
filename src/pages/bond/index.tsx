@@ -115,7 +115,7 @@ export default function Bond() {
     address: WETH_ADDRESS,
     abi: methABI,
     functionName: "allowance",
-    args: [address, chainProperties[networkName]["routerAddress"]],
+    args: [address, TELLER_ADDRESS],
     chainId: chainId,
     watch: needsAllowance,
     enabled: WETH_ADDRESS != undefined,
