@@ -10,6 +10,7 @@ import { BigNumber } from "ethers";
   
   export default function BuyBondButton({
     inputAmount,
+    minAmount,
     setNeedsSubgraph,
     setNeedsBalance,
     setNeedsAllowance,
@@ -38,7 +39,7 @@ import { BigNumber } from "ethers";
         NULL_REFERRER,
         marketId,
         inputAmount,
-        inputAmount,
+        minAmount,
       ],
       chainId: chainId,
       overrides: {

@@ -13,7 +13,7 @@ import { bondTellerABI } from "../../abis/evm/bondTeller";
 import { fetchBondMarket, fetchEthPrice, fetchUserBonds } from "../../utils/queries";
 import { mapBondMarkets, mapUserBondPurchases } from "../../utils/maps";
 import { convertTimestampToDateFormat } from "../../utils/time";
-import { formatEther } from "ethers/lib/utils.js";
+import { formatEther, parseEther } from "ethers/lib/utils.js";
 import { erc20 } from "../../abis/evm/erc20";
 import { methABI } from "../../abis/evm/meth";
 import { auctioneerABI } from "../../abis/evm/bondAuctioneer";
@@ -409,6 +409,7 @@ export default function Bond() {
               {tokenAllowance >= bnInput ?
                 <BuyBondButton
                   inputAmount={bnInput}
+                  minAmount={bnInput.mul(marketPrice)}
                   setNeedsSubgraph={setNeedsSubgraph}
                   setNeedsBalance={setNeedsBalance}
                   setNeedsAllowance={setNeedsAllowance}
