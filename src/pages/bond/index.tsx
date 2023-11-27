@@ -406,7 +406,7 @@ export default function Bond() {
                       ""}</span>
                 </div>
               </div>
-              {tokenAllowance > bnInput ?
+              {tokenAllowance >= bnInput ?
                 <BuyBondButton
                   inputAmount={bnInput}
                   setNeedsSubgraph={setNeedsSubgraph}
