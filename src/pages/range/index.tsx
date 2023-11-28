@@ -24,14 +24,13 @@ export default function Range() {
   const [isPositionsLoading, setIsPositionsLoading] = useState(false);
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
 
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph, listedtokenList, logoMap] =
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph, listedtokenList] =
     useConfigStore((state) => [
       state.chainId,
       state.networkName,
       state.limitSubgraph,
       state.setLimitSubgraph,
       state.listedtokenList,
-      state.logoMap,
     ]);
 
   const [
@@ -137,14 +136,14 @@ export default function Range() {
                   const tokenIn = {
                     name: allRangePools[0].tokenZero.symbol,
                     address: allRangePools[0].tokenZero.id,
-                    logoURI: logoMap[allRangePools[0].tokenZero.symbol],
+                    logoURI: allRangePools[0].tokenZero.symbol,
                     symbol: allRangePools[0].tokenZero.symbol,
                     decimals: allRangePools[0].tokenZero.decimals,
                   } as tokenRangeLimit;
                   const tokenOut = {
                     name: allRangePools[0].tokenOne.symbol,
                     address: allRangePools[0].tokenOne.id,
-                    logoURI: logoMap[allRangePools[0].tokenOne.symbol],
+                    logoURI: allRangePools[0].tokenOne.symbol,
                     symbol: allRangePools[0].tokenOne.symbol,
                     decimals: allRangePools[0].tokenOne.decimals,
                   } as tokenRangeLimit;

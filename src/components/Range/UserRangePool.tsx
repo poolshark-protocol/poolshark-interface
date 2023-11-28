@@ -86,14 +86,14 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     const tokenInNew = {
       name: rangePosition.tokenZero.name,
       symbol: rangePosition.tokenZero.symbol,
-      logoURI: logoMap[rangePosition.tokenZero.symbol],
+      logoURI: rangePosition.tokenZero.symbol,
       address: rangePosition.tokenZero.id,
       decimals: rangePosition.tokenZero.decimals,
     } as tokenCover;
     const tokenOutNew = {
       name: rangePosition.tokenOne.name,
       symbol: rangePosition.tokenOne.symbol,
-      logoURI: logoMap[rangePosition.tokenOne.symbol],
+      logoURI: rangePosition.tokenOne.symbol,
       address: rangePosition.tokenOne.id,
       decimals: rangePosition.tokenOne.decimals,
     } as tokenCover;
@@ -195,14 +195,14 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     const tokenInNew = {
       name: rangePosition.tokenZero.name,
       symbol: rangePosition.tokenZero.symbol,
-      logoURI: logoMap[rangePosition.tokenZero.symbol],
+      logoURI: rangePosition.tokenZero.symbol,
       address: rangePosition.tokenZero.id,
       decimals: rangePosition.tokenZero.decimals,
     } as tokenCover;
     const tokenOutNew = {
       name: rangePosition.tokenOne.name,
       symbol: rangePosition.tokenOne.symbol,
-      logoURI: logoMap[rangePosition.tokenOne.symbol],
+      logoURI: rangePosition.tokenOne.symbol,
       address: rangePosition.tokenOne.id,
       decimals: rangePosition.tokenOne.decimals,
     } as tokenCover;
@@ -285,8 +285,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
                 setTokenAddressFromId(rangePosition.tokenOne)
               )}{" "}
               <span className="text-grey1">
-                {rangePosition.tokenOne.symbol}
-                {" "}PER{" "}
+                {rangePosition.tokenOne.symbol} PER{" "}
                 {rangePosition.tokenZero.symbol}
               </span>
             </div>

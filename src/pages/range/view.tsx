@@ -1,7 +1,12 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import RangeCompoundButton from "../../components/Buttons/RangeCompoundButton";
-import { useAccount, useProvider, useSigner } from "wagmi";
+import {
+  ChainDoesNotSupportMulticallError,
+  useAccount,
+  useProvider,
+  useSigner,
+} from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
@@ -235,21 +240,20 @@ export default function ViewRange() {
           const tokenInNew = {
             name: position.tokenZero.name,
             symbol: position.tokenZero.symbol,
-            logoURI: logoMap[position.tokenZero.symbol],
+            logoURI: position.tokenZero.symbol,
             address: position.tokenZero.id,
             decimals: position.tokenZero.decimals,
           } as tokenRangeLimit;
           const tokenOutNew = {
             name: position.tokenOne.name,
             symbol: position.tokenOne.symbol,
-            logoURI: logoMap[position.tokenOne.symbol],
+            logoURI: position.tokenOne.symbol,
             address: position.tokenOne.id,
             decimals: position.tokenOne.decimals,
           } as tokenRangeLimit;
           setTokenIn(tokenOutNew, tokenInNew, "0", true);
           setTokenOut(tokenInNew, tokenOutNew, "0", false);
           setRangePositionData(position);
-          console.log('staked flag', position.staked)
           setRangePoolFromFeeTier(
             tokenInNew,
             tokenOutNew,
@@ -401,10 +405,9 @@ export default function ViewRange() {
     args: [address, chainProperties[networkName]["rangeStakerAddress"]],
     chainId: chainId,
     watch: true,
-    enabled:
-      rangePositionData.staked != undefined && !rangePositionData.staked,
+    enabled: rangePositionData.staked != undefined && !rangePositionData.staked,
     onSuccess() {
-      console.log('approval erc1155 fetched')
+      console.log("approval erc1155 fetched");
     },
     onError(error) {
       console.log("Error isApprovedForAll", rangePoolData.poolToken, error);
@@ -413,13 +416,11 @@ export default function ViewRange() {
 
   // store erc-1155 approval status
   useEffect(() => {
-    console.log('approve state', stakeApproveStatus)
-    setStakeApproved(stakeApproveStatus)
+    console.log("approve state", stakeApproveStatus);
+    setStakeApproved(stakeApproveStatus);
   }, [stakeApproveStatus]);
 
-
   // estimate gas based on staked status for add/remove
-
 
   ////////////////////////////////Mint Button Handler
 
@@ -439,7 +440,7 @@ export default function ViewRange() {
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
               ) : (
-                <img height="50" width="50" src={tokenIn.logoURI} />
+                <img height="50" width="50" src={logoMap[tokenIn.logoURI]} />
               )}
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
@@ -448,7 +449,7 @@ export default function ViewRange() {
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={tokenOut.logoURI}
+                  src={logoMap[tokenOut.logoURI]}
                 />
               )}
             </div>
@@ -496,8 +497,23 @@ export default function ViewRange() {
             </div>
           </div>
           <div className="flex items-center gap-x-4 w-full md:w-auto">
-            {rangePositionData?.staked ? <RangeUnstakeButton address={address} rangePoolAddress={rangePoolData?.id} positionId={rangePositionData.positionId} signer={signer}/> 
-                                       : <RangeStakeButton address={address} rangePoolAddress={rangePoolData?.id} rangePoolTokenAddress={rangePoolData?.poolToken} positionId={rangePositionData.positionId} signer={signer} stakeApproved={stakeApproved}/>} 
+            {rangePositionData?.staked ? (
+              <RangeUnstakeButton
+                address={address}
+                rangePoolAddress={rangePoolData?.id}
+                positionId={rangePositionData.positionId}
+                signer={signer}
+              />
+            ) : (
+              <RangeStakeButton
+                address={address}
+                rangePoolAddress={rangePoolData?.id}
+                rangePoolTokenAddress={rangePoolData?.poolToken}
+                positionId={rangePositionData.positionId}
+                signer={signer}
+                stakeApproved={stakeApproved}
+              />
+            )}
             <button
               className="bg-main1 border w-full border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
               onClick={() => setIsAddOpen(true)}
@@ -545,7 +561,11 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenIn.logoURI} />
+                        <img
+                          height="25"
+                          width="25"
+                          src={logoMap[tokenIn.logoURI]}
+                        />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -575,7 +595,11 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenOut.logoURI} />
+                        <img
+                          height="25"
+                          width="25"
+                          src={logoMap[tokenOut.logoURI]}
+                        />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -706,7 +730,11 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenIn.logoURI} />
+                        <img
+                          height="25"
+                          width="25"
+                          src={logoMap[tokenIn.logoURI]}
+                        />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -736,7 +764,11 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenOut.logoURI} />
+                        <img
+                          height="25"
+                          width="25"
+                          src={logoMap[tokenOut.logoURI]}
+                        />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
