@@ -364,12 +364,12 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       rangePositionData.min &&
       rangePositionData.max &&
       Number(rangePositionData.min) < Number(rangePositionData.max) &&
-      tokenInAllowance.gte(rangeMintParams.tokenInAmount) &&
-      tokenOutAllowance.gte(rangeMintParams.tokenOutAmount)
+      tokenIn.userRouterAllowance?.gte(rangeMintParams.tokenInAmount) &&
+      tokenOut.userRouterAllowance?.gte(rangeMintParams.tokenOutAmount)
     ) {
       updateGasFee();
     }
-  }, [tokenInAllowance, tokenOutAllowance, rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount, rangePositionData]);
+  }, [tokenIn.userRouterAllowance, tokenOut.userRouterAllowance, rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount, rangePositionData]);
 
   async function updateGasFee() {
     const newGasFee = await gasEstimateRangeMint(

@@ -335,7 +335,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
                   gasLimit={burnGasLimit}
                   setIsOpen={setIsOpen}
                   disabled={burnGasLimit.eq(BN_ZERO)}
-                  staked={rangePositionData.staked ?? true}
+                  staked={rangePositionData.staked}
                 />
               </Dialog.Panel>
             </Transition.Child>

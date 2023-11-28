@@ -407,7 +407,7 @@ export default function ViewRange() {
     watch: true,
     enabled: rangePositionData.staked != undefined && !rangePositionData.staked,
     onSuccess() {
-      console.log("approval erc1155 fetched");
+      // console.log('approval erc1155 fetched')
     },
     onError(error) {
       console.log("Error isApprovedForAll", rangePoolData.poolToken, error);
@@ -416,11 +416,8 @@ export default function ViewRange() {
 
   // store erc-1155 approval status
   useEffect(() => {
-    console.log("approve state", stakeApproveStatus);
-    setStakeApproved(stakeApproveStatus);
+    setStakeApproved(stakeApproveStatus)
   }, [stakeApproveStatus]);
-
-  // estimate gas based on staked status for add/remove
 
   ////////////////////////////////Mint Button Handler
 
@@ -783,13 +780,13 @@ export default function ViewRange() {
                 poolAddress={rangePoolAddress}
                 address={address}
                 positionId={rangePositionData.positionId}
-                staked={rangePositionData.staked ?? true}
+                staked={rangePositionData.staked}
               />
               <RangeCollectButton
                 poolAddress={rangePoolAddress}
                 address={address}
                 positionId={rangePositionData.positionId}
-                staked={rangePositionData.staked ?? true}
+                staked={rangePositionData.staked}
               />
             </div>
           </div>
@@ -801,7 +798,7 @@ export default function ViewRange() {
             isOpen={isRemoveOpen}
             setIsOpen={setIsRemoveOpen}
             signer={signer}
-            staked={rangePositionData.staked ?? true}
+            staked={rangePositionData.staked}
           />
           <AddLiquidity isOpen={isAddOpen} setIsOpen={setIsAddOpen} />
         </>

@@ -554,7 +554,6 @@ export const gasEstimateRangeStake = async(
       to: address,
       pool: rangePoolAddress,
       positionId: positionId,
-      isMint: false
     });
   const price = await fetchEthPrice();
   const gasPrice = await provider.getGasPrice();
@@ -649,7 +648,6 @@ export const gasEstimateRangeBurn = async (
       !staked ? rangePoolABI : rangeStakerABI,
       provider
     );
-    console.log('about to estimate gas units', staked, !staked, rangePoolRoute)
     const gasUnits = !staked ? 
       await contract.connect(signer).estimateGas.burnRange({
         to: address,
