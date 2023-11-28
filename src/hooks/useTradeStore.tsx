@@ -199,7 +199,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     //if tokenOut is selected
     if (tokenOut.address != initialTradeState.tokenOut.address) {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to initialState
-      if (newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase() &&
+      if (newTokenIn.address?.toLowerCase() == tokenOut.address?.toLowerCase() &&
           newTokenIn.native == tokenOut.native) {
         set((state) => ({
           tokenIn: {
