@@ -8,7 +8,7 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { BN_ONE } from '../../utils/math/constants';
+import { BN_ONE, ZERO_ADDRESS } from '../../utils/math/constants';
 import { useRangeLimitStore } from '../../hooks/useRangeLimitStore';
 import { useConfigStore } from '../../hooks/useConfigStore';
 import { rangeStakerABI } from '../../abis/evm/rangeStaker';
@@ -39,7 +39,7 @@ export default function RangeCollectButton({ poolAddress, address, positionId, s
       address: poolAddress,
       abi: rangePoolABI,
       functionName: "burnRange",
-      enabled: positionId != undefined && !staked,
+      enabled: positionId != undefined && staked != undefined && !staked,
       args:[[
           address,
           positionId,
@@ -64,7 +64,7 @@ export default function RangeCollectButton({ poolAddress, address, positionId, s
       }
     ],
     chainId: chainId,
-    enabled: positionId != undefined && staked,
+    enabled: poolAddress != ZERO_ADDRESS && staked != undefined && staked,
     onError(err) {
         console.log('collect stake error')
     },

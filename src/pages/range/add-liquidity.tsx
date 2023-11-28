@@ -242,7 +242,7 @@ export default function AddLiquidity({}) {
     watch: true,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
-      console.log('allowance in fetched', allowanceInRange?.toString())
+      // console.log('allowance in fetched', allowanceInRange?.toString())
       //setNeedsAllowanceIn(false);
     },
     onError(error) {
@@ -258,7 +258,7 @@ export default function AddLiquidity({}) {
     chainId: chainId,
     watch: true,
     onSuccess(data) {
-      console.log('allowance out fetched', allowanceOutRange?.toString())
+      // console.log('allowance out fetched', allowanceOutRange?.toString())
       //setNeedsAllowanceOut(false);
     },
     onError(error) {
@@ -409,10 +409,8 @@ export default function AddLiquidity({}) {
         tokenOut,
         parseInt(rangePoolData.feeTier?.tickSpacing ?? "100")
       );
-      console.log('ticks:', lower, upper, rangePoolData.feeTier.tickSpacing)
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lower);
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upper);
-      console.log('prices:', String(rangeSqrtPrice), String(lowerSqrtPrice), String(upperSqrtPrice))
       if (amountSet.gt(BN_ZERO)) {
         let liquidity = ZERO;
         if (
@@ -440,9 +438,7 @@ export default function AddLiquidity({}) {
             // warn the user the input is invalid
           }
         } else if (JSBI.greaterThanOrEqual(rangeSqrtPrice, upperSqrtPrice)) {
-          console.log('above range')
           if (!isToken0) {
-            console.log('grabbing liquidity', inputBn.toString())
             liquidity = DyDxMath.getLiquidityForAmounts(
               lowerSqrtPrice,
               upperSqrtPrice,
@@ -450,7 +446,6 @@ export default function AddLiquidity({}) {
               inputBn,
               BN_ZERO
             );
-            console.log('liquidity found:', String(liquidity))
           } else {
             // warn the user the input is invalid
           }
@@ -469,7 +464,6 @@ export default function AddLiquidity({}) {
           outputJsbi = ZERO
         }
         const outputBn = BigNumber.from(String(outputJsbi));
-        console.log('setting token out amount', outputBn.toString())
         // set amount based on inputBn
         if (amountInSet) {
           setTokenInAmount(inputBn);

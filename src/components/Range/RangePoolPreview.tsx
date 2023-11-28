@@ -68,8 +68,6 @@ export default function RangePoolPreview() {
     setIsOpen(false);
   }
 
-  console.log('token out allowance', tokenOut.userRouterAllowance)
-
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
@@ -145,7 +143,6 @@ export default function RangePoolPreview() {
             signer,
             networkName
           );
-          console.log('gas limit set', newGasFee.gasUnits.toString())
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
 

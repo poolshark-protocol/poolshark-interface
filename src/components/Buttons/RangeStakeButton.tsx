@@ -66,7 +66,6 @@ const [
   }, [positionId, rangePoolAddress, stakeApproved]);
 
   async function updateGasFee() {
-    console.log('updating unstake gas fee')
     if (!stakeApproved) return
     const newGasFee = await gasEstimateRangeStake(
       rangePoolAddress,
@@ -75,7 +74,6 @@ const [
       networkName,
       signer
     );
-    console.log('unstake gas limit', newGasFee.gasUnits.toString())
     setUnstakeGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
 
@@ -88,7 +86,6 @@ const [
               to: address,
               pool: rangePoolAddress,
               positionId: positionId,
-              isMint: false,
           }
       ],
       chainId: chainId,

@@ -8,7 +8,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { rangePoolABI } from "../../abis/evm/rangePool";
-import { BN_ZERO } from "../../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
@@ -53,7 +53,10 @@ export default function RangeRemoveLiqButton({
     address: poolAddress,
     abi: rangePoolABI,
     functionName: "burnRange",
-    enabled: positionId != undefined && !staked,
+    enabled: positionId != undefined 
+              && staked != undefined 
+              && !staked 
+              && poolAddress != ZERO_ADDRESS,
     args:[[
         address,
         positionId,
@@ -78,7 +81,10 @@ export default function RangeRemoveLiqButton({
       }
     ],
     chainId: chainId,
-    enabled: positionId != undefined && staked,
+    enabled: positionId != undefined 
+              && staked != undefined
+              && staked
+              && poolAddress != ZERO_ADDRESS,
     onError(err) {
         console.log('compound stake errored')
     },

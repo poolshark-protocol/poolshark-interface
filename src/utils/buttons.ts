@@ -42,7 +42,6 @@ export function getRangeMintButtonMsgValue(
 }
 
 export function getRangeMintInputData(stakeFlag: boolean, stakeAddress: string): any {
-    console.log('stake flag', stakeFlag)
     if (stakeFlag)
         return ethers.utils.defaultAbiCoder.encode(
             [

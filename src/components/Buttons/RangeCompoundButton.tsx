@@ -8,7 +8,7 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { BN_ONE, BN_ZERO } from '../../utils/math/constants';
+import { BN_ONE, BN_ZERO, ZERO_ADDRESS } from '../../utils/math/constants';
 import { useConfigStore } from '../../hooks/useConfigStore';
 import { rangeStakerABI } from '../../abis/evm/rangeStaker';
 import { chainProperties } from '../../utils/chains';
@@ -30,7 +30,7 @@ export default function RangeCompoundButton({ poolAddress, address, positionId, 
     address: poolAddress,
     abi: rangePoolABI,
     functionName: "burnRange",
-    enabled: positionId != undefined && !staked,
+    enabled: positionId != undefined && staked != undefined && !staked,
     args:[[
         address,
         positionId,
@@ -55,7 +55,7 @@ const { config: burnStakeConfig } = usePrepareContractWrite({
     }
   ],
   chainId: chainId,
-  enabled: positionId != undefined && staked,
+  enabled: poolAddress != ZERO_ADDRESS && staked != undefined && staked,
   onError(err) {
       console.log('compound stake errored')
   },
