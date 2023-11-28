@@ -60,7 +60,7 @@ const [
       ) {
         updateGasFee();
       }
-    }, [positionId, rangePoolAddress]);
+    }, [positionId, rangePoolAddress, signer]);
 
     async function updateGasFee() {
       const newGasFee = await gasEstimateRangeUnstake(
@@ -85,7 +85,6 @@ const [
             }
         ],
         chainId: chainId,
-        enabled: unstakeGasLimit.gt(BN_ZERO),
         overrides: {
             gasLimit: unstakeGasLimit,
         },
