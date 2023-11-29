@@ -508,6 +508,7 @@ export const gasEstimateRangeCreateAndMint = async (
           )
         }
       );
+      console.log('create and mint gas units', gasUnits.toString())
     const price = await fetchEthPrice();
     const gasPrice = await provider.getGasPrice();
     const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);

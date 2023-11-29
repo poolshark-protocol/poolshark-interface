@@ -13,7 +13,7 @@ import { BigNumber, ethers } from "ethers";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { getRangeMintInputData } from "../../utils/buttons";
+import { getRangeMintButtonMsgValue, getRangeMintInputData } from "../../utils/buttons";
 import { chainProperties } from "../../utils/chains";
   
 
@@ -101,6 +101,12 @@ export default function RangeCreateAndMintButton({
     chainId: chainId,
     overrides: {
       gasLimit: gasLimit,
+        value: getRangeMintButtonMsgValue(
+          tokenIn.native,
+          tokenOut.native,
+          rangeMintParams.tokenInAmount,
+          rangeMintParams.tokenOutAmount
+        )
     },
     onSuccess() {},
     onError() {

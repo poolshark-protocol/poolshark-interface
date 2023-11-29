@@ -86,7 +86,16 @@ export default function RangePoolPreview() {
     ) {
       updateGasFee();
     }
-  }, [rangeMintParams.stakeFlag, rangeMintParams.liquidityAmount, tokenIn.userRouterAllowance, tokenOut.userRouterAllowance, rangePositionData.lowerPrice, rangePositionData.upperPrice]);
+  }, [
+    rangeMintParams.stakeFlag,
+    rangeMintParams.liquidityAmount,
+    tokenIn.userRouterAllowance,
+    tokenOut.userRouterAllowance,
+    rangePositionData.lowerPrice,
+    rangePositionData.upperPrice,
+    rangePoolData?.poolPrice,
+    rangePoolData?.feeTier
+  ]);
 
   async function updateGasFee() {
     const newGasFee =
