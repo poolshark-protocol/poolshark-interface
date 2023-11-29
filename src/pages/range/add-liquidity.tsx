@@ -157,9 +157,6 @@ export default function AddLiquidity({}) {
         (pool) =>
           pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
       );
-      console.log('router check',           router.query.feeTier &&
-      !isNaN(parseInt(router.query.feeTier.toString())) &&
-      rangePoolData.feeTier == undefined)
       if (
           router.query.feeTier &&
           !isNaN(parseInt(router.query.feeTier.toString())) &&
