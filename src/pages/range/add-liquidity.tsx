@@ -157,6 +157,9 @@ export default function AddLiquidity({}) {
         (pool) =>
           pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
       );
+      console.log('router check',           router.query.feeTier &&
+      !isNaN(parseInt(router.query.feeTier.toString())) &&
+      rangePoolData.feeTier == undefined)
       if (
           router.query.feeTier &&
           !isNaN(parseInt(router.query.feeTier.toString())) &&
@@ -182,8 +185,11 @@ export default function AddLiquidity({}) {
           };
           setTokenIn(originalTokenOut, originalTokenIn, "0", true);
           setTokenOut(originalTokenIn, originalTokenOut, "0", false);
+          setRangePoolFromFeeTier(originalTokenIn, originalTokenOut, feeAmount, limitSubgraph);
+      } else {
+        setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
       }
-      setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
+
     }
   }
 
@@ -827,7 +833,7 @@ export default function AddLiquidity({}) {
                 </span>
               </div>
             </div>
-            {rangePoolAddress == ZERO_ADDRESS && (
+            {rangePoolAddress == ZERO_ADDRESS && rangePoolData.feeTier != undefined && (
               <div className="bg-black border rounded-[4px] border-grey/50 p-5">
                 <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
                   This pool does not exist so a starting price must be set in
