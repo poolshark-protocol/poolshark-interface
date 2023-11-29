@@ -101,12 +101,12 @@ export default function RangeCreateAndMintButton({
     chainId: chainId,
     overrides: {
       gasLimit: gasLimit,
-        value: getRangeMintButtonMsgValue(
-          tokenIn.native,
-          tokenOut.native,
-          rangeMintParams.tokenInAmount,
-          rangeMintParams.tokenOutAmount
-        )
+      value: getRangeMintButtonMsgValue(
+        tokenIn.native,
+        tokenOut.native,
+        rangeMintParams.tokenInAmount,
+        rangeMintParams.tokenOutAmount
+      )
     },
     onSuccess() {},
     onError() {
