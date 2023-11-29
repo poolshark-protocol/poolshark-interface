@@ -31,7 +31,7 @@ import LimitCreateAndMintButton from "../Buttons/LimitCreateAndMintButton";
 import inputFilter from "../../utils/inputFilter";
 import { getLimitTokenUsdPrice } from "../../utils/tokens";
 import {
-  gasEstimateCreateAndMintLimit,
+  gasEstimateLimitCreateAndMint,
   gasEstimateMintLimit,
   gasEstimateWethCall,
 } from "../../utils/gas";
@@ -61,12 +61,14 @@ export default function LimitSwap() {
     setPairSelected,
     wethCall,
     startPrice,
+    limitPriceOrder,
     tradeSlippage,
     tokenIn,
     setTokenIn,
     setTokenInTradeUSDPrice,
     tokenOut,
     setTokenOut,
+    setTokenOutTradeUSDPrice,
     amountIn,
     setAmountIn,
     amountOut,
@@ -78,6 +80,7 @@ export default function LimitSwap() {
     switchDirection,
     setTradeButtonState,
     setStartPrice,
+    setLimitPriceOrder,
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
@@ -86,12 +89,14 @@ export default function LimitSwap() {
     s.setPairSelected,
     s.wethCall,
     s.startPrice,
+    s.limitPriceOrder,
     s.tradeSlippage,
     s.tokenIn,
     s.setTokenIn,
     s.setTokenInTradeUSDPrice,
     s.tokenOut,
     s.setTokenOut,
+    s.setTokenOutTradeUSDPrice,
     s.amountIn,
     s.setAmountIn,
     s.amountOut,
@@ -103,6 +108,7 @@ export default function LimitSwap() {
     s.switchDirection,
     s.setTradeButtonState,
     s.setStartPrice,
+    s.setLimitPriceOrder,
   ]);
 
   const {
@@ -201,7 +207,7 @@ export default function LimitSwap() {
     ) {
       getLimitTokenUsdPrice(
         tokenOut.address,
-        setTokenInTradeUSDPrice,
+        setTokenOutTradeUSDPrice,
         limitSubgraph
       );
     }
@@ -249,7 +255,6 @@ export default function LimitSwap() {
   };
 
   ///////////////////////////////Limit Params
-  const [limitPriceOrder, setLimitPriceOrder] = useState(true);
   const [lowerPriceString, setLowerPriceString] = useState("0");
   const [upperPriceString, setUpperPriceString] = useState("0");
 
@@ -318,6 +323,9 @@ export default function LimitSwap() {
     setLimitPriceString(invertPrice(limitPriceString, false));
     setLowerPriceString(invertPrice(upperPriceString, false));
     setUpperPriceString(invertPrice(lowerPriceString, false));
+    if (tradePoolData.id == ZERO_ADDRESS) {
+      setStartPrice(invertPrice(startPrice, false));
+    }
   };
 
   const resetAfterSwap = () => {
@@ -634,7 +642,7 @@ export default function LimitSwap() {
           networkName
         );
       } else {
-        await gasEstimateCreateAndMintLimit(
+        await gasEstimateLimitCreateAndMint(
           limitPoolTypeIds["constant-product"],
           tradePoolData?.feeTier?.feeAmount ?? 3000,
           address,
@@ -958,6 +966,7 @@ export default function LimitSwap() {
                   limitPriceString,
                   pairSelected,
                   limitPriceOrder,
+                  tradePoolData,
                   tokenIn,
                   tokenOut
                 )}
@@ -987,8 +996,7 @@ export default function LimitSwap() {
       !wethCall ? (
         <div className="bg-dark border rounded-[4px] border-grey/50 p-5 mt-5">
           <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
-            This pool does not exist so a starting price must be set in order to
-            add liquidity.
+            This pool does not exist so a start price must be set.
           </p>
           <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
             <span className="text-grey1 text-xs">STARTING PRICE</span>
@@ -998,6 +1006,7 @@ export default function LimitSwap() {
                 className="bg-black py-2 outline-none text-center w-full"
                 placeholder="0"
                 id="startPrice"
+                value={startPrice}
                 type="text"
                 onChange={(e) => {
                   setStartPrice(inputFilter(e.target.value));

@@ -48,6 +48,7 @@ type TradeState = {
   needsSnapshot: boolean;
   //Start price for pool creation
   startPrice: string;
+  limitPriceOrder: boolean;
 };
 
 type TradeLimitAction = {
@@ -95,6 +96,7 @@ type TradeLimitAction = {
   setNeedsBalanceOut: (needsBalance: boolean) => void;
   setNeedsSnapshot: (needsSnapshot: boolean) => void;
   setStartPrice: (startPrice: string) => void;
+  setLimitPriceOrder: (limitPriceOrder: boolean) => void;
 };
 
 const initialTradeState: TradeState = {
@@ -154,6 +156,7 @@ const initialTradeState: TradeState = {
   needsBalanceOut: false,
   needsSnapshot: true,
   startPrice: "",
+  limitPriceOrder: true,
 };
 
 export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
@@ -189,6 +192,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   needsBalanceOut: initialTradeState.needsBalanceOut,
   needsSnapshot: initialTradeState.needsSnapshot,
   startPrice: initialTradeState.startPrice,
+  limitPriceOrder: initialTradeState.limitPriceOrder,
   //actions
   setPairSelected: (pairSelected: boolean) => {
     set(() => ({
@@ -250,6 +254,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           pairSelected: true,
           needsAllowanceIn: true,
           wethCall: newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase(),
+          limitPriceOrder: state.limitPriceOrder == (newTokenIn.address.localeCompare(tokenOut.address) < 0),
         }));
       }
     } else {
@@ -344,7 +349,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           pairSelected: true,
           wethCall: newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase(),
           needsBalanceOut: true,
-          needsAllowanceIn: true
+          needsAllowanceIn: true,
+          limitPriceOrder: state.limitPriceOrder == (tokenIn.address.localeCompare(newTokenOut.address) < 0),
         }));
       }
     } else {
@@ -470,6 +476,11 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   setStartPrice: (startPrice: string) => {
     set({
       startPrice: startPrice
+    })
+  },
+  setLimitPriceOrder: (limitPriceOrder: boolean) =>  {
+    set({
+      limitPriceOrder: limitPriceOrder
     })
   },
   switchDirection: (isAmountIn: boolean, amount: string) => {
