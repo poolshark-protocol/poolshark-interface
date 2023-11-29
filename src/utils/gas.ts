@@ -449,14 +449,16 @@ export const gasEstimateRangeCreateAndMint = async (
   amountIn: BigNumber,
   amountOut: BigNumber,
   signer,
-  networkName: string,
-  positionId?: number
+  stakeFlag: boolean,
+  networkName: string
 ): Promise<gasEstimateResult> => {
   try {
+    console.log("create and mint estimate ")
     const provider = new ethers.providers.JsonRpcProvider(
       "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
     if (!provider || (amountIn.eq(BN_ZERO) && amountOut.eq(BN_ZERO))) {
+      console.log('early return')
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     if (
@@ -469,6 +471,7 @@ export const gasEstimateRangeCreateAndMint = async (
         TickMath.MAX_SQRT_RATIO
       )
     ) {
+      console.log('invalid price')
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     const routerAddress = chainProperties[networkName]["routerAddress"];
@@ -492,10 +495,10 @@ export const gasEstimateRangeCreateAndMint = async (
             to: address,
             lower: lowerTick,
             upper: upperTick,
-            positionId: positionId ?? 0, /// @dev - 0 for new position; positionId for existing (i.e. adding liquidity)
+            positionId: 0, /// @dev - 0 for new position; positionId for existing (i.e. adding liquidity)
             amount0: tokenIn.callId == 0 ? amountIn : amountOut,
             amount1: tokenIn.callId == 0 ? amountOut : amountIn,
-            callbackData: ethers.utils.formatBytes32String(""),
+            callbackData: getRangeMintInputData(stakeFlag, chainProperties[networkName]["rangeStakerAddress"]),
           },
         ], // range positions
         [], // limit positions
@@ -520,6 +523,7 @@ export const gasEstimateRangeCreateAndMint = async (
     });
     return { formattedPrice, gasUnits };
   } catch (error) {
+    console.log('create and mint gas error', error)
     return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
   }
 };
@@ -662,7 +666,6 @@ export const gasEstimateRangeBurn = async (
         burnPercent: burnPercent
       }
     );
-    console.log('estimated gas units')
     const price = await fetchEthPrice();
     const gasPrice = await provider.getGasPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];

@@ -9,10 +9,12 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { getRangeMintInputData } from "../../utils/buttons";
+import { chainProperties } from "../../utils/chains";
   
 
 export default function RangeCreateAndMintButton({
@@ -45,6 +47,9 @@ export default function RangeCreateAndMintButton({
   ]);
 
   const [
+    tokenIn,
+    tokenOut,
+    rangeMintParams,
     setNeedsRefetch,
     setNeedsPosRefetch,
     setNeedsAllowanceIn,
@@ -52,6 +57,9 @@ export default function RangeCreateAndMintButton({
     setNeedsBalanceIn,
     setNeedsBalanceOut,
   ] = useRangeLimitStore((state) => [
+    state.tokenIn,
+    state.tokenOut,
+    state.rangeMintParams,
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
     state.setNeedsAllowanceIn,
@@ -85,7 +93,7 @@ export default function RangeCreateAndMintButton({
           positionId: positionId,
           amount0: amount0,
           amount1: amount1,
-          callbackData: ethers.utils.formatBytes32String(""),
+          callbackData: getRangeMintInputData(rangeMintParams.stakeFlag, chainProperties[networkName]['rangeStakerAddress'])
         },
       ], // range positions
       [], // limit positions
