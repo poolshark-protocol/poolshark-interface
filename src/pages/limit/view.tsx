@@ -144,7 +144,7 @@ export default function ViewLimit() {
         );
       }
     }
-  }, [limitFilledAmount, tokenIn.address, tokenOut.address]);
+  }, [limitFilledAmount, tokenIn.address, tokenOut.address, limitPositionData.liquidity]);
 
   useEffect(() => {
     if (
@@ -240,7 +240,7 @@ export default function ViewLimit() {
       }, 1500);
       updateCollectFee();
     }
-  }, [limitPoolAddress, limitPositionData]);
+  }, [limitPoolAddress, limitPositionData, claimTick]);
 
   async function updateClaimTick() {
     if (
@@ -259,14 +259,13 @@ export default function ViewLimit() {
         limitSubgraph,
         setLimitAddLiqDisabled
       );
-
       setClaimTick(aux);
       setIsFullSpacingClaim(
         Boolean(limitPositionData.zeroForOne)
-          ? claimTick - parseInt(limitPositionData.min) >
-              parseInt(limitPositionData.tickSpacing)
-          : parseInt(limitPositionData.max) - claimTick >
-              parseInt(limitPositionData.tickSpacing)
+          ? claimTick - Number(limitPositionData.min) >=
+              Number(limitPositionData.tickSpacing)
+          : Number(limitPositionData.max) - claimTick >=
+              Number(limitPositionData.tickSpacing)
       );
     }
   }
@@ -289,11 +288,6 @@ export default function ViewLimit() {
           (position) => position.id == positionId
         );
         if (position != undefined) {
-          console.log(
-            "round back negative",
-            roundDown(-755, 10),
-            roundUp(-755, 10)
-          );
           setLimitPoolAddress(position.poolId);
           setNeedsSnapshot(true);
           setLimitPositionData({

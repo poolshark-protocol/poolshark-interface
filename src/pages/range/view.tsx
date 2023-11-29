@@ -1,7 +1,12 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import RangeCompoundButton from "../../components/Buttons/RangeCompoundButton";
-import { useAccount, useProvider, useSigner } from "wagmi";
+import {
+  ChainDoesNotSupportMulticallError,
+  useAccount,
+  useProvider,
+  useSigner,
+} from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
@@ -12,7 +17,7 @@ import { useContractRead } from "wagmi";
 import RemoveLiquidity from "../../components/Modals/Range/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Range/AddLiquidity";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { fetchRangeTokenUSDPrice, logoMap } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
@@ -21,16 +26,21 @@ import RangeCollectButton from "../../components/Buttons/RangeCollectButton";
 import router from "next/router";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { ZERO_ADDRESS } from "../../utils/math/constants";
-import { chainProperties, supportedNetworkNames } from "../../utils/chains";
+import { chainProperties } from "../../utils/chains";
 import { tokenRangeLimit } from "../../utils/types";
+import RangeStakeButton from "../../components/Buttons/RangeStakeButton";
+import RangeUnstakeButton from "../../components/Buttons/RangeUnstakeButton";
+import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
+import { rangePoolFactoryABI } from "../../abis/evm/rangePoolFactory";
 
 export default function ViewRange() {
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph] =
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
     useConfigStore((state) => [
       state.chainId,
       state.networkName,
       state.limitSubgraph,
       state.setLimitSubgraph,
+      state.logoMap,
     ]);
 
   const [
@@ -94,6 +104,7 @@ export default function ViewRange() {
   const [amount1FeesUsd, setAmount1FeesUsd] = useState(0.0);
   const [isPoolCopied, setIsPoolCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [stakeApproved, setStakeApproved] = useState(undefined);
 
   const [poolDisplay, setPoolDisplay] = useState(
     rangePoolAddress != ("" as string)
@@ -229,14 +240,14 @@ export default function ViewRange() {
           const tokenInNew = {
             name: position.tokenZero.name,
             symbol: position.tokenZero.symbol,
-            logoURI: logoMap[position.tokenZero.symbol],
+            logoURI: position.tokenZero.symbol,
             address: position.tokenZero.id,
             decimals: position.tokenZero.decimals,
           } as tokenRangeLimit;
           const tokenOutNew = {
             name: position.tokenOne.name,
             symbol: position.tokenOne.symbol,
-            logoURI: logoMap[position.tokenOne.symbol],
+            logoURI: position.tokenOne.symbol,
             address: position.tokenOne.id,
             decimals: position.tokenOne.decimals,
           } as tokenRangeLimit;
@@ -385,6 +396,29 @@ export default function ViewRange() {
     }
   }
 
+  ////////////////////////////////Range Staking
+
+  const { data: stakeApproveStatus } = useContractRead({
+    address: rangePoolData.poolToken,
+    abi: positionERC1155ABI,
+    functionName: "isApprovedForAll",
+    args: [address, chainProperties[networkName]["rangeStakerAddress"]],
+    chainId: chainId,
+    watch: true,
+    enabled: rangePositionData.staked != undefined && !rangePositionData.staked,
+    onSuccess() {
+      // console.log('approval erc1155 fetched')
+    },
+    onError(error) {
+      console.log("Error isApprovedForAll", rangePoolData.poolToken, error);
+    },
+  });
+
+  // store erc-1155 approval status
+  useEffect(() => {
+    setStakeApproved(stakeApproveStatus)
+  }, [stakeApproveStatus]);
+
   ////////////////////////////////Mint Button Handler
 
   useEffect(() => {
@@ -403,7 +437,7 @@ export default function ViewRange() {
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
               ) : (
-                <img height="50" width="50" src={tokenIn.logoURI} />
+                <img height="50" width="50" src={logoMap[tokenIn.logoURI]} />
               )}
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
@@ -412,7 +446,7 @@ export default function ViewRange() {
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={tokenOut.logoURI}
+                  src={logoMap[tokenOut.logoURI]}
                 />
               )}
             </div>
@@ -460,6 +494,23 @@ export default function ViewRange() {
             </div>
           </div>
           <div className="flex items-center gap-x-4 w-full md:w-auto">
+            {rangePositionData?.staked ? (
+              <RangeUnstakeButton
+                address={address}
+                rangePoolAddress={rangePoolData?.id}
+                positionId={rangePositionData.positionId}
+                signer={signer}
+              />
+            ) : (
+              <RangeStakeButton
+                address={address}
+                rangePoolAddress={rangePoolData?.id}
+                rangePoolTokenAddress={rangePoolData?.poolToken}
+                positionId={rangePositionData.positionId}
+                signer={signer}
+                stakeApproved={stakeApproved}
+              />
+            )}
             <button
               className="bg-main1 border w-full border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
               onClick={() => setIsAddOpen(true)}
@@ -492,7 +543,7 @@ export default function ViewRange() {
                   {isLoading ? (
                     <div className="h-4 w-14 bg-grey/60 animate-pulse rounded-[4px]" />
                   ) : (
-                    <span>~${amount0Usd}</span>
+                    <span>~${amount0Usd.toFixed(2)}</span>
                   )}
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
@@ -507,7 +558,11 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenIn.logoURI} />
+                        <img
+                          height="25"
+                          width="25"
+                          src={logoMap[tokenIn.logoURI]}
+                        />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -523,7 +578,7 @@ export default function ViewRange() {
                   {isLoading ? (
                     <div className="h-4 w-14 bg-grey/60 animate-pulse rounded-[4px]" />
                   ) : (
-                    <span>~${amount1Usd}</span>
+                    <span>~${amount1Usd.toFixed(2)}</span>
                   )}
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
@@ -537,7 +592,11 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenOut.logoURI} />
+                        <img
+                          height="25"
+                          width="25"
+                          src={logoMap[tokenOut.logoURI]}
+                        />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -668,7 +727,11 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenIn.logoURI} />
+                        <img
+                          height="25"
+                          width="25"
+                          src={logoMap[tokenIn.logoURI]}
+                        />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -698,7 +761,11 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenOut.logoURI} />
+                        <img
+                          height="25"
+                          width="25"
+                          src={logoMap[tokenOut.logoURI]}
+                        />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -713,11 +780,13 @@ export default function ViewRange() {
                 poolAddress={rangePoolAddress}
                 address={address}
                 positionId={rangePositionData.positionId}
+                staked={rangePositionData.staked}
               />
               <RangeCollectButton
                 poolAddress={rangePoolAddress}
                 address={address}
                 positionId={rangePositionData.positionId}
+                staked={rangePositionData.staked}
               />
             </div>
           </div>
@@ -729,6 +798,7 @@ export default function ViewRange() {
             isOpen={isRemoveOpen}
             setIsOpen={setIsRemoveOpen}
             signer={signer}
+            staked={rangePositionData.staked}
           />
           <AddLiquidity isOpen={isAddOpen} setIsOpen={setIsAddOpen} />
         </>

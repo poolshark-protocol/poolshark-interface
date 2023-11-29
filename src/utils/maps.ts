@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import { useConfigStore } from "../hooks/useConfigStore";
 import {
   getLimitTickIfNotZeroForOne,
   getLimitTickIfZeroForOne,
@@ -6,7 +6,6 @@ import {
   getCoverTickIfZeroForOne,
 } from "./queries";
 import { CoverSubgraph, LimitSubgraph } from "./types";
-import { logoMap } from "./tokens";
 
 export const getClaimTick = async (
   poolAddress: string,
@@ -17,23 +16,35 @@ export const getClaimTick = async (
   isCover: boolean,
   client: LimitSubgraph | CoverSubgraph,
   setAddLiqDisabled: any,
-  latestTick?: number,
+  latestTick?: number
 ) => {
   // default to start tick
   let claimTick: number;
   if (zeroForOne) {
     // run claim tick query
     const claimTickQuery = isCover
-      ? await getCoverTickIfZeroForOne(client, minLimit, maxLimit, poolAddress, epochLast)
-      : await getLimitTickIfZeroForOne(client, minLimit, maxLimit, poolAddress, epochLast);
+      ? await getCoverTickIfZeroForOne(
+          client,
+          minLimit,
+          maxLimit,
+          poolAddress,
+          epochLast
+        )
+      : await getLimitTickIfZeroForOne(
+          client,
+          minLimit,
+          maxLimit,
+          poolAddress,
+          epochLast
+        );
     // check data length
     const claimTickDataLength = isCover
-      ? claimTickQuery["data"]["ticks"].length
-      : claimTickQuery["data"]["limitTicks"].length;
+      ? claimTickQuery["data"]["ticks"]?.length
+      : claimTickQuery["data"]["limitTicks"]?.length;
     // set claim tick if found
     if (claimTickDataLength > 0) {
       if (setAddLiqDisabled != undefined) {
-        setAddLiqDisabled(true)
+        setAddLiqDisabled(true);
       }
       claimTick = isCover
         ? claimTickQuery["data"]["ticks"][0]["index"]
@@ -44,29 +55,44 @@ export const getClaimTick = async (
         if (latestTick < claimTick) {
           // if latest is past position bounds
           if (latestTick <= minLimit) {
-            claimTick = minLimit
+            claimTick = minLimit;
           } else {
-            claimTick = latestTick
+            claimTick = latestTick;
           }
         }
       }
     } else if (claimTickDataLength != undefined) {
       if (setAddLiqDisabled != undefined) {
-        setAddLiqDisabled(false)
+        setAddLiqDisabled(false);
       }
-      claimTick = isCover ? maxLimit : minLimit
+      claimTick = isCover ? maxLimit : minLimit;
     }
   } else {
     // run claim tick query
     const claimTickQuery = isCover
-      ? await getCoverTickIfNotZeroForOne(client, minLimit, maxLimit, poolAddress, epochLast)
-      : await getLimitTickIfNotZeroForOne(client, minLimit, maxLimit, poolAddress, epochLast);
+      ? await getCoverTickIfNotZeroForOne(
+          client,
+          minLimit,
+          maxLimit,
+          poolAddress,
+          epochLast
+        )
+      : await getLimitTickIfNotZeroForOne(
+          client,
+          minLimit,
+          maxLimit,
+          poolAddress,
+          epochLast
+        );
     // check data length
     const claimTickDataLength = isCover
-      ? claimTickQuery["data"]["ticks"].length
-      : claimTickQuery["data"]["limitTicks"].length;
+      ? claimTickQuery["data"]["ticks"]?.length
+      : claimTickQuery["data"]["limitTicks"]?.length;
     // set claim tick if found
     if (claimTickDataLength > 0) {
+      if (setAddLiqDisabled != undefined) {
+        setAddLiqDisabled(true);
+      }
       claimTick = isCover
         ? claimTickQuery["data"]["ticks"][0]["index"]
         : claimTickQuery["data"]["limitTicks"][0]["index"];
@@ -76,14 +102,17 @@ export const getClaimTick = async (
         if (latestTick > claimTick) {
           // if latest is past position bounds
           if (latestTick >= maxLimit) {
-            claimTick = maxLimit
+            claimTick = maxLimit;
           } else {
-            claimTick = latestTick
+            claimTick = latestTick;
           }
         }
       }
     } else if (claimTickDataLength != undefined) {
-      claimTick = isCover ? minLimit : maxLimit
+      if (setAddLiqDisabled != undefined) {
+        setAddLiqDisabled(false);
+      }
+      claimTick = isCover ? minLimit : maxLimit;
     }
   }
   return claimTick;
@@ -96,6 +125,7 @@ export function mapUserRangePositions(rangePositions) {
       id: rangePosition.id,
       positionId: rangePosition.positionId,
       poolId: rangePosition.pool.id,
+      staked: rangePosition.staked,
       tokenZero: rangePosition.pool.token0,
       valueTokenZero: rangePosition.pool.token0.usdPrice,
       tokenOne: rangePosition.pool.token1,
@@ -144,7 +174,10 @@ export function mapRangePools(rangePools) {
   return mappedRangePools;
 }
 
-export function mapUserCoverPositions(coverPositions, coverSubgraph: CoverSubgraph) {
+export function mapUserCoverPositions(
+  coverPositions,
+  coverSubgraph: CoverSubgraph
+) {
   const mappedCoverPositions = [];
   coverPositions.map((coverPosition) => {
     const coverPositionData = {
@@ -237,12 +270,12 @@ export function mapUserLimitPositions(limitPositions) {
       tokenIn: {
         ...limitPosition.tokenIn,
         address: limitPosition.tokenIn.id,
-        logoURI: logoMap[limitPosition.tokenIn.symbol],
+        logoURI: limitPosition.tokenIn.logoURI,
       },
       tokenOut: {
         ...limitPosition.tokenOut,
         address: limitPosition.tokenOut.id,
-        logoURI: logoMap[limitPosition.tokenOut.symbol],
+        logoURI: limitPosition.tokenOut.logoURI,
       },
       price0: limitPosition.pool.price0,
       price1: limitPosition.pool.price1,

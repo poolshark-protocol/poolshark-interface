@@ -51,6 +51,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     setTokenOutAllowance,
     setTokenOutBalance,
     setTokenOutAmount,
+    setLiquidityAmount,
     rangePositionData,
     needsAllowanceIn,
     setNeedsAllowanceIn,
@@ -75,6 +76,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     state.setTokenOutRangeAllowance,
     state.setTokenOutBalance,
     state.setTokenOutAmount,
+    state.setLiquidityAmount,
     state.rangePositionData,
     state.needsAllowanceIn,
     state.setNeedsAllowanceIn,
@@ -315,6 +317,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                 // warn the user the input is invalid
               }
           }
+          setLiquidityAmount(liquidity)
           const outputJsbi = JSBI.greaterThan(liquidity, ZERO)
             ? isToken0
               ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
@@ -361,12 +364,12 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       rangePositionData.min &&
       rangePositionData.max &&
       Number(rangePositionData.min) < Number(rangePositionData.max) &&
-      tokenInAllowance.gte(rangeMintParams.tokenInAmount) &&
-      tokenOutAllowance.gte(rangeMintParams.tokenOutAmount)
+      tokenIn.userRouterAllowance?.gte(rangeMintParams.tokenInAmount) &&
+      tokenOut.userRouterAllowance?.gte(rangeMintParams.tokenOutAmount)
     ) {
       updateGasFee();
     }
-  }, [tokenInAllowance, tokenOutAllowance, rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount, rangePositionData]);
+  }, [tokenIn.userRouterAllowance, tokenOut.userRouterAllowance, rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount, rangePositionData]);
 
   async function updateGasFee() {
     const newGasFee = await gasEstimateRangeMint(
@@ -374,9 +377,12 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       address,
       rangePositionData.min,
       rangePositionData.max,
+      tokenIn,
+      tokenOut,
       rangeMintParams.tokenInAmount,
       rangeMintParams.tokenOutAmount,
       signer,
+      rangePositionData.staked,
       networkName,
       rangePositionData.positionId
     );
@@ -387,7 +393,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
 
   useEffect(() => {
     setMintButtonState();
-  }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
+  }, [rangeMintParams.liquidityAmount, rangePositionData.lowerPrice, rangePositionData.upperPrice]);
 
   ////////////////////////////////
 
@@ -514,12 +520,12 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                     >
                       {buttonState === "amount" ? <>Input Amount</> : <></>}
                       {buttonState === "balance0" ? (
-                        <>Insufficient {tokenIn.symbol} Balance</>
+                        <>Low {tokenIn.symbol} Balance</>
                       ) : (
                         <></>
                       )}
                       {buttonState === "balance1" ? (
-                        <>Insufficient {tokenOut.symbol} Balance</>
+                        <>Low {tokenOut.symbol} Balance</>
                       ) : (
                         <></>
                       )}

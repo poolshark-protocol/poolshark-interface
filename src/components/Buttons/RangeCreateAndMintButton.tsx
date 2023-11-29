@@ -9,10 +9,12 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { getRangeMintButtonMsgValue, getRangeMintInputData } from "../../utils/buttons";
+import { chainProperties } from "../../utils/chains";
   
 
 export default function RangeCreateAndMintButton({
@@ -45,6 +47,9 @@ export default function RangeCreateAndMintButton({
   ]);
 
   const [
+    tokenIn,
+    tokenOut,
+    rangeMintParams,
     setNeedsRefetch,
     setNeedsPosRefetch,
     setNeedsAllowanceIn,
@@ -52,6 +57,9 @@ export default function RangeCreateAndMintButton({
     setNeedsBalanceIn,
     setNeedsBalanceOut,
   ] = useRangeLimitStore((state) => [
+    state.tokenIn,
+    state.tokenOut,
+    state.rangeMintParams,
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
     state.setNeedsAllowanceIn,
@@ -85,7 +93,7 @@ export default function RangeCreateAndMintButton({
           positionId: positionId,
           amount0: amount0,
           amount1: amount1,
-          callbackData: ethers.utils.formatBytes32String(""),
+          callbackData: getRangeMintInputData(rangeMintParams.stakeFlag, chainProperties[networkName]['rangeStakerAddress'])
         },
       ], // range positions
       [], // limit positions
@@ -93,6 +101,12 @@ export default function RangeCreateAndMintButton({
     chainId: chainId,
     overrides: {
       gasLimit: gasLimit,
+      value: getRangeMintButtonMsgValue(
+        tokenIn.native,
+        tokenOut.native,
+        rangeMintParams.tokenInAmount,
+        rangeMintParams.tokenOutAmount
+      )
     },
     onSuccess() {},
     onError() {
@@ -141,11 +155,11 @@ export default function RangeCreateAndMintButton({
   return (
     <>
       <button
-        disabled={disabled /* || gasLimit.lte(BN_ZERO) */}
+        disabled={disabled || gasLimit.lte(BN_ZERO)}
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         onClick={() => write?.()}
       >
-        {buttonMessage}
+        {buttonMessage != undefined && buttonMessage != '' ? buttonMessage : 'CREATE POOL AND MINT'}
       </button>
     </>
   );

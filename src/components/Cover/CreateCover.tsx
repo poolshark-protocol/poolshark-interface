@@ -18,7 +18,7 @@ import useInputBox from "../../hooks/useInputBox";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
@@ -27,19 +27,21 @@ import {
   gasEstimateCoverCreateAndMint,
   gasEstimateCoverMint,
 } from "../../utils/gas";
-import { volatilityTiers } from "../../utils/pools";
+import { coverPoolTypes, volatilityTiers } from "../../utils/pools";
 import router from "next/router";
 import CoverCreateAndMintButton from "../Buttons/CoverCreateAndMintButton";
 import { coverPoolABI } from "../../abis/evm/coverPool";
 import { getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
 import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 
 export default function CreateCover(props: any) {
-  const [chainId, networkName, coverSubgraph] = useConfigStore((state) => [
+  const [chainId, networkName, coverSubgraph, coverFactoryAddress] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
     state.coverSubgraph,
+    state.coverFactoryAddress,
   ]);
 
   const [
@@ -60,6 +62,10 @@ export default function CreateCover(props: any) {
     //setCoverAmountOut,
     latestTick,
     setLatestTick,
+    inputPoolExists,
+    setInputPoolExists,
+    twapReady,
+    setTwapReady,
     pairSelected,
     switchDirection,
     setCoverPoolFromVolatility,
@@ -90,6 +96,10 @@ export default function CreateCover(props: any) {
     //state.setCoverAmountOut,
     state.latestTick,
     state.setLatestTick,
+    state.inputPoolExists,
+    state.setInputPoolExists,
+    state.twapReady,
+    state.setTwapReady,
     state.pairSelected,
     state.switchDirection,
     state.setCoverPoolFromVolatility,
@@ -106,7 +116,7 @@ export default function CreateCover(props: any) {
 
   const { data: signer } = useSigner();
   const { address, isConnected, isDisconnected } = useAccount();
-  const { bnInput, inputBox, display } = useInputBox();
+  const { setBnInput, bnInput, inputBox, setDisplay, display } = useInputBox();
   const [loadingPrices, setLoadingPrices] = useState(true);
 
   // for mint modal
@@ -139,7 +149,7 @@ export default function CreateCover(props: any) {
     functionName: "allowance",
     args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
-    watch: needsAllowance,
+    watch: needsAllowance && !tokenIn.native,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
       // setNeedsAllowance(false);
@@ -155,6 +165,24 @@ export default function CreateCover(props: any) {
       setTokenInCoverAllowance(allowanceInCover.toString());
     }
   }, [allowanceInCover]);
+
+  ////////////////////////////////Token Balances
+
+  const { data: tokenInBal } = useBalance({
+    address: address,
+    token: tokenIn.native ? undefined : tokenIn.address,
+    enabled: tokenIn.address != undefined && needsBalance,
+    watch: needsBalance,
+    onSuccess(data) {
+      setNeedsBalance(false);
+    },
+  });
+
+  useEffect(() => {
+    if (isConnected) {
+      setTokenInBalance(parseFloat(tokenInBal?.formatted).toFixed(2));
+    }
+  }, [tokenInBal]);
 
   ////////////////////////////////Token Prices
 
@@ -180,24 +208,45 @@ export default function CreateCover(props: any) {
   ////////////////////////////////Latest Tick
 
   const { data: newLatestTick } = useContractRead({
-    address: coverPoolAddress,
-    abi: coverPoolABI,
+    address: coverFactoryAddress,
+    abi: coverPoolFactoryABI,
     functionName: "syncLatestTick",
+    args: [
+      {
+        poolType: coverPoolTypes['constant-product']['poolshark'],
+        tokenIn: tokenIn.address,
+        tokenOut: tokenOut.address,
+        feeTier: coverPoolData.volatilityTier?.feeAmount,
+        tickSpread: coverPoolData.volatilityTier?.tickSpread,
+        twapLength: coverPoolData.volatilityTier?.twapLength
+      }
+    ],
     chainId: chainId,
-    enabled: coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS,
+    enabled: coverPoolData.volatilityTier != undefined,
     watch: needsLatestTick,
     onSuccess(data) {
       setNeedsLatestTick(false);
+      // console.log('Success syncLatestTick', newLatestTick, tokenIn.address, tokenOut.address, coverPoolData.volatilityTier)
     },
     onError(error) {
-      console.log("Error syncLatestTick", error);
+      console.log("Error syncLatestTick", tokenIn.address, tokenOut.address, coverPoolData.volatilityTier.feeAmount, coverPoolData.volatilityTier.tickSpread, coverPoolData.volatilityTier.twapLength, error);
     },
     onSettled(data, error) {},
   });
 
   useEffect(() => {
     if (newLatestTick) {
-      setLatestTick(parseInt(newLatestTick.toString()));
+      // if underlying pool does not exist or twap not ready
+      if (!newLatestTick[1] || !newLatestTick[2]) {
+        setBnInput(BN_ZERO)
+        setDisplay('')
+        setLowerPrice('')
+        setUpperPrice('')
+      } else {
+        setLatestTick(parseInt(newLatestTick[0].toString()));
+      }
+      setInputPoolExists(newLatestTick[1]);
+      setTwapReady(newLatestTick[2]);
     }
   }, [newLatestTick]);
 
@@ -226,10 +275,10 @@ export default function CreateCover(props: any) {
   ////////////////////////////////Init Position Data
 
   useEffect(() => {
-    if (latestTick != undefined && coverPoolData.volatilityTier) {
+    if (latestTick != undefined && coverPoolData.volatilityTier && inputPoolExists && twapReady) {
       updatePositionData();
     }
-  }, [tokenIn.address, tokenOut.address, coverPoolData, latestTick]);
+  }, [tokenIn.address, tokenOut.address, coverPoolData, latestTick, inputPoolExists, twapReady]);
 
   async function updatePositionData() {
     const tickAtPrice = Number(latestTick);
@@ -307,16 +356,14 @@ export default function CreateCover(props: any) {
 
   // set amount in
   useEffect(() => {
-    if (!bnInput.eq(BN_ZERO)) {
-      setTokenInAmount(bnInput);
-    }
+    setTokenInAmount(bnInput);
   }, [bnInput, tokenIn.address]);
 
   useEffect(() => {
-    changeCoverAmounts();
+    setCoverAmounts();
   }, [tokenIn.address, coverPositionData]);
 
-  function changeCoverAmounts() {
+  function setCoverAmounts() {
     if (
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
@@ -402,12 +449,16 @@ export default function CreateCover(props: any) {
       !needsLatestTick &&
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
-      coverPositionData.lowerPrice > 0 &&
-      coverPositionData.upperPrice > 0 &&
       coverPoolData.volatilityTier &&
       coverMintParams.tokenInAmount &&
       tokenIn.userRouterAllowance &&
-      tokenIn.userRouterAllowance >= parseInt(bnInput.toString())
+      tokenIn.userRouterAllowance >= 
+        parseInt(bnInput.toString()) &&
+      (coverPoolAddress != ZERO_ADDRESS ? twapReady &&
+                                          bnInput.gt(BN_ZERO) &&
+                                          coverPositionData.lowerPrice > 0 &&
+                                          coverPositionData.upperPrice > 0 // twap must be ready if pool exists
+                                        : inputPoolExists) // input pool must exist to create pool
     )
       updateGasFee();
   }, [
@@ -448,10 +499,7 @@ export default function CreateCover(props: any) {
             networkName
           )
         : await gasEstimateCoverCreateAndMint(
-            "PSHARK-CPROD",
-            coverPoolData.volatilityTier
-              ? coverPoolData.volatilityTier
-              : volatilityTiers[0],
+            coverPoolData.volatilityTier,
             address,
             TickMath.getTickAtPriceString(
               coverPositionData.upperPrice,
@@ -469,7 +517,8 @@ export default function CreateCover(props: any) {
             tokenOut,
             coverMintParams.tokenInAmount,
             signer,
-            networkName
+            networkName,
+            twapReady
           );
 
     if (!newMintGasFee.gasUnits.mul(120).div(100).eq(mintGasLimit)) {
@@ -478,29 +527,11 @@ export default function CreateCover(props: any) {
     }
   }
 
-  ////////////////////////////////Token Balances
-
-  const { data: tokenInBal } = useBalance({
-    address: address,
-    token: tokenIn.address,
-    enabled: tokenIn.address != undefined && needsBalance,
-    watch: needsBalance,
-    onSuccess(data) {
-      setNeedsBalance(false);
-    },
-  });
-
-  useEffect(() => {
-    if (isConnected) {
-      setTokenInBalance(parseFloat(tokenInBal?.formatted).toFixed(2));
-    }
-  }, [tokenInBal]);
-
   ////////////////////////////////Mint Button Handler
 
   useEffect(() => {
     setMintButtonState();
-  }, [coverMintParams.tokenInAmount, coverMintParams.tokenOutAmount]);
+  }, [tokenIn, coverMintParams.tokenInAmount, coverMintParams.tokenOutAmount, twapReady, inputPoolExists, coverPoolAddress]);
 
   ////////////////////// Expanded Option
   const [expanded, setExpanded] = useState(false);
@@ -516,7 +547,7 @@ export default function CreateCover(props: any) {
                 parseFloat(
                   ethers.utils.formatUnits(
                     String(coverMintParams.tokenOutAmount),
-                    18
+                    tokenOut.decimals
                   )
                 ) *
                 (1 - coverPoolData.volatilityTier.tickSpread / 10000)
@@ -566,12 +597,12 @@ export default function CreateCover(props: any) {
                 parseFloat(
                   ethers.utils.formatUnits(bnInput, tokenIn.decimals)
                 ) * tokenIn.coverUSDPrice
-              ).toPrecision(6)}
+              ).toFixed(2)}
             </span>
             <span>BALANCE: {tokenIn.userBalance ?? 0}</span>
           </div>
           <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-            {inputBox("0", tokenIn)}
+            {inputBox("0", tokenIn, undefined, undefined, !inputPoolExists || !twapReady)}
             <div className="flex items-center gap-x-2">
               <SelectToken
                 index="0"
@@ -620,8 +651,8 @@ export default function CreateCover(props: any) {
                     ),
                     tokenOut.decimals
                   )
-                ) * tokenOut.coverUSDPrice
-              ).toPrecision(6)}
+                ) * (!isNaN(tokenOut.coverUSDPrice) ? tokenOut.coverUSDPrice : 0)
+              ).toFixed(2)}
             </span>
           </div>
           <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
@@ -700,6 +731,7 @@ export default function CreateCover(props: any) {
                     placeholder="0"
                     id="minInput"
                     type="text"
+                    disabled={!inputPoolExists || !twapReady}
                     value={lowerPrice}
                     onChange={(e) => setLowerPrice(inputFilter(e.target.value))}
                   />
@@ -716,6 +748,7 @@ export default function CreateCover(props: any) {
                     placeholder="0"
                     id="maxInput"
                     type="text"
+                    disabled={!inputPoolExists || !twapReady}
                     value={upperPrice}
                     onChange={(e) => setUpperPrice(inputFilter(e.target.value))}
                   />
@@ -735,7 +768,7 @@ export default function CreateCover(props: any) {
                   : tokenOut.symbol}{" "}
                 =
                 {" " +
-                  parseFloat(
+                  (twapReady ? parseFloat(
                     invertPrice(
                       TickMath.getPriceStringAtTick(
                         latestTick,
@@ -744,7 +777,8 @@ export default function CreateCover(props: any) {
                       ),
                       priceOrder
                     )
-                  ).toPrecision(5) +
+                  ).toPrecision(5)
+                : '?.??') +
                   " " +
                   (priceOrder == (tokenIn.callId == 0)
                     ? tokenOut.symbol
@@ -805,7 +839,7 @@ export default function CreateCover(props: any) {
         </div>
       </div>
       {allowanceInCover ? (
-        allowanceInCover.lt(coverMintParams.tokenInAmount) ? (
+        allowanceInCover.lt(coverMintParams.tokenInAmount) && !tokenIn.native ? (
           <CoverMintApproveButton
             routerAddress={chainProperties[networkName]["routerAddress"]}
             approveToken={tokenIn.address}
@@ -851,7 +885,7 @@ export default function CreateCover(props: any) {
         ) : (
           <CoverCreateAndMintButton
             routerAddress={chainProperties[networkName]["routerAddress"]}
-            poolType={"PSHARK-CPROD"}
+            poolType={coverPoolTypes['constant-product']['poolshark']}
             tokenIn={tokenIn}
             tokenOut={tokenOut}
             volTier={

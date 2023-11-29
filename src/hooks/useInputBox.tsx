@@ -12,7 +12,6 @@ export default function useInputBox() {
   const handleChange = (event, tokenDecimals) => {
     tokenDecimals = tokenDecimals ?? 18
     const result = inputFilter(event.target.value)
-    //TODO: do not allow for exceeding max decimals
     setDisplay(result == '' ? '' : result)
     if (result == '') {
       setBnInput(BN_ZERO)
