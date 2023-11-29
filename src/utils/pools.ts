@@ -23,6 +23,10 @@ export const getSwapPools = async (
     } else {
       return setSwapPoolData({
         id: ZERO_ADDRESS,
+        feeTier: {
+          feeAmount: 3000,
+          tickSpacing: 30,
+        },
       });
     }
   } catch (error) {

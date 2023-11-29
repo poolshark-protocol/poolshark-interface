@@ -646,12 +646,12 @@ export default function MarketSwap() {
       {tokenIn.address != ZERO_ADDRESS &&
       tokenOut.address != ZERO_ADDRESS &&
       tradePoolData?.id == ZERO_ADDRESS &&
-      tradePoolData?.feeTierId != undefined &&
+      tradePoolData?.feeTier != undefined &&
       !wethCall ? (
         <div className="flex gap-x-5 rounded-[4px] items-center text-xs p-2 border bg-dark border-grey mb-5">
           <Range className="text-main2" />{" "}
           <span className="text-grey3 flex flex-col gap-y-[-2px]">
-            There are currently no pools for this token pair.{" "}
+            No pools exist for this token pair.{" "}
             <a className=" hover:underline text-main2 cursor-pointer">
               Click here to create a range pool
             </a>
