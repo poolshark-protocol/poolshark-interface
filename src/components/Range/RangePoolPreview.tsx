@@ -23,9 +23,11 @@ import JSBI from "jsbi";
 export default function RangePoolPreview() {
   const [
     chainId,
+    logoMap,
     networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.logoMap,
     state.networkName
   ]);
 
@@ -141,6 +143,7 @@ export default function RangePoolPreview() {
             rangeMintParams.tokenInAmount,
             rangeMintParams.tokenOutAmount,
             signer,
+            rangeMintParams.stakeFlag,
             networkName
           );
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
@@ -182,13 +185,13 @@ export default function RangePoolPreview() {
                         </div>
                         <div className="flex flex-col md:flex-row items-center gap-x-5 gap-y-3 mt-3 w-full">
                           <button className="flex w-full items-center gap-x-3 bg-dark border border-grey px-4 py-1.5 rounded-[4px]">
-                            <img className="w-7" src={tokenIn.logoURI} />
+                            <img className="w-7" src={logoMap[tokenIn.symbol]} />
                             {tokenIn.symbol}
                           </button>
                           <button className="flex w-full items-center gap-x-3 bg-dark border border-grey px-4 py-1.5 rounded-[4px]">
                             <img
                               className="w-7 w-full"
-                              src={tokenOut.logoURI}
+                              src={logoMap[tokenOut.symbol]}
                             />
                             {tokenOut.symbol}
                           </button>
@@ -250,7 +253,7 @@ export default function RangePoolPreview() {
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
-                                          src={tokenIn.logoURI}
+                                          src={logoMap[tokenIn.symbol]}
                                         />
                                         {tokenIn.symbol}
                                       </div>
@@ -293,7 +296,7 @@ export default function RangePoolPreview() {
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
-                                          src={tokenOut.logoURI}
+                                          src={logoMap[tokenOut.symbol]}
                                         />
                                         {tokenOut.symbol}
                                       </div>

@@ -23,6 +23,7 @@ export default function SelectToken(props) {
   const [
     chainId,
     networkName,
+    logoMap,
     listedTokenList,
     setListedTokenList,
     searchtokenList,
@@ -32,6 +33,7 @@ export default function SelectToken(props) {
   ] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
+    state.logoMap,
     state.listedtokenList,
     state.setListedTokenList,
     state.searchtokenList,
@@ -275,7 +277,7 @@ export default function SelectToken(props) {
         <div className="flex items-center gap-x-2 w-full">
           {(props.tokenIn.symbol != "Select Token" && props.type == "in") ||
           (props.tokenOut.symbol != "Select Token" && props.type == "out") ? (
-            <img className="md:w-6 w-6" src={props.displayToken?.logoURI} />
+            <img className="md:w-6 w-6" src={logoMap[props.displayToken?.symbol]} />
           ) : (
             <></>
           )}
