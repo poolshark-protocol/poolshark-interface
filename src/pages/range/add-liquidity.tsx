@@ -157,27 +157,36 @@ export default function AddLiquidity({}) {
         (pool) =>
           pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
       );
-      const tokenIn = {
-        name: pool.token0.symbol,
-        address: pool.token0.id,
-        logoURI: logoMap[pool.token0.symbol],
-        symbol: pool.token0.symbol,
-        decimals: pool.token0.decimals,
-        userBalance: pool.token0.balance,
-        callId: 0,
-      };
-      const tokenOut = {
-        name: pool.token1.symbol,
-        address: pool.token1.id,
-        logoURI: logoMap[pool.token1.symbol],
-        symbol: pool.token1.symbol,
-        decimals: pool.token1.decimals,
-        userBalance: pool.token1.balance,
-        callId: 1,
-      };
-      setTokenIn(tokenOut, tokenIn, "0", true);
-      setTokenOut(tokenIn, tokenOut, "0", false);
-      setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
+      if (
+          router.query.feeTier &&
+          !isNaN(parseInt(router.query.feeTier.toString())) &&
+          rangePoolData.feeTier == undefined
+      ) {
+          const originalTokenIn = {
+            name: pool.token0.symbol,
+            address: pool.token0.id,
+            logoURI: logoMap[pool.token0.symbol],
+            symbol: pool.token0.symbol,
+            decimals: pool.token0.decimals,
+            userBalance: pool.token0.balance,
+            callId: 0,
+          };
+          const originalTokenOut = {
+            name: pool.token1.symbol,
+            address: pool.token1.id,
+            logoURI: logoMap[pool.token1.symbol],
+            symbol: pool.token1.symbol,
+            decimals: pool.token1.decimals,
+            userBalance: pool.token1.balance,
+            callId: 1,
+          };
+          setTokenIn(originalTokenOut, originalTokenIn, "0", true);
+          setTokenOut(originalTokenIn, originalTokenOut, "0", false);
+          setRangePoolFromFeeTier(originalTokenIn, originalTokenOut, feeAmount, limitSubgraph);
+      } else {
+        setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
+      }
+
     }
   }
 
@@ -612,8 +621,8 @@ export default function AddLiquidity({}) {
           <div>
             <div className="flex  items-center gap-x-2 bg-dark border border-grey py-2 px-5 rounded-[4px]">
               <div className="flex items-center">
-                <img className="md:w-6 w-6" src={tokenIn?.logoURI} />
-                <img className="md:w-6 w-6 -ml-2" src={tokenOut?.logoURI} />
+                <img className="md:w-6 w-6" src={logoMap[tokenIn?.symbol]} />
+                <img className="md:w-6 w-6 -ml-2" src={logoMap[tokenOut?.symbol]} />
               </div>
               <span className="text-white text-xs">
                 {tokenIn.callId == 0 ? tokenIn.symbol : tokenOut.symbol} -{" "}
@@ -821,7 +830,7 @@ export default function AddLiquidity({}) {
                 </span>
               </div>
             </div>
-            {rangePoolAddress == ZERO_ADDRESS && (
+            {rangePoolAddress == ZERO_ADDRESS && rangePoolData.feeTier != undefined && (
               <div className="bg-black border rounded-[4px] border-grey/50 p-5">
                 <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
                   This pool does not exist so a starting price must be set in
@@ -873,9 +882,9 @@ export default function AddLiquidity({}) {
                     className="md:w-9 w-12"
                   >
                     <path
-                      fill-rule="evenodd"
+                      fillRule="evenodd"
                       d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
-                      clip-rule="evenodd"
+                      clipRule="evenodd"
                     />
                   </svg>
                   Your position will not earn fees or be used in trades until
