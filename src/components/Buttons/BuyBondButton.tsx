@@ -39,7 +39,7 @@ import { BigNumber, ethers } from "ethers";
         NULL_REFERRER,
         marketId,
         inputAmount,
-        ethers.utils.parseEther("0.5"),
+        inputAmount,
       ],
       chainId: chainId,
     });
@@ -51,7 +51,7 @@ import { BigNumber, ethers } from "ethers";
       onSuccess() {
         setTimeout(() => {
           setNeedsSubgraph(true);
-        }, 1000);
+        }, 2000);
         setSuccessDisplay(true); 
         setNeedsBalance(true);
         setNeedsAllowance(true);

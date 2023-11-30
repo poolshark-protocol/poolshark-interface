@@ -32,6 +32,7 @@ export default function Bond() {
   const [needsMarketPurchaseData, setNeedsMarketPurchaseData] = useState(true)
   const [needsCapacityData, setNeedsCapacityData] = useState(true)
   const [needsMarketPriceData, setNeedsMarketPriceData] = useState(true)
+  const [needsMaxAmountAcceptedData, setNeedsMaxAmountAcceptedData] = useState(true)
 
   const [
     chainId,
@@ -62,6 +63,8 @@ export default function Bond() {
   const [currentCapacity, setCurrentCapacity] = useState(undefined)
   const [marketPrice, setMarketPrice] = useState(undefined)
   const [ethPrice, setEthPrice] = useState(undefined)
+  const [quoteTokensPerPayoutToken, setQuoteTokensPerPayoutToken] = useState(undefined)
+  const [maxAmountAccepted, setMaxAmountAccepted] = useState(undefined)
 
   const [poolDisplay, setPoolDisplay] = useState(
     TELLER_ADDRESS
@@ -239,12 +242,19 @@ export default function Bond() {
     functionName: "maxAmountAccepted",
     args: [46, "0x0000000000000000000000000000000000000000"],
     chainId: chainId,
-    watch: true,
-    enabled: true,
-    onSuccess() {
-      console.log(formatEther(maxAmountAcceptedData as BigNumber), "max amount accepted success")
-    }
+    watch: needsMaxAmountAcceptedData,
+    enabled: needsMaxAmountAcceptedData,
   });
+
+  useEffect(() => {
+    if (maxAmountAcceptedData) {
+      const maxAccepted =
+        (Number(maxAmountAcceptedData) - Number(maxAmountAcceptedData) * 0.005) / 
+        Math.pow(10, 18);
+      setMaxAmountAccepted(maxAccepted) 
+      setNeedsMaxAmountAcceptedData(false)
+    }
+  }, [maxAmountAcceptedData])
 
   console.log(formatEther(maxAmountAcceptedData as BigNumber), "max amount accepted success")
 
@@ -263,6 +273,7 @@ export default function Bond() {
       console.log(quoteTokensPerPayoutToken, "current quote tokens per payout token")
       console.log(ethPrice, "current eth price")
       const discountedPrice = quoteTokensPerPayoutToken * ethPrice;
+      setQuoteTokensPerPayoutToken(quoteTokensPerPayoutToken)
       console.log(discountedPrice, "current discounted price")
 
       setMarketPrice(discountedPrice)
@@ -284,9 +295,6 @@ export default function Bond() {
     currentCapacity != undefined && marketData[0] != undefined ? 
     ((1 - (parseFloat(formatEther(currentCapacity))/ parseFloat(formatEther(marketData[0].capacity)))) * 100).toFixed(2) : 
     "0";
-
-  console.log(filledAmount, "filled amount")
-
   
   return (
     <div className="bg-black min-h-screen  ">
@@ -442,17 +450,17 @@ export default function Bond() {
               </div>
               <div className="flex flex-col gap-y-4 border-grey border rounded-[4px] text-xs p-5">
                 <div className="flex justify-between w-full text-grey1">
-                  YOU WILL GET <span className="text-white">{bnInput != undefined && marketPrice != undefined ?
-                  (parseFloat(formatEther(bnInput)) * marketPrice).toFixed(4) :
+                  YOU WILL GET <span className="text-white">{bnInput != undefined && quoteTokensPerPayoutToken != undefined ?
+                  (parseFloat(formatEther(bnInput)) * (1 / quoteTokensPerPayoutToken)).toFixed(4) :
                   "0"} FIN</span>
                 </div>
                 {/*<div className="flex justify-between w-full text-grey1">
                   DAILY UNLOCK <span className="text-white">0.5 FIN</span>
                 </div>*/}
                 <div className="flex justify-between w-full text-grey1">
-                  MAX PAYOUT PER TX <span className="text-white">{
-                    marketPurchase != undefined ? parseFloat(formatEther(marketPurchase.maxPayout_)).toFixed(2) : "0"
-                  } FIN</span>
+                  MAX BOND DEPOSIT<span className="text-white">{
+                    maxAmountAccepted != undefined ? maxAmountAccepted.toFixed(4) : "0"
+                  } WETH</span>
                 </div>
                 <div className="flex justify-between w-full text-grey1">
                   UNLOCK DATE <span className="text-white">
@@ -523,7 +531,7 @@ export default function Bond() {
                   {allUserBonds.map((userBond) => {
                     if (userBond.id != undefined) {
                       return (
-                        <tr key={userBond} className="text-left text-xs py-2 md:text-sm bg-black cursor-pointer">
+                        <tr key={userBond.id} className="text-left text-xs py-2 md:text-sm bg-black cursor-pointer">
                           <td className="pl-3 py-2">{convertTimestampToDateFormat(userBond.timestamp)}</td>
                           <td className="">
                             <div className="flex gap-x-1.5 items-center">
