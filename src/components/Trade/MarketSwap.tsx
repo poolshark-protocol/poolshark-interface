@@ -108,6 +108,7 @@ export default function MarketSwap() {
       limitSubgraph,
       tokenIn,
       tokenOut,
+      tradePoolData,
       setTradePoolData
     );
     const poolAdresses: string[] = [];

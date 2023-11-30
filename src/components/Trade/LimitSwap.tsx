@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
-import { useAccount, useContractRead, useSigner } from "wagmi";
+import { useAccount, useSigner } from "wagmi";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
 import LimitSwapButton from "../Buttons/LimitSwapButton";
@@ -11,7 +11,7 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { BigNumber, ethers } from "ethers";
 import { inputHandler, parseUnits } from "../../utils/math/valueMath";
 import { getSwapPools, limitPoolTypeIds } from "../../utils/pools";
-import { QuoteParams, SwapParams } from "../../utils/types";
+import { QuoteParams } from "../../utils/types";
 
 import {
   TickMath,
@@ -35,8 +35,6 @@ import {
   gasEstimateMintLimit,
   gasEstimateWethCall,
 } from "../../utils/gas";
-import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
-import { CoinStatus, bn } from "fuels";
 import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 
@@ -74,6 +72,8 @@ export default function LimitSwap() {
     amountOut,
     setAmountOut,
     needsAllowanceIn,
+    needsPairUpdate,
+    needsSetAmounts,
     setNeedsAllowanceIn,
     limitPriceString,
     setLimitPriceString,
@@ -81,6 +81,8 @@ export default function LimitSwap() {
     setTradeButtonState,
     setStartPrice,
     setLimitPriceOrder,
+    setNeedsPairUpdate,
+    setNeedsSetAmounts
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
@@ -102,6 +104,8 @@ export default function LimitSwap() {
     s.amountOut,
     s.setAmountOut,
     s.needsAllowanceIn,
+    s.needsPairUpdate,
+    s.needsSetAmounts,
     s.setNeedsAllowanceIn,
     s.limitPriceString,
     s.setLimitPriceString,
@@ -109,6 +113,8 @@ export default function LimitSwap() {
     s.setTradeButtonState,
     s.setStartPrice,
     s.setLimitPriceOrder,
+    s.setNeedsPairUpdate,
+    s.setNeedsSetAmounts,
   ]);
 
   const {
@@ -135,11 +141,22 @@ export default function LimitSwap() {
   const [quoteParams, setQuoteParams] = useState(undefined);
 
   useEffect(() => {
+    console.log('needs pair update', needsPairUpdate)
+    if (!needsPairUpdate) return
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
       if (!wethCall)
         // only update pools if !wethCall
         updatePools(exactIn ? amountIn : amountOut, exactIn);
+    }
+    setNeedsPairUpdate(false);
+    setNeedsSetAmounts(true);
+  }, [needsPairUpdate]);
+
+  useEffect(() => {
+    console.log('needs pair update', needsPairUpdate)
+    if (!needsSetAmounts) return
+    if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       if (exactIn) {
         if (!isNaN(parseFloat(displayIn))) {
           const bnValue = parseUnits(displayIn, tokenIn.decimals);
@@ -155,14 +172,17 @@ export default function LimitSwap() {
       }
       if (!tokenIn.native) setNeedsAllowanceIn(true);
     }
-  }, [tokenIn.address, tokenOut.address]);
+    setNeedsSetAmounts(false);
+  }, [needsSetAmounts, tradePoolData?.id]);
 
   //can go to utils
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
+    console.log('update pools called')
     const pools = await getSwapPools(
       limitSubgraph,
       tokenIn,
       tokenOut,
+      tradePoolData,
       setTradePoolData
     );
     const poolAdresses: string[] = [];
@@ -259,17 +279,20 @@ export default function LimitSwap() {
   const [upperPriceString, setUpperPriceString] = useState("0");
 
   useEffect(() => {
+    console.log('pair update', needsPairUpdate)
+    if (!needsPairUpdate) return
     if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
       var newPrice = (
-        limitPriceOrder == (tokenIn.callId == 0)
+        tokenIn.callId == 0
           ? tokenIn.USDPrice / tokenOut.USDPrice
           : tokenOut.USDPrice / tokenIn.USDPrice
       )
         .toPrecision(6)
         .toString();
+      console.log('set price string 2: new pair')
       setLimitPriceString(newPrice);
     }
-  }, [tokenIn.USDPrice, tokenOut.USDPrice]);
+  }, [tradePoolData?.id]);
 
   useEffect(() => {
     if (priceRangeSelected) {
@@ -320,6 +343,7 @@ export default function LimitSwap() {
 
   const handlePriceSwitch = () => {
     setLimitPriceOrder(!limitPriceOrder);
+    console.log('set price string 3: switch')
     setLimitPriceString(invertPrice(limitPriceString, false));
     setLowerPriceString(invertPrice(upperPriceString, false));
     setUpperPriceString(invertPrice(lowerPriceString, false));
@@ -356,6 +380,7 @@ export default function LimitSwap() {
   ]);
 
   function updateLimitTicks() {
+    console.log('updating limit ticks')
     const tickSpacing = tradePoolData.feeTier.tickSpacing;
     const priceString = invertPrice(limitPriceString, limitPriceOrder);
     if (isFinite(parseFloat(limitPriceString)) && parseFloat(priceString) > 0) {
@@ -505,7 +530,7 @@ export default function LimitSwap() {
         setAmountIn(BN_ZERO);
       }
     }
-  }, [lowerTick, upperTick, tokenIn.address, tokenOut.address]);
+  }, [lowerTick, upperTick]);
 
   const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
     if (isAmountIn) {
@@ -981,7 +1006,8 @@ export default function LimitSwap() {
               disabled={wethCall}
               onChange={(e) => {
                 if (e.target.value !== "" && e.target.value !== "0") {
-                  setLimitPriceString(inputFilter(e.target.value));
+                  console.log('price string 1: input field')
+                    setLimitPriceString(inputFilter(e.target.value));
                 } else {
                   setLimitPriceString("0");
                 }

@@ -7,6 +7,7 @@ export const getSwapPools = async (
   client: LimitSubgraph,
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
+  swapPoolData,
   setSwapPoolData
 ) => {
   try {
@@ -18,7 +19,9 @@ export const getSwapPools = async (
     const data = limitPools["data"];
     if (data && data["limitPools"]?.length > 0) {
       const allPools = data["limitPools"];
-      setSwapPoolData(allPools[0]);
+      console.log('old and new:', swapPoolData?.id, allPools[0].id, swapPoolData?.id != allPools[0].id)
+      if (swapPoolData?.id != allPools[0].id)
+        setSwapPoolData(allPools[0]);
       return allPools;
     } else {
       return setSwapPoolData({
