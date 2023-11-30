@@ -2,7 +2,7 @@ import Navbar from "../../components/Navbar";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import BuyBondButton from "../../components/Buttons/BuyBondButton";
 import ReedemMulticallBondButton from "../../components/Buttons/ReedemMulticallBondButton";
-import ReedemBondButton from "../../components/Buttons/ReedemBondButton";
+import RedeemBondButton from "../../components/Buttons/RedeemBondButton";
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import { useAccount, useBalance, useContractRead } from "wagmi";
@@ -574,7 +574,11 @@ export default function Bond() {
                             </div>
                           </td>*/}
                           <td className="w-28">
-                    <ReedemBondButton />
+                    <RedeemBondButton 
+                      tokenAddress={TELLER_ADDRESS}
+                      amount={parseEther(userBond.payout.toString())}
+                      disabled={marketData != undefined ? ((Date.now() / 1000) < (userBond.timestamp + marketData[0]?.vesting)) : true}
+                    />
                     </td>
                         </tr>
                       )
