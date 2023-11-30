@@ -10,10 +10,10 @@ import { BigNumber, ethers } from "ethers";
   
   export default function BuyBondButton({
     inputAmount,
-    minAmount,
     setNeedsSubgraph,
     setNeedsBalance,
     setNeedsAllowance,
+    setNeedsBondTokenData,
     marketId,
   }) {
     const [
@@ -55,6 +55,7 @@ import { BigNumber, ethers } from "ethers";
         setSuccessDisplay(true); 
         setNeedsBalance(true);
         setNeedsAllowance(true);
+        setNeedsBondTokenData(true);
       },
       onError() {
         setErrorDisplay(true);

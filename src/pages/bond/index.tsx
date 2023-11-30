@@ -33,6 +33,7 @@ export default function Bond() {
   const [needsCapacityData, setNeedsCapacityData] = useState(true)
   const [needsMarketPriceData, setNeedsMarketPriceData] = useState(true)
   const [needsMaxAmountAcceptedData, setNeedsMaxAmountAcceptedData] = useState(true)
+  const [needsBondTokenData, setNeedsBondTokenData] = useState(true)
 
   const [
     chainId,
@@ -49,10 +50,10 @@ export default function Bond() {
   const { bnInput, inputBox, display, maxBalance } = useInputBox();
 
   const WETH_ADDRESS = "0x251f7eacde75458b52dbc4995c439128b9ef98ca"
+  const FIN_ADDRESS = "0x742510a23bf83be959990a510ccae40b2d3d9b83"
   const TELLER_ADDRESS = "0x007F7735baF391e207E3aA380bb53c4Bd9a5Fed6"
   const AUCTIONEER_ADDRESS = "0xF7F9A96cDBFEFd70BDa14a8f30EC503b16bCe9b1"
   const FPA_FIXED_TERM_ADDRESS = "0xF7F9A96cDBFEFd70BDa14a8f30EC503b16bCe9b1"
-  const BOND_TOKEN_ADDRESS = "0x0000000000000000000000000000000000000000"
 
   const [tokenBalance, setTokenBalance] = useState(undefined)
   const [tokenAllowance, setTokenAllowance] = useState(undefined)
@@ -65,6 +66,8 @@ export default function Bond() {
   const [ethPrice, setEthPrice] = useState(undefined)
   const [quoteTokensPerPayoutToken, setQuoteTokensPerPayoutToken] = useState(undefined)
   const [maxAmountAccepted, setMaxAmountAccepted] = useState(undefined)
+  const [vestingTokenBalance, setVestingTokenBalance] = useState(undefined)
+  const [vestingTokenId, setVestingTokenId] = useState(undefined)
 
   const [poolDisplay, setPoolDisplay] = useState(
     TELLER_ADDRESS
@@ -245,6 +248,37 @@ export default function Bond() {
     watch: needsMaxAmountAcceptedData,
     enabled: needsMaxAmountAcceptedData,
   });
+
+  const { data: vestingTokenIdData } = useContractRead({
+    address: TELLER_ADDRESS,
+    abi: bondTellerABI,
+    functionName: "getTokenId",
+    args: [FIN_ADDRESS, marketData[0]?.vesting],
+    chainId: chainId
+  });
+
+  useEffect(() => {
+    if (vestingTokenIdData) {
+      setVestingTokenId(vestingTokenIdData)
+    }
+  }, [vestingTokenIdData])
+
+  const { data: vestingTokenBalanceData } = useContractRead({
+    address: TELLER_ADDRESS,
+    abi: bondTellerABI,
+    functionName: "balanceOf",
+    args: [address, vestingTokenId],
+    chainId: chainId,
+    watch: needsBondTokenData,
+    enabled: needsBondTokenData,
+  });
+
+  useEffect(() => {
+    if (vestingTokenBalanceData) {
+      setVestingTokenBalance(vestingTokenBalanceData)
+      setNeedsBondTokenData(false)
+    }
+  }, [vestingTokenBalanceData])
 
   useEffect(() => {
     if (maxAmountAcceptedData) {
@@ -473,10 +507,10 @@ export default function Bond() {
                 (tokenAllowance >= bnInput ?
                   <BuyBondButton
                     inputAmount={bnInput}
-                    minAmount={bnInput}
                     setNeedsSubgraph={setNeedsSubgraph}
                     setNeedsBalance={setNeedsBalance}
                     setNeedsAllowance={setNeedsAllowance}
+                    setNeedsBondTokenData={setNeedsBondTokenData}
                     marketId={BigNumber.from(46)}
                   /> :
                   <ApproveBondButton
@@ -576,7 +610,8 @@ export default function Bond() {
                           <td className="w-28">
                     <RedeemBondButton 
                       tokenAddress={TELLER_ADDRESS}
-                      amount={parseEther(userBond.payout.toString())}
+                      amount={vestingTokenBalance != undefined ? vestingTokenBalance : BigNumber.from(0)}
+                      setNeedsBondTokenData={setNeedsBondTokenData}
                       disabled={marketData != undefined ? ((Date.now() / 1000) < (userBond.timestamp + marketData[0]?.vesting)) : true}
                     />
                     </td>

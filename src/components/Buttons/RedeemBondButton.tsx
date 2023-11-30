@@ -10,6 +10,7 @@ export default function RedeemBondButton({
   tokenAddress,
   amount,
   disabled,
+  setNeedsBondTokenData,
 }) {
   const [
     chainId
@@ -38,7 +39,8 @@ export default function RedeemBondButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true); 
+      setSuccessDisplay(true);
+      setNeedsBondTokenData(true);
     },
     onError() {
       setErrorDisplay(true);
