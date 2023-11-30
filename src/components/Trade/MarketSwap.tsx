@@ -24,6 +24,7 @@ import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import { useRouter } from "next/router";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -82,6 +83,11 @@ export default function MarketSwap() {
     s.setNeedsAllowanceIn,
     s.switchDirection,
     s.setTradeButtonState,
+  ]);
+
+  const [setRangeTokenIn, setRangeTokenOut] = useRangeLimitStore((state) => [
+    state.setTokenIn,
+    state.setTokenOut,
   ]);
 
   const {
@@ -671,7 +677,11 @@ export default function MarketSwap() {
             No pools exist for this token pair.{" "}
             <a
               className=" hover:underline text-main2 cursor-pointer"
-              onClick={() => router.push("/range/add-liquidity")}
+              onClick={() => {
+                setRangeTokenIn(tokenOut, tokenIn, "0", true);
+                setRangeTokenOut(tokenIn, tokenOut, "0", false);
+                router.push("/range/add-liquidity");
+              }}
             >
               Click here to create a range pool
             </a>
