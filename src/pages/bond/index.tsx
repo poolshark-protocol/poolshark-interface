@@ -458,7 +458,7 @@ export default function Bond() {
                   DAILY UNLOCK <span className="text-white">0.5 FIN</span>
                 </div>*/}
                 <div className="flex justify-between w-full text-grey1">
-                  MAX BOND DEPOSIT<span className="text-white">{
+                  MAX BONDABLE PER TX<span className="text-white">{
                     maxAmountAccepted != undefined ? maxAmountAccepted.toFixed(4) : "0"
                   } WETH</span>
                 </div>
@@ -487,7 +487,7 @@ export default function Bond() {
                     className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer flex items-center justify-center text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
                     disabled={true}
                   >
-                    AMOUNT EXCEEDS MAX DEPOSIT
+                    AMOUNT EXCEEDS MAX DEPOSIT PER TX
                   </button>
                 }
             </div>
