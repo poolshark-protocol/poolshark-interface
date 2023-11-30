@@ -671,7 +671,7 @@ export default function MarketSwap() {
             No pools exist for this token pair.{" "}
             <a
               className=" hover:underline text-main2 cursor-pointer"
-              onClick={() => router.push("/create")}
+              onClick={() => router.push("/range/add-liquidity")}
             >
               Click here to create a range pool
             </a>
