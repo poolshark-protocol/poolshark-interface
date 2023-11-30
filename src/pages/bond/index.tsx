@@ -366,9 +366,13 @@ export default function Bond() {
           </div>
 
           <div className="flex items-center gap-x-4 w-full md:w-auto">
-            <button className="bg-black border whitespace-nowrap w-full border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1">
+            <a 
+              className="bg-black border whitespace-nowrap w-full border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
+              href={"https://docs.bondprotocol.finance/products/permissionless-bonds"}
+              target="_blank"
+              rel="noreferrer">
               How does it work?
-            </button>
+            </a>
           </div>
         </div>
         <div className="flex lg:flex-row flex-col justify-between w-full mt-8 gap-10">
@@ -427,10 +431,10 @@ export default function Bond() {
           <div className="flex gap-y-5 flex-col w-full lg:w-1/2">
             {vestingTokenBalance != undefined && vestingTokenId != undefined && parseFloat(formatEther(vestingTokenBalance)) > 0 ? (
           <div className="border bg-main1/30 border-main/40 p-5">
-          <h1 className="">PAYOUT AVAILABLE TO REDEEM</h1>
+          <h1 className="">PAYOUT AVAILABLE</h1>
           <div className="flex flex-col gap-y-4 border-main/60 border rounded-[4px] text-xs p-5 mt-4 bg-black/50 mb-2">
                 <div className="flex flex-col gap-y-1 justify-between w-full items-center text-white/20">
-                  AMOUNT <span className="text-white text-lg">{parseFloat(formatEther(vestingTokenBalance))} FIN</span>
+                  AMOUNT <span className="text-white text-lg">{parseFloat(formatEther(vestingTokenBalance)).toFixed(4)} FIN</span>
                 </div>
               </div>
             <RedeemMulticallBondButton 
@@ -554,7 +558,7 @@ export default function Bond() {
                   }`}
                   onClick={() => setActiveOrdersSelected(false)}
                 >
-                  EXPIRED BONDS
+                  MATURED BONDS
                 </button>
               </div>
             </div>
