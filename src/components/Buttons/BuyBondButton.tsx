@@ -42,13 +42,6 @@ import { BigNumber, ethers } from "ethers";
         ethers.utils.parseEther("0.5"),
       ],
       chainId: chainId,
-      overrides: {
-        gasLimit: BigNumber.from(1000000),
-      },
-      onSuccess() {},
-      onError() {
-        setErrorDisplay(true);
-      },
     });
   
     const { data, write } = useContractWrite(config);
@@ -56,9 +49,12 @@ import { BigNumber, ethers } from "ethers";
     const { isLoading } = useWaitForTransaction({
       hash: data?.hash,
       onSuccess() {
+        setTimeout(() => {
+          setNeedsSubgraph(true);
+        }, 1000);
+        setSuccessDisplay(true); 
         setNeedsBalance(true);
         setNeedsAllowance(true);
-        setNeedsSubgraph(true);
       },
       onError() {
         setErrorDisplay(true);
@@ -69,7 +65,7 @@ import { BigNumber, ethers } from "ethers";
       <>
         <button
           className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer flex items-center justify-center text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
-          onClick={() => write?.()}
+          onClick={() => {address ? write?.() : null}}
         >
           BUY BOND
         </button>

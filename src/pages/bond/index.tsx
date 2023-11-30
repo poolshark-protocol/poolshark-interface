@@ -170,6 +170,7 @@ export default function Bond() {
     if (address && needsSubgraph) {
       getMarket();
       getUserBonds();
+      getEthUsdPrice();
       setNeedsSubgraph(false);
     }
   }, [needsSubgraph]);
@@ -279,16 +280,12 @@ export default function Bond() {
     setEthPrice(ethUsdPrice);
   };
 
-  useEffect(() => {
-    if (needsSubgraph) {
-      getEthUsdPrice();
-    }
-  }, [needsSubgraph]);
-
   const filledAmount = 
     currentCapacity != undefined && marketData[0] != undefined ? 
-    (1 - (parseFloat(formatEther(currentCapacity))/ parseFloat(formatEther(marketData[0].capacity)))) * 100 : 
+    ((1 - (parseFloat(formatEther(currentCapacity))/ parseFloat(formatEther(marketData[0].capacity)))) * 100).toFixed(2) : 
     "0";
+
+  console.log(filledAmount, "filled amount")
 
   
   return (
@@ -372,13 +369,13 @@ export default function Bond() {
               <div className="flex justify-between ">
                 <h1 className="uppercase text-white">REMAINING CAPACITY</h1>
                 <span>
-                  {currentCapacity != undefined ? formatEther(currentCapacity) : "0"} <span className="text-grey1">FIN</span>
+                  {currentCapacity != undefined ? parseFloat(formatEther(currentCapacity)).toFixed(2) : "0"} <span className="text-grey1">FIN</span>
                 </span>
               </div>
               <div className="bg-main2 relative h-10 rounded-full w-full">
-              <div className={`text-sm text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`}>{filledAmount}% FILLED</div>
+              {/*<div className={`text-sm text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`}>{filledAmount}% FILLED</div>*/}
                 <div className={`absolute relative flex items-center justify-center h-[38px] bg-main1 rounded-full ml-[1px] mt-[1px] w-[${filledAmount}%]`}>
-                  
+                  {filledAmount}% FILLED
                 </div>
               </div>
             </div>
@@ -534,7 +531,7 @@ export default function Bond() {
                                 className="w-6"
                                 src="/static/images/weth_icon.png"
                               />
-                              {userBond.amount} {userBond.quoteTokenSymbol}
+                              {parseFloat(userBond.amount).toFixed(4)} {userBond.quoteTokenSymbol}
                             </div>
                           </td>
                           <td className="">
@@ -543,12 +540,12 @@ export default function Bond() {
                                 className="w-6"
                                 src="/static/images/fin_icon.png"
                               />
-                              {userBond.payout} {userBond.payoutTokenSymbol}
+                              {parseFloat(userBond.payout).toFixed(4)} {userBond.payoutTokenSymbol}
                             </div>
                           </td>
                           {/*<td className="">0.9%</td>
                           <td className="">0.94 FIN</td>*/}
-                          <td className="">{convertTimestampToDateFormat((Date.now() / 1000) + (marketData[0]?.vesting - userBond.timestamp))}</td>
+                          <td className="">{convertTimestampToDateFormat((Date.now() / 1000) + (marketData[0]?.vesting))}</td>
                           <td className="text-grey1">
                             {" "}
                             <div className="flex gap-x-1.5 items-center">
