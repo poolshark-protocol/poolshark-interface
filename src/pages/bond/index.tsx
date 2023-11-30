@@ -1,7 +1,7 @@
 import Navbar from "../../components/Navbar";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import BuyBondButton from "../../components/Buttons/BuyBondButton";
-import ReedemMulticallBondButton from "../../components/Buttons/ReedemMulticallBondButton";
+import RedeemMulticallBondButton from "../../components/Buttons/RedeemMulticallBondButton";
 import RedeemBondButton from "../../components/Buttons/RedeemBondButton";
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
@@ -425,19 +425,20 @@ export default function Bond() {
             </div>
           </div>
           <div className="flex gap-y-5 flex-col w-full lg:w-1/2">
-            {/*
-            MULTI CALL REEDEM BOX
-
+            {vestingTokenBalance != undefined && vestingTokenId != undefined && parseFloat(formatEther(vestingTokenBalance)) > 0 ? (
           <div className="border bg-main1/30 border-main/40 p-5">
-          <h1 className="">BOND AVAILABLE TO REEDEM</h1>
+          <h1 className="">PAYOUT AVAILABLE TO REDEEM</h1>
           <div className="flex flex-col gap-y-4 border-main/60 border rounded-[4px] text-xs p-5 mt-4 bg-black/50 mb-2">
                 <div className="flex flex-col gap-y-1 justify-between w-full items-center text-white/20">
-                  AMOUNT <span className="text-white text-lg">60 FIN</span>
+                  AMOUNT <span className="text-white text-lg">{parseFloat(formatEther(vestingTokenBalance))} FIN</span>
                 </div>
               </div>
-            <ReedemMulticallBondButton />
-        </div>
-  */}
+            <RedeemMulticallBondButton 
+              tokenId={vestingTokenId}
+              amount={vestingTokenBalance}
+              setNeedsBondTokenData={setNeedsBondTokenData}/>
+        </div>)
+          : null}
             <div className="border bg-dark border-grey rounded-[4px] w-full p-5 pb-7 h-full">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">BUY BOND</h1>
@@ -553,7 +554,7 @@ export default function Bond() {
                   }`}
                   onClick={() => setActiveOrdersSelected(false)}
                 >
-                  CLAIMED BONDS
+                  EXPIRED BONDS
                 </button>
               </div>
             </div>
@@ -610,12 +611,12 @@ export default function Bond() {
                             </div>
                           </td>*/}
                           <td className="w-28">
-                    <RedeemBondButton 
+                    {/*<RedeemBondButton 
                       tokenId={vestingTokenId != undefined ? vestingTokenId : BigNumber.from(0)}
                       amount={vestingTokenBalance != undefined ? vestingTokenBalance : BigNumber.from(0)}
                       setNeedsBondTokenData={setNeedsBondTokenData}
                       disabled={marketData != undefined ? ((Date.now() / 1000) < (userBond.timestamp + marketData[0]?.vesting)) : true}
-                    />
+                        />*/}
                     </td>
                         </tr>
                       )
