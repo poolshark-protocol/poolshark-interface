@@ -11,14 +11,7 @@ import {
   chainIdsToNamesForGitTokenList,
   chainProperties,
 } from "../utils/chains";
-import SwapRouterApproveButton from "../components/Buttons/SwapRouterApproveButton";
-import {
-  TickMath,
-  invertPrice,
-  maxPriceBn,
-  minPriceBn,
-} from "../utils/math/tickMath";
-import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
+import { ZERO_ADDRESS } from "../utils/math/constants";
 import {
   fetchRangeTokenUSDPrice,
   getLimitTokenUsdPrice,
@@ -28,22 +21,16 @@ import { useTradeStore } from "../hooks/useTradeStore";
 import { fetchLimitPositions } from "../utils/queries";
 import { getClaimTick, mapUserLimitPositions } from "../utils/maps";
 import {
-  displayPoolPrice,
   getAveragePrice,
-  getExpectedAmountInFromOutput,
   getExpectedAmountOut,
   getExpectedAmountOutFromInput,
-  getMarketPriceAboveBelowString,
 } from "../utils/math/priceMath";
 import timeDifference from "../utils/time";
-import { inputHandler, parseUnits } from "../utils/math/valueMath";
+import { parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
 import { useConfigStore } from "../hooks/useConfigStore";
-import Range from "../components/Icons/RangeIcon";
 import MarketSwap from "../components/Trade/MarketSwap";
 import LimitSwap from "../components/Trade/LimitSwap";
-import SwapWrapNativeButton from "../components/Buttons/SwapWrapNativeButton";
-import SwapUnwrapNativeButton from "../components/Buttons/SwapUnwrapNativeButton";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import inputFilter from "../utils/inputFilter";

@@ -141,7 +141,6 @@ export default function LimitSwap() {
   const [quoteParams, setQuoteParams] = useState(undefined);
 
   useEffect(() => {
-    console.log('needs pair update', needsPairUpdate)
     if (!needsPairUpdate) return
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
@@ -154,7 +153,6 @@ export default function LimitSwap() {
   }, [needsPairUpdate]);
 
   useEffect(() => {
-    console.log('needs pair update', needsPairUpdate)
     if (!needsSetAmounts) return
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       if (exactIn) {
@@ -177,7 +175,6 @@ export default function LimitSwap() {
 
   //can go to utils
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
-    console.log('update pools called')
     const pools = await getSwapPools(
       limitSubgraph,
       tokenIn,
@@ -202,36 +199,6 @@ export default function LimitSwap() {
     setAvailablePools(poolAdresses);
     setQuoteParams(quoteList);
   }
-
-  /////////////////////////tokens and amounts
-
-  //BOTH
-  useEffect(() => {
-    if (
-      tokenIn.address != ZERO_ADDRESS &&
-      (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
-    ) {
-      getLimitTokenUsdPrice(
-        tokenIn.address,
-        setTokenInTradeUSDPrice,
-        limitSubgraph
-      );
-    }
-  }, [tokenIn.address]);
-
-  //BOTH
-  useEffect(() => {
-    if (
-      tokenOut.address != ZERO_ADDRESS &&
-      (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
-    ) {
-      getLimitTokenUsdPrice(
-        tokenOut.address,
-        setTokenOutTradeUSDPrice,
-        limitSubgraph
-      );
-    }
-  }, [tokenOut.address]);
 
   /////////////////////Double Input Boxes
   const [exactIn, setExactIn] = useState(true);
@@ -279,32 +246,27 @@ export default function LimitSwap() {
   const [upperPriceString, setUpperPriceString] = useState("0");
 
   useEffect(() => {
-    console.log('pair update', needsPairUpdate)
-    if (!needsPairUpdate) return
+    if (needsPairUpdate) return
     if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
       var newPrice = (
-        tokenIn.callId == 0
+        limitPriceOrder == (tokenIn.callId == 0)
           ? tokenIn.USDPrice / tokenOut.USDPrice
           : tokenOut.USDPrice / tokenIn.USDPrice
       )
         .toPrecision(6)
         .toString();
-      console.log('set price string 2: new pair')
       setLimitPriceString(newPrice);
     }
-  }, [tradePoolData?.id]);
+  }, [tokenIn.USDPrice, tokenOut.USDPrice]);
 
   useEffect(() => {
     if (priceRangeSelected) {
       const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
       if (!isNaN(parseFloat(lowerPriceString))) {
-        if (limitPriceOrder) {
-        }
         const priceLower = invertPrice(
           limitPriceOrder ? lowerPriceString : upperPriceString,
           limitPriceOrder
         );
-
         setLowerTick(
           BigNumber.from(
             TickMath.getTickAtPriceString(
@@ -343,7 +305,6 @@ export default function LimitSwap() {
 
   const handlePriceSwitch = () => {
     setLimitPriceOrder(!limitPriceOrder);
-    console.log('set price string 3: switch')
     setLimitPriceString(invertPrice(limitPriceString, false));
     setLowerPriceString(invertPrice(upperPriceString, false));
     setUpperPriceString(invertPrice(lowerPriceString, false));
@@ -380,7 +341,6 @@ export default function LimitSwap() {
   ]);
 
   function updateLimitTicks() {
-    console.log('updating limit ticks')
     const tickSpacing = tradePoolData.feeTier.tickSpacing;
     const priceString = invertPrice(limitPriceString, limitPriceOrder);
     if (isFinite(parseFloat(limitPriceString)) && parseFloat(priceString) > 0) {
@@ -1006,8 +966,7 @@ export default function LimitSwap() {
               disabled={wethCall}
               onChange={(e) => {
                 if (e.target.value !== "" && e.target.value !== "0") {
-                  console.log('price string 1: input field')
-                    setLimitPriceString(inputFilter(e.target.value));
+                  setLimitPriceString(inputFilter(e.target.value));
                 } else {
                   setLimitPriceString("0");
                 }

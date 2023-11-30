@@ -240,7 +240,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           },
           amountIn: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.amountIn,
           amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals),
-          needsAllowanceIn: !newTokenIn.native ?? true,
+          needsAllowanceIn: !state.tokenOut.native ?? true,
+          needsSetAmounts: true,
           wethCall: state.tokenOut.address.toLowerCase() == state.tokenIn.address.toLowerCase(),
         }));
       } else {
@@ -260,7 +261,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           amountIn: isAmountIn ? parseUnits(amount, newTokenIn.decimals) : state.amountIn,
           // if wethCall
           pairSelected: true,
+          needsBalanceIn: true,
           needsAllowanceIn: true,
+          needsPairUpdate: true,
+          needsSetAmounts: true,
           wethCall: newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase(),
           limitPriceOrder: state.limitPriceOrder == (newTokenIn.address.localeCompare(tokenOut.address) < 0),
         }));
@@ -338,8 +342,9 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           },
           amountIn: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.amountIn,
           amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals),
-          needsAllowanceIn: true,
-          wethCall: newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase(),
+          needsAllowanceIn: !state.tokenOut.native ?? true,
+          needsSetAmounts: true,
+          wethCall: state.tokenIn.address.toLowerCase() == state.tokenOut.address.toLowerCase(),
         }));
       } else {
         //if tokens are different
@@ -411,7 +416,6 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     }));
   },
   setLimitPriceString: (limitPrice: string) => {
-    console.log('chaging price string')
     set(() => ({
       limitPriceString: !isNaN(parseFloat(limitPrice)) ? limitPrice : '0.00',
     }));
