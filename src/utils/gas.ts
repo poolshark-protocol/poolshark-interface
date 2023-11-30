@@ -208,7 +208,7 @@ export const gasEstimateMintLimit = async (
   }
 };
 
-export const gasEstimateCreateAndMintLimit = async (
+export const gasEstimateLimitCreateAndMint = async (
   poolTypeId: number,
   feeTier: number,
   address: string,
@@ -230,7 +230,25 @@ export const gasEstimateCreateAndMintLimit = async (
     );
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
-    if (!provider) {
+    if (!provider || !isNaN(parseFloat(startPrice)) || tokenIn.userRouterAllowance?.lt(bnInput)) {
+      setMintGasFee("$0.00");
+      setMintGasLimit(BN_ZERO);
+    }
+    const sqrtStartPrice = TickMath.getSqrtPriceAtPriceString(
+      startPrice,
+      tokenIn, tokenOut,
+    )
+    if (
+      JSBI.lessThanOrEqual(
+        sqrtStartPrice,
+        TickMath.MIN_SQRT_RATIO
+      ) ||
+      JSBI.greaterThanOrEqual(
+        sqrtStartPrice,
+        TickMath.MAX_SQRT_RATIO
+      )
+    ) {
+      console.log('invalid price')
       setMintGasFee("$0.00");
       setMintGasLimit(BN_ZERO);
     }
@@ -251,11 +269,8 @@ export const gasEstimateCreateAndMintLimit = async (
           poolTypeId: poolTypeId,
           tokenIn: tokenIn.address,
           tokenOut: tokenOut.address,
-          startPrice: BigNumber.from(String(TickMath.getSqrtPriceAtPriceString(
-            !isNaN(parseFloat(startPrice)) ? startPrice : '1.00',
-            tokenIn, tokenOut,
-            tickSpacing ?? 30
-          ))),
+          // startPrice: BigNumber.from(String(sqrtStartPrice)),
+          startPrice: BigNumber.from(String(TickMath.getSqrtRatioAtTick(Number(zeroForOne ? lowerTick : upperTick)))),
           swapFee: feeTier,
         }, // pool params
         [], // range positions
