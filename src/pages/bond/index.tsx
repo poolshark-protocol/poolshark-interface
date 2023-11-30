@@ -541,7 +541,7 @@ export default function Bond() {
                   }`}
                   onClick={() => setActiveOrdersSelected(true)}
                 >
-                  ALL TRANSACTIONS
+                  ACTIVE BONDS
                 </button>
                 <button
                   className={`px-5 py-2 w-full md:w-auto ${
@@ -551,7 +551,7 @@ export default function Bond() {
                   }`}
                   onClick={() => setActiveOrdersSelected(false)}
                 >
-                  MY HISTORY
+                  CLAIMED BONDS
                 </button>
               </div>
             </div>
