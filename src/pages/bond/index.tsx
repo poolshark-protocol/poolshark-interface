@@ -6,22 +6,18 @@ import RedeemBondButton from "../../components/Buttons/RedeemBondButton";
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import { useAccount, useBalance, useContractRead } from "wagmi";
-import {
-  chainIdsToNamesForGitTokenList,
-  chainProperties,
-} from "../../utils/chains";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { bondTellerABI } from "../../abis/evm/bondTeller";
 import { fetchBondMarket, fetchEthPrice, fetchUserBonds } from "../../utils/queries";
 import { mapBondMarkets, mapUserBondPurchases } from "../../utils/maps";
 import { convertTimestampToDateFormat } from "../../utils/time";
-import { formatEther, parseEther } from "ethers/lib/utils.js";
-import { erc20 } from "../../abis/evm/erc20";
+import { formatEther } from "ethers/lib/utils.js";
 import { methABI } from "../../abis/evm/meth";
 import { auctioneerABI } from "../../abis/evm/bondAuctioneer";
 import useInputBox from "../../hooks/useInputBox";
 import { tokenSwap } from "../../utils/types";
 import ApproveBondButton from "../../components/Buttons/ApproveBondButton";
+import { AUCTIONEER_ADDRESS, FIN_ADDRESS, MARKET_ID, TELLER_ADDRESS, WETH_ADDRESS } from "../../constants/bondProtocol";
 
 export default function Bond() {
   const { address } = useAccount()
@@ -37,9 +33,6 @@ export default function Bond() {
 
   const [
     chainId,
-    networkName,
-    limitSubgraph,
-    coverSubgraph,
   ] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
@@ -48,12 +41,6 @@ export default function Bond() {
   ]);
 
   const { bnInput, inputBox, display, maxBalance } = useInputBox();
-
-  const WETH_ADDRESS = "0x251f7eacde75458b52dbc4995c439128b9ef98ca"
-  const FIN_ADDRESS = "0x742510a23bf83be959990a510ccae40b2d3d9b83"
-  const TELLER_ADDRESS = "0x007F7735baF391e207E3aA380bb53c4Bd9a5Fed6"
-  const AUCTIONEER_ADDRESS = "0xF7F9A96cDBFEFd70BDa14a8f30EC503b16bCe9b1"
-  const FPA_FIXED_TERM_ADDRESS = "0xF7F9A96cDBFEFd70BDa14a8f30EC503b16bCe9b1"
 
   const [tokenBalance, setTokenBalance] = useState(undefined)
   const [tokenAllowance, setTokenAllowance] = useState(undefined)
@@ -69,7 +56,7 @@ export default function Bond() {
   const [vestingTokenBalance, setVestingTokenBalance] = useState(undefined)
   const [vestingTokenId, setVestingTokenId] = useState(undefined)
 
-  const [poolDisplay, setPoolDisplay] = useState(
+  const [tellerDisplay, setPoolDisplay] = useState(
     TELLER_ADDRESS
       ? TELLER_ADDRESS.toString().substring(0, 6) +
           "..." +
@@ -139,7 +126,7 @@ export default function Bond() {
 
   async function getUserBonds() {
     try {
-      const data = await fetchUserBonds("46");
+      const data = await fetchUserBonds(MARKET_ID.toString());
       console.log(data, "bond purchase data")
       if (data["data"]) {
         setAllUserBonds(
@@ -153,7 +140,7 @@ export default function Bond() {
 
   async function getMarket() {
     try {
-      const data = await fetchBondMarket("46");
+      const data = await fetchBondMarket(MARKET_ID.toString());
       console.log(data["data"].markets, "market data")
       if (data["data"]) {
         setMarketData(
@@ -187,7 +174,7 @@ export default function Bond() {
     address: AUCTIONEER_ADDRESS,
     abi: auctioneerABI,
     functionName: "getMarketInfoForPurchase",
-    args: [46],
+    args: [MARKET_ID],
     chainId: chainId,
     watch: needsMarketPurchaseData,
     enabled: needsMarketPurchaseData,
@@ -205,7 +192,7 @@ export default function Bond() {
     address: AUCTIONEER_ADDRESS,
     abi: auctioneerABI,
     functionName: "currentCapacity",
-    args: [46],
+    args: [MARKET_ID],
     chainId: chainId,
     watch: needsCapacityData,
     enabled: needsCapacityData,
@@ -223,7 +210,7 @@ export default function Bond() {
     address: AUCTIONEER_ADDRESS,
     abi: auctioneerABI,
     functionName: "marketPrice",
-    args: [46],
+    args: [MARKET_ID],
     chainId: chainId,
     watch: needsMarketPriceData,
     enabled: needsMarketPriceData,
@@ -233,7 +220,7 @@ export default function Bond() {
     address: AUCTIONEER_ADDRESS,
     abi: auctioneerABI,
     functionName: "marketScale",
-    args: [46],
+    args: [MARKET_ID],
     chainId: chainId,
     watch: needsMarketPriceData,
     enabled: needsMarketPriceData,
@@ -243,7 +230,7 @@ export default function Bond() {
     address: AUCTIONEER_ADDRESS,
     abi: auctioneerABI,
     functionName: "maxAmountAccepted",
-    args: [46, "0x0000000000000000000000000000000000000000"],
+    args: [MARKET_ID, "0x0000000000000000000000000000000000000000"],
     chainId: chainId,
     watch: needsMaxAmountAcceptedData,
     enabled: needsMaxAmountAcceptedData,
@@ -351,7 +338,7 @@ export default function Bond() {
                   className="flex items-center gap-x-3 text-grey1 group cursor-pointer"
                 >
                   <span className="-mb-1 text-light text-xs ml-8 group-hover:underline">
-                    {poolDisplay}
+                    {tellerDisplay}
                   </span>{" "}
                   <ExternalLinkIcon />
                 </a>
@@ -518,7 +505,7 @@ export default function Bond() {
                     setNeedsBalance={setNeedsBalance}
                     setNeedsAllowance={setNeedsAllowance}
                     setNeedsBondTokenData={setNeedsBondTokenData}
-                    marketId={BigNumber.from(46)}
+                    marketId={BigNumber.from(MARKET_ID)}
                   /> :
                   <ApproveBondButton
                     inputAmount={bnInput}

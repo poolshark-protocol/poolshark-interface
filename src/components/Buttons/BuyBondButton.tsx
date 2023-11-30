@@ -5,8 +5,7 @@ import { useState } from "react";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import { SuccessToast } from "../Toasts/Success";
-import { BigNumber, ethers } from "ethers";
-
+import { NULL_REFERRER, TELLER_ADDRESS } from "../../constants/bondProtocol";
   
   export default function BuyBondButton({
     inputAmount,
@@ -24,9 +23,6 @@ import { BigNumber, ethers } from "ethers";
 
     const [errorDisplay, setErrorDisplay] = useState(false);
     const [successDisplay, setSuccessDisplay] = useState(false);
-
-    const TELLER_ADDRESS = "0x007F7735baF391e207E3aA380bb53c4Bd9a5Fed6"
-    const NULL_REFERRER = "0x0000000000000000000000000000000000000000"
 
     const { address } = useAccount();
     
