@@ -9,7 +9,7 @@ export default function Home() {
       <div className="flex justify-center w-full text-white">
         <Trade />
       </div>
-      <Notification />
+      {/*<Notification />*/}
     </div>
   );
 }
