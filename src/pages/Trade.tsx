@@ -11,14 +11,7 @@ import {
   chainIdsToNamesForGitTokenList,
   chainProperties,
 } from "../utils/chains";
-import SwapRouterApproveButton from "../components/Buttons/SwapRouterApproveButton";
-import {
-  TickMath,
-  invertPrice,
-  maxPriceBn,
-  minPriceBn,
-} from "../utils/math/tickMath";
-import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
+import { ZERO_ADDRESS } from "../utils/math/constants";
 import {
   fetchRangeTokenUSDPrice,
   getLimitTokenUsdPrice,
@@ -28,22 +21,16 @@ import { useTradeStore } from "../hooks/useTradeStore";
 import { fetchLimitPositions } from "../utils/queries";
 import { getClaimTick, mapUserLimitPositions } from "../utils/maps";
 import {
-  displayPoolPrice,
   getAveragePrice,
-  getExpectedAmountInFromOutput,
   getExpectedAmountOut,
   getExpectedAmountOutFromInput,
-  getMarketPriceAboveBelowString,
 } from "../utils/math/priceMath";
 import timeDifference from "../utils/time";
-import { inputHandler, parseUnits } from "../utils/math/valueMath";
+import { parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
 import { useConfigStore } from "../hooks/useConfigStore";
-import Range from "../components/Icons/RangeIcon";
 import MarketSwap from "../components/Trade/MarketSwap";
 import LimitSwap from "../components/Trade/LimitSwap";
-import SwapWrapNativeButton from "../components/Buttons/SwapWrapNativeButton";
-import SwapUnwrapNativeButton from "../components/Buttons/SwapUnwrapNativeButton";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import inputFilter from "../utils/inputFilter";
@@ -439,90 +426,6 @@ export default function Trade() {
       setTokenInTradeAllowance(allowanceInRouter);
     }
   }, [allowanceInRouter]);
-
-  ////////////////////////////////FeeTiers and Slippage
-  const [priceImpact, setPriceImpact] = useState("0.00");
-
-  //i receive the price afte from the multiquote and then i will add and subtract the slippage from it
-
-  ////////////////////////////////Limit Price Switch
-  const [limitPriceOrder, setLimitPriceOrder] = useState(true);
-  const [lowerPriceString, setLowerPriceString] = useState("0");
-  const [upperPriceString, setUpperPriceString] = useState("0");
-
-  const handlePriceSwitch = () => {
-    setLimitPriceOrder(!limitPriceOrder);
-    setLimitPriceString(invertPrice(limitPriceString, false));
-    setLowerPriceString(invertPrice(upperPriceString, false));
-    setUpperPriceString(invertPrice(lowerPriceString, false));
-    if (tradePoolData?.id == ZERO_ADDRESS) {
-      setStartPrice(invertPrice(startPrice, false));
-    }
-  };
-
-  useEffect(() => {
-    if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
-      var newPrice = (
-        limitPriceOrder == (tokenIn.callId == 0)
-          ? tokenIn.USDPrice / tokenOut.USDPrice
-          : tokenOut.USDPrice / tokenIn.USDPrice
-      )
-        .toPrecision(6)
-        .toString();
-      setLimitPriceString(newPrice);
-    }
-  }, [tokenIn.USDPrice, tokenOut.USDPrice]);
-
-  useEffect(() => {
-    if (priceRangeSelected) {
-      const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
-      if (!isNaN(parseFloat(lowerPriceString))) {
-        if (limitPriceOrder) {
-        }
-        const priceLower = invertPrice(
-          limitPriceOrder ? lowerPriceString : upperPriceString,
-          limitPriceOrder
-        );
-        setLowerTick(
-          BigNumber.from(
-            TickMath.getTickAtPriceString(
-              priceLower,
-              tokenIn,
-              tokenOut,
-              tickSpacing
-            )
-          )
-        );
-      }
-      if (!isNaN(parseFloat(upperPriceString))) {
-        const priceUpper = invertPrice(
-          limitPriceOrder ? upperPriceString : lowerPriceString,
-          limitPriceOrder
-        );
-        setUpperTick(
-          BigNumber.from(
-            TickMath.getTickAtPriceString(
-              priceUpper,
-              tokenIn,
-              tokenOut,
-              tickSpacing
-            )
-          )
-        );
-      }
-    }
-  }, [
-    lowerPriceString,
-    upperPriceString,
-    priceRangeSelected,
-    limitTabSelected,
-  ]);
-
-  ////////////////////////////////Limit Ticks
-  const [lowerTick, setLowerTick] = useState(BN_ZERO);
-  const [upperTick, setUpperTick] = useState(BN_ZERO);
-
-  ////////////////////////////////
 
   ///////////////////////
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);

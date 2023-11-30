@@ -46,6 +46,8 @@ type TradeState = {
   needsBalanceIn: boolean;
   needsBalanceOut: boolean;
   needsSnapshot: boolean;
+  needsPairUpdate: boolean;
+  needsSetAmounts: boolean;
   //Start price for pool creation
   startPrice: string;
   limitPriceOrder: boolean;
@@ -95,6 +97,8 @@ type TradeLimitAction = {
   setNeedsBalanceIn: (needsBalance: boolean) => void;
   setNeedsBalanceOut: (needsBalance: boolean) => void;
   setNeedsSnapshot: (needsSnapshot: boolean) => void;
+  setNeedsPairUpdate: (needsPairUpdate: boolean) => void;
+  setNeedsSetAmounts: (needsSetAmounts: boolean) => void;
   setStartPrice: (startPrice: string) => void;
   setLimitPriceOrder: (limitPriceOrder: boolean) => void;
 };
@@ -155,6 +159,8 @@ const initialTradeState: TradeState = {
   needsBalanceIn: true,
   needsBalanceOut: false,
   needsSnapshot: true,
+  needsPairUpdate: false,
+  needsSetAmounts: false,
   startPrice: "",
   limitPriceOrder: true,
 };
@@ -191,6 +197,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   needsBalanceIn: initialTradeState.needsBalanceIn,
   needsBalanceOut: initialTradeState.needsBalanceOut,
   needsSnapshot: initialTradeState.needsSnapshot,
+  needsPairUpdate: initialTradeState.needsPairUpdate,
+  needsSetAmounts: initialTradeState.needsSetAmounts,
   startPrice: initialTradeState.startPrice,
   limitPriceOrder: initialTradeState.limitPriceOrder,
   //actions
@@ -232,7 +240,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           },
           amountIn: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.amountIn,
           amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals),
-          needsAllowanceIn: !newTokenIn.native ?? true,
+          needsAllowanceIn: !state.tokenOut.native ?? true,
+          needsSetAmounts: true,
           wethCall: state.tokenOut.address.toLowerCase() == state.tokenIn.address.toLowerCase(),
         }));
       } else {
@@ -251,7 +260,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           },
           amountIn: isAmountIn ? parseUnits(amount, newTokenIn.decimals) : state.amountIn,
           pairSelected: true,
+          needsBalanceIn: true,
           needsAllowanceIn: true,
+          needsPairUpdate: true,
+          needsSetAmounts: true,
           wethCall: newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase(),
           limitPriceOrder: state.limitPriceOrder == (newTokenIn.address.localeCompare(tokenOut.address) < 0),
         }));
@@ -329,8 +341,9 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           },
           amountIn: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.amountIn,
           amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals),
-          needsAllowanceIn: true,
-          wethCall: newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase(),
+          needsAllowanceIn: !state.tokenOut.native ?? true,
+          needsSetAmounts: true,
+          wethCall: state.tokenIn.address.toLowerCase() == state.tokenOut.address.toLowerCase(),
         }));
       } else {
         //if tokens are different
@@ -349,7 +362,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           wethCall: newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase(),
           needsBalanceOut: true,
           needsAllowanceIn: true,
-          limitPriceOrder: state.limitPriceOrder == (tokenIn.address.localeCompare(newTokenOut.address) < 0),
+          needsPairUpdate: true,
         }));
       }
     } else {
@@ -472,6 +485,16 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       needsSnapshot: needsSnapshot,
     }));
   },
+  setNeedsPairUpdate: (needsPairUpdate: boolean) => {
+    set(() => ({
+      needsPairUpdate: needsPairUpdate,
+    }));
+  },
+  setNeedsSetAmounts: (needsSetAmounts: boolean) => {
+    set(() => ({
+      needsSetAmounts: needsSetAmounts,
+    }));
+  },
   setStartPrice: (startPrice: string) => {
     set({
       startPrice: startPrice
@@ -510,7 +533,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       },
       amountIn: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.amountIn,
       amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals),
-      needsAllowanceIn: true
+      needsAllowanceIn: true,
+      needsSetAmounts: true,
     }));
   },
   setTradePoolFromVolatility: async (tokenIn, tokenOut, volatility: any, client: LimitSubgraph) => {
