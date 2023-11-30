@@ -1,4 +1,4 @@
-import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
+import { useAccount, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { bondTellerABI } from "../../abis/evm/bondTeller";
 import { useState } from "react";
@@ -21,6 +21,8 @@ export default function RedeemBondButton({
 
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
+
+  const { address } = useAccount();
   
   const { config } = usePrepareContractWrite({
     address: TELLER_ADDRESS,
@@ -51,7 +53,7 @@ export default function RedeemBondButton({
         <button 
           className="bg-main1 border border-main text-xs py-1 px-5 rounded-[4px] disabled:opacity-50 hover:opacity-80"
           disabled={disabled}
-          onClick={() => write?.()}>
+          onClick={() => {address ? write?.() : null}}>
           REDEEM
         </button>
         <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">

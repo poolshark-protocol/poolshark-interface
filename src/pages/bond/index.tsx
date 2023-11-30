@@ -17,7 +17,7 @@ import { auctioneerABI } from "../../abis/evm/bondAuctioneer";
 import useInputBox from "../../hooks/useInputBox";
 import { tokenSwap } from "../../utils/types";
 import ApproveBondButton from "../../components/Buttons/ApproveBondButton";
-import { AUCTIONEER_ADDRESS, FIN_ADDRESS, MARKET_ID, TELLER_ADDRESS, WETH_ADDRESS } from "../../constants/bondProtocol";
+import { AUCTIONEER_ADDRESS, FIN_ADDRESS, MARKET_ID, NULL_REFERRER, TELLER_ADDRESS, WETH_ADDRESS } from "../../constants/bondProtocol";
 
 export default function Bond() {
   const { address } = useAccount()
@@ -70,7 +70,7 @@ export default function Bond() {
   );
 
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
-  const abiCoder = new ethers.utils.AbiCoder();
+  {/*const abiCoder = new ethers.utils.AbiCoder();
   const abiData =
     abiCoder.encode(
       [ 
@@ -91,7 +91,7 @@ export default function Bond() {
       }]
     )
 
-  console.log(abiData);
+  console.log(abiData);*/}
 
   const { data: tokenBalanceData } = useBalance({
     address: address,
@@ -127,7 +127,6 @@ export default function Bond() {
   async function getUserBonds() {
     try {
       const data = await fetchUserBonds(MARKET_ID.toString());
-      console.log(data, "bond purchase data")
       if (data["data"]) {
         setAllUserBonds(
           mapUserBondPurchases(data["data"].bondPurchases)
@@ -141,7 +140,6 @@ export default function Bond() {
   async function getMarket() {
     try {
       const data = await fetchBondMarket(MARKET_ID.toString());
-      console.log(data["data"].markets, "market data")
       if (data["data"]) {
         setMarketData(
           mapBondMarkets(data["data"].markets)
@@ -168,8 +166,6 @@ export default function Bond() {
     }
   }, [needsSubgraph]);
 
-  console.log(marketData, "formatted market data")
-
   const { data: marketPurchaseData } = useContractRead({
     address: AUCTIONEER_ADDRESS,
     abi: auctioneerABI,
@@ -184,7 +180,6 @@ export default function Bond() {
     if (marketPurchaseData) {
       setMarketPurchase(marketPurchaseData)
       setNeedsMarketPurchaseData(false)
-      console.log(marketPurchaseData, "market purchase data")
     }
   }, [marketPurchaseData])
 
@@ -202,7 +197,6 @@ export default function Bond() {
     if (currentCapacityData) {
       setCurrentCapacity(currentCapacityData)
       setNeedsCapacityData(false)
-      console.log(currentCapacityData, "current capacity data")
     }
   }, [currentCapacityData])
 
@@ -230,7 +224,7 @@ export default function Bond() {
     address: AUCTIONEER_ADDRESS,
     abi: auctioneerABI,
     functionName: "maxAmountAccepted",
-    args: [MARKET_ID, "0x0000000000000000000000000000000000000000"],
+    args: [MARKET_ID, NULL_REFERRER],
     chainId: chainId,
     watch: needsMaxAmountAcceptedData,
     enabled: needsMaxAmountAcceptedData,
@@ -246,7 +240,6 @@ export default function Bond() {
 
   useEffect(() => {
     if (vestingTokenIdData) {
-      console.log(vestingTokenIdData.toString(), "vesting token id data")
       setVestingTokenId(vestingTokenIdData)
     }
   }, [vestingTokenIdData])
@@ -263,7 +256,6 @@ export default function Bond() {
 
   useEffect(() => {
     if (vestingTokenBalanceData) {
-      console.log(vestingTokenBalanceData, "vesting token balance data")
       setVestingTokenBalance(vestingTokenBalanceData)
       setNeedsBondTokenData(false)
     }
@@ -279,8 +271,6 @@ export default function Bond() {
     }
   }, [maxAmountAcceptedData])
 
-  console.log(formatEther(maxAmountAcceptedData as BigNumber), "max amount accepted success")
-
   useEffect(() => {
     if (marketPriceData && marketScaleData && ethPrice) {
       const baseScale = BigNumber.from('10').pow(
@@ -289,21 +279,13 @@ export default function Bond() {
           .sub(18),
       );
       const shift = Number(baseScale) / Number(marketScaleData);
-      console.log(shift, "current shift")
       const price = Number(marketPriceData) * shift;
-      console.log(price, "current price")
       const quoteTokensPerPayoutToken = price / Math.pow(10, 36);
-      console.log(quoteTokensPerPayoutToken, "current quote tokens per payout token")
-      console.log(ethPrice, "current eth price")
       const discountedPrice = quoteTokensPerPayoutToken * ethPrice;
+      
       setQuoteTokensPerPayoutToken(quoteTokensPerPayoutToken)
-      console.log(discountedPrice, "current discounted price")
-
       setMarketPrice(discountedPrice)
       setNeedsMarketPriceData(false)
-      console.log(marketPriceData, "current market price data")
-      console.log(marketScaleData, "current market scale data")
-      console.log(discountedPrice, "current market price data formatted")
     }
   }, [marketPriceData, marketScaleData, ethPrice])
 
