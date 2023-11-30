@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import { SuccessToast } from "../Toasts/Success";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 
   
   export default function BuyBondButton({
@@ -39,7 +39,7 @@ import { BigNumber } from "ethers";
         NULL_REFERRER,
         marketId,
         inputAmount,
-        minAmount,
+        ethers.utils.parseEther("0.5"),
       ],
       chainId: chainId,
       overrides: {

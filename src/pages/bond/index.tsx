@@ -224,9 +224,10 @@ export default function Bond() {
 
   useEffect(() => {
     if (marketPriceData) {
-      setMarketPrice(currentCapacityData)
+      setMarketPrice(marketPriceData)
       setNeedsMarketPriceData(false)
       console.log(marketPriceData, "current market price data")
+      console.log(formatEther(marketPriceData as BigNumber), "current market price data formatted")
     }
   }, [marketPriceData])
 
@@ -298,7 +299,7 @@ export default function Bond() {
                 <div className="border border-main rounded-[4px] flex flex-col w-full items-center justify-center gap-y-4 h-32 bg-main1 ">
                   <span className="text-main2/60 text-[13px]">CURRENT BOND PRICE</span>
                   <span className="text-main2 lg:text-4xl text-3xl">${ethPrice != undefined && marketPrice != undefined ?
-                  (ethPrice * (1 / parseFloat(formatEther(marketPrice)))).toFixed(4) :
+                  (ethPrice * parseFloat(formatEther(marketPrice))).toFixed(4) :
                   "0"}</span>
                 </div>
                 {/*<div className=" rounded-[4px] flex flex-col w-full bg-[#2ECC71]/10 items-center justify-center gap-y-4 h-32">
@@ -321,7 +322,7 @@ export default function Bond() {
                     "0"
                   } / ${
                       ethPrice != undefined && marketData[0] != undefined && marketPrice != undefined ? 
-                      ((ethPrice * (1 / parseFloat(formatEther(marketPrice)))) * parseFloat(formatEther(marketData[0].capacity))).toFixed(2) :
+                      ((ethPrice * parseFloat(formatEther(marketPrice))) * parseFloat(formatEther(marketData[0].capacity))).toFixed(2) :
                       "0"
                   }</span>
               </div>
@@ -404,7 +405,7 @@ export default function Bond() {
               <div className="flex flex-col gap-y-4 border-grey border rounded-[4px] text-xs p-5">
                 <div className="flex justify-between w-full text-grey1">
                   YOU WILL GET <span className="text-white">{bnInput != undefined && marketPrice != undefined ?
-                  parseFloat(formatEther(bnInput)) * parseFloat(formatEther(marketPrice)) :
+                  parseFloat(formatEther(bnInput)) / parseFloat(formatEther(marketPrice)) :
                   "0"} FIN</span>
                 </div>
                 {/*<div className="flex justify-between w-full text-grey1">
