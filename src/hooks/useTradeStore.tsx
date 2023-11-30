@@ -250,7 +250,6 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
               tokenOut.address.localeCompare(newTokenIn.address) < 0 ? 0 : 1,
           },
           amountIn: isAmountIn ? parseUnits(amount, newTokenIn.decimals) : state.amountIn,
-          // if wethCall
           pairSelected: true,
           needsAllowanceIn: true,
           wethCall: newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase(),

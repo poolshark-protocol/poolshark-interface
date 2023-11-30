@@ -2,8 +2,122 @@ import Navbar from "../../components/Navbar";
 import Info from "../../components/Icons/InfoIcon";
 import ClaimRewardsButton from "../../components/Buttons/ClaimRewardsButton";
 import { CheckIcon } from "@heroicons/react/20/solid";
+import { ethers } from "ethers";
+import { useAccount, useProvider } from "wagmi";
+import { useConfigStore } from "../../hooks/useConfigStore";
+import { useEffect } from "react";
+import { fetchSeason1Rewards } from "../../utils/queries";
+import { useIncentivesStore } from "../../hooks/useIncentivesStore";
 
 export default function Incentives() {
+
+  const { address, isConnected } = useAccount();
+  const provider = useProvider();
+  const signer = new ethers.VoidSigner(address, provider);
+
+  const [
+    chainId,
+    networkName,
+    limitSubgraph,
+    coverSubgraph,
+    coverFactoryAddress,
+  ] = useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
+    state.limitSubgraph,
+    state.coverSubgraph,
+    state.coverFactoryAddress,
+  ]);
+
+  const [
+    tokenClaim,
+    userSeason1FINTotal,
+    userSeason1FIN,
+    totalSeason1FIN,
+    userSeason1Points,
+    totalSeason1Points,
+    setTokenClaim,
+    setUserSeason1FIN,
+    setUserSeason1FINTotal,
+    setUserSeason1Points,
+    setTotalSeason1Points
+  ] = useIncentivesStore((state) => [
+    state.tokenClaim,
+    state.userSeason1FINTotal,
+    state.userSeason1FIN,
+    state.totalSeason1FIN,
+    state.userSeason1Points,
+    state.totalSeason1Points,
+    state.setTokenClaim,
+    state.setUserSeason1FIN,
+    state.setUserSeason1FINTotal,
+    state.setUserSeason1Points,
+    state.setTotalSeason1Points,
+  ]);
+  
+  useEffect(() => {
+    if (isConnected) {
+      const userFINRewards = {
+        whitelistedFeesUsd:
+          userSeason1Points.whitelistedFeesUsd > 0
+          ? totalSeason1FIN.whitelistedFeesUsd
+            * userSeason1Points.whitelistedFeesUsd 
+            / totalSeason1Points.whitelistedFeesUsd
+          : 0,
+        nonWhitelistedFeesUsd:
+          userSeason1Points.nonWhitelistedFeesUsd > 0
+          ? totalSeason1FIN.nonWhitelistedFeesUsd
+            * userSeason1Points.nonWhitelistedFeesUsd 
+            / totalSeason1Points.nonWhitelistedFeesUsd
+          : 0,
+        stakingPoints:
+          userSeason1Points.stakingPoints > 0
+          ? totalSeason1FIN.stakingPoints
+          * userSeason1Points.stakingPoints 
+          / totalSeason1Points.stakingPoints
+          : 0,
+        volumeTradedUsd:
+          userSeason1Points.volumeTradedUsd > 0
+          ? totalSeason1FIN.volumeTradedUsd
+          * userSeason1Points.volumeTradedUsd 
+          / totalSeason1Points.volumeTradedUsd
+          : 0,
+      }
+      console.log('lp rewards:', userFINRewards.whitelistedFeesUsd + userFINRewards.nonWhitelistedFeesUsd)
+      setUserSeason1FIN(userFINRewards)
+      setUserSeason1FINTotal(
+        userFINRewards.whitelistedFeesUsd
+        + userFINRewards.nonWhitelistedFeesUsd
+        + userFINRewards.stakingPoints
+        + userFINRewards.volumeTradedUsd
+      )
+    }
+  }, [
+    userSeason1Points,
+    totalSeason1Points
+  ]);
+
+  useEffect(() => {
+    if (isConnected) {
+      updateSeasonRewards()
+    }
+  }, [
+    address
+  ]);
+
+  async function updateSeasonRewards() {
+    const data = await fetchSeason1Rewards(limitSubgraph, address);
+    if (data["data"]) {
+      if (data["data"].totalSeasonRewards?.length == 1) {
+        setTotalSeason1Points(data["data"].totalSeasonRewards[0])
+      }
+      if (data["data"].userSeasonRewards?.length == 1) {
+        console.log('user season rewards', data["data"].userSeasonRewards)
+        setUserSeason1Points(data["data"].userSeasonRewards[0])
+      }
+    }
+  }
+
   return (
     <div className=" bg-no-repeat bg-black min-h-screen ">
       <Navbar />
@@ -44,7 +158,7 @@ export default function Incentives() {
                       Trading Rewards
                     </span>
                     <span className="text-white text-2xl md:text-3xl">
-                      20.533
+                      {userSeason1FIN.volumeTradedUsd.toPrecision(6)}
                     </span>
                   </div>
 
@@ -53,7 +167,7 @@ export default function Incentives() {
                       LP Rewards
                     </span>
                     <span className="text-white text-2xl md:text-3xl">
-                      20.533
+                      {(userSeason1FIN.whitelistedFeesUsd + userSeason1FIN.nonWhitelistedFeesUsd).toPrecision(6)}
                     </span>
                   </div>
                   <div className="border border-grey w-full rounded-[4px] bg-black flex flex-col w-full items-center justify-center gap-y-3 h-32">
@@ -61,7 +175,7 @@ export default function Incentives() {
                       FIN Staking Rewards
                     </span>
                     <span className="text-white text-2xl md:text-3xl">
-                      20.533
+                      {userSeason1FIN.stakingPoints.toPrecision(6)}
                     </span>
                   </div>
                   <div className="border border-main w-full rounded-[4px] bg-main1 flex flex-col w-full items-center justify-center gap-y-3 h-32">
@@ -69,7 +183,7 @@ export default function Incentives() {
                       Total Rewards
                     </span>
                     <span className="text-main2 text-2xl md:text-3xl">
-                      175.93
+                    {userSeason1FINTotal.toPrecision(6)}
                     </span>
                   </div>
                 </div>
@@ -84,10 +198,10 @@ export default function Incentives() {
                 <div className="flex flex-col gap-y-3 mt-2">
                   <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
                     <div className="flex items-end justify-between text-[11px] text-grey1">
-                      <span>~$ 500</span>
+                      <span>~$0.00</span>
                     </div>
                     <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                      175.93
+                      0.00
                       <div className="flex items-center gap-x-2">
                         <div className="w-full text-xs whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                           <img
