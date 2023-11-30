@@ -386,7 +386,6 @@ export const gasEstimateRangeMint = async (
       (amountIn.eq(BN_ZERO) && amountOut.eq(BN_ZERO)) ||
       !signer
     ) {
-      console.log('gas early return')
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     const routerAddress = chainProperties[networkName]["routerAddress"];
@@ -453,12 +452,10 @@ export const gasEstimateRangeCreateAndMint = async (
   networkName: string
 ): Promise<gasEstimateResult> => {
   try {
-    console.log("create and mint estimate ")
     const provider = new ethers.providers.JsonRpcProvider(
       "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
     if (!provider || (amountIn.eq(BN_ZERO) && amountOut.eq(BN_ZERO))) {
-      console.log('early return')
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     if (
@@ -511,6 +508,7 @@ export const gasEstimateRangeCreateAndMint = async (
           )
         }
       );
+      console.log('create and mint gas units', gasUnits.toString())
     const price = await fetchEthPrice();
     const gasPrice = await provider.getGasPrice();
     const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);
