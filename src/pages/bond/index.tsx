@@ -559,6 +559,7 @@ export default function Bond() {
               </div>
             </div>
             <div className="overflow-hidden rounded-[4px] mt-3 bg-dark  border border-grey">
+              {activeOrdersSelected ? (
               <table className="w-full table-auto rounded-[4px]">
                 <thead>
                   <tr className="text-[11px] text-grey1/90 mb-3 leading-normal">
@@ -567,63 +568,130 @@ export default function Bond() {
                     <th className="text-left uppercase">PAYOUT AMOUNT</th>
                     {/*<th className="text-left uppercase">DISCOUNT</th>
                     <th className="text-left uppercase">DAILY UNLOCK</th>*/}
-                    <th className="text-left uppercase">UNLOCK DATE</th>
+                    <th className="text-left uppercase">UNLOCKS ON</th>
                     <th className="text-left uppercase">TRANSACTION HASH</th>
                     {/*<th className="text-left uppercase">ADDRESS</th>*/}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-grey/70">
-                  {allUserBonds.map((userBond) => {
-                    if (userBond.id != undefined) {
-                      return (
-                        <tr key={userBond.id} className="text-left text-xs py-2 md:text-sm bg-black cursor-pointer">
-                          <td className="pl-3 py-2">{convertTimestampToDateFormat(userBond.timestamp)}</td>
-                          <td className="">
-                            <div className="flex gap-x-1.5 items-center">
-                              <img
-                                className="w-6"
-                                src="/static/images/weth_icon.png"
-                              />
-                              {parseFloat(userBond.amount).toFixed(4)} {userBond.quoteTokenSymbol}
-                            </div>
-                          </td>
-                          <td className="">
-                            <div className="flex gap-x-1.5 items-center">
-                              <img
-                                className="w-6"
-                                src="/static/images/fin_icon.png"
-                              />
-                              {parseFloat(userBond.payout).toFixed(4)} {userBond.payoutTokenSymbol}
-                            </div>
-                          </td>
-                          {/*<td className="">0.9%</td>
-                          <td className="">0.94 FIN</td>*/}
-                          <td className="">{convertTimestampToDateFormat((Date.now() / 1000) + (marketData[0]?.vesting))}</td>
-                          <td className="text-grey1">
-                            {" "}
-                            <div className="flex gap-x-1.5 items-center">
-                              {userBond.id} <ExternalLinkIcon />
-                            </div>
-                          </td>
-                          {/*<td className="text-grey1">
-                            <div className="flex gap-x-1.5 items-center">
-                              0x123...456 <ExternalLinkIcon />
-                            </div>
-                          </td>*/}
-                          <td className="w-28">
-                    {/*<RedeemBondButton 
-                      tokenId={vestingTokenId != undefined ? vestingTokenId : BigNumber.from(0)}
-                      amount={vestingTokenBalance != undefined ? vestingTokenBalance : BigNumber.from(0)}
-                      setNeedsBondTokenData={setNeedsBondTokenData}
-                      disabled={marketData != undefined ? ((Date.now() / 1000) < (userBond.timestamp + marketData[0]?.vesting)) : true}
-                        />*/}
-                    </td>
+                    {allUserBonds.map((userBond) => {
+                      if (userBond.id != undefined) {
+                        if ((Date.now() / 1000) < (userBond.timestamp + marketData[0]?.vesting)) {
+                        return (
+                          <tr key={userBond.id} className="text-left text-xs py-2 md:text-sm bg-black cursor-pointer">
+                            <td className="pl-3 py-2">{convertTimestampToDateFormat(userBond.timestamp)}</td>
+                            <td className="">
+                              <div className="flex gap-x-1.5 items-center">
+                                <img
+                                  className="w-6"
+                                  src="/static/images/weth_icon.png"
+                                />
+                                {parseFloat(userBond.amount).toFixed(4)} {userBond.quoteTokenSymbol}
+                              </div>
+                            </td>
+                            <td className="">
+                              <div className="flex gap-x-1.5 items-center">
+                                <img
+                                  className="w-6"
+                                  src="/static/images/fin_icon.png"
+                                />
+                                {parseFloat(userBond.payout).toFixed(4)} {userBond.payoutTokenSymbol}
+                              </div>
+                            </td>
+                            {/*<td className="">0.9%</td>
+                            <td className="">0.94 FIN</td>*/}
+                            <td className="">{convertTimestampToDateFormat((Date.now() / 1000) + (marketData[0]?.vesting))}</td>
+                            <td className="text-grey1">
+                              {" "}
+                              <div className="flex gap-x-1.5 items-center">
+                                {userBond.id} <ExternalLinkIcon />
+                              </div>
+                            </td>
+                            {/*<td className="text-grey1">
+                              <div className="flex gap-x-1.5 items-center">
+                                0x123...456 <ExternalLinkIcon />
+                              </div>
+                            </td>*/}
+                            <td className="w-28">
+                        {/*<RedeemBondButton 
+                          tokenId={vestingTokenId != undefined ? vestingTokenId : BigNumber.from(0)}
+                          amount={vestingTokenBalance != undefined ? vestingTokenBalance : BigNumber.from(0)}
+                          setNeedsBondTokenData={setNeedsBondTokenData}
+                          disabled={marketData != undefined ? ((Date.now() / 1000) < (userBond.timestamp + marketData[0]?.vesting)) : true}
+                            />*/}
+                      </td>
+                          </tr>
+                        )
+                      }
+                    }})} 
+                    </tbody>
+                    </table>) :
+                    <table className="w-full table-auto rounded-[4px]">
+                      <thead>
+                        <tr className="text-[11px] text-grey1/90 mb-3 leading-normal">
+                          <th className="text-left pl-3 py-3 uppercase">DATE</th>
+                          <th className="text-left uppercase">BOND AMOUNT</th>
+                          <th className="text-left uppercase">PAYOUT AMOUNT</th>
+                          {/*<th className="text-left uppercase">DISCOUNT</th>
+                          <th className="text-left uppercase">DAILY UNLOCK</th>*/}
+                          <th className="text-left uppercase">UNLOCKED ON</th>
+                          <th className="text-left uppercase">TRANSACTION HASH</th>
+                          {/*<th className="text-left uppercase">ADDRESS</th>*/}
                         </tr>
-                      )
-                    }
-                  })}
+                      </thead>
+                    <tbody className="divide-y divide-grey/70">
+                    {allUserBonds.map((userBond) => {
+                      if (userBond.id != undefined) {
+                        if ((Date.now() / 1000) >= (userBond.timestamp + marketData[0]?.vesting)) {
+                        return (
+                          <tr key={userBond.id} className="text-left text-xs py-2 md:text-sm bg-black cursor-pointer">
+                            <td className="pl-3 py-2">{convertTimestampToDateFormat(userBond.timestamp)}</td>
+                            <td className="">
+                              <div className="flex gap-x-1.5 items-center">
+                                <img
+                                  className="w-6"
+                                  src="/static/images/weth_icon.png"
+                                />
+                                {parseFloat(userBond.amount).toFixed(4)} {userBond.quoteTokenSymbol}
+                              </div>
+                            </td>
+                            <td className="">
+                              <div className="flex gap-x-1.5 items-center">
+                                <img
+                                  className="w-6"
+                                  src="/static/images/fin_icon.png"
+                                />
+                                {parseFloat(userBond.payout).toFixed(4)} {userBond.payoutTokenSymbol}
+                              </div>
+                            </td>
+                            {/*<td className="">0.9%</td>
+                            <td className="">0.94 FIN</td>*/}
+                            <td className="">{convertTimestampToDateFormat((Date.now() / 1000) + (marketData[0]?.vesting))}</td>
+                            <td className="text-grey1">
+                              {" "}
+                              <div className="flex gap-x-1.5 items-center">
+                                {userBond.id} <ExternalLinkIcon />
+                              </div>
+                            </td>
+                            {/*<td className="text-grey1">
+                              <div className="flex gap-x-1.5 items-center">
+                                0x123...456 <ExternalLinkIcon />
+                              </div>
+                            </td>*/}
+                            <td className="w-28">
+                        {/*<RedeemBondButton 
+                          tokenId={vestingTokenId != undefined ? vestingTokenId : BigNumber.from(0)}
+                          amount={vestingTokenBalance != undefined ? vestingTokenBalance : BigNumber.from(0)}
+                          setNeedsBondTokenData={setNeedsBondTokenData}
+                          disabled={marketData != undefined ? ((Date.now() / 1000) < (userBond.timestamp + marketData[0]?.vesting)) : true}
+                            />*/}
+                      </td>
+                          </tr>
+                        )
+                      }
+                    }})}
                 </tbody>
-              </table>
+              </table>}
             </div>
           </div>
         </div>
