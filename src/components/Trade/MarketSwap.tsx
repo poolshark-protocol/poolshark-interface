@@ -23,6 +23,7 @@ import JSBI from "jsbi";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
+import { useRouter } from "next/router";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -97,6 +98,8 @@ export default function MarketSwap() {
   const { address, isDisconnected, isConnected } = useAccount();
 
   const { data: signer } = useSigner();
+
+  const router = useRouter();
 
   /////////////////////////////Fetch Pools
   const [availablePools, setAvailablePools] = useState(undefined);
@@ -448,7 +451,11 @@ export default function MarketSwap() {
         <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
-            <div className={`ml-auto text-xs ${pairSelected ? "text-white" : "text-[#4C4C4C]"}`}>
+            <div
+              className={`ml-auto text-xs ${
+                pairSelected ? "text-white" : "text-[#4C4C4C]"
+              }`}
+            >
               {pairSelected
                 ? parseFloat(
                     ethers.utils.formatUnits(
@@ -461,7 +468,17 @@ export default function MarketSwap() {
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            <div className={`ml-auto text-xs ${tokenIn.userRouterAllowance?.lt(amountIn) ? "text-[#4C4C4C]" : "text-white" }`}>{tokenIn.userRouterAllowance?.lt(amountIn) ? "Approve Token" : swapGasFee}</div>
+            <div
+              className={`ml-auto text-xs ${
+                tokenIn.userRouterAllowance?.lt(amountIn)
+                  ? "text-[#4C4C4C]"
+                  : "text-white"
+              }`}
+            >
+              {tokenIn.userRouterAllowance?.lt(amountIn)
+                ? "Approve Token"
+                : swapGasFee}
+            </div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">
@@ -652,7 +669,10 @@ export default function MarketSwap() {
           <Range className="text-main2" />{" "}
           <span className="text-grey3 flex flex-col gap-y-[-2px]">
             No pools exist for this token pair.{" "}
-            <a className=" hover:underline text-main2 cursor-pointer">
+            <a
+              className=" hover:underline text-main2 cursor-pointer"
+              onClick={() => router.push("/create")}
+            >
               Click here to create a range pool
             </a>
           </span>
