@@ -232,6 +232,21 @@ export default function Bond() {
     enabled: needsMarketPriceData,
   });
 
+  const { data: maxAmountAcceptedData } = useContractRead({
+    address: AUCTIONEER_ADDRESS,
+    abi: auctioneerABI,
+    functionName: "maxAmountAccepted",
+    args: [46, "0x0000000000000000000000000000000000000000"],
+    chainId: chainId,
+    watch: true,
+    enabled: true,
+    onSuccess() {
+      console.log(formatEther(maxAmountAcceptedData as BigNumber), "max amount accepted success")
+    }
+  });
+
+  console.log(formatEther(maxAmountAcceptedData as BigNumber), "max amount accepted success")
+
   useEffect(() => {
     if (marketPriceData && marketScaleData && ethPrice) {
       const baseScale = BigNumber.from('10').pow(
@@ -431,7 +446,7 @@ export default function Bond() {
               <div className="flex flex-col gap-y-4 border-grey border rounded-[4px] text-xs p-5">
                 <div className="flex justify-between w-full text-grey1">
                   YOU WILL GET <span className="text-white">{bnInput != undefined && marketPrice != undefined ?
-                  (parseFloat(formatEther(bnInput)) * marketPrice).toFixed(2) :
+                  (parseFloat(formatEther(bnInput)) * marketPrice).toFixed(4) :
                   "0"} FIN</span>
                 </div>
                 {/*<div className="flex justify-between w-full text-grey1">
