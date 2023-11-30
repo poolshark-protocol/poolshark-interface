@@ -259,6 +259,7 @@ export default function Bond() {
 
   useEffect(() => {
     if (vestingTokenIdData) {
+      console.log(vestingTokenIdData.toString(), "vesting token id data")
       setVestingTokenId(vestingTokenIdData)
     }
   }, [vestingTokenIdData])
@@ -275,6 +276,7 @@ export default function Bond() {
 
   useEffect(() => {
     if (vestingTokenBalanceData) {
+      console.log(vestingTokenBalanceData, "vesting token balance data")
       setVestingTokenBalance(vestingTokenBalanceData)
       setNeedsBondTokenData(false)
     }
@@ -609,7 +611,7 @@ export default function Bond() {
                           </td>*/}
                           <td className="w-28">
                     <RedeemBondButton 
-                      tokenAddress={TELLER_ADDRESS}
+                      tokenId={vestingTokenId != undefined ? vestingTokenId : BigNumber.from(0)}
                       amount={vestingTokenBalance != undefined ? vestingTokenBalance : BigNumber.from(0)}
                       setNeedsBondTokenData={setNeedsBondTokenData}
                       disabled={marketData != undefined ? ((Date.now() / 1000) < (userBond.timestamp + marketData[0]?.vesting)) : true}

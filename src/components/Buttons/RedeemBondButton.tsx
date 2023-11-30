@@ -7,7 +7,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import { SuccessToast } from "../Toasts/Success";
 
 export default function RedeemBondButton({
-  tokenAddress,
+  tokenId,
   amount,
   disabled,
   setNeedsBondTokenData,
@@ -28,7 +28,7 @@ export default function RedeemBondButton({
     abi: bondTellerABI,
     functionName: "redeem",
     args: [
-      tokenAddress,
+      tokenId,
       amount,
     ],
     chainId: chainId,
