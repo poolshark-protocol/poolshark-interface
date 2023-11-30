@@ -1,6 +1,8 @@
 import Navbar from "../../components/Navbar";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import BuyBondButton from "../../components/Buttons/BuyBondButton";
+import ReedemMulticallBondButton from "../../components/Buttons/ReedemMulticallBondButton";
+import ReedemBondButton from "../../components/Buttons/ReedemBondButton";
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import { useAccount, useBalance, useContractRead } from "wagmi";
@@ -287,7 +289,7 @@ export default function Bond() {
           </div>
         </div>
         <div className="flex lg:flex-row flex-col justify-between w-full mt-8 gap-10">
-          <div className="border border-grey rounded-[4px] lg:w-1/2 w-full p-5 pb-7">
+          <div className="border h-min border-grey rounded-[4px] lg:w-1/2 w-full p-5 pb-7">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">STATISTICS</h1>
             </div>
@@ -339,7 +341,21 @@ export default function Bond() {
               </div>
             </div>
           </div>
-          <div className="border bg-dark border-grey rounded-[4px] lg:w-1/2 w-full p-5 pb-7 h-full">
+          <div className="flex gap-y-5 flex-col w-full lg:w-1/2">
+            {/*
+            MULTI CALL REEDEM BOX
+
+          <div className="border bg-main1/30 border-main/40 p-5">
+          <h1 className="">BOND AVAILABLE TO REEDEM</h1>
+          <div className="flex flex-col gap-y-4 border-main/60 border rounded-[4px] text-xs p-5 mt-4 bg-black/50 mb-2">
+                <div className="flex flex-col gap-y-1 justify-between w-full items-center text-white/20">
+                  AMOUNT <span className="text-white text-lg">60 FIN</span>
+                </div>
+              </div>
+            <ReedemMulticallBondButton />
+        </div>
+  */}
+            <div className="border bg-dark border-grey rounded-[4px] w-full p-5 pb-7 h-full">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">BUY BOND</h1>
             </div>
@@ -421,6 +437,7 @@ export default function Bond() {
                 />}
             </div>
           </div>
+          </div>
         </div>
         <div className="mt-8">
           <div className="md:mb-20 mb-32 w-full">
@@ -501,6 +518,9 @@ export default function Bond() {
                               0x123...456 <ExternalLinkIcon />
                             </div>
                           </td>*/}
+                          <td className="w-28">
+                    <ReedemBondButton />
+                    </td>
                         </tr>
                       )
                     }

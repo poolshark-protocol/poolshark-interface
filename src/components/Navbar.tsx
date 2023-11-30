@@ -71,26 +71,34 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                   COVER
                 </div>
               </Link>
+              <Link href="/bond">
+                <div
+                  className={
+                    router.pathname.includes("/bond")
+                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
+                      : "text-grey1 border border-transparent transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
+                  }
+                >
+                  <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1H1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"></path><path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V5zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2H3z"></path></svg>
+                  BOND
+                </div>
+              </Link>
             </div>
           </div>
           <div className=" flex justify-end items-center gap-x-4">
-          <Link href="/bond" >
-            <span className="text-white hover:underline text-sm cursor-pointer">BOND $FIN</span>
-         
-          </Link>
             <ConnectWalletButton />
           </div>
         </div>
       </div>
-      <div className="fixed bottom-3 left-0 w-full md:hidden z-50 px-3 md:px-0">
-        <div className="m-auto border flex w-full justify-center border-grey shadow-lg rounded-[4px] p-[10px] bg-black">
-          <div className="flex gap-x-2">
+      <div className="fixed bottom-0 left-0 w-full md:hidden z-50 ">
+        <div className="m-auto border-t flex w-full justify-center border-grey shadow-lg p-[10px] bg-black">
+          <div className="flex">
             <Link href="/">
             <div
                   className={
                     router.pathname == "/"
-                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
-                      : "text-grey1 border border-transparent transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
+                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-3 text-sm flex items-center cursor-pointer gap-x-0.5 text-[11px]"
+                      : "text-grey1 border border-transparent transition-all py-1.5 px-3 text-sm flex items-center cursor-pointer gap-x-0.5 text-[11px]"
                   }
                 >
                   <Trade />
@@ -101,8 +109,8 @@ export default function Navbar({ create, setCreate }: NavOptions) {
             <div
                   className={
                     router.pathname.includes("/range")
-                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
-                      : "text-grey1 border border-transparent transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
+                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-3 text-sm flex items-center cursor-pointer gap-x-0.5 text-[11px]"
+                      : "text-grey1 border border-transparent transition-all py-1.5 px-3 text-sm flex items-center cursor-pointer gap-x-0.5 text-[11px]"
                   }
                 >
                   <Range />
@@ -113,14 +121,26 @@ export default function Navbar({ create, setCreate }: NavOptions) {
             <div
                   className={
                     router.pathname.includes("/cover")
-                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
-                      : "text-grey1 border border-transparent transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
+                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-3 text-sm flex items-center cursor-pointer gap-x-1 text-[11px]"
+                      : "text-grey1 border border-transparent transition-all py-1.5 px-3 text-sm flex items-center cursor-pointer gap-x-1 text-[11px]"
                   }
                 >
                   <Cover />
                   COVER
                 </div>
             </Link>
+            <Link href="/bond">
+                <div
+                  className={
+                    router.pathname.includes("/bond")
+                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-3 text-sm flex items-center cursor-pointer gap-x-1 text-[11px]"
+                      : "text-grey1 border border-transparent transition-all py-1.5 px-3 text-sm flex items-center cursor-pointer gap-x-1 text-[11px]"
+                  }
+                >
+                  <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1H1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"></path><path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V5zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2H3z"></path></svg>
+                  BOND
+                </div>
+              </Link>
           </div>
         </div>
       </div>
