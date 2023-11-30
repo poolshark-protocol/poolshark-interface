@@ -89,12 +89,12 @@ export default function Bond() {
         callbackAddr: "0x0000000000000000000000000000000000000000",
         capacityInQuote: false,
         capacity: "10000000000000000000000",
-        formattedPrice: "1000000000000000",
+        formattedPrice: "203000000000000000000000000000000000",
         depositInterval: "3600",
         vesting: "86400",
-        start: "1701056153",
+        start: "1701337096",
         duration: "864000",
-        scaleAdjustment: "-2"
+        scaleAdjustment: "1"
       }]
     )
 
@@ -133,7 +133,7 @@ export default function Bond() {
 
   async function getUserBonds() {
     try {
-      const data = await fetchUserBonds("45");
+      const data = await fetchUserBonds("46");
       console.log(data, "bond purchase data")
       if (data["data"]) {
         setAllUserBonds(
@@ -147,7 +147,7 @@ export default function Bond() {
 
   async function getMarket() {
     try {
-      const data = await fetchBondMarket("45");
+      const data = await fetchBondMarket("46");
       console.log(data["data"].markets, "market data")
       if (data["data"]) {
         setMarketData(
@@ -180,7 +180,7 @@ export default function Bond() {
     address: AUCTIONEER_ADDRESS,
     abi: auctioneerABI,
     functionName: "getMarketInfoForPurchase",
-    args: [45],
+    args: [46],
     chainId: chainId,
     watch: needsMarketPurchaseData,
     enabled: needsMarketPurchaseData,
@@ -198,7 +198,7 @@ export default function Bond() {
     address: AUCTIONEER_ADDRESS,
     abi: auctioneerABI,
     functionName: "currentCapacity",
-    args: [45],
+    args: [46],
     chainId: chainId,
     watch: needsCapacityData,
     enabled: needsCapacityData,
@@ -216,20 +216,46 @@ export default function Bond() {
     address: AUCTIONEER_ADDRESS,
     abi: auctioneerABI,
     functionName: "marketPrice",
-    args: [45],
+    args: [46],
+    chainId: chainId,
+    watch: needsMarketPriceData,
+    enabled: needsMarketPriceData,
+  });
+
+  const { data: marketScaleData } = useContractRead({ 
+    address: AUCTIONEER_ADDRESS,
+    abi: auctioneerABI,
+    functionName: "marketScale",
+    args: [46],
     chainId: chainId,
     watch: needsMarketPriceData,
     enabled: needsMarketPriceData,
   });
 
   useEffect(() => {
-    if (marketPriceData) {
-      setMarketPrice(marketPriceData)
+    if (marketPriceData && marketScaleData && ethPrice) {
+      const baseScale = BigNumber.from('10').pow(
+        BigNumber.from('36')
+          .add(18)
+          .sub(18),
+      );
+      const shift = Number(baseScale) / Number(marketScaleData);
+      console.log(shift, "current shift")
+      const price = Number(marketPriceData) * shift;
+      console.log(price, "current price")
+      const quoteTokensPerPayoutToken = price / Math.pow(10, 36);
+      console.log(quoteTokensPerPayoutToken, "current quote tokens per payout token")
+      console.log(ethPrice, "current eth price")
+      const discountedPrice = quoteTokensPerPayoutToken * ethPrice;
+      console.log(discountedPrice, "current discounted price")
+
+      setMarketPrice(discountedPrice)
       setNeedsMarketPriceData(false)
       console.log(marketPriceData, "current market price data")
-      console.log(formatEther(marketPriceData as BigNumber), "current market price data formatted")
+      console.log(marketScaleData, "current market scale data")
+      console.log(discountedPrice, "current market price data formatted")
     }
-  }, [marketPriceData])
+  }, [marketPriceData, marketScaleData, ethPrice])
 
   const getEthUsdPrice = async () => {
     const price = await fetchEthPrice();
@@ -299,7 +325,7 @@ export default function Bond() {
                 <div className="border border-main rounded-[4px] flex flex-col w-full items-center justify-center gap-y-4 h-32 bg-main1 ">
                   <span className="text-main2/60 text-[13px]">CURRENT BOND PRICE</span>
                   <span className="text-main2 lg:text-4xl text-3xl">${ethPrice != undefined && marketPrice != undefined ?
-                  (ethPrice * parseFloat(formatEther(marketPrice))).toFixed(4) :
+                  (marketPrice).toFixed(4) :
                   "0"}</span>
                 </div>
                 {/*<div className=" rounded-[4px] flex flex-col w-full bg-[#2ECC71]/10 items-center justify-center gap-y-4 h-32">
@@ -322,7 +348,7 @@ export default function Bond() {
                     "0"
                   } / ${
                       ethPrice != undefined && marketData[0] != undefined && marketPrice != undefined ? 
-                      ((ethPrice * parseFloat(formatEther(marketPrice))) * parseFloat(formatEther(marketData[0].capacity))).toFixed(2) :
+                      ((marketPrice) * parseFloat(formatEther(marketData[0].capacity))).toFixed(2) :
                       "0"
                   }</span>
               </div>
@@ -405,7 +431,7 @@ export default function Bond() {
               <div className="flex flex-col gap-y-4 border-grey border rounded-[4px] text-xs p-5">
                 <div className="flex justify-between w-full text-grey1">
                   YOU WILL GET <span className="text-white">{bnInput != undefined && marketPrice != undefined ?
-                  parseFloat(formatEther(bnInput)) / parseFloat(formatEther(marketPrice)) :
+                  (parseFloat(formatEther(bnInput)) * marketPrice).toFixed(2) :
                   "0"} FIN</span>
                 </div>
                 {/*<div className="flex justify-between w-full text-grey1">
@@ -426,11 +452,11 @@ export default function Bond() {
               {tokenAllowance >= bnInput ?
                 <BuyBondButton
                   inputAmount={bnInput}
-                  minAmount={bnInput.mul(marketPrice)}
+                  minAmount={bnInput}
                   setNeedsSubgraph={setNeedsSubgraph}
                   setNeedsBalance={setNeedsBalance}
                   setNeedsAllowance={setNeedsAllowance}
-                  marketId={BigNumber.from(45)}
+                  marketId={BigNumber.from(46)}
                 /> :
                 <ApproveBondButton
                   inputAmount={bnInput}
