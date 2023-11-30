@@ -51,6 +51,7 @@ export default function MarketSwap() {
     tokenIn,
     setTokenIn,
     setTokenInTradeUSDPrice,
+    setTokenOutTradeUSDPrice,
     tokenOut,
     setTokenOut,
     amountIn,
@@ -73,6 +74,7 @@ export default function MarketSwap() {
     s.tokenIn,
     s.setTokenIn,
     s.setTokenInTradeUSDPrice,
+    s.setTokenOutTradeUSDPrice,
     s.tokenOut,
     s.setTokenOut,
     s.amountIn,
@@ -117,6 +119,7 @@ export default function MarketSwap() {
       limitSubgraph,
       tokenIn,
       tokenOut,
+      tradePoolData,
       setTradePoolData
     );
     const poolAdresses: string[] = [];
@@ -138,32 +141,6 @@ export default function MarketSwap() {
   }
 
   /////////////////////Tokens info setting
-
-  useEffect(() => {
-    if (
-      tokenIn.address != ZERO_ADDRESS &&
-      (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
-    ) {
-      getLimitTokenUsdPrice(
-        tokenIn.address,
-        setTokenInTradeUSDPrice,
-        limitSubgraph
-      );
-    }
-  }, [tokenIn.address]);
-
-  useEffect(() => {
-    if (
-      tokenOut.address != ZERO_ADDRESS &&
-      (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
-    ) {
-      getLimitTokenUsdPrice(
-        tokenOut.address,
-        setTokenInTradeUSDPrice,
-        limitSubgraph
-      );
-    }
-  }, [tokenOut.address]);
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {

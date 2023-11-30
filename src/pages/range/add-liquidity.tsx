@@ -833,8 +833,7 @@ export default function AddLiquidity({}) {
             {rangePoolAddress == ZERO_ADDRESS && rangePoolData.feeTier != undefined && (
               <div className="bg-black border rounded-[4px] border-grey/50 p-5">
                 <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
-                  This pool does not exist so a starting price must be set in
-                  order to add liquidity.
+                  This pool does not exist so a start price must be set.
                 </p>
                 <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                   <span className="text-grey1 text-xs">STARTING PRICE</span>

@@ -66,10 +66,8 @@ import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
             poolTypeId: poolTypeId,
             tokenIn: tokenIn.address,
             tokenOut: tokenOut.address,
-            startPrice: BigNumber.from(String(TickMath.getSqrtPriceAtPriceString(
-              !isNaN(parseFloat(startPrice)) ? startPrice : '1.00',
-              tokenIn, tokenOut,
-              tradePoolData?.feeTier?.tickSpacing ?? 30
+            startPrice: BigNumber.from(String(TickMath.getSqrtRatioAtTick(
+              Number(zeroForOne ? lower : upper)
             ))),
             swapFee: feeTier ?? 3000
         },  // pool params
