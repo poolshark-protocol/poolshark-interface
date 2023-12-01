@@ -125,6 +125,7 @@ const initialTradeState: TradeState = {
   //
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: false,
+  exactIn: true,
   limitTabSelected: false,
   wethCall: false,
   //
