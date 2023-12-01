@@ -263,7 +263,7 @@ export default function LimitSwap() {
   const [upperPriceString, setUpperPriceString] = useState("0");
 
   useEffect(() => {
-    if (needsPairUpdate) return
+    if (needsPairUpdate || !limitTabSelected) return
     if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
       var newPrice = (
         limitPriceOrder == (tokenIn.callId == 0)
@@ -274,7 +274,7 @@ export default function LimitSwap() {
         .toString();
       setLimitPriceString(newPrice);
     }
-  }, [tokenIn.USDPrice, tokenOut.USDPrice]);
+  }, [tokenIn.USDPrice, tokenOut.USDPrice, limitTabSelected]);
 
   useEffect(() => {
     if (priceRangeSelected) {
