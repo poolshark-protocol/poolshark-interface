@@ -254,28 +254,46 @@ export default function MarketSwap() {
 
   useEffect(() => {
     if (poolQuotes && poolQuotes[0]) {
-      if (exactIn) {
-        setAmountOut(poolQuotes[0].amountOut);
-        setDisplayOut(
-          parseFloat(
-            ethers.utils.formatUnits(
-              poolQuotes[0].amountOut.toString(),
-              tokenOut.decimals
-            )
-          ).toPrecision(6)
-        );
+      if (poolQuotes[0].amountIn?.gt(BN_ZERO) && poolQuotes[0].amountOut?.gt(BN_ZERO)) {
+        if (exactIn) {
+          setAmountOut(poolQuotes[0].amountOut);
+          setDisplayOut(
+            parseFloat(
+              ethers.utils.formatUnits(
+                poolQuotes[0].amountOut.toString(),
+                tokenOut.decimals
+              )
+            ).toPrecision(6)
+          );
+        } else {
+          setAmountIn(poolQuotes[0].amountIn);
+          setDisplayIn(
+            parseFloat(
+              ethers.utils.formatUnits(
+                poolQuotes[0].amountIn.toString(),
+                tokenIn.decimals
+              )
+            ).toPrecision(6)
+          );
+        }
+        updateSwapParams(poolQuotes);
       } else {
-        setAmountIn(poolQuotes[0].amountIn);
-        setDisplayIn(
-          parseFloat(
-            ethers.utils.formatUnits(
-              poolQuotes[0].amountIn.toString(),
-              tokenIn.decimals
-            )
-          ).toPrecision(6)
-        );
+        if (exactIn) {
+          setAmountOut(BN_ZERO);
+          setDisplayOut('');
+        } else {
+          setAmountIn(BN_ZERO);
+          setDisplayIn('');
+        }
+      }  
+    } else if (poolQuotes != undefined) {
+      if (exactIn) {
+        setAmountOut(BN_ZERO);
+        setDisplayOut('');
+      } else {
+        setAmountIn(BN_ZERO);
+        setDisplayIn('');
       }
-      updateSwapParams(poolQuotes);
     }
   }, [poolQuotes, quoteParams, tradeSlippage]);
 
@@ -419,6 +437,7 @@ export default function MarketSwap() {
     setTradeButtonState();
   }, [
     amountIn,
+    amountOut,
     tokenIn.userBalance,
     tokenIn.address,
     tokenOut.address,
@@ -573,8 +592,7 @@ export default function MarketSwap() {
           <span>
             ~$
             {!isNaN(tokenOut.decimals) &&
-            !isNaN(tokenOut.USDPrice) &&
-            displayIn != "" ? (
+            !isNaN(tokenOut.USDPrice) ? (
               (
                 (!isNaN(parseFloat(displayOut)) ? parseFloat(displayOut) : 0) *
                 (tokenOut.USDPrice ?? 0)
@@ -595,9 +613,7 @@ export default function MarketSwap() {
         <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
           {
             <div>
-              {displayIn
-                ? inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)
-                : 0}
+              {inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)}
             </div>
           }
           <div className="flex items-center gap-x-2">

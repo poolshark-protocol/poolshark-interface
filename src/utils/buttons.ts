@@ -85,12 +85,19 @@ export function getSwapRouterButtonMsgValue(
 export function getTradeButtonMessage(
     tokenIn: token,
     tokenOut: token,
-    amountIn: BigNumber
+    amountIn: BigNumber,
+    amountOut: BigNumber,
 ): string {
     const amountInValue: number = parseFloat(
         ethers.utils.formatUnits(
           String(amountIn),
           tokenIn.decimals
+        )
+    );
+    const amountOutValue: number = parseFloat(
+        ethers.utils.formatUnits(
+          String(amountOut),
+          tokenOut.decimals
         )
     );
     if (tokenIn.userBalance < amountInValue && tokenIn.address != ZERO_ADDRESS) {
@@ -99,6 +106,8 @@ export function getTradeButtonMessage(
         return "Enter Amount"
     } else if (tokenIn.address == ZERO_ADDRESS || tokenOut.address == ZERO_ADDRESS) {
         return "Select Token"
+    } else if (amountOutValue == 0) {
+        return "Empty Quote"
     }
     return ""
 }
@@ -106,7 +115,8 @@ export function getTradeButtonMessage(
 export function getTradeButtonDisabled(
     tokenIn: token,
     tokenOut: token,
-    amountIn: BigNumber
+    amountIn: BigNumber,
+    amountOut: BigNumber,
 ): boolean {
     const amountInValue: number = parseFloat(
         ethers.utils.formatUnits(
@@ -114,11 +124,19 @@ export function getTradeButtonDisabled(
           tokenIn.decimals
         )
     );
+    const amountOutValue: number = parseFloat(
+        ethers.utils.formatUnits(
+          String(amountOut),
+          tokenOut.decimals
+        )
+    );
     if (tokenIn.userBalance < amountInValue) {
         return true
     } else if (amountInValue == 0) {
         return true
     } else if (tokenIn.address == ZERO_ADDRESS || tokenOut.address == ZERO_ADDRESS) {
+        return true
+    } else if (amountOutValue == 0) {
         return true
     }
     return false

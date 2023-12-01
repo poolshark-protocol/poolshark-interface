@@ -667,6 +667,7 @@ export default function LimitSwap() {
     setTradeButtonState();
   }, [
     amountIn,
+    amountOut,
     tokenIn.userBalance,
     tokenIn.address,
     tokenOut.address,
@@ -802,8 +803,7 @@ export default function LimitSwap() {
           <span>
             ~$
             {!isNaN(tokenOut.decimals) &&
-            !isNaN(tokenOut.USDPrice) &&
-            displayIn != "" ? (
+            !isNaN(tokenOut.USDPrice) ? (
               (
                 (!isNaN(parseFloat(displayOut)) ? parseFloat(displayOut) : 0) *
                 (tokenOut.USDPrice ?? 0)
@@ -825,9 +825,7 @@ export default function LimitSwap() {
           {
             <div>
               <div>
-                {displayIn
-                  ? inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)
-                  : 0}
+                {inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)}
               </div>
             </div>
           }

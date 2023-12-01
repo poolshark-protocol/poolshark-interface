@@ -441,12 +441,14 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         buttonMessage: getTradeButtonMessage(
           state.tokenIn,
           state.tokenOut,
-          state.amountIn
+          state.amountIn,
+          state.amountOut,
         ),
         disabled: getTradeButtonDisabled(
           state.tokenIn,
           state.tokenOut,
           state.amountIn,
+          state.amountOut,
         ),
       },
     }));
