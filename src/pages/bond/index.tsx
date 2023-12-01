@@ -311,6 +311,9 @@ export default function Bond() {
         ).toFixed(2)
       : "0";
 
+  const filledPercentage = parseFloat(filledAmount).toFixed(2) + "%"
+
+
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
@@ -446,7 +449,8 @@ export default function Bond() {
                   {filledAmount}% FILLED
                 </div>
                 <div
-                  className={`absolute relative flex items-center justify-center h-[38px] bg-main1 rounded-full w-[${filledAmount}%]`}
+                style={{width: filledPercentage}}
+                  className={`absolute relative flex items-center justify-center h-[38px] bg-main1 rounded-full `}
                 />
               </div>
             </div>
@@ -634,7 +638,7 @@ export default function Bond() {
                               key={userBond.id}
                               className="text-left text-xs py-2 md:text-sm bg-black"
                             >
-                              <td className="pl-3 py-2">
+                              <td className="pl-3 py-2 text-grey1">
                                 {convertTimestampToDateFormat(
                                   userBond.timestamp
                                 )}
@@ -642,7 +646,7 @@ export default function Bond() {
                               <td className="">
                                 <div className="flex gap-x-1.5 items-center">
                                   <img
-                                    className="w-6"
+                                    className="w-5"
                                     src="/static/images/weth_icon.png"
                                   />
                                   {parseFloat(userBond.amount).toFixed(4)}{" "}
@@ -652,7 +656,7 @@ export default function Bond() {
                               <td className="">
                                 <div className="flex gap-x-1.5 items-center">
                                   <img
-                                    className="w-6"
+                                    className="w-5"
                                     src="/static/images/fin_icon.png"
                                   />
                                   {parseFloat(userBond.payout).toFixed(4)}{" "}
@@ -666,10 +670,31 @@ export default function Bond() {
                                   Date.now() / 1000 + marketData[0]?.vesting
                                 )}
                               </td>
-                              <td className="text-grey1">
+                              <td className="text-grey1 text-right pr-2 md:pr-0 md:w-40">
                                 {" "}
                                 <div className="flex gap-x-1.5 items-center">
-                                  {userBond.id} <ExternalLinkIcon />
+                                <a
+                                  href={
+                                    "https://goerli.arbiscan.io/tx/" +
+                                    userBond.id
+                                  }
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  <div className="flex md:justify-start justify-end gap-x-1.5 items-center hover:underline">
+                                    <span className="md:block hidden">{userBond.id
+                                      ? userBond.id.toString().substring(0, 6) +
+                                        "..." +
+                                        userBond.id
+                                          .toString()
+                                          .substring(
+                                            userBond.id.toString().length - 4,
+                                            userBond.id.toString().length
+                                          )
+                                      : undefined}</span>
+                                    <ExternalLinkIcon />
+                                  </div>
+                                </a>
                                 </div>
                               </td>
                               {/*<td className="text-grey1">
@@ -677,14 +702,16 @@ export default function Bond() {
                                 0x123...456 <ExternalLinkIcon />
                               </div>
                             </td>*/}
+                            {/*
                               <td className="w-28">
-                                {/*<RedeemBondButton 
+                                <RedeemBondButton 
                           tokenId={vestingTokenId != undefined ? vestingTokenId : BigNumber.from(0)}
                           amount={vestingTokenBalance != undefined ? vestingTokenBalance : BigNumber.from(0)}
                           setNeedsBondTokenData={setNeedsBondTokenData}
                           disabled={marketData != undefined ? ((Date.now() / 1000) < (userBond.timestamp + marketData[0]?.vesting)) : true}
-                            />*/}
+                            />
                               </td>
+                              */}
                             </tr>
                           );
                         }
