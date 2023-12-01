@@ -941,3 +941,38 @@ export const fetchEthPrice = () => {
       });
   });
 };
+
+export const fetchSeason1Rewards = (client: LimitSubgraph, userAddress: string) => {
+  return new Promise(function (resolve) {
+    const poolsQuery = `
+    { 
+      userSeasonRewards(
+        first: 1
+        where: {id:"${userAddress.toLowerCase()}"}
+      ) {
+        volumeTradedUsd
+        nonWhitelistedFeesUsd
+        stakingPoints
+        whitelistedFeesUsd
+      }
+      totalSeasonRewards(
+        first: 1
+      ) {
+        volumeTradedUsd
+        nonWhitelistedFeesUsd
+        stakingPoints
+        whitelistedFeesUsd
+      }
+    }
+  `;
+    client
+      .query({ query: gql(poolsQuery) })
+      .then((data) => {
+        resolve(data);
+        /* console.log(data) */
+      })
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+};
