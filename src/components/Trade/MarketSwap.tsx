@@ -340,6 +340,9 @@ export default function MarketSwap() {
     setDisplayOut("");
     setAmountIn(BN_ZERO);
     setAmountOut(BN_ZERO);
+    setTimeout(() => {
+      updateSwapParams(poolQuotes);
+    }, 2500);
   };
 
   ////////////////////////////////FeeTiers & Slippage
