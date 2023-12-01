@@ -149,7 +149,6 @@ export default function LimitSwap() {
       setAmountIn(BN_ZERO)
     } else {
       setDisplayOut('')
-      console.log('set amount out 1')
       setAmountOut(BN_ZERO)
     }
   }, [limitTabSelected]);
@@ -178,7 +177,6 @@ export default function LimitSwap() {
       } else {
         if (!isNaN(parseFloat(displayOut))) {
           const bnValue = parseUnits(displayOut, tokenOut.decimals);
-          console.log('set amounts out 2')
           setAmountOut(bnValue);
           setAmounts(bnValue, false);
         }
@@ -243,12 +241,10 @@ export default function LimitSwap() {
         setDisplayIn("");
         setAmountOut(bnValue);
       } else if (!bnValue.eq(amountOut)) {
-        console.log('set amount out 3')
         setDisplayOut(value);
         setAmountOut(bnValue);
         setAmounts(bnValue, false);
       } else {
-        console.log('set amount out 4')
         setDisplayOut(value);
         if (bnValue.eq(BN_ZERO)) {
           setDisplayIn("");
@@ -479,7 +475,6 @@ export default function LimitSwap() {
           ).toPrecision(6);
           if (tokenOutAmount.gt(BN_ZERO)) {
             setDisplayOut(tokenOutAmountDisplay);
-            console.log('set amount out 5')
             setAmountOut(tokenOutAmount);
           } else {
             setDisplayOut('')
@@ -488,7 +483,6 @@ export default function LimitSwap() {
 
         }
       } else {
-        console.log('set amount out 6')
         setDisplayOut("");
         setAmountOut(BN_ZERO);
       }
@@ -536,12 +530,10 @@ export default function LimitSwap() {
               tokenOut.decimals
             )
           ).toPrecision(6);
-          console.log('set amount out 7')
           setDisplayOut(tokenOutAmountDisplay);
           setAmountOut(tokenOutAmount);
         }
       } else {
-        console.log('set amount out 8')
         setDisplayOut("");
         setAmountOut(BN_ZERO);
       }
