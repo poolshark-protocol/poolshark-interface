@@ -622,7 +622,7 @@ export default function Bond() {
                       {/*<th className="text-left uppercase">DISCOUNT</th>
                     <th className="text-left uppercase">DAILY UNLOCK</th>*/}
                       <th className="text-left uppercase">UNLOCKS ON</th>
-                      <th className="text-left uppercase">TRANSACTION HASH</th>
+                      <th className="text-left uppercase md:table-cell hidden">TRANSACTION HASH</th>
                       {/*<th className="text-left uppercase">ADDRESS</th>*/}
                     </tr>
                   </thead>
@@ -646,7 +646,7 @@ export default function Bond() {
                               <td className="">
                                 <div className="flex gap-x-1.5 items-center">
                                   <img
-                                    className="w-5"
+                                     className="w-5 md:block hidden"
                                     src="/static/images/weth_icon.png"
                                   />
                                   {parseFloat(userBond.amount).toFixed(4)}{" "}
@@ -656,7 +656,7 @@ export default function Bond() {
                               <td className="">
                                 <div className="flex gap-x-1.5 items-center">
                                   <img
-                                    className="w-5"
+                                     className="w-5 md:block hidden"
                                     src="/static/images/fin_icon.png"
                                   />
                                   {parseFloat(userBond.payout).toFixed(4)}{" "}
