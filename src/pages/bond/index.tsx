@@ -442,15 +442,15 @@ export default function Bond() {
                   <span className="text-grey1">FIN</span>
                 </span>
               </div>
-              <div className="bg-main2 relative h-10 rounded-full w-full overflow-hidden border-2 border-main2">
+              <div className="bg-main1/70 relative h-10 rounded-full w-full overflow-hidden border border-main">
                 <div
-                  className={`text-sm text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`}
+                  className={`text-sm text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50`}
                 >
                   {filledAmount}% FILLED
                 </div>
                 <div
                 style={{width: filledPercentage}}
-                  className={`absolute relative flex items-center justify-center h-[38px] bg-main1 rounded-full `}
+                  className={`absolute relative flex items-center justify-center h-[38px] bg-main rounded-full `}
                 />
               </div>
             </div>
