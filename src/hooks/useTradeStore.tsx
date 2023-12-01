@@ -26,6 +26,8 @@ type TradeState = {
   limitPriceString: string;
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
+  //true if quoting using amountIn; false if quoting using amountOut
+  exactIn: boolean;
   //true if the limit swap tab is selected
   limitTabSelected: boolean;
   //true if wrapping ETH or unwrapping WETH
@@ -62,6 +64,8 @@ type TradeLimitAction = {
   setTradePositionData: (tradePosition: any) => void;
   //
   setPairSelected: (pairSelected: boolean) => void;
+  //
+  setExactIn: (exactIn: boolean) => void;
   //
   setLimitTabSelected: (limitTabSelected: boolean) => void;
   //
@@ -181,6 +185,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   tradeButton: initialTradeState.tradeButton,
   //true if both tokens selected, false if only one token selected
   pairSelected: initialTradeState.pairSelected,
+  exactIn: initialTradeState.exactIn,
   limitTabSelected: initialTradeState.limitTabSelected,
   wethCall: initialTradeState.wethCall,
   //tokenIn
@@ -213,9 +218,16 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       pairSelected: pairSelected,
     }));
   },
+  setExactIn: (exactIn: boolean) => {
+    set(() => ({
+      exactIn: exactIn,
+    }));
+  },
   setLimitTabSelected: (limitTabSelected: boolean) => {
     set(() => ({
       limitTabSelected: limitTabSelected,
+      amountIn: BN_ZERO,
+      amountOut: BN_ZERO,
     }));
   },
   setTokenIn: (tokenOut, newTokenIn: tokenSwap, amount: string, isAmountIn: boolean) => {

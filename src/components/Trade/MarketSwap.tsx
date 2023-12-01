@@ -45,6 +45,8 @@ export default function MarketSwap() {
     tradeButton,
     pairSelected,
     setPairSelected,
+    exactIn,
+    setExactIn,
     limitTabSelected,
     wethCall,
     tradeSlippage,
@@ -69,6 +71,8 @@ export default function MarketSwap() {
     s.tradeButton,
     s.pairSelected,
     s.setPairSelected,
+    s.exactIn,
+    s.setExactIn,
     s.limitTabSelected,
     s.wethCall,
     s.tradeSlippage,
@@ -113,13 +117,10 @@ export default function MarketSwap() {
 
   useEffect(() => {
     if(limitTabSelected) return
-    if (exactIn) {
-      setDisplayIn('')
-      setAmountIn(BN_ZERO)
-    } else {
-      setDisplayOut('')
-      setAmountOut(BN_ZERO)
-    }
+    setDisplayIn('')
+    setAmountIn(BN_ZERO)
+    setDisplayOut('')
+    setAmountOut(BN_ZERO)
   }, [limitTabSelected]);
 
   /////////////////////////////Fetch Pools
@@ -207,7 +208,6 @@ export default function MarketSwap() {
   };
 
   /////////////////////Double Input Boxes
-  const [exactIn, setExactIn] = useState(true);
 
   const handleInputBox = (e) => {
     if (e.target.name === "tokenIn") {
