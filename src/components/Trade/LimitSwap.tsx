@@ -708,16 +708,6 @@ export default function LimitSwap() {
               ).toPrecision(6)}
             </div>
           </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Price Impact</div>
-            <div className="ml-auto text-xs">
-              {pairSelected
-                ? priceImpact
-                  ? priceImpact + "%"
-                  : "0.00%"
-                : "Select Token"}
-            </div>
-          </div>
         </div>
       );
     }
