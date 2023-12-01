@@ -26,6 +26,8 @@ type TradeState = {
   limitPriceString: string;
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
+  //true if the limit swap tab is selected
+  limitTabSelected: boolean;
   //true if wrapping ETH or unwrapping WETH
   wethCall: boolean;
   //TokenIn defines the token on the left/up on a swap page
@@ -60,6 +62,8 @@ type TradeLimitAction = {
   setTradePositionData: (tradePosition: any) => void;
   //
   setPairSelected: (pairSelected: boolean) => void;
+  //
+  setLimitTabSelected: (limitTabSelected: boolean) => void;
   //
   setTokenIn: (tokenOut: any, newToken: any, amount: string, isAmountIn: boolean) => void;
   setTokenInTradeUSDPrice: (price: number) => void;
@@ -117,6 +121,7 @@ const initialTradeState: TradeState = {
   //
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: false,
+  limitTabSelected: false,
   wethCall: false,
   //
   tokenIn: {
@@ -176,6 +181,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   tradeButton: initialTradeState.tradeButton,
   //true if both tokens selected, false if only one token selected
   pairSelected: initialTradeState.pairSelected,
+  limitTabSelected: initialTradeState.limitTabSelected,
   wethCall: initialTradeState.wethCall,
   //tokenIn
   tokenIn: initialTradeState.tokenIn,
@@ -205,6 +211,11 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   setPairSelected: (pairSelected: boolean) => {
     set(() => ({
       pairSelected: pairSelected,
+    }));
+  },
+  setLimitTabSelected: (limitTabSelected: boolean) => {
+    set(() => ({
+      limitTabSelected: limitTabSelected,
     }));
   },
   setTokenIn: (tokenOut, newTokenIn: tokenSwap, amount: string, isAmountIn: boolean) => {

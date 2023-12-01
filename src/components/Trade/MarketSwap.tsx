@@ -45,6 +45,7 @@ export default function MarketSwap() {
     tradeButton,
     pairSelected,
     setPairSelected,
+    limitTabSelected,
     wethCall,
     tradeSlippage,
     setTradeSlippage,
@@ -68,6 +69,7 @@ export default function MarketSwap() {
     s.tradeButton,
     s.pairSelected,
     s.setPairSelected,
+    s.limitTabSelected,
     s.wethCall,
     s.tradeSlippage,
     s.setTradeSlippage,
@@ -108,6 +110,17 @@ export default function MarketSwap() {
   const { data: signer } = useSigner();
 
   const router = useRouter();
+
+  useEffect(() => {
+    if(limitTabSelected) return
+    if (exactIn) {
+      setDisplayIn('')
+      setAmountIn(BN_ZERO)
+    } else {
+      setDisplayOut('')
+      setAmountOut(BN_ZERO)
+    }
+  }, [limitTabSelected]);
 
   /////////////////////////////Fetch Pools
   const [availablePools, setAvailablePools] = useState(undefined);

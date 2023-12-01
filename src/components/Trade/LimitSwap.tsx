@@ -57,6 +57,7 @@ export default function LimitSwap() {
     tradeButton,
     pairSelected,
     setPairSelected,
+    limitTabSelected,
     wethCall,
     startPrice,
     limitPriceOrder,
@@ -89,6 +90,7 @@ export default function LimitSwap() {
     s.tradeButton,
     s.pairSelected,
     s.setPairSelected,
+    s.limitTabSelected,
     s.wethCall,
     s.startPrice,
     s.limitPriceOrder,
@@ -141,6 +143,18 @@ export default function LimitSwap() {
   const [quoteParams, setQuoteParams] = useState(undefined);
 
   useEffect(() => {
+    if(!limitTabSelected) return
+    if (exactIn) {
+      setDisplayIn('')
+      setAmountIn(BN_ZERO)
+    } else {
+      setDisplayOut('')
+      console.log('set amount out 1')
+      setAmountOut(BN_ZERO)
+    }
+  }, [limitTabSelected]);
+
+  useEffect(() => {
     if (!needsPairUpdate) return
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
@@ -164,6 +178,7 @@ export default function LimitSwap() {
       } else {
         if (!isNaN(parseFloat(displayOut))) {
           const bnValue = parseUnits(displayOut, tokenOut.decimals);
+          console.log('set amounts out 2')
           setAmountOut(bnValue);
           setAmounts(bnValue, false);
         }
@@ -228,10 +243,12 @@ export default function LimitSwap() {
         setDisplayIn("");
         setAmountOut(bnValue);
       } else if (!bnValue.eq(amountOut)) {
+        console.log('set amount out 3')
         setDisplayOut(value);
         setAmountOut(bnValue);
         setAmounts(bnValue, false);
       } else {
+        console.log('set amount out 4')
         setDisplayOut(value);
         if (bnValue.eq(BN_ZERO)) {
           setDisplayIn("");
@@ -460,10 +477,18 @@ export default function LimitSwap() {
               tokenOut.decimals
             )
           ).toPrecision(6);
-          setDisplayOut(tokenOutAmountDisplay);
-          setAmountOut(tokenOutAmount);
+          if (tokenOutAmount.gt(BN_ZERO)) {
+            setDisplayOut(tokenOutAmountDisplay);
+            console.log('set amount out 5')
+            setAmountOut(tokenOutAmount);
+          } else {
+            setDisplayOut('')
+            setAmountOut(BN_ZERO)
+          }
+
         }
       } else {
+        console.log('set amount out 6')
         setDisplayOut("");
         setAmountOut(BN_ZERO);
       }
@@ -511,10 +536,12 @@ export default function LimitSwap() {
               tokenOut.decimals
             )
           ).toPrecision(6);
+          console.log('set amount out 7')
           setDisplayOut(tokenOutAmountDisplay);
           setAmountOut(tokenOutAmount);
         }
       } else {
+        console.log('set amount out 8')
         setDisplayOut("");
         setAmountOut(BN_ZERO);
       }

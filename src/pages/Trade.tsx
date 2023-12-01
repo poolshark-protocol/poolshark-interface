@@ -53,6 +53,7 @@ export default function Trade() {
     setTradePoolData,
     tradeButton,
     pairSelected,
+    limitTabSelected,
     setPairSelected,
     wethCall,
     startPrice,
@@ -90,11 +91,13 @@ export default function Trade() {
     needsSnapshot,
     setNeedsSnapshot,
     setStartPrice,
+    setLimitTabSelected,
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
     s.tradeButton,
     s.pairSelected,
+    s.limitTabSelected,
     s.setPairSelected,
     s.wethCall,
     s.startPrice,
@@ -132,14 +135,12 @@ export default function Trade() {
     s.needsSnapshot,
     s.setNeedsSnapshot,
     s.setStartPrice,
+    s.setLimitTabSelected,
   ]);
 
   //set Limit Fee tier Modal
   //NOT USED
   const [isOpen, setIsOpen] = useState(false);
-
-  //false when user in normal swap, true when user in limit swap
-  const [limitTabSelected, setLimitTabSelected] = useState(false);
 
   //false when user is in exact price, true when user is in price range
   //LIMIT
