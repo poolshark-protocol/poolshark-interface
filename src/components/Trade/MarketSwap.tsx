@@ -9,7 +9,7 @@ import SelectToken from "../SelectToken";
 import { inputHandler, parseUnits } from "../../utils/math/valueMath";
 import { getSwapPools } from "../../utils/pools";
 import { QuoteParams, SwapParams } from "../../utils/types";
-import { TickMath, maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
+import { TickMath, invertPrice, maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
 import { displayPoolPrice } from "../../utils/math/priceMath";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import Range from "../Icons/RangeIcon";
@@ -210,7 +210,7 @@ export default function MarketSwap() {
       } else {
         setDisplayIn(value);
         if (bnValue.eq(BN_ZERO)) {
-          setDisplayOut(value);
+          setDisplayOut("");
         }
       }
       setExactIn(true);
@@ -227,7 +227,7 @@ export default function MarketSwap() {
       } else {
         setDisplayOut(value);
         if (bnValue.eq(BN_ZERO)) {
-          setDisplayIn(value);
+          setDisplayIn("");
         }
       }
       setExactIn(false);
@@ -323,8 +323,12 @@ export default function MarketSwap() {
               tokenOut
             )
           );
+          let priceDiff = Math.abs(
+                              basePrice - currentPrice
+                          ) * 100 / currentPrice
+          if (priceDiff < 0 || priceDiff > 100) priceDiff = 100
           setPriceImpact(
-            ((Math.abs(basePrice - currentPrice) * 100) / currentPrice).toFixed(
+            (priceDiff).toFixed(
               2
             )
           );
@@ -691,7 +695,8 @@ export default function MarketSwap() {
             //range buttons
             tokenIn.userRouterAllowance?.lt(amountIn) &&
             !tokenIn.native &&
-            pairSelected ? (
+            pairSelected &&
+            amountOut.gt(BN_ZERO) ? (
               <div>
                 <SwapRouterApproveButton
                   routerAddress={chainProperties[networkName]["routerAddress"]}

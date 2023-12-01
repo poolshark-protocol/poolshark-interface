@@ -217,7 +217,7 @@ export default function LimitSwap() {
       } else {
         setDisplayIn(value);
         if (bnValue.eq(BN_ZERO)) {
-          setDisplayOut(value);
+          setDisplayOut("");
         }
       }
       setExactIn(true);
@@ -234,7 +234,7 @@ export default function LimitSwap() {
       } else {
         setDisplayOut(value);
         if (bnValue.eq(BN_ZERO)) {
-          setDisplayIn(value);
+          setDisplayIn("");
         }
       }
       setExactIn(false);
