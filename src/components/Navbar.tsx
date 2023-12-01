@@ -18,7 +18,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
   return (
     <div className="py-2 mx-auto w-full border-b border-grey">
       <div className="relative flex items-center justify-between h-16 w-full container mx-auto md:px-0 px-3">
-        <div className="lg:grid flex justify-between items-center grid-cols-3 w-full mx-auto">
+        <div className="xl:grid flex justify-between items-center grid-cols-3 w-full mx-auto">
           <div className="flex items-center justify-start flex-shrink-0">
           <Link href="/">
             <div>
@@ -33,14 +33,14 @@ export default function Navbar({ create, setCreate }: NavOptions) {
             </div>
             </Link>
           </div>
-          <div className="hidden m-auto flex justify-start md:block bg-black">
-            <div className="flex gap-x-2">
+          <div className="hidden w-full ml-2 lg:ml-4 xl:ml-0 flex justify-start md:block bg-black">
+            <div className="flex md:gap-x-1 gap-x-2 justify-start">
               <Link href="/">
                 <div
                   className={
                     router.pathname == "/"
-                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
-                      : "text-grey1 border border-transparent transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
+                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
+                      : "text-grey1 border border-transparent transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
                   }
                 >
                   <Trade />
@@ -51,8 +51,8 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                 <div
                   className={
                     router.pathname.includes("/range")
-                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
-                      : "text-grey1 border border-transparent transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
+                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
+                      : "text-grey1 border border-transparent transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
                   }
                 >
                   <Range />
@@ -63,8 +63,8 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                 <div
                   className={
                     router.pathname.includes("/cover")
-                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
-                      : "text-grey1 border border-transparent transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
+                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
+                      : "text-grey1 border border-transparent transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
                   }
                 >
                   <Cover />
@@ -75,8 +75,8 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                 <div
                   className={
                     router.pathname.includes("/bond")
-                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
-                      : "text-grey1 border border-transparent transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
+                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
+                      : "text-grey1 border border-transparent transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
                   }
                 >
                   <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1H1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"></path><path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V5zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2H3z"></path></svg>
@@ -85,7 +85,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
               </Link>
             </div>
           </div>
-          <div className=" flex justify-end items-center gap-x-4">
+          <div className="w-full flex justify-end items-center gap-x-4">
             <ConnectWalletButton />
           </div>
         </div>
