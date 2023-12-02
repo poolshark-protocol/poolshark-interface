@@ -31,11 +31,17 @@ export function displayPoolPrice(wethCall: boolean, pairSelected: boolean, poolP
 }
 
 export function calculateBasePrice(tokenIn: tokenSwap, tokenOut: tokenSwap, limitPriceOrder: boolean, tradePoolData: any): number {
-    if (tradePoolData.id == undefined) return 0;
+    if (tradePoolData.id == undefined || tradePoolData.poolPrice == undefined) return 0;
     if (tradePoolData.id != ZERO_ADDRESS) {
-        return limitPriceOrder == (tokenIn.callId == 0)
-        ? tokenIn.USDPrice / tokenOut.USDPrice
-        : tokenOut.USDPrice / tokenIn.USDPrice
+        return parseFloat(
+            invertPrice(
+              TickMath.getPriceStringAtSqrtPrice(
+                JSBI.BigInt(tradePoolData.poolPrice),
+                tokenIn, tokenOut
+              ),
+              limitPriceOrder
+            )
+        )
     } else if (!isNaN(tradePoolData.poolPrice) && JSBI.greaterThan(
         JSBI.BigInt(tradePoolData.poolPrice),
         TickMath.MIN_SQRT_RATIO

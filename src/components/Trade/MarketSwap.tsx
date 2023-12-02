@@ -134,7 +134,9 @@ export default function MarketSwap() {
       tokenIn,
       tokenOut,
       tradePoolData,
-      setTradePoolData
+      setTradePoolData,
+      setTokenInTradeUSDPrice,
+      setTokenOutTradeUSDPrice
     );
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];

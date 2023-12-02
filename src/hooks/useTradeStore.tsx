@@ -290,7 +290,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           needsPairUpdate: true,
           needsSetAmounts: true,
           wethCall: newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase(),
-          limitPriceOrder: state.limitPriceOrder == (newTokenIn.address.localeCompare(tokenOut.address) < 0),
+          limitPriceOrder: newTokenIn.address.localeCompare(tokenOut.address) < 0,
         }));
       }
     } else {
@@ -388,6 +388,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           needsBalanceOut: true,
           needsAllowanceIn: true,
           needsPairUpdate: true,
+          limitPriceOrder: tokenIn.address.localeCompare(newTokenOut.address) < 0,
         }));
       }
     } else {

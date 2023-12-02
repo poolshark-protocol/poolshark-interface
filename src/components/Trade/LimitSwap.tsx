@@ -37,6 +37,7 @@ import {
 } from "../../utils/gas";
 import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
+import JSBI from "jsbi";
 
 export default function LimitSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -193,7 +194,9 @@ export default function LimitSwap() {
       tokenIn,
       tokenOut,
       tradePoolData,
-      setTradePoolData
+      setTradePoolData,
+      setTokenInTradeUSDPrice,
+      setTokenOutTradeUSDPrice
     );
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
@@ -260,17 +263,21 @@ export default function LimitSwap() {
 
   useEffect(() => {
     if (needsPairUpdate) return
-    if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
-      var newPrice = (
-        limitPriceOrder == (tokenIn.callId == 0)
-          ? tokenIn.USDPrice / tokenOut.USDPrice
-          : tokenOut.USDPrice / tokenIn.USDPrice
-      )
-        .toPrecision(6)
-        .toString();
+    if (tradePoolData.poolPrice != undefined) {
+      var newPrice = parseFloat(
+        invertPrice(
+          TickMath.getPriceStringAtSqrtPrice(
+            JSBI.BigInt(tradePoolData.poolPrice),
+            tokenIn, tokenOut
+          ),
+          limitPriceOrder
+        )
+      ).toPrecision(6);
       setLimitPriceString(newPrice);
+    } else {
+      setLimitPriceString('0.00')
     }
-  }, [tokenIn.USDPrice, tokenOut.USDPrice, needsPairUpdate]);
+  }, [tradePoolData?.id, needsPairUpdate]);
 
   useEffect(() => {
     if (priceRangeSelected) {

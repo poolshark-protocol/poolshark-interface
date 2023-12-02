@@ -138,14 +138,6 @@ export default function Trade() {
     s.setLimitTabSelected,
   ]);
 
-  //set Limit Fee tier Modal
-  //NOT USED
-  const [isOpen, setIsOpen] = useState(false);
-
-  //false when user is in exact price, true when user is in price range
-  //LIMIT
-  const [priceRangeSelected, setPriceRangeSelected] = useState(false);
-
   //false order history is selected, true when active orders is selected
   //BOTH
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
@@ -160,16 +152,6 @@ export default function Trade() {
   }, [chainId]);
 
   ////////////////////////////////Pools
-  //quoting variables
-  const [availablePools, setAvailablePools] = useState(undefined);
-  const [quoteParams, setQuoteParams] = useState(undefined);
-
-  //swap call variables
-  const [swapPoolAddresses, setSwapPoolAddresses] = useState<string[]>([]);
-  const [swapParams, setSwapParams] = useState<any[]>([]);
-
-  //market display variables
-  const [exactIn, setExactIn] = useState(true);
 
   //log addresses and ids
   const [limitPoolAddressList, setLimitPoolAddressList] = useState([]);
@@ -319,41 +301,6 @@ export default function Trade() {
       console.log("limit error", error);
     }
   }
-
-  ////////////////////////////////TokenUSDPrices
-
-  //BOTH
-  useEffect(() => {
-    if (tradePoolData) {
-      if (tokenIn.address) {
-        if (tradePoolData.token0 && tradePoolData.token1) {
-          // if limit pool fetch limit price
-          fetchRangeTokenUSDPrice(
-            tradePoolData,
-            tokenIn,
-            setTokenInTradeUSDPrice
-          );
-        }
-        //TODO: check if cover and/or range pools present
-      }
-      if (tokenOut.address) {
-        if (tradePoolData.token0 && tradePoolData.token1) {
-          // if limit pool fetch limit price
-          fetchRangeTokenUSDPrice(
-            tradePoolData,
-            tokenOut,
-            setTokenOutTradeUSDPrice
-          );
-        }
-      }
-    }
-  }, [
-    tradePoolData,
-    tokenIn.address,
-    tokenOut.address,
-    tokenIn.native,
-    tokenOut.native,
-  ]);
 
   ////////////////////////////////Balances
 

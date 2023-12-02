@@ -2,13 +2,16 @@ import { formatBytes32String } from "ethers/lib/utils.js";
 import { getLimitPoolFromFactory } from "./queries";
 import { LimitSubgraph, tokenSwap } from "./types";
 import { ZERO, ZERO_ADDRESS } from "./math/constants";
+import { fetchRangeTokenUSDPrice } from "./tokens";
 
 export const getSwapPools = async (
   client: LimitSubgraph,
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
   swapPoolData,
-  setSwapPoolData
+  setSwapPoolData,
+  setTokenInTradeUSDPrice,
+  setTokenOutTradeUSDPrice
 ) => {
   try {
     const limitPools = await getLimitPoolFromFactory(
@@ -19,8 +22,20 @@ export const getSwapPools = async (
     const data = limitPools["data"];
     if (data && data["limitPools"]?.length > 0) {
       const allPools = data["limitPools"];
-      if (swapPoolData?.id != allPools[0].id)
+      if (swapPoolData?.id != allPools[0].id) {
         setSwapPoolData(allPools[0]);
+        fetchRangeTokenUSDPrice(
+          allPools[0],
+          tokenIn,
+          setTokenInTradeUSDPrice
+        )
+        fetchRangeTokenUSDPrice(
+          allPools[0],
+          tokenOut,
+          setTokenOutTradeUSDPrice
+        )
+      }
+
       return allPools;
     } else {
       return setSwapPoolData({
