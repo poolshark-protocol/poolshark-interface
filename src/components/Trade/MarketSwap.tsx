@@ -661,7 +661,13 @@ export default function MarketSwap() {
               onClick={() => {
                 setRangeTokenIn(tokenOut, tokenIn, "0", true);
                 setRangeTokenOut(tokenIn, tokenOut, "0", false);
-                router.push("/range/add-liquidity");
+                router.push({
+                  pathname: "/range/add-liquidity",
+                  query: {
+                    feeTier: "3000",
+                    poolId: ZERO_ADDRESS,
+                  },
+                });
               }}
             >
               Click here to create a range pool
@@ -681,7 +687,13 @@ export default function MarketSwap() {
               onClick={() => {
                 setRangeTokenIn(tokenOut, tokenIn, "0", true);
                 setRangeTokenOut(tokenIn, tokenOut, "0", false);
-                router.push("/range/add-liquidity");
+                router.push({
+                  pathname: "/range/add-liquidity",
+                  query: {
+                    feeTier: "3000",
+                    poolId: ZERO_ADDRESS,
+                  },
+                });
               }}
             >
               Click here to add liquidity.
