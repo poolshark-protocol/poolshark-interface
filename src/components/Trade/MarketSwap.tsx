@@ -138,7 +138,6 @@ export default function MarketSwap() {
     }
     setAvailablePools(poolAdresses);
     setQuoteParams(quoteList);
-    console.log("pools", pools);
   }
 
   /////////////////////Tokens info setting
