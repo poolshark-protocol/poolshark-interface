@@ -341,7 +341,7 @@ export default function MarketSwap() {
     setAmountIn(BN_ZERO);
     setAmountOut(BN_ZERO);
     setTimeout(() => {
-      updatePools(BigNumber.from("1"), true);
+      updatePools(BigNumber.from("0"), true);
     }, 2000);
   };
 
