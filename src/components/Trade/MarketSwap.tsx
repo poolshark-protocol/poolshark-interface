@@ -9,7 +9,7 @@ import SelectToken from "../SelectToken";
 import { inputHandler, parseUnits } from "../../utils/math/valueMath";
 import { getSwapPools } from "../../utils/pools";
 import { QuoteParams, SwapParams } from "../../utils/types";
-import { TickMath, maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
+import { TickMath, invertPrice, maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
 import { displayPoolPrice } from "../../utils/math/priceMath";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import Range from "../Icons/RangeIcon";
@@ -45,6 +45,9 @@ export default function MarketSwap() {
     tradeButton,
     pairSelected,
     setPairSelected,
+    exactIn,
+    setExactIn,
+    limitTabSelected,
     wethCall,
     tradeSlippage,
     setTradeSlippage,
@@ -68,6 +71,9 @@ export default function MarketSwap() {
     s.tradeButton,
     s.pairSelected,
     s.setPairSelected,
+    s.exactIn,
+    s.setExactIn,
+    s.limitTabSelected,
     s.wethCall,
     s.tradeSlippage,
     s.setTradeSlippage,
@@ -109,6 +115,14 @@ export default function MarketSwap() {
 
   const router = useRouter();
 
+  useEffect(() => {
+    if(limitTabSelected) return
+    setDisplayIn('')
+    setAmountIn(BN_ZERO)
+    setDisplayOut('')
+    setAmountOut(BN_ZERO)
+  }, [limitTabSelected]);
+
   /////////////////////////////Fetch Pools
   const [availablePools, setAvailablePools] = useState(undefined);
   const [quoteParams, setQuoteParams] = useState(undefined);
@@ -120,7 +134,9 @@ export default function MarketSwap() {
       tokenIn,
       tokenOut,
       tradePoolData,
-      setTradePoolData
+      setTradePoolData,
+      setTokenInTradeUSDPrice,
+      setTokenOutTradeUSDPrice
     );
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
@@ -194,7 +210,6 @@ export default function MarketSwap() {
   };
 
   /////////////////////Double Input Boxes
-  const [exactIn, setExactIn] = useState(true);
 
   const handleInputBox = (e) => {
     if (e.target.name === "tokenIn") {
@@ -210,7 +225,7 @@ export default function MarketSwap() {
       } else {
         setDisplayIn(value);
         if (bnValue.eq(BN_ZERO)) {
-          setDisplayOut(value);
+          setDisplayOut("");
         }
       }
       setExactIn(true);
@@ -227,7 +242,7 @@ export default function MarketSwap() {
       } else {
         setDisplayOut(value);
         if (bnValue.eq(BN_ZERO)) {
-          setDisplayIn(value);
+          setDisplayIn("");
         }
       }
       setExactIn(false);
@@ -254,28 +269,46 @@ export default function MarketSwap() {
 
   useEffect(() => {
     if (poolQuotes && poolQuotes[0]) {
-      if (exactIn) {
-        setAmountOut(poolQuotes[0].amountOut);
-        setDisplayOut(
-          parseFloat(
-            ethers.utils.formatUnits(
-              poolQuotes[0].amountOut.toString(),
-              tokenOut.decimals
-            )
-          ).toPrecision(6)
-        );
+      if (poolQuotes[0].amountIn?.gt(BN_ZERO) && poolQuotes[0].amountOut?.gt(BN_ZERO)) {
+        if (exactIn) {
+          setAmountOut(poolQuotes[0].amountOut);
+          setDisplayOut(
+            parseFloat(
+              ethers.utils.formatUnits(
+                poolQuotes[0].amountOut.toString(),
+                tokenOut.decimals
+              )
+            ).toPrecision(6)
+          );
+        } else {
+          setAmountIn(poolQuotes[0].amountIn);
+          setDisplayIn(
+            parseFloat(
+              ethers.utils.formatUnits(
+                poolQuotes[0].amountIn.toString(),
+                tokenIn.decimals
+              )
+            ).toPrecision(6)
+          );
+        }
+        updateSwapParams(poolQuotes);
       } else {
-        setAmountIn(poolQuotes[0].amountIn);
-        setDisplayIn(
-          parseFloat(
-            ethers.utils.formatUnits(
-              poolQuotes[0].amountIn.toString(),
-              tokenIn.decimals
-            )
-          ).toPrecision(6)
-        );
+        if (exactIn) {
+          setAmountOut(BN_ZERO);
+          setDisplayOut('');
+        } else {
+          setAmountIn(BN_ZERO);
+          setDisplayIn('');
+        }
+      }  
+    } else if (poolQuotes != undefined) {
+      if (exactIn) {
+        setAmountOut(BN_ZERO);
+        setDisplayOut('');
+      } else {
+        setAmountIn(BN_ZERO);
+        setDisplayIn('');
       }
-      updateSwapParams(poolQuotes);
     }
   }, [poolQuotes, quoteParams, tradeSlippage]);
 
@@ -305,8 +338,12 @@ export default function MarketSwap() {
               tokenOut
             )
           );
+          let priceDiff = Math.abs(
+                              basePrice - currentPrice
+                          ) * 100 / currentPrice
+          if (priceDiff < 0 || priceDiff > 100) priceDiff = 100
           setPriceImpact(
-            ((Math.abs(basePrice - currentPrice) * 100) / currentPrice).toFixed(
+            (priceDiff).toFixed(
               2
             )
           );
@@ -419,6 +456,7 @@ export default function MarketSwap() {
     setTradeButtonState();
   }, [
     amountIn,
+    amountOut,
     tokenIn.userBalance,
     tokenIn.address,
     tokenOut.address,
@@ -573,8 +611,7 @@ export default function MarketSwap() {
           <span>
             ~$
             {!isNaN(tokenOut.decimals) &&
-            !isNaN(tokenOut.USDPrice) &&
-            displayIn != "" ? (
+            !isNaN(tokenOut.USDPrice) ? (
               (
                 (!isNaN(parseFloat(displayOut)) ? parseFloat(displayOut) : 0) *
                 (tokenOut.USDPrice ?? 0)
@@ -595,9 +632,7 @@ export default function MarketSwap() {
         <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
           {
             <div>
-              {displayIn
-                ? inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)
-                : 0}
+              {inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)}
             </div>
           }
           <div className="flex items-center gap-x-2">
@@ -675,7 +710,8 @@ export default function MarketSwap() {
             //range buttons
             tokenIn.userRouterAllowance?.lt(amountIn) &&
             !tokenIn.native &&
-            pairSelected ? (
+            pairSelected &&
+            amountOut.gt(BN_ZERO) ? (
               <div>
                 <SwapRouterApproveButton
                   routerAddress={chainProperties[networkName]["routerAddress"]}

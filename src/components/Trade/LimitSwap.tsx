@@ -37,6 +37,7 @@ import {
 } from "../../utils/gas";
 import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
+import JSBI from "jsbi";
 
 export default function LimitSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -57,6 +58,7 @@ export default function LimitSwap() {
     tradeButton,
     pairSelected,
     setPairSelected,
+    limitTabSelected,
     wethCall,
     startPrice,
     limitPriceOrder,
@@ -89,6 +91,7 @@ export default function LimitSwap() {
     s.tradeButton,
     s.pairSelected,
     s.setPairSelected,
+    s.limitTabSelected,
     s.wethCall,
     s.startPrice,
     s.limitPriceOrder,
@@ -141,6 +144,17 @@ export default function LimitSwap() {
   const [quoteParams, setQuoteParams] = useState(undefined);
 
   useEffect(() => {
+    if(!limitTabSelected) return
+    if (exactIn) {
+      setDisplayIn('')
+      setAmountIn(BN_ZERO)
+    } else {
+      setDisplayOut('')
+      setAmountOut(BN_ZERO)
+    }
+  }, [limitTabSelected]);
+
+  useEffect(() => {
     if (!needsPairUpdate) return
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
@@ -180,7 +194,9 @@ export default function LimitSwap() {
       tokenIn,
       tokenOut,
       tradePoolData,
-      setTradePoolData
+      setTradePoolData,
+      setTokenInTradeUSDPrice,
+      setTokenOutTradeUSDPrice
     );
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
@@ -217,7 +233,7 @@ export default function LimitSwap() {
       } else {
         setDisplayIn(value);
         if (bnValue.eq(BN_ZERO)) {
-          setDisplayOut(value);
+          setDisplayOut("");
         }
       }
       setExactIn(true);
@@ -234,7 +250,7 @@ export default function LimitSwap() {
       } else {
         setDisplayOut(value);
         if (bnValue.eq(BN_ZERO)) {
-          setDisplayIn(value);
+          setDisplayIn("");
         }
       }
       setExactIn(false);
@@ -247,17 +263,21 @@ export default function LimitSwap() {
 
   useEffect(() => {
     if (needsPairUpdate) return
-    if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
-      var newPrice = (
-        limitPriceOrder == (tokenIn.callId == 0)
-          ? tokenIn.USDPrice / tokenOut.USDPrice
-          : tokenOut.USDPrice / tokenIn.USDPrice
-      )
-        .toPrecision(6)
-        .toString();
+    if (tradePoolData.poolPrice != undefined) {
+      var newPrice = parseFloat(
+        invertPrice(
+          TickMath.getPriceStringAtSqrtPrice(
+            JSBI.BigInt(tradePoolData.poolPrice),
+            tokenIn, tokenOut
+          ),
+          limitPriceOrder
+        )
+      ).toPrecision(6);
       setLimitPriceString(newPrice);
+    } else {
+      setLimitPriceString('0.00')
     }
-  }, [tokenIn.USDPrice, tokenOut.USDPrice]);
+  }, [tradePoolData?.id, needsPairUpdate]);
 
   useEffect(() => {
     if (priceRangeSelected) {
@@ -460,8 +480,14 @@ export default function LimitSwap() {
               tokenOut.decimals
             )
           ).toPrecision(6);
-          setDisplayOut(tokenOutAmountDisplay);
-          setAmountOut(tokenOutAmount);
+          if (tokenOutAmount.gt(BN_ZERO)) {
+            setDisplayOut(tokenOutAmountDisplay);
+            setAmountOut(tokenOutAmount);
+          } else {
+            setDisplayOut('')
+            setAmountOut(BN_ZERO)
+          }
+
         }
       } else {
         setDisplayOut("");
@@ -667,6 +693,7 @@ export default function LimitSwap() {
     setTradeButtonState();
   }, [
     amountIn,
+    amountOut,
     tokenIn.userBalance,
     tokenIn.address,
     tokenOut.address,
@@ -705,16 +732,6 @@ export default function LimitSwap() {
                   (100 - parseFloat(tradeSlippage))) /
                 100
               ).toPrecision(6)}
-            </div>
-          </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Price Impact</div>
-            <div className="ml-auto text-xs">
-              {pairSelected
-                ? priceImpact
-                  ? priceImpact + "%"
-                  : "0.00%"
-                : "Select Token"}
             </div>
           </div>
         </div>
@@ -802,8 +819,7 @@ export default function LimitSwap() {
           <span>
             ~$
             {!isNaN(tokenOut.decimals) &&
-            !isNaN(tokenOut.USDPrice) &&
-            displayIn != "" ? (
+            !isNaN(tokenOut.USDPrice) ? (
               (
                 (!isNaN(parseFloat(displayOut)) ? parseFloat(displayOut) : 0) *
                 (tokenOut.USDPrice ?? 0)
@@ -825,9 +841,7 @@ export default function LimitSwap() {
           {
             <div>
               <div>
-                {displayIn
-                  ? inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)
-                  : 0}
+                {inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)}
               </div>
             </div>
           }

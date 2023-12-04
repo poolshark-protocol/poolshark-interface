@@ -26,6 +26,10 @@ type TradeState = {
   limitPriceString: string;
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
+  //true if quoting using amountIn; false if quoting using amountOut
+  exactIn: boolean;
+  //true if the limit swap tab is selected
+  limitTabSelected: boolean;
   //true if wrapping ETH or unwrapping WETH
   wethCall: boolean;
   //TokenIn defines the token on the left/up on a swap page
@@ -60,6 +64,10 @@ type TradeLimitAction = {
   setTradePositionData: (tradePosition: any) => void;
   //
   setPairSelected: (pairSelected: boolean) => void;
+  //
+  setExactIn: (exactIn: boolean) => void;
+  //
+  setLimitTabSelected: (limitTabSelected: boolean) => void;
   //
   setTokenIn: (tokenOut: any, newToken: any, amount: string, isAmountIn: boolean) => void;
   setTokenInTradeUSDPrice: (price: number) => void;
@@ -117,6 +125,8 @@ const initialTradeState: TradeState = {
   //
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: false,
+  exactIn: true,
+  limitTabSelected: false,
   wethCall: false,
   //
   tokenIn: {
@@ -176,6 +186,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   tradeButton: initialTradeState.tradeButton,
   //true if both tokens selected, false if only one token selected
   pairSelected: initialTradeState.pairSelected,
+  exactIn: initialTradeState.exactIn,
+  limitTabSelected: initialTradeState.limitTabSelected,
   wethCall: initialTradeState.wethCall,
   //tokenIn
   tokenIn: initialTradeState.tokenIn,
@@ -205,6 +217,18 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   setPairSelected: (pairSelected: boolean) => {
     set(() => ({
       pairSelected: pairSelected,
+    }));
+  },
+  setExactIn: (exactIn: boolean) => {
+    set(() => ({
+      exactIn: exactIn,
+    }));
+  },
+  setLimitTabSelected: (limitTabSelected: boolean) => {
+    set(() => ({
+      limitTabSelected: limitTabSelected,
+      amountIn: BN_ZERO,
+      amountOut: BN_ZERO,
     }));
   },
   setTokenIn: (tokenOut, newTokenIn: tokenSwap, amount: string, isAmountIn: boolean) => {
@@ -266,7 +290,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           needsPairUpdate: true,
           needsSetAmounts: true,
           wethCall: newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase(),
-          limitPriceOrder: state.limitPriceOrder == (newTokenIn.address.localeCompare(tokenOut.address) < 0),
+          limitPriceOrder: newTokenIn.address.localeCompare(tokenOut.address) < 0,
         }));
       }
     } else {
@@ -364,6 +388,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           needsBalanceOut: true,
           needsAllowanceIn: true,
           needsPairUpdate: true,
+          limitPriceOrder: tokenIn.address.localeCompare(newTokenOut.address) < 0,
         }));
       }
     } else {
@@ -441,12 +466,14 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         buttonMessage: getTradeButtonMessage(
           state.tokenIn,
           state.tokenOut,
-          state.amountIn
+          state.amountIn,
+          state.amountOut,
         ),
         disabled: getTradeButtonDisabled(
           state.tokenIn,
           state.tokenOut,
           state.amountIn,
+          state.amountOut,
         ),
       },
     }));
