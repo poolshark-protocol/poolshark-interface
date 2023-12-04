@@ -138,9 +138,13 @@ export default function MarketSwap() {
     }
     setAvailablePools(poolAdresses);
     setQuoteParams(quoteList);
+    console.log("pools", pools);
+    /* setTimeout(() => {
+      updatePools(amount, isAmountIn);
+    }, 5000); */
   }
 
-  /////////////////////Tokens info setting
+  /////////////////////Tokens info settinxg
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
@@ -341,8 +345,8 @@ export default function MarketSwap() {
     setAmountIn(BN_ZERO);
     setAmountOut(BN_ZERO);
     setTimeout(() => {
-      updateSwapParams(poolQuotes);
-    }, 2500);
+      updatePools(BigNumber.from("1"), true);
+    }, 2000);
   };
 
   ////////////////////////////////FeeTiers & Slippage
@@ -664,6 +668,26 @@ export default function MarketSwap() {
               }}
             >
               Click here to create a range pool
+            </a>
+          </span>
+        </div>
+      ) : (
+        <></>
+      )}
+      {tradePoolData?.liquidity == "0" ? (
+        <div className="flex gap-x-5 rounded-[4px] items-center text-xs p-2 border bg-dark border-grey mb-5">
+          <Range className="text-main2" />{" "}
+          <span className="text-grey3 flex flex-col gap-y-[-2px]">
+            This pool has no liquidity.{" "}
+            <a
+              className=" hover:underline text-main2 cursor-pointer"
+              onClick={() => {
+                setRangeTokenIn(tokenOut, tokenIn, "0", true);
+                setRangeTokenOut(tokenIn, tokenOut, "0", false);
+                router.push("/range/add-liquidity");
+              }}
+            >
+              Click here to add liquidity.
             </a>
           </span>
         </div>
