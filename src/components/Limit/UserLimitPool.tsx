@@ -7,12 +7,10 @@ import {
   getExpectedAmountOut,
   getExpectedAmountOutFromInput,
 } from "../../utils/math/priceMath";
-import LimitSwapBurnButton from "../Buttons/LimitSwapBurnButton";
 import { tokenRangeLimit } from "../../utils/types";
 import router from "next/router";
-import timeDifference from "../../utils/time";
+import { timeDifference } from "../../utils/time";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { parseUnits } from "../../utils/math/valueMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { invertPrice } from "../../utils/math/tickMath";
 

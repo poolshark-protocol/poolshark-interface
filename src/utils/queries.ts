@@ -941,3 +941,149 @@ export const fetchEthPrice = () => {
       });
   });
 };
+
+export const fetchUserBonds = (marketId: string, recipient: string) => {
+  return new Promise(function (resolve) {
+    const userBondsQuery = `
+        {
+          bondPurchases(first: 1000, where: { recipient:"${recipient}", market_: {marketId: "${marketId}"} }, orderBy: timestamp, orderDirection: desc) {
+              amount
+              auctioneer
+              chainId
+              id
+              network
+              owner
+              payout
+              postPurchasePrice
+              purchasePrice
+              recipient
+              referrer
+              teller
+              timestamp
+              quoteToken {
+                address
+                symbol
+                decimals
+                id
+                totalPayoutAmount
+              }
+              payoutToken {
+                address
+                symbol
+                decimals
+                id
+                totalPayoutAmount
+              }
+            }
+          }
+        `;
+    const client = new ApolloClient({
+      uri: "https://api.thegraph.com/subgraphs/name/bond-protocol/bp-arbitrum-goerli-testing",
+      cache: new InMemoryCache(),
+    });
+    client
+      .query({
+        query: gql(userBondsQuery),
+      })
+      .then((data) => {
+        resolve(data);
+        //console.log(data)
+      })
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+}
+
+export const fetchBondMarket = (marketId: string) => {
+  return new Promise(function (resolve) {
+    const bondMarketQuery = `
+              {
+                markets(where: { hasClosed: false, marketId: "${marketId}" }) {
+                  id
+                  name
+                  network
+                  auctioneer
+                  teller
+                  marketId
+                  owner
+                  callbackAddress
+                  capacity
+                  capacityInQuote
+                  chainId
+                  minPrice
+                  scale
+                  start
+                  conclusion
+                  payoutToken {
+                    id
+                    address
+                    symbol
+                    decimals
+                    name
+                  }
+                  quoteToken {
+                    id
+                    address
+                    symbol
+                    decimals
+                    name
+                    lpPair {
+                      token0 {
+                        id
+                        address
+                        symbol
+                        decimals
+                        name
+                        typeName
+                      }
+                      token1 {
+                        id
+                        address
+                        symbol
+                        decimals
+                        name
+                        typeName
+                      }
+                    }
+                    balancerWeightedPool {
+                      id
+                      vaultAddress
+                      poolId
+                      constituentTokens {
+                        id
+                        address
+                        symbol
+                        decimals
+                        name
+                        typeName
+                      }
+                    }
+                  }
+                  vesting
+                  vestingType
+                  isInstantSwap
+                  hasClosed
+                  totalBondedAmount
+                  totalPayoutAmount
+                  creationBlockTimestamp
+                }
+              }
+        `;
+    const client = new ApolloClient({
+      uri: "https://api.thegraph.com/subgraphs/name/bond-protocol/bp-arbitrum-goerli-testing",
+      cache: new InMemoryCache(),
+    });
+    client
+      .query({
+        query: gql(bondMarketQuery),
+      })
+      .then((data) => {
+        resolve(data);
+        //console.log(data)
+      })
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+}
