@@ -139,12 +139,9 @@ export default function MarketSwap() {
     setAvailablePools(poolAdresses);
     setQuoteParams(quoteList);
     console.log("pools", pools);
-    /* setTimeout(() => {
-      updatePools(amount, isAmountIn);
-    }, 5000); */
   }
 
-  /////////////////////Tokens info settinxg
+  /////////////////////Tokens info setting
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
