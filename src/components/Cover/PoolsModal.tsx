@@ -21,13 +21,9 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
     setSearchTerm(event.target.value);
   };
 
-  const [
-    limitSubgraph,
-    coverSubgraph
-  ] = useConfigStore((state) => [
-    state.limitSubgraph,
-    state.coverSubgraph
-  ]);
+  const [limitSubgraph, coverSubgraph, listedTokenList] = useConfigStore(
+    (state) => [state.limitSubgraph, state.coverSubgraph, state.listedtokenList]
+  );
 
   const [limitPositions, setLimitPositions] = useState([]);
   const [allRangePositions, setAllRangePositions] = useState([]);
@@ -39,7 +35,6 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
   async function getUserLimitPositionData() {
     //this should be range positions
     const data = await fetchRangePositions(limitSubgraph, address);
-    console.log("data", data);
     if (data["data"]) {
       const positions = data["data"].rangePositions;
       setAllRangePositions(mapUserRangePositions(positions));
@@ -215,32 +210,51 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                     ) : (
                       <div className="pb-3 lg:pb-0">
                         <div className="w-auto space-y-2">
-                          {allRangePositions.map((allLimitPosition) => {
+                          {allRangePositions.map((allRangePosition) => {
                             if (
-                              allLimitPosition.userOwnerAddress ===
-                                address?.toLowerCase() &&
-                              (allLimitPosition.tokenZero.name === searchTerm ||
-                                allLimitPosition.tokenOne.name === searchTerm ||
-                                allLimitPosition.tokenZero.symbol ===
-                                  searchTerm ||
-                                allLimitPosition.tokenOne.symbol ===
-                                  searchTerm ||
-                                allLimitPosition.tokenZero.id === searchTerm ||
-                                allLimitPosition.tokenOne.id === searchTerm ||
-                                searchTerm === "")
+                              allRangePosition.tokenZero.name.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allRangePosition.tokenZero.name
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
+                              allRangePosition.tokenOne.name.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allRangePosition.tokenOne.name
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
+                              allRangePosition.tokenZero.symbol.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allRangePosition.tokenZero.symbol
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
+                              allRangePosition.tokenOne.symbol.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allRangePosition.tokenOne.symbol
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
+                              allRangePosition.tokenZero.id.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allRangePosition.tokenOne.id.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              listedTokenList.find(
+                                (element) =>
+                                  element.address.toLowerCase() ===
+                                  searchTerm.toLowerCase()
+                              ) != undefined ||
+                              searchTerm === ""
                             ) {
                               return (
                                 <div
                                   onClick={() => {
                                     setIsOpen(false);
                                     //prefill('exisingPool')
-                                    setParams(allLimitPosition);
+                                    setParams(allRangePosition);
                                   }}
-                                  key={allLimitPosition.id}
+                                  key={allRangePosition.id}
                                 >
                                   <UserRangePool
-                                    key={allLimitPosition.id}
-                                    rangePosition={allLimitPosition}
+                                    key={allRangePosition.id}
+                                    rangePosition={allRangePosition}
                                     href={"/cover/create"}
                                     isModal={true}
                                   />

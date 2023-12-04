@@ -3,10 +3,15 @@ import { CoverSubgraph, LimitSubgraph } from "../utils/types";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 
 type ConfigState = {
-  chainId: number
-  networkName: string
-  limitSubgraph: LimitSubgraph
-  coverSubgraph: CoverSubgraph
+  chainId: number;
+  networkName: string;
+  limitSubgraph: LimitSubgraph;
+  coverSubgraph: CoverSubgraph;
+  coverFactoryAddress: string;
+  listedtokenList: any;
+  searchtokenList: any;
+  displayTokenList: any;
+  logoMap: any;
 };
 
 type ConfigAction = {
@@ -15,14 +20,23 @@ type ConfigAction = {
   setNetworkName: (networkName: string) => void;
   setLimitSubgraph: (limitSubgraphUrl: string) => void;
   setCoverSubgraph: (coverSubgraphUrl: string) => void;
+  setCoverFactoryAddress: (coverFactoryAddress: string) => void;
+  setListedTokenList: (listedtokenList: any) => void;
+  setSearchTokenList: (searchtokenList: any) => void;
+  setDisplayTokenList: (displayTokenList: any) => void;
 };
 
 const initialConfigState: ConfigState = {
   //
   chainId: 0,
-  networkName: '',
+  networkName: "",
   limitSubgraph: undefined,
   coverSubgraph: undefined,
+  coverFactoryAddress: undefined,
+  listedtokenList: undefined,
+  searchtokenList: undefined,
+  displayTokenList: undefined,
+  logoMap: {},
 };
 
 export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
@@ -31,6 +45,11 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
   networkName: initialConfigState.networkName,
   limitSubgraph: initialConfigState.limitSubgraph,
   coverSubgraph: initialConfigState.coverSubgraph,
+  coverFactoryAddress: initialConfigState.coverFactoryAddress,
+  listedtokenList: initialConfigState.listedtokenList,
+  searchtokenList: initialConfigState.searchtokenList,
+  displayTokenList: initialConfigState.displayTokenList,
+  logoMap: initialConfigState.logoMap,
   setChainId: (chainId: number) => {
     set(() => ({
       chainId: chainId,
@@ -55,6 +74,31 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
         cache: new InMemoryCache(),
         uri: coverSubgraphUrl,
       }),
+    }));
+  },
+  setCoverFactoryAddress(coverFactoryAddress: string) {
+    set(() => ({
+      coverFactoryAddress: coverFactoryAddress,
+    }));
+  },
+  setListedTokenList: (listedtokenList: any) => {
+    const logoMap: any = {};
+    listedtokenList.forEach((token: any) => {
+      logoMap[token.symbol] = token.logoURI;
+    });
+    set(() => ({
+      listedtokenList: listedtokenList,
+      logoMap: logoMap,
+    }));
+  },
+  setSearchTokenList: (searchtokenList: any) => {
+    set(() => ({
+      searchtokenList: searchtokenList,
+    }));
+  },
+  setDisplayTokenList: (displaytokenList: any) => {
+    set(() => ({
+      displayTokenList: displaytokenList,
     }));
   },
 }));

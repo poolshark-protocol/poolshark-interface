@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { logoMap } from "../../utils/tokens";
 import { TickMath } from "../../utils/math/tickMath";
 import { getClaimTick } from "../../utils/maps";
 import { tokenCover } from "../../utils/types";
@@ -8,6 +7,7 @@ import ArrowRightIcon from "../Icons/ArrowRightIcon";
 import router from "next/router";
 import { ethers } from "ethers";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { formatUsdValue } from "../../utils/math/valueMath";
 
 export default function UserCoverPool({
   coverPosition,
@@ -15,12 +15,9 @@ export default function UserCoverPool({
   upperPrice,
   href,
 }) {
-  const [
-    limitSubgraph,
-    coverSubgraph
-  ] = useConfigStore((state) => [
-    state.limitSubgraph,
-    state.coverSubgraph
+  const [coverSubgraph, logoMap] = useConfigStore((state) => [
+    state.coverSubgraph,
+    state.logoMap,
   ]);
 
   const [
@@ -69,7 +66,9 @@ export default function UserCoverPool({
       undefined
     );
     setClaimTick(tick);
-    setClaimPrice(parseFloat(TickMath.getPriceStringAtTick(tick, tokenIn, tokenOut)));
+    setClaimPrice(
+      parseFloat(TickMath.getPriceStringAtTick(tick, tokenIn, tokenOut))
+    );
     setFillPercent(
       (
         Math.abs(
@@ -132,8 +131,8 @@ export default function UserCoverPool({
       logoURI: logoMap[coverPosition.tokenOne.symbol],
       address: coverPosition.tokenOne.id,
     } as tokenCover;
-    setTokenIn(tokenOutNew, tokenInNew, '0', true);
-    setTokenOut(tokenInNew, tokenOutNew, '0', false);
+    setTokenIn(tokenOutNew, tokenInNew, "0", true);
+    setTokenOut(tokenInNew, tokenOutNew, "0", false);
     setCoverPoolFromVolatility(
       tokenInNew,
       tokenOutNew,
@@ -176,8 +175,17 @@ export default function UserCoverPool({
               </span>
             </div>
             <div className="text-white lg:text-right text-left  text-xs">
-              {TickMath.getPriceStringAtTick(Number(coverPosition.min), tokenIn, tokenOut)} -{" "}
-              {TickMath.getPriceStringAtTick(Number(coverPosition.max), tokenIn, tokenOut)}{" "}
+              {TickMath.getPriceStringAtTick(
+                Number(coverPosition.min),
+                tokenIn,
+                tokenOut
+              )}{" "}
+              -{" "}
+              {TickMath.getPriceStringAtTick(
+                Number(coverPosition.max),
+                tokenIn,
+                tokenOut
+              )}{" "}
               <span className="text-grey1">
                 {coverPosition.zeroForOne
                   ? coverPosition.tokenOne.symbol
@@ -192,14 +200,18 @@ export default function UserCoverPool({
           <div className="lg:grid lg:grid-cols-2 items-center lg:block hidden">
             <div className="md:flex hidden items-center justify-end w-full">
               <div className="flex relative bg-transparent items-center justify-center h-8 border-grey z-40 border rounded-[4px] gap-x-2 text-sm w-40">
-                <div className={`bg-white h-full absolute left-0 z-0 rounded-l-[4px] opacity-10 w-[${parseInt(fillPercent)}%]`}/>
+                <div
+                  className={`bg-white h-full absolute left-0 z-0 rounded-l-[4px] opacity-10 w-[${parseInt(
+                    fillPercent
+                  )}%]`}
+                />
                 <div className="z-20 text-white text-xs">
                   {fillPercent}% Filled
                 </div>
               </div>
             </div>
             <div className="text-right text-white text-xs lg:block hidden">
-              <span>${positionUSDPrice}</span>
+              <span>${formatUsdValue(positionUSDPrice.toString())}</span>
             </div>
           </div>
         </div>

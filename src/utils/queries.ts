@@ -78,6 +78,7 @@ export const getRangePoolFromFactory = (
             token1 {
               usdPrice
             }
+            poolToken
           }
         }
         `;
@@ -111,6 +112,7 @@ export const getCoverPoolFromFactory = (
                 tickSpread
                 auctionLength
                 feeAmount
+                twapLength
               }
               token0 {
                 id
@@ -131,6 +133,7 @@ export const getCoverPoolFromFactory = (
               tickSpread
               auctionLength
               feeAmount
+              twapLength
             }
           }
          `;
@@ -354,7 +357,11 @@ export const fetchCoverPositions = (client: CoverSubgraph, address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
       query($owner: String) {
-          positions(where: {owner:"${address}"}) {
+          positions(
+            where: {owner:"${address}"},
+            orderBy: liquidity,
+            orderDirection: desc
+          ) {
                 id
                 positionId
                 lower
@@ -410,7 +417,7 @@ export const fetchCoverPositions = (client: CoverSubgraph, address: string) => {
         }
     `;
     client
-      .query({
+      ?.query({
         query: gql(positionsQuery),
         variables: {
           owner: address,
@@ -429,7 +436,7 @@ export const fetchCoverPools = (client: CoverSubgraph) => {
   return new Promise(function (resolve) {
     const poolsQuery = `
             query($id: String) {
-                coverPools(id: $id) {
+                coverPools(orderBy: totalValueLockedUsd, orderDirection: desc) {
                     id
                     inputPool
                     token0{
@@ -714,10 +721,15 @@ export const fetchRangePositions = (client: LimitSubgraph, address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
     {
-      rangePositions(where: {owner:"${address}"}) {
+      rangePositions(
+        where: {owner:"${address}"},
+        orderBy: liquidity,
+        orderDirection: desc
+      ) {
             id
             positionId
             owner
+            staked
             lower
             upper
             liquidity
@@ -878,19 +890,19 @@ export const fetchTokenPrice = (
   tokenAddress: string
 ) => {
   return new Promise(function (resolve) {
-    const poolsQuery = `
-            query($id: String) {
-                tokens(id: $id) {
-                    usdPrice
-                }
+    const tokenQuery = `
+          { 
+            tokens(
+              first: 1
+              where: {id:"${tokenAddress.toLowerCase()}"}
+            ) {
+              usdPrice
             }
+          }
         `;
     client
       .query({
-        query: gql(poolsQuery),
-        variables: {
-          id: tokenAddress,
-        },
+        query: gql(tokenQuery)
       })
       .then((data) => {
         resolve(data);

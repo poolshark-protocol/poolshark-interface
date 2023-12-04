@@ -11,6 +11,8 @@ import { ethers } from "ethers";
 import PositionMintModal from "../Modals/PositionMint";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { getRangeMintButtonMsgValue, getRangeMintInputData } from "../../utils/buttons";
+import { chainProperties } from "../../utils/chains";
 
 export default function RangeMintButton({
   disabled,
@@ -37,6 +39,9 @@ export default function RangeMintButton({
   ]);
 
   const [
+    tokenIn,
+    tokenOut,
+    rangeMintParams,
     setNeedsRefetch,
     setNeedsPosRefetch,
     setNeedsAllowanceIn,
@@ -44,6 +49,9 @@ export default function RangeMintButton({
     setNeedsBalanceIn,
     setNeedsBalanceOut,
   ] = useRangeLimitStore((state) => [
+    state.tokenIn,
+    state.tokenOut,
+    state.rangeMintParams,
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
     state.setNeedsAllowanceIn,
@@ -70,13 +78,19 @@ export default function RangeMintButton({
           positionId: positionId,
           amount0: amount0,
           amount1: amount1,
-          callbackData: ethers.utils.formatBytes32String(""),
+          callbackData: getRangeMintInputData(rangeMintParams.stakeFlag, chainProperties[networkName]["rangeStakerAddress"]),
         },
       ],
     ],
     chainId: chainId,
     overrides: {
       gasLimit: gasLimit,
+      value: getRangeMintButtonMsgValue(
+        tokenIn.native,
+        tokenOut.native,
+        rangeMintParams.tokenInAmount,
+        rangeMintParams.tokenOutAmount
+      )
     },
     onSuccess() {},
     onError() {
@@ -125,7 +139,7 @@ export default function RangeMintButton({
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center flex items-center justify-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         onClick={() => write?.()}
       >
-        {gasLimit.lte(BN_ZERO) ? <Loader/> : buttonMessage}
+        {gasLimit.lte(BN_ZERO) && !disabled ? <Loader/> : buttonMessage}
       </button>
     </>
   );

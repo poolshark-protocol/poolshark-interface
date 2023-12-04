@@ -38,9 +38,9 @@ export default function Navbar({ create, setCreate }: NavOptions) {
               <Link href="/">
                 <div
                   className={
-                    router.pathname == "/"
-                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
-                      : "text-grey1 border border-transparent transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
+                    router.pathname == "/" || router.pathname.includes("/limit")
+                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
+                      : "text-grey1 border border-transparent transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
                   }
                 >
                   <Trade />

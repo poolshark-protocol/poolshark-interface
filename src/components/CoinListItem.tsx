@@ -1,7 +1,7 @@
 import useTokenBalance from '../hooks/useTokenBalance'
 
 function CoinListItem({ chooseToken, coin }) {
-  const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(coin?.address)
+  const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(coin?.native ? undefined : coin?.address)
 
   return (
     <div
@@ -12,7 +12,7 @@ function CoinListItem({ chooseToken, coin }) {
       data-symbol={coin.symbol}
       key={coin.address}
       data-decimals={coin.decimals}
-      data-address={coin.id}
+      data-address={coin.id+coin.symbol}
     >
       <button
         onClick={() => chooseToken(coin)}

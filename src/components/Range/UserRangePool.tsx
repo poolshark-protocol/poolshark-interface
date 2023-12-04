@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { TickMath } from "../../utils/math/tickMath";
-import { fetchRangeTokenUSDPrice, logoMap } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
@@ -10,14 +10,13 @@ import JSBI from "jsbi";
 import { getRangePoolFromFactory } from "../../utils/queries";
 import router from "next/router";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { formatUsdValue } from "../../utils/math/valueMath";
 
 export default function UserRangePool({ rangePosition, href, isModal }) {
-  const [
-    limitSubgraph,
-    coverSubgraph
-  ] = useConfigStore((state) => [
+  const [limitSubgraph, coverSubgraph, logoMap] = useConfigStore((state) => [
     state.limitSubgraph,
-    state.coverSubgraph
+    state.coverSubgraph,
+    state.logoMap,
   ]);
 
   const [
@@ -87,14 +86,14 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     const tokenInNew = {
       name: rangePosition.tokenZero.name,
       symbol: rangePosition.tokenZero.symbol,
-      logoURI: logoMap[rangePosition.tokenZero.symbol],
+      logoURI: rangePosition.tokenZero.symbol,
       address: rangePosition.tokenZero.id,
       decimals: rangePosition.tokenZero.decimals,
     } as tokenCover;
     const tokenOutNew = {
       name: rangePosition.tokenOne.name,
       symbol: rangePosition.tokenOne.symbol,
-      logoURI: logoMap[rangePosition.tokenOne.symbol],
+      logoURI: rangePosition.tokenOne.symbol,
       address: rangePosition.tokenOne.id,
       decimals: rangePosition.tokenOne.decimals,
     } as tokenCover;
@@ -196,32 +195,37 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     const tokenInNew = {
       name: rangePosition.tokenZero.name,
       symbol: rangePosition.tokenZero.symbol,
-      logoURI: logoMap[rangePosition.tokenZero.symbol],
+      logoURI: rangePosition.tokenZero.symbol,
       address: rangePosition.tokenZero.id,
       decimals: rangePosition.tokenZero.decimals,
     } as tokenCover;
     const tokenOutNew = {
       name: rangePosition.tokenOne.name,
       symbol: rangePosition.tokenOne.symbol,
-      logoURI: logoMap[rangePosition.tokenOne.symbol],
+      logoURI: rangePosition.tokenOne.symbol,
       address: rangePosition.tokenOne.id,
       decimals: rangePosition.tokenOne.decimals,
     } as tokenCover;
     if (href.includes("cover")) {
-      setCoverTokenIn(tokenOutNew, tokenInNew, '0', true);
-      setCoverTokenOut(tokenInNew, tokenOutNew, '0', false);
+      setCoverTokenIn(tokenOutNew, tokenInNew, "0", true);
+      setCoverTokenOut(tokenInNew, tokenOutNew, "0", false);
       setRangePositionData(rangePosition);
-      setCoverPoolFromVolatility(tokenInNew, tokenOutNew, "1000", coverSubgraph);
+      setCoverPoolFromVolatility(
+        tokenInNew,
+        tokenOutNew,
+        "1000",
+        coverSubgraph
+      );
     } else {
-      setRangeTokenIn(tokenOutNew, tokenInNew, '0', true);
-      setRangeTokenOut(tokenInNew, tokenOutNew, '0', false);
+      setRangeTokenIn(tokenOutNew, tokenInNew, "0", true);
+      setRangeTokenOut(tokenInNew, tokenOutNew, "0", false);
       setRangePositionData(rangePosition);
       //async setter should be last
       setRangePoolFromFeeTier(
         tokenInNew,
         tokenOutNew,
         rangePosition.pool.feeTier.feeAmount,
-        limitSubgraph,
+        limitSubgraph
       );
     }
     router.push({
@@ -281,13 +285,8 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
                 setTokenAddressFromId(rangePosition.tokenOne)
               )}{" "}
               <span className="text-grey1">
-                {rangePosition.zeroForOne
-                  ? rangePosition.tokenOne.symbol
-                  : rangePosition.tokenZero.symbol}{" "}
-                PER{" "}
-                {rangePosition.zeroForOne
-                  ? rangePosition.tokenZero.symbol
-                  : rangePosition.tokenOne.symbol}
+                {rangePosition.tokenOne.symbol} PER{" "}
+                {rangePosition.tokenZero.symbol}
               </span>
             </div>
           </div>
@@ -307,7 +306,9 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
               </span>
             </div>
             <div className="text-right text-white text-xs lg:block hidden">
-              {!isModal && <span>${totalUsdValue}</span>}
+              {!isModal && (
+                <span>${formatUsdValue(totalUsdValue.toString())}</span>
+              )}
             </div>
           </div>
         </div>

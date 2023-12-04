@@ -1,4 +1,3 @@
-import { logoMap } from "../../utils/tokens";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { useRouter } from "next/router";
 import { tokenCover } from "../../utils/types";
@@ -7,17 +6,12 @@ import { TickMath } from "../../utils/math/tickMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function CoverPool({ pool, href }) {
-  const [
-    coverSubgraph
-  ] = useConfigStore((state) => [
-    state.coverSubgraph
-  ])
-  
-  const [
-    setCoverTokenIn,
-    setCoverTokenOut,
-    setCoverPoolFromVolatility
-  ] =
+  const [coverSubgraph, logoMap] = useConfigStore((state) => [
+    state.coverSubgraph,
+    state.logoMap,
+  ]);
+
+  const [setCoverTokenIn, setCoverTokenOut, setCoverPoolFromVolatility] =
     useCoverStore((state) => [
       state.setTokenIn,
       state.setTokenOut,
@@ -33,7 +27,7 @@ export default function CoverPool({ pool, href }) {
       logoURI: logoMap[pool.tokenZero.symbol],
       symbol: pool.tokenZero.symbol,
       decimals: pool.tokenZero.decimals,
-      coverUSDPrice: pool.tokenZero.usdPrice
+      coverUSDPrice: pool.tokenZero.usdPrice,
     } as tokenCover;
     const tokenOut = {
       name: pool.tokenOne.symbol,
@@ -41,10 +35,10 @@ export default function CoverPool({ pool, href }) {
       logoURI: logoMap[pool.tokenOne.symbol],
       symbol: pool.tokenOne.symbol,
       decimals: pool.tokenOne.decimals,
-      coverUSDPrice: pool.tokenOne.usdPrice
+      coverUSDPrice: pool.tokenOne.usdPrice,
     } as tokenCover;
-    setCoverTokenIn(tokenOut, tokenIn, '0', true);
-    setCoverTokenOut(tokenIn, tokenOut, '0', false);
+    setCoverTokenIn(tokenOut, tokenIn, "0", true);
+    setCoverTokenOut(tokenIn, tokenOut, "0", false);
     setCoverPoolFromVolatility(
       tokenIn,
       tokenOut,
@@ -82,9 +76,10 @@ export default function CoverPool({ pool, href }) {
             </span>
           </div>
           <div className="md:grid hidden grid-cols-3 w-full justify-end text-right items-center">
-            <div className="text-white text-right text-xs">
+            <div className="text-white text-right text-xs"></div>
+            <div className="text-right text-white text-xs">
+              ${formatUsdValue(pool.volumeUsd)}
             </div>
-            <div className="text-right text-white text-xs">${formatUsdValue(pool.volumeUsd)}</div>
             <div className="text-right text-white text-xs">
               <span>${formatUsdValue(pool.tvlUsd)}</span>
             </div>

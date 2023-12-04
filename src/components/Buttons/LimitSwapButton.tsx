@@ -12,6 +12,7 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { ethers } from "ethers";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
 
 export default function LimitSwapButton({
   disabled,
@@ -38,12 +39,16 @@ export default function LimitSwapButton({
     setNeedsBalanceIn,
     setNeedsSnapshot,
     setNeedsPosRefetch,
+    tokenIn,
+    tokenOut,
   ] = useTradeStore((state) => [
     state.setNeedsRefetch,
     state.setNeedsAllowanceIn,
     state.setNeedsBalanceIn,
     state.setNeedsSnapshot,
     state.setNeedsPosRefetch,
+    state.tokenIn,
+    state.tokenOut,
   ]);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -73,6 +78,10 @@ export default function LimitSwapButton({
     enabled: poolAddress != undefined && poolAddress != ZERO_ADDRESS,
     overrides: {
       gasLimit: gasLimit,
+      value: getLimitSwapButtonMsgValue(
+        tokenIn.native,
+        amount
+      )
     },
     onError() {
       setErrorDisplay(true);
@@ -84,7 +93,6 @@ export default function LimitSwapButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      console.log("success");
       setSuccessDisplay(true);
       resetAfterSwap();
       setNeedsAllowanceIn(true);
@@ -93,7 +101,7 @@ export default function LimitSwapButton({
       setTimeout(() => {
         setNeedsRefetch(true);
         setNeedsPosRefetch(true);
-      }, 1000);
+      }, 2500);
       closeModal();
     },
     onError() {

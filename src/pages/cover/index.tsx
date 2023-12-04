@@ -14,17 +14,19 @@ import PoolIcon from "../../components/Icons/PoolIcon";
 import CoverPool from "../../components/Cover/CoverPool";
 import { fetchCoverPools } from "../../utils/queries";
 import { mapCoverPools } from "../../utils/maps";
-import { logoMap } from "../../utils/tokens";
 import { tokenCover } from "../../utils/types";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties, supportedNetworkNames } from "../../utils/chains";
 
 export default function Cover() {
-  const [networkName, coverSubgraph, setCoverSubgraph] = useConfigStore((state) => [
-    state.networkName,
-    state.coverSubgraph,
-    state.setCoverSubgraph,
-  ]);
+  const [networkName, coverSubgraph, setCoverSubgraph, listedTokenList, logoMap] =
+    useConfigStore((state) => [
+      state.networkName,
+      state.coverSubgraph,
+      state.setCoverSubgraph,
+      state.listedtokenList,
+      state.logoMap,
+    ]);
 
   const [
     setCoverTokenIn,
@@ -117,7 +119,7 @@ export default function Cover() {
     setSearchTerm(event.target.value);
   };
 
-  const handleDiselectPool = (state) => {
+  const handleDeselectPool = (state) => {
     setState(state);
     setSelectedPool(undefined);
   };
@@ -273,12 +275,24 @@ export default function Cover() {
                               address?.toLowerCase() &&
                             (allCoverPosition.tokenZero.name.toLowerCase() ===
                               searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenZero.name
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
                               allCoverPosition.tokenOne.name.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenOne.name
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
                               allCoverPosition.tokenZero.symbol.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenZero.symbol
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
                               allCoverPosition.tokenOne.symbol.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenOne.symbol
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
                               allCoverPosition.tokenZero.id.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
                               allCoverPosition.tokenOne.id.toLowerCase() ===
@@ -351,16 +365,33 @@ export default function Cover() {
                         if (
                           allCoverPool.tokenZero.name.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                          allCoverPool.tokenZero.name
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
                           allCoverPool.tokenOne.name.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                          allCoverPool.tokenOne.name
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
                           allCoverPool.tokenZero.symbol.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                          allCoverPool.tokenZero.symbol
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
                           allCoverPool.tokenOne.symbol.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                          allCoverPool.tokenOne.symbol
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
                           allCoverPool.tokenZero.id.toLowerCase() ===
                             searchTerm.toLowerCase() ||
                           allCoverPool.tokenOne.id.toLowerCase() ===
                             searchTerm.toLowerCase() ||
+                          listedTokenList.find(
+                            (element) =>
+                              element.address.toLowerCase() ===
+                              searchTerm.toLowerCase()
+                          ) != undefined ||
                           searchTerm === ""
                         )
                           return (

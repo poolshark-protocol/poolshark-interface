@@ -1,9 +1,14 @@
-import { logoMap } from "../../utils/tokens";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { useRouter } from "next/router";
 import { formatUsdValue } from "../../utils/math/valueMath";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function RangePool({ rangePool, href }) {
+  const [limitSubgraph, logoMap] = useConfigStore((state) => [
+    state.limitSubgraph,
+    state.logoMap,
+  ]);
+
   const [
     setRangeTokenIn,
     setRangeTokenOut,
@@ -15,7 +20,7 @@ export default function RangePool({ rangePool, href }) {
     state.setTokenOut,
     state.setRangePoolFromFeeTier,
     state.resetMintParams,
-    state.resetPoolData
+    state.resetPoolData,
   ]);
 
   const router = useRouter();
@@ -28,22 +33,23 @@ export default function RangePool({ rangePool, href }) {
       address: rangePool.tokenZero.id,
       logoURI: logoMap[rangePool.tokenZero.symbol],
       symbol: rangePool.tokenZero.symbol,
-      decimals: rangePool.tokenZero.decimals
+      decimals: rangePool.tokenZero.decimals,
     };
     const tokenOut = {
       name: rangePool.tokenOne.symbol,
       address: rangePool.tokenOne.id,
       logoURI: logoMap[rangePool.tokenOne.symbol],
       symbol: rangePool.tokenOne.symbol,
-      decimals: rangePool.tokenOne.decimals
+      decimals: rangePool.tokenOne.decimals,
     };
-    setRangeTokenIn(tokenOut, tokenIn, '0', true);
-    setRangeTokenOut(tokenIn, tokenOut, '0', false);
+    setRangeTokenIn(tokenOut, tokenIn, "0", true);
+    setRangeTokenOut(tokenIn, tokenOut, "0", false);
     // setRangePoolFromFeeTier(tokenIn, tokenOut, rangePool.feeTier);
     router.push({
       pathname: href,
       query: {
         feeTier: rangePool.feeTier,
+        poolId: rangePool.poolId,
       },
     });
   };

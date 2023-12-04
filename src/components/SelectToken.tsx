@@ -17,26 +17,42 @@ import { defaultTokenLogo } from "../utils/tokens";
 export default function SelectToken(props) {
   const { address } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
-  const [customInput, setCustomInput] = useState('');
-  const [displayTokenList, setDisplayTokenList] = useState([]);
-  const [listedTokenList, setListedTokenList] = useState([]);
-  const [searchTokenList, setSearchTokenList] = useState([]);
+  const [customInput, setCustomInput] = useState("");
   const [tokenInfo, setTokenInfo] = useState(undefined);
 
   const [
     chainId,
-    networkName
+    networkName,
+    logoMap,
+    listedTokenList,
+    setListedTokenList,
+    searchtokenList,
+    setSearchTokenList,
+    displayTokenList,
+    setDisplayTokenList,
   ] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
+    state.logoMap,
+    state.listedtokenList,
+    state.setListedTokenList,
+    state.searchtokenList,
+    state.setSearchTokenList,
+    state.displayTokenList,
+    state.setDisplayTokenList,
   ]);
 
-  const { data: tokenData, isError, isLoading, refetch: refetchTokenInfo } = useToken({
+  const {
+    data: tokenData,
+    isError,
+    isLoading,
+    refetch: refetchTokenInfo,
+  } = useToken({
     address: customInput as `0x${string}`,
     onSuccess() {
-      setTokenInfo(tokenData)
+      setTokenInfo(tokenData);
     },
-  })
+  });
 
   useEffect(() => {
     const fetch = async () => {
@@ -49,7 +65,7 @@ export default function SelectToken(props) {
           logoURI: defaultTokenLogo,
           decimals: tokenInfo.decimals,
         };
-        setDisplayTokenList([customToken])
+        setDisplayTokenList([customToken]);
       }
     };
     fetch();
@@ -57,52 +73,20 @@ export default function SelectToken(props) {
 
   useEffect(() => {
     const fetch = async () => {
-      const chainName = chainIdsToNamesForGitTokenList[chainId];
-      axios
-        .get(
-          `https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/${
-            chainName === undefined ? "ethereum" : "arbitrum-goerli"
-          }/tokenlist.json`
-        )
-        .then(function (response) {
-          const coins = {
-            listed_tokens: response.data.listed_tokens,
-            search_tokens: response.data.search_tokens,
-          } as coinsList;
-          for (let i = 0; i < coins.listed_tokens?.length; i++) {
-            coins.listed_tokens[i].address = coins.listed_tokens[i].id;
-          }
-          if (coins.listed_tokens != undefined) {
-            setListedTokenList(coins.listed_tokens);
-            setDisplayTokenList(coins.listed_tokens);
-          }
-          for (let i = 0; i < coins.search_tokens?.length; i++) {
-            coins.search_tokens[i].address = coins.search_tokens[i].id;
-          }
-          if (coins.search_tokens != undefined) {
-            setSearchTokenList(coins.search_tokens);
-          }
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    };
-    fetch();
-  }, [chainId, address]);
-
-  useEffect(() => {
-    const fetch = async () => {
       // validate address
       const tokenAddressRegex = /^0x[a-fA-F0-9]{40}$/;
-      if(customInput.match(tokenAddressRegex)?.length == 1 && customInput.length == 42) {
+      if (
+        customInput.match(tokenAddressRegex)?.length == 1 &&
+        customInput.length == 42
+      ) {
         // if not in listed tokens or search tokens we need to fetch data from the chain
-        refetchTokenInfo()
+        refetchTokenInfo();
       } else {
-        setDisplayTokenList(listedTokenList)
+        setDisplayTokenList(listedTokenList);
       }
     };
     fetch();
-  }, [customInput]);
+  }, [customInput, listedTokenList]);
 
   const chooseToken = (coin) => {
     coin = {
@@ -111,24 +95,37 @@ export default function SelectToken(props) {
       symbol: coin?.symbol,
       logoURI: coin?.logoURI,
       decimals: coin?.decimals,
+      native: coin?.native ?? false
     };
     if (props.amount != undefined && props.isAmountIn != undefined) {
       if (props.type === "in") {
-        props.setTokenIn(props.tokenOut, {
-          name: coin?.name,
-          address: coin?.address,
-          symbol: coin?.symbol,
-          logoURI: coin?.logoURI,
-          decimals: coin?.decimals,
-        }, props.amount, props.isAmountIn);
+        props.setTokenIn(
+          props.tokenOut,
+          {
+            name: coin?.name,
+            address: coin?.address,
+            symbol: coin?.symbol,
+            logoURI: coin?.logoURI,
+            decimals: coin?.decimals,
+            native: coin?.native ?? false,
+          },
+          props.amount,
+          props.isAmountIn
+        );
       } else {
-        props.setTokenOut(props.tokenIn, {
-          name: coin?.name,
-          address: coin?.address,
-          symbol: coin?.symbol,
-          logoURI: coin?.logoURI,
-          decimals: coin?.decimals,
-        }, props.amount, props.isAmountIn);
+        props.setTokenOut(
+          props.tokenIn,
+          {
+            name: coin?.name,
+            address: coin?.address,
+            symbol: coin?.symbol,
+            logoURI: coin?.logoURI,
+            decimals: coin?.decimals,
+            native: coin?.native ?? false,
+          },
+          props.amount,
+          props.isAmountIn
+        );
       }
     } else {
       if (props.type === "in") {
@@ -138,6 +135,7 @@ export default function SelectToken(props) {
           symbol: coin?.symbol,
           logoURI: coin?.logoURI,
           decimals: coin?.decimals,
+          native: coin?.native ?? false,
         });
       } else {
         props.setTokenOut(props.tokenIn, {
@@ -146,6 +144,7 @@ export default function SelectToken(props) {
           symbol: coin?.symbol,
           logoURI: coin?.logoURI,
           decimals: coin?.decimals,
+          native: coin?.native ?? false,
         });
       }
     }
@@ -206,29 +205,59 @@ export default function SelectToken(props) {
                       onChange={(e) => setCustomInput(e.target.value)}
                     ></input>
                     <div className="flex justify-between flex-wrap mt-4 gap-y-2">
-                      {displayTokenList.map((coin) => {
-                        return (
-                          <CoinListButton
-                            key={coin.symbol + "top"}
-                            coin={coin}
-                            chooseToken={chooseToken}
-                          />
-                        );
+                      {displayTokenList?.map((coin) => {
+                        if (
+                          customInput.toLowerCase() == "" ||
+                          customInput.toLowerCase() == " " ||
+                          coin.symbol
+                            .toLowerCase()
+                            .includes(customInput.toLowerCase()) ||
+                          coin.name
+                            .toLowerCase()
+                            .includes(customInput.toLowerCase()) ||
+                          coin.address
+                            .toLowerCase()
+                            .includes(customInput.toLowerCase())
+                        ) {
+                          return (
+                            <CoinListButton
+                              key={coin.id + coin.symbol}
+                              coin={coin}
+                              chooseToken={chooseToken}
+                            />
+                          );
+                        }
                       })}
                     </div>
                   </div>
                   <div>
                     {displayTokenList
-                      .sort((a, b) => b.balance - a.balance)
-                      .map((coin) => {
-                        return (
-                          <CoinListItem
-                            key={coin.symbol}
-                            coin={coin}
-                            chooseToken={chooseToken}
-                          />
-                        );
-                      })}
+                      ? displayTokenList
+                          .sort((a, b) => b.balance - a.balance)
+                          .map((coin) => {
+                            if (
+                              customInput.toLowerCase() == "" ||
+                              customInput.toLowerCase() == " " ||
+                              coin.symbol
+                                .toLowerCase()
+                                .includes(customInput.toLowerCase()) ||
+                              coin.name
+                                .toLowerCase()
+                                .includes(customInput.toLowerCase()) ||
+                              coin.address
+                                .toLowerCase()
+                                .includes(customInput.toLowerCase())
+                            ) {
+                              return (
+                                <CoinListItem
+                                  key={coin.id+coin.symbol}
+                                  coin={coin}
+                                  chooseToken={chooseToken}
+                                />
+                              );
+                            }
+                          })
+                      : null}
                   </div>
                 </Dialog.Panel>
               </Transition.Child>
@@ -248,11 +277,13 @@ export default function SelectToken(props) {
         <div className="flex items-center gap-x-2 w-full">
           {(props.tokenIn.symbol != "Select Token" && props.type == "in") ||
           (props.tokenOut.symbol != "Select Token" && props.type == "out") ? (
-            <img className="md:w-6 w-6" src={props.displayToken?.logoURI} />
+            <img className="md:w-6 w-6" src={logoMap[props.displayToken?.symbol]} />
           ) : (
             <></>
           )}
-          <span className="text-xs uppercase">{props.displayToken?.symbol}</span>
+          <span className="text-xs uppercase">
+            {props.displayToken?.symbol}
+          </span>
         </div>
         <ChevronDownIcon className="w-6" />
       </button>

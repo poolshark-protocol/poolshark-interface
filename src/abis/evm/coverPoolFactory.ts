@@ -5,6 +5,11 @@ export const coverPoolFactoryABI = [
         "internalType": "address",
         "name": "_owner",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_twapSource",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -12,12 +17,12 @@ export const coverPoolFactoryABI = [
   },
   {
     "inputs": [],
-    "name": "CurveMathNotFound",
+    "name": "FeeTierNotSupported",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "FeeTierNotSupported",
+    "name": "InputPoolDoesNotExist",
     "type": "error"
   },
   {
@@ -48,16 +53,6 @@ export const coverPoolFactoryABI = [
   {
     "inputs": [],
     "name": "PoolTypeNotFound",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TickSpreadNotAtLeastDoubleTickSpread",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TickSpreadNotMultipleOfTickSpacing",
     "type": "error"
   },
   {
@@ -254,6 +249,80 @@ export const coverPoolFactoryABI = [
   {
     "inputs": [],
     "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "poolType",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenIn",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenOut",
+            "type": "address"
+          },
+          {
+            "internalType": "uint16",
+            "name": "feeTier",
+            "type": "uint16"
+          },
+          {
+            "internalType": "int16",
+            "name": "tickSpread",
+            "type": "int16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "twapLength",
+            "type": "uint16"
+          }
+        ],
+        "internalType": "struct ICoverPoolFactory.CoverPoolParams",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "name": "syncLatestTick",
+    "outputs": [
+      {
+        "internalType": "int24",
+        "name": "latestTick",
+        "type": "int24"
+      },
+      {
+        "internalType": "bool",
+        "name": "inputPoolExists",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "twapReady",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "twapSource",
     "outputs": [
       {
         "internalType": "address",
