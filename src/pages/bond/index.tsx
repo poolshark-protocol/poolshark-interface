@@ -137,7 +137,7 @@ export default function Bond() {
 
   async function getUserBonds() {
     try {
-      const data = await fetchUserBonds(MARKET_ID.toString());
+      const data = await fetchUserBonds(MARKET_ID.toString(), address.toLowerCase());
       if (data["data"]) {
         setAllUserBonds(mapUserBondPurchases(data["data"].bondPurchases));
       }

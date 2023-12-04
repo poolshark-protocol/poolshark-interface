@@ -930,11 +930,11 @@ export const fetchEthPrice = () => {
   });
 };
 
-export const fetchUserBonds = (marketId: string) => {
+export const fetchUserBonds = (marketId: string, recipient: string) => {
   return new Promise(function (resolve) {
     const userBondsQuery = `
         {
-          bondPurchases(first: 1000, where: { market_: {marketId: "${marketId}"} }, orderBy: timestamp, orderDirection: desc) {
+          bondPurchases(first: 1000, where: { recipient:"${recipient}", market_: {marketId: "${marketId}"} }, orderBy: timestamp, orderDirection: desc) {
               amount
               auctioneer
               chainId
