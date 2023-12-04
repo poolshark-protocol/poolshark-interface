@@ -5,7 +5,7 @@ export function middleware(request) {
 
     if (geo.country === "US") {
         // Redirect users from the US to the "/blocked" page
-        return NextResponse.redirect('/blocked');
+        return console.log("redirect")
     }
 
     // Continue with the request for users from other countries
