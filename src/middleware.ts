@@ -9,5 +9,10 @@ export function middleware(req: NextRequest) {
   }
 
   // Continue with the request for users from other countries
-  return NextResponse.next();
+  if ( req.nextUrl.pathname.startsWith("/_next")) {
+    return NextResponse.next()}
+
+    return NextResponse.next()
+
+
 }
