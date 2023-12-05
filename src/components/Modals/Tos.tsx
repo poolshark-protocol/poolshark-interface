@@ -7,10 +7,12 @@ import Loader from "../Icons/Loader";
 export default function TermsOfService({
   onAccept,
   isOpen,
-  setIsOpen
+  setIsOpen,
+  read = false
 }) {
 
   const [isButtonEnabled, setButtonEnabled] = useState(false);
+
   const modalRef = useRef(null);
 
   const handleScroll = () => {
@@ -39,7 +41,7 @@ export default function TermsOfService({
       <Dialog
         as="div"
         className="relative z-50"
-        onClose={() => setIsOpen(true)}
+        onClose={read ? () => setIsOpen(false) : () => setIsOpen(true)}
       >
         <Transition.Child
           as={Fragment}
@@ -65,8 +67,10 @@ export default function TermsOfService({
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel className="w-full max-w-[500px] transform overflow-hidden rounded-xl bg-black text-white border border-grey2 text-left align-middle shadow-xl px-5 py-5 transition-all">
+             <div className="pb-3">
              <h1>Terms of Service</h1>
-             <h2 className="text-sm text-grey1 pb-3">Please accept these terms before using our services.</h2>
+            {!read && ( <h2 className="text-sm text-grey1">Please accept these terms before using our services.</h2>)}
+             </div>
              <div ref={modalRef} className="h-[400px] overflow-y-scroll terms">
              <div className="mt-2">
              <h1 className="text-sm">APYs being indicative</h1>
@@ -84,9 +88,12 @@ export default function TermsOfService({
                 <p className="text-xs mt-1 text-white/60">Furthermore, by accepting these terms you acknowledge and warrant that you are not a citizen of or otherwise accessing the website from the following nations or geographical locations: Democratic Republic of Congo, Cote D&apos;Ivoire (Ivory Coast), China, Cuba, Hong Kong, India, Iraq, Iran, Democratic People&apos;s Republic of Korea (North Korea), Libya, Mali, Myanmar (Burma), Nicaragua, Sudan, Somalia, Syria, Yemen, Zimbabwe, and/or any other jurisdiction prohibited by the United States Office of Foreign Asset Control (OFAC).</p>
              </div>
              </div>
-             <div className="flex items-center justify-end w-full">
+             {!read &&
+             (
+                <div className="flex items-center justify-end w-full">
              <button disabled={!isButtonEnabled} className="bg-main1 px-12 py-2 rounded-full border border-main text-sm mt-6 disabled:opacity-60 disabled:cursor-not-allowed" onClick={onAccept}>Accept Terms</button>
              </div>
+             )}
               </Dialog.Panel>
             </Transition.Child>
           </div>
