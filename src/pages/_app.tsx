@@ -16,6 +16,7 @@ import { isMobile } from "react-device-detect";
 import { Analytics } from '@vercel/analytics/react'
 import { useConfigStore } from '../hooks/useConfigStore';
 import { chainProperties, supportedNetworkNames } from '../utils/chains';
+import { useRouter } from 'next/router';
 
 
 const { chains, provider } = configureChains(
@@ -4219,6 +4220,8 @@ function MyApp({ Component, pageProps }) {
     _setIsMobile(isMobile);
   }, [isMobile]);
 
+  const router = useRouter();
+
   return (
     <>
     <Head>
@@ -4228,7 +4231,7 @@ function MyApp({ Component, pageProps }) {
         <RainbowKitProvider chains={chains} initialChain={arbitrumGoerli}>
           <ApolloProvider client={apolloClient}>
             <>
-            { _isConnected ? (whitelist.map(v => v.toLowerCase()).includes(address?.toLowerCase()) ? (
+            { _isConnected && router.pathname.includes("/blocked") ? (whitelist.map(v => v.toLowerCase()).includes(address?.toLowerCase()) ? (
               <div className="font-Jetbrains"><Component  {...pageProps} /></div>
             )
             : 
