@@ -122,7 +122,7 @@ export default function UserCoverPool({
     const tokenInNew = {
       name: coverPosition.tokenZero.name,
       symbol: coverPosition.tokenZero.symbol,
-      logoURI: logoMap[coverPosition.tokenZero.symbol],
+      logoURI: logoMap[coverPosition.tokenZero.id],
       address: coverPosition.tokenZero.id,
     } as tokenCover;
     const tokenOutNew = {
@@ -156,11 +156,11 @@ export default function UserCoverPool({
               <div className="flex items-center">
                 <img
                   className="w-[25px] h-[25px]"
-                  src={logoMap[coverPosition.tokenZero.symbol]}
+                  src={logoMap[coverPosition.tokenZero.id]}
                 />
                 <img
                   className="w-[25px] h-[25px] ml-[-8px]"
-                  src={logoMap[coverPosition.tokenOne.symbol]}
+                  src={logoMap[coverPosition.tokenOne.id]}
                 />
               </div>
               <span className="text-white text-xs flex items-center gap-x-1.5">

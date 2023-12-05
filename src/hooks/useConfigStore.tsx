@@ -84,7 +84,7 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
   setListedTokenList: (listedtokenList: any) => {
     const logoMap: any = {};
     listedtokenList.forEach((token: any) => {
-      logoMap[token.symbol] = token.logoURI;
+      logoMap[token.id.toLowerCase()] = token.logoURI;
     });
     set(() => ({
       listedtokenList: listedtokenList,

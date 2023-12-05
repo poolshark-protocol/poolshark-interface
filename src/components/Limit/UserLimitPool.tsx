@@ -77,14 +77,14 @@ export default function UserLimitPool({
     const tokenInNew = {
       name: limitPosition.tokenIn.name,
       symbol: limitPosition.tokenIn.symbol,
-      logoURI: logoMap[limitPosition.tokenIn.symbol],
+      logoURI: logoMap[limitPosition.tokenIn.id],
       address: limitPosition.tokenIn.id,
       decimals: limitPosition.tokenIn.decimals,
     } as tokenRangeLimit;
     const tokenOutNew = {
       name: limitPosition.tokenOut.name,
       symbol: limitPosition.tokenOut.symbol,
-      logoURI: logoMap[limitPosition.tokenOut.symbol],
+      logoURI: logoMap[limitPosition.tokenOut.id],
       address: limitPosition.tokenOut.id,
       decimals: limitPosition.tokenOut.decimals,
     } as tokenRangeLimit;
@@ -114,7 +114,7 @@ export default function UserLimitPool({
         <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
           <img
             className="w-[23px] h-[23px]"
-            src={logoMap[limitPosition.tokenIn.symbol]}
+            src={logoMap[limitPosition.tokenIn.address]}
           />
           {parseFloat(
             ethers.utils.formatUnits(
@@ -137,7 +137,7 @@ export default function UserLimitPool({
         <div className="flex items-center text-xs text-white gap-x-2 text-left">
           <img
             className="w-[23px] h-[23px]"
-            src={logoMap[limitPosition.tokenOut.symbol]}
+            src={logoMap[limitPosition.tokenOut.address]}
           />
           {parseFloat(
             ethers.utils.formatUnits(

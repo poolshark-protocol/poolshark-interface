@@ -533,7 +533,7 @@ export default function Trade() {
                           <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={logoMap[allLimitPosition.tokenIn.symbol]}
+                              src={logoMap[allLimitPosition.tokenIn.address]}
                             />
                             {parseFloat(
                               ethers.utils.formatEther(
@@ -548,7 +548,7 @@ export default function Trade() {
                           <div className="flex items-center text-xs text-white gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={logoMap[allLimitPosition.tokenOut.symbol]}
+                              src={logoMap[allLimitPosition.tokenOut.address]}
                             />
                             {parseFloat(
                               ethers.utils.formatEther(
