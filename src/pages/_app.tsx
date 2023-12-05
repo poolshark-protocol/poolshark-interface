@@ -18,6 +18,8 @@ import { useConfigStore } from '../hooks/useConfigStore';
 import { chainIdsToNamesForGitTokenList, chainProperties, supportedNetworkNames } from '../utils/chains';
 import axios from 'axios';
 import { coinsList } from '../utils/types';
+import { useRouter } from 'next/router';
+import TermsOfService from '../components/Modals/ToS';
 
 
 const { chains, provider } = configureChains(
@@ -63,6 +65,26 @@ function MyApp({ Component, pageProps }) {
 
   const [_isConnected, _setIsConnected] = useState(false);
   const [_isMobile, _setIsMobile] = useState(false);
+
+  const [walletConnected, setWalletConnected] = useState(false);
+  const [tosAccepted, setTosAccepted] = useState(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+      // Check if terms of service is accepted
+      const isTosAccepted = localStorage.getItem('tosAccepted') === 'true';
+      setTosAccepted(isTosAccepted);
+
+      // Simulate wallet connection logic
+      // In real scenario, this will be replaced with actual wallet connection logic
+      // setWalletConnected(true/false) based on wallet connection status
+  }, []);
+
+  const handleTosAccept = () => {
+      localStorage.setItem('tosAccepted', 'true');
+      setTosAccepted(true);
+  };
 
   const [
     setChainId,
@@ -149,7 +171,8 @@ function MyApp({ Component, pageProps }) {
         <RainbowKitProvider chains={chains} initialChain={arbitrumGoerli}>
           <ApolloProvider client={apolloClient}>
             <>
-            { _isConnected ? (whitelist.map(v => v.toLowerCase()).includes(address?.toLowerCase()) ? (
+            {_isConnected && !tosAccepted && (<TermsOfService setIsOpen={true} isOpen={true} onAccept={handleTosAccept} />)}
+            { _isConnected || router.pathname.includes("/blocked") ? (whitelist.map(v => v.toLowerCase()).includes(address?.toLowerCase()) || router.pathname.includes("/blocked") ? (
               <div className="font-Jetbrains"><Component  {...pageProps} /></div>
             )
             : 
