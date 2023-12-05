@@ -5,7 +5,7 @@ export function middleware(req: NextRequest) {
 
   if (geo.country === "US") {
     // Redirect users from the US to the "/blocked" page
-    return NextResponse.redirect('/blocked');
+    return NextResponse.redirect('https://poolshark-interface-git-geoblocking-poolshark.vercel.app/blocked');
   }
 
   // Continue with the request for users from other countries
