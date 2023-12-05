@@ -4231,7 +4231,7 @@ function MyApp({ Component, pageProps }) {
         <RainbowKitProvider chains={chains} initialChain={arbitrumGoerli}>
           <ApolloProvider client={apolloClient}>
             <>
-            { _isConnected || router.pathname.includes("/blocked") ? (whitelist.map(v => v.toLowerCase()).includes(address?.toLowerCase()) ? (
+            { _isConnected || router.pathname.includes("/blocked") ? (whitelist.map(v => v.toLowerCase()).includes(address?.toLowerCase()) || router.pathname.includes("/blocked") ? (
               <div className="font-Jetbrains"><Component  {...pageProps} /></div>
             )
             : 
