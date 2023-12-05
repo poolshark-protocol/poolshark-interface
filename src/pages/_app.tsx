@@ -4250,7 +4250,7 @@ function MyApp({ Component, pageProps }) {
         <RainbowKitProvider chains={chains} initialChain={arbitrumGoerli}>
           <ApolloProvider client={apolloClient}>
             <>
-            {_isConnected && !tosAccepted && (<TermsOfService onAccept={handleTosAccept} />)}
+            {_isConnected && !tosAccepted && (<TermsOfService setIsOpen={true} isOpen={true} onAccept={handleTosAccept} />)}
             { _isConnected || router.pathname.includes("/blocked") ? (whitelist.map(v => v.toLowerCase()).includes(address?.toLowerCase()) || router.pathname.includes("/blocked") ? (
               <div className="font-Jetbrains"><Component  {...pageProps} /></div>
             )

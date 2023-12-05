@@ -5,10 +5,10 @@ import { Fragment, useState, useEffect, useRef } from "react";
 import Loader from "../Icons/Loader";
 
 export default function TermsOfService({
-  onAccept
+  onAccept,
+  isOpen,
+  setIsOpen
 }) {
-
-  const [isOpen, setIsOpen] = useState(true);
 
   const [isButtonEnabled, setButtonEnabled] = useState(false);
   const modalRef = useRef(null);
