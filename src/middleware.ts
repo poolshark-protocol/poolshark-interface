@@ -8,7 +8,7 @@ export function middleware(req: NextRequest) {
   } else {
 
   if (geo.country === ( "US" || "CD" || "CI" || "CN" || "CU" || "HK" || "IN" || "IQ" || "IR" || "LY" || "ML" || "MM" || "NI" || "SD" || "SO" || "SY" || "YE" || "ZW" ) && !req.nextUrl.pathname.startsWith('/blocked')) {
-    return NextResponse.redirect('https://poolshark-interface-git-geoblocking-poolshark.vercel.app/blocked');
+    return NextResponse.redirect('https://water.poolshark.fi/blocked');
   } else {
     return NextResponse.next()
   }
