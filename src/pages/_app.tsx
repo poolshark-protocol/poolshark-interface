@@ -4226,7 +4226,6 @@ function MyApp({ Component, pageProps }) {
     <>
     <Head>
        <title>Poolshark</title>
-       <link rel="preload" href="/src/styles/globals.css" as="style" />
     </Head>
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider chains={chains} initialChain={arbitrumGoerli}>
