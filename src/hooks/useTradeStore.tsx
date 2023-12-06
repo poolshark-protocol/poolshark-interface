@@ -135,6 +135,7 @@ const initialTradeState: TradeState = {
     symbol: "WETH",
     native: false,
     logoURI:
+    //TODO: arbitrumOne values
       "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
     address: wethAddress,
     decimals: 18,

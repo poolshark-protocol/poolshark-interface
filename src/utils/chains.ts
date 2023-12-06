@@ -1,25 +1,29 @@
 import { ZERO_ADDRESS } from "./math/constants";
 
-export const chainIdsToNamesForGitTokenList = {
+export const chainIdsToNames = {
     1: 'ethereum',
     5: 'goerli',
-    421613: 'arbitrumGoerli'
+    421613: 'arbitrum-goerli',
+    42161: 'arbitrum-one',//TODO: arbitrumOne values
 };
 
 export const decToHex = {
     1: '0x1',
     5: '0x5',
-    421613: '0x66EED'
+    421613: '0x66EED',
+    42161: '0xA4B1',//TODO: arbitrumOne values
 };
 
 export const supportedChainIds = {
     1: 'mainnet',
     5: 'goerli',
-    421613: 'arbitrumGoerli'
+    421613: 'arbitrumGoerli',
+    42161: 'arbitrum',//TODO: arbitrumOne values
 };
 
 export const supportedNetworkNames = {
-    'arbitrum-goerli': 'arbitrumGoerli'
+    'arbitrum-goerli': 'arbitrumGoerli',
+    'arbitrum': 'arbitrum'//TODO: arbitrumOne values
 };
 
 export const chainProperties = {
@@ -67,4 +71,5 @@ export const chainProperties = {
         coverSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli',
         limitSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2',
     },
+    //TODO: arbitrumOne values
 };

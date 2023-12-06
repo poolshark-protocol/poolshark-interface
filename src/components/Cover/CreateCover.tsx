@@ -10,7 +10,7 @@ import {
 import CoverMintButton from "../Buttons/CoverMintButton";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import {
-  chainIdsToNamesForGitTokenList,
+  chainIdsToNames,
   chainProperties,
 } from "../../utils/chains";
 import { useEffect, useState } from "react";
@@ -129,7 +129,7 @@ export default function CreateCover(props: any) {
   const [stateChainName, setStateChainName] = useState();
 
   useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
+    setStateChainName(chainIdsToNames[chainId]);
   }, [chainId]);
 
   ////////////////////////////////TokenOrder

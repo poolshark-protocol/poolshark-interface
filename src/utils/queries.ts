@@ -140,7 +140,7 @@ export const getCoverPoolFromFactory = (
     const client = new ApolloClient({
       uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
       cache: new InMemoryCache(),
-    });
+    }); //TODO: arbitrumOne values
     client
       .query({ query: gql(getPool) })
       .then((data) => {
@@ -978,7 +978,7 @@ export const fetchUserBonds = (marketId: string, recipient: string) => {
           }
         `;
     const client = new ApolloClient({
-      uri: "https://api.thegraph.com/subgraphs/name/bond-protocol/bp-arbitrum-goerli-testing",
+      uri: "https://api.thegraph.com/subgraphs/name/bond-protocol/bp-arbitrum-goerli-testing", //TODO: arbitrumOne values
       cache: new InMemoryCache(),
     });
     client
@@ -1071,7 +1071,7 @@ export const fetchBondMarket = (marketId: string) => {
               }
         `;
     const client = new ApolloClient({
-      uri: "https://api.thegraph.com/subgraphs/name/bond-protocol/bp-arbitrum-goerli-testing",
+      uri: "https://api.thegraph.com/subgraphs/name/bond-protocol/bp-arbitrum-goerli-testing", //TODO: arbitrumOne values
       cache: new InMemoryCache(),
     });
     client

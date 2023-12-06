@@ -14,7 +14,7 @@ import { useContractRead } from "wagmi";
 import { BN_ZERO } from "../../../utils/math/constants";
 import CoverMintApproveButton from "../../Buttons/CoverMintApproveButton";
 import {
-  chainIdsToNamesForGitTokenList,
+  chainIdsToNames,
   chainProperties,
 } from "../../../utils/chains";
 import { gasEstimateCoverMint } from "../../../utils/gas";
@@ -63,7 +63,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const { bnInput, inputBox, maxBalance } = useInputBox();
   const { data: signer } = useSigner();
   const { isConnected } = useAccount();
-  const [stateChainName, setStateChainName] = useState();
+  const [stateChainName, setStateChainName] = useState(); //TODO: arbitrumOne values
   const [buttonState, setButtonState] = useState("");
   const [disabled, setDisabled] = useState(true);
 
@@ -134,7 +134,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   }, [bnInput, tokenIn.userBalance, disabled]);
 
   useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
+    setStateChainName(chainIdsToNames[chainId]); //TODO: arbitrumOne values
   }, [chainId]);
 
   ////////////////////////////////Gas Fees Estimation
@@ -266,7 +266,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                     amount={bnInput}
                     tokenSymbol={tokenIn.symbol}
                   />
-                ) : stateChainName === networkName ? (
+                ) : stateChainName === networkName ? ( //TODO: arbitrumOne values
                   <CoverAddLiqButton
                     disabled={disabled}
                     toAddress={address}

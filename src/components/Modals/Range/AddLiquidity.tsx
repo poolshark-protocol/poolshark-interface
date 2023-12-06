@@ -17,7 +17,7 @@ import { ethers, BigNumber } from "ethers";
 import JSBI from "jsbi";
 import { DyDxMath } from "../../../utils/math/dydxMath";
 import {
-  chainIdsToNamesForGitTokenList,
+  chainIdsToNames,
   chainProperties,
 } from "../../../utils/chains";
 import RangeMintDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveButton";
@@ -117,7 +117,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   useEffect(() => {
     setTokenInAmount(BN_ZERO)
     setTokenOutAmount(BN_ZERO)
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
+    setStateChainName(chainIdsToNames[chainId]);
   }, [chainId]);
 
   useEffect(() => {

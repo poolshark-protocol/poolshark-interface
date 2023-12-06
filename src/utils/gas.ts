@@ -13,7 +13,6 @@ import { parseUnits } from "./math/valueMath";
 import { coverPoolTypes } from "./pools";
 import { getCoverMintButtonMsgValue, getLimitSwapButtonMsgValue, getRangeMintButtonMsgValue, getRangeMintInputData, getSwapRouterButtonMsgValue } from "./buttons";
 import { weth9ABI } from "../abis/evm/weth9";
-import { formatUnits } from "ethers/lib/utils.js";
 import { rangeStakerABI } from "../abis/evm/rangeStaker";
 
 export interface gasEstimateResult {
@@ -32,6 +31,7 @@ export const gasEstimateWethCall = async (
   setGasLimit
 ): Promise<void> => {
   try {
+    //TODO: arbitrumOne values
     const provider = new ethers.providers.JsonRpcProvider(
       "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
@@ -92,6 +92,7 @@ export const gasEstimateSwap = async (
   setGasLimit
 ): Promise<void> => {
   try {
+    //TODO: arbitrumOne values
     const provider = new ethers.providers.JsonRpcProvider(
       "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
@@ -151,6 +152,7 @@ export const gasEstimateMintLimit = async (
   networkName: string
 ): Promise<void> => {
   try {
+    //TODO: arbitrumOne values
     const provider = new ethers.providers.JsonRpcProvider(
       "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
@@ -225,6 +227,7 @@ export const gasEstimateLimitCreateAndMint = async (
   networkName: string
 ): Promise<void> => {
   try {
+    //TODO: arbitrumOne values
     const provider = new ethers.providers.JsonRpcProvider(
       "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
@@ -322,6 +325,7 @@ export const gasEstimateBurnLimit = async (
   setBurnGasLimit
 ): Promise<void> => {
   try {
+    //TODO: arbitrumOne values
     const provider = new ethers.providers.JsonRpcProvider(
       "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
@@ -392,6 +396,7 @@ export const gasEstimateRangeMint = async (
   positionId?: number
 ): Promise<gasEstimateResult> => {
   try {
+    //TODO: arbitrumOne values
     const provider = new ethers.providers.JsonRpcProvider(
       "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
@@ -467,6 +472,7 @@ export const gasEstimateRangeCreateAndMint = async (
   networkName: string
 ): Promise<gasEstimateResult> => {
   try {
+    //TODO: arbitrumOne values
     const provider = new ethers.providers.JsonRpcProvider(
       "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
@@ -549,6 +555,7 @@ export const gasEstimateRangeStake = async(
   signer
 ): Promise<gasEstimateResult> => {
   try {
+  //TODO: arbitrumOne values
   const provider = new ethers.providers.JsonRpcProvider(
     "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
   );
@@ -597,6 +604,7 @@ export const gasEstimateRangeUnstake = async(
   signer
 ): Promise<gasEstimateResult> => {
   try {
+  //TODO: arbitrumOne values
   const provider = new ethers.providers.JsonRpcProvider(
     "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
   );
@@ -647,6 +655,7 @@ export const gasEstimateRangeBurn = async (
   signer
 ): Promise<gasEstimateResult> => {
   try {
+    //TODO: arbitrumOne values
     const provider = new ethers.providers.JsonRpcProvider(
       "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
@@ -709,6 +718,7 @@ export const gasEstimateCoverMint = async (
   positionId?: number
 ): Promise<gasEstimateResult> => {
   try {
+    //TODO: arbitrumOne values
     const provider = new ethers.providers.JsonRpcProvider(
       "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
@@ -777,6 +787,7 @@ export const gasEstimateCoverCreateAndMint = async (
   twapReady: boolean,
 ): Promise<gasEstimateResult> => {
   try {
+    //TODO: arbitrumOne values
     const provider = new ethers.providers.JsonRpcProvider(
       "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
@@ -849,6 +860,7 @@ export const gasEstimateCoverBurn = async (
   signer
 ): Promise<gasEstimateResult> => {
   try {
+    //TODO: arbitrumOne values
     const provider = new ethers.providers.JsonRpcProvider(
       "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );

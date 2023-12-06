@@ -202,7 +202,7 @@ export default function ViewRange() {
   useEffect(() => {
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
-      : chainProperties["arbitrumGoerli"];
+      : chainProperties["arbitrumGoerli"]; //TODO: arbitrumOne values
     setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
     if (
       rangePositionData.positionId == undefined ||

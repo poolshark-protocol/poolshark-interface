@@ -13,7 +13,7 @@ import { BigNumber, ethers } from "ethers";
 import { useContractRead } from "wagmi";
 import { BN_ZERO } from "../../../utils/math/constants";
 import SwapRouterApproveButton from "../../Buttons/SwapRouterApproveButton";
-import { chainIdsToNamesForGitTokenList, chainProperties } from "../../../utils/chains";
+import { chainIdsToNames, chainProperties } from "../../../utils/chains";
 import { gasEstimateMintLimit } from "../../../utils/gas";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
@@ -132,7 +132,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   }, [bnInput, tokenIn.userBalance, disabled]);
 
   useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
+    setStateChainName(chainIdsToNames[chainId]);
   }, [chainId]);
 
   useEffect(() => {

@@ -135,6 +135,7 @@ const initialCoverState: CoverState = {
     name: "Wrapped Ether",
     symbol: "WETH",
     native: false,
+    //TODO: arbitrumOne values
     logoURI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
     address: wethAddress,
     decimals: 18,
@@ -148,6 +149,7 @@ const initialCoverState: CoverState = {
     name: "DAI",
     symbol: "DAI",
     native: false,
+    //TODO: arbitrumOne values
     logoURI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
     address: daiAddress,
     decimals: 18,

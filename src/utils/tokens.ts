@@ -4,6 +4,7 @@ import { fetchTokenPrice } from "./queries";
 import { LimitSubgraph } from "./types";
 
 export const defaultTokenLogo =
+//TODO: arbitrumOne values
   "https://raw.githubusercontent.com/poolshark-protocol/token-metadata/master/blockchains/arbitrum-goerli/tokenZero.png";
 
 export const fetchRangeTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {

@@ -107,7 +107,7 @@ const handleTosAccept = () => {
                           </div>
                         )}
                         */}
-                        {chain.id === 421613 ? (
+                        {chain.id === 421613 || chain.id === 42161 ? (
                           <img
                             style={{ width: 17, height: 17 }}
                             src="/static/images/arb_icon.svg"

@@ -8,7 +8,7 @@ import {
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import {
-  chainIdsToNamesForGitTokenList,
+  chainIdsToNames,
   chainProperties,
 } from "../utils/chains";
 import { ZERO_ADDRESS } from "../utils/math/constants";
@@ -148,7 +148,7 @@ export default function Trade() {
 
   // BOTH
   useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
+    setStateChainName(chainIdsToNames[chainId]);
   }, [chainId]);
 
   ////////////////////////////////Pools
@@ -228,9 +228,10 @@ export default function Trade() {
   //BOTH
   useEffect(() => {
     if (address) {
-      const chainConstants = chainProperties[networkName]
+      const chainConstants = 
+          chainProperties[networkName]
         ? chainProperties[networkName]
-        : chainProperties["arbitrumGoerli"];
+        : chainProperties["arbitrumGoerli"]; //TODO: arbitrumOne values
       setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
       getUserLimitPositionData();
       setNeedsRefetch(false);

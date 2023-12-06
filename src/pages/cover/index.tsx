@@ -66,9 +66,10 @@ export default function Cover() {
 
   useEffect(() => {
     if (address) {
+      //TODO: arbitrumOne values
       const chainConstants = chainProperties[networkName]
         ? chainProperties[networkName]
-        : chainProperties["arbitrumGoerli"];
+        : chainProperties["arbitrumGoerli"]; //TODO: arbitrumOne values
       setCoverSubgraph(chainConstants["coverSubgraphUrl"]);
       getUserCoverPositionData();
     }
