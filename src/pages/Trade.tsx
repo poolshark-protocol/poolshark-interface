@@ -13,7 +13,6 @@ import {
 } from "../utils/chains";
 import { ZERO_ADDRESS } from "../utils/math/constants";
 import {
-  fetchRangeTokenUSDPrice,
   getLimitTokenUsdPrice,
 } from "../utils/tokens";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
@@ -26,7 +25,7 @@ import {
   getExpectedAmountOutFromInput,
 } from "../utils/math/priceMath";
 import { timeDifference } from "../utils/time";
-import { inputHandler, parseUnits } from "../utils/math/valueMath";
+import { parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
 import { useConfigStore } from "../hooks/useConfigStore";
 import MarketSwap from "../components/Trade/MarketSwap";
