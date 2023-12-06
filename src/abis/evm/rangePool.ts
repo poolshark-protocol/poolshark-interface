@@ -12,91 +12,6 @@ export const rangePoolABI = [
   },
   {
     "inputs": [],
-    "name": "CollectToZeroAddress",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "FactoryOnly",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidPosition",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidSwapFee",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidTick",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidTickSpread",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidToken",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidTokenDecimals",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "LiquidityOverflow",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "Locked",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "LowerNotEvenTick",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "MaxTickLiquidity",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "NotEnoughOutputLiquidity",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "Overflow",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "OwnerOnly",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "PoolAlreadyInitialized",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ProtocolFeeCeilingExceeded",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "ReentrancyGuardInvalidState",
     "type": "error"
   },
@@ -108,26 +23,6 @@ export const rangePoolABI = [
   {
     "inputs": [],
     "name": "ReentrancyGuardReentrantCall",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "Token0Missing",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "Token1Missing",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "UpperNotOddTick",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "WaitUntilEnoughObservations",
     "type": "error"
   },
   {
