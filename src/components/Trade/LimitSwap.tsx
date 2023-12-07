@@ -1062,7 +1062,7 @@ export default function LimitSwap() {
             tradePoolData?.id != ZERO_ADDRESS ? (
               <LimitSwapButton
                 routerAddress={chainProperties[networkName]["routerAddress"]}
-                disabled={mintGasLimit.eq(BN_ZERO) || tradeButton.disabled}
+                disabled={mintGasLimit.lt(BigNumber.from('100000')) || tradeButton.disabled}
                 poolAddress={tradePoolData?.id}
                 to={address}
                 amount={amountIn}

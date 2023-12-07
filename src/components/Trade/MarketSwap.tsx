@@ -788,7 +788,7 @@ export default function MarketSwap() {
                 disabled={
                   tradeButton.disabled ||
                   (needsAllowanceIn && !tokenIn.native) ||
-                  swapGasLimit.eq(BN_ZERO)
+                  swapGasLimit.lt(BigNumber.from('100000'))
                 }
                 routerAddress={chainProperties[networkName]["routerAddress"]}
                 amountIn={amountIn}
