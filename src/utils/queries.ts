@@ -996,6 +996,7 @@ export const fetchUserBonds = (marketId: string, recipient: string) => {
 }
 
 export const fetchBondMarket = (marketId: string) => {
+  console.log('fetching bond market')
   return new Promise(function (resolve) {
     const bondMarketQuery = `
               {
