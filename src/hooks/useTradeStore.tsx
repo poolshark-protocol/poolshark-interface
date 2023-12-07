@@ -60,6 +60,8 @@ type TradeState = {
 type TradeLimitAction = {
   //
   setTradePoolData: (data: any) => void;
+  setTradePoolPrice: (poolPrice: any) => void;
+  setTradePoolLiquidity: (liquidity: any) => void;
   setTradeSlippage: (tradeSlippage: string) => void;
   setTradePositionData: (tradePosition: any) => void;
   //
@@ -448,6 +450,22 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   setTradePoolData: (tradePoolData: any) => {
     set(() => ({
       tradePoolData: tradePoolData,
+    }));
+  },
+  setTradePoolPrice: (tradePoolPrice: any) => {
+    set((state) => ({
+      tradePoolData: {
+        ...state.tradePoolData,
+        poolPrice: tradePoolPrice,
+      }
+    }));
+  },
+  setTradePoolLiquidity: (tradePoolLiquidity: any) => {
+    set((state) => ({
+      tradePoolData: {
+        ...state.tradePoolData,
+        liquidity: tradePoolLiquidity,
+      }
     }));
   },
   setTradeSlippage: (tradeSlippage: string) => {

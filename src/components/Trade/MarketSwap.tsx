@@ -9,7 +9,7 @@ import SelectToken from "../SelectToken";
 import { inputHandler, parseUnits } from "../../utils/math/valueMath";
 import { getSwapPools } from "../../utils/pools";
 import { QuoteParams, SwapParams } from "../../utils/types";
-import { TickMath, invertPrice, maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
+import { TickMath, maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
 import { displayPoolPrice } from "../../utils/math/priceMath";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import Range from "../Icons/RangeIcon";
@@ -17,7 +17,6 @@ import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
 import SwapRouterButton from "../Buttons/SwapRouterButton";
 import { chainProperties } from "../../utils/chains";
-import { getLimitTokenUsdPrice } from "../../utils/tokens";
 import { gasEstimateSwap, gasEstimateWethCall } from "../../utils/gas";
 import JSBI from "jsbi";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
@@ -39,9 +38,14 @@ export default function MarketSwap() {
   //CONFIG STORE
   const [stateChainName, setStateChainName] = useState();
 
+  // @dev - pool price and liquidity fetched every X milliseconds
+  const quoteRefetchDelay = 5000;
+
   const [
     tradePoolData,
     setTradePoolData,
+    setTradePoolPrice,
+    setTradePoolLiquidity,
     tradeButton,
     pairSelected,
     setPairSelected,
@@ -68,6 +72,8 @@ export default function MarketSwap() {
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
+    s.setTradePoolPrice,
+    s.setTradePoolLiquidity,
     s.tradeButton,
     s.pairSelected,
     s.setPairSelected,
@@ -126,6 +132,28 @@ export default function MarketSwap() {
   /////////////////////////////Fetch Pools
   const [availablePools, setAvailablePools] = useState(undefined);
   const [quoteParams, setQuoteParams] = useState(undefined);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Code to run every 5 seconds
+      if (exactIn ? amountIn.gt(BN_ZERO) : amountOut.gt(BN_ZERO)) {
+        getSwapPools(
+          limitSubgraph,
+          tokenIn,
+          tokenOut,
+          tradePoolData,
+          setTradePoolData,
+          setTokenInTradeUSDPrice,
+          setTokenOutTradeUSDPrice,
+          setTradePoolPrice,
+          setTradePoolLiquidity,
+        );
+      }
+    }, quoteRefetchDelay);
+   
+    // Clear the interval when the component unmounts
+    return () => clearInterval(interval);
+   }, [exactIn ? amountIn : amountOut, tradePoolData?.id]);
 
   //can go to utils
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {

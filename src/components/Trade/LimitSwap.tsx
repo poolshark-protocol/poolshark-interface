@@ -29,7 +29,6 @@ import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { chainProperties } from "../../utils/chains";
 import LimitCreateAndMintButton from "../Buttons/LimitCreateAndMintButton";
 import inputFilter from "../../utils/inputFilter";
-import { getLimitTokenUsdPrice } from "../../utils/tokens";
 import {
   gasEstimateLimitCreateAndMint,
   gasEstimateMintLimit,
