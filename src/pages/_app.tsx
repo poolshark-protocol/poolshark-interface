@@ -138,12 +138,12 @@ function MyApp({ Component, pageProps }) {
           if (coins.search_tokens != undefined) {
             setSearchTokenList(coins.search_tokens);
           }
+          setIsLoading(false)
         }
       ).catch(function (error) {
         console.log(error);
       });
     };
-    setIsLoading(false)
     fetchTokenMetadata();
   }, [chainId]);
 
