@@ -72,7 +72,7 @@ export const chainProperties = {
             auctioneerAddress: "0xF7F9A96cDBFEFd70BDa14a8f30EC503b16bCe9b1",
             wethAddress: "0x251f7eacde75458b52dbc4995c439128b9ef98ca",
             finAddress: "0x742510a23bf83be959990a510ccae40b2d3d9b83",
-            nullReferred: "0x0000000000000000000000000000000000000000",
+            nullReferrer: "0x0000000000000000000000000000000000000000",
             marketId: 46,
             subgraphUrl: 'https://api.thegraph.com/subgraphs/name/bond-protocol/bp-arbitrum-goerli-testing',
         }
