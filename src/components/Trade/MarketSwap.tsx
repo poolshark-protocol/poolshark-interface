@@ -136,9 +136,7 @@ export default function MarketSwap() {
   useEffect(() => {
     const interval = setInterval(() => {
       // Code to run every 5 seconds
-      console.log('amount entered', exactIn, exactIn ? displayIn : displayOut)
       if (exactIn ? amountIn.gt(BN_ZERO) : amountOut.gt(BN_ZERO)) {
-        console.log('amount entered inside if', exactIn ? displayIn : displayOut)
         getSwapPools(
           limitSubgraph,
           tokenIn,
@@ -151,20 +149,11 @@ export default function MarketSwap() {
           setTradePoolLiquidity,
         );
       }
-      console.log('running every 5 seconds')
     }, quoteRefetchDelay);
    
     // Clear the interval when the component unmounts
     return () => clearInterval(interval);
    }, [exactIn ? amountIn : amountOut, tradePoolData?.id]);
-
-   useEffect(() => {
-    console.log('pool price updated', tradePoolData.poolPrice, tradePoolData.id)
-   }, [tradePoolData?.poolPrice]);
-
-   useEffect(() => {
-    console.log('updating pool id', tradePoolData.poolPrice, tradePoolData.id)
-   }, [tradePoolData?.id]);
 
   //can go to utils
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {

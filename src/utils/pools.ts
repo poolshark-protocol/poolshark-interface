@@ -24,19 +24,15 @@ export const getSwapPools = async (
     const data = limitPools["data"];
     if (data && data["limitPools"]?.length > 0) {
       const allPools = data["limitPools"];
-      console.log('pool data check:', swapPoolData?.id != allPools[0].id, swapPoolData?.id, allPools[0].id)
       if (swapPoolData?.id != allPools[0].id) {
-        console.log('first pool fetch...')
         setSwapPoolData(allPools[0]);
       } else {
         if (setSwapPoolPrice != undefined) {
-          console.log('updating pool price...', allPools[0].poolPrice, swapPoolData.poolPrice)
           if (allPools[0].poolPrice != swapPoolData.poolPrice) {
             setSwapPoolPrice(allPools[0].poolPrice)
           }
         }
         if (setSwapPoolLiquidity != undefined) {
-          console.log('updating pool liquidity...', allPools[0].liquidity)
           if (allPools[0].liquidity != swapPoolData.liquidity) {
             setSwapPoolLiquidity(allPools[0].liquidity)
           }
