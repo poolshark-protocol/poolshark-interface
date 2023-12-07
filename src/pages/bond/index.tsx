@@ -172,7 +172,7 @@ export default function Bond() {
   }, [needsSubgraph]);
 
   const { data: marketPurchaseData } = useContractRead({
-    address: chainProperties[networkName]["AUCTIONEER_ADDRESS"],
+    address: bondProtocolConfig["auctioneerAddress"],
     abi: auctioneerABI,
     functionName: "getMarketInfoForPurchase",
     args: [bondProtocolConfig["marketId"]],
@@ -189,7 +189,7 @@ export default function Bond() {
   }, [marketPurchaseData]);
 
   const { data: currentCapacityData } = useContractRead({
-    address: chainProperties[networkName]["AUCTIONEER_ADDRESS"],
+    address: bondProtocolConfig["auctioneerAddress"],
     abi: auctioneerABI,
     functionName: "currentCapacity",
     args: [bondProtocolConfig["marketId"]],
@@ -206,7 +206,7 @@ export default function Bond() {
   }, [currentCapacityData]);
 
   const { data: marketPriceData } = useContractRead({
-    address: chainProperties[networkName]["AUCTIONEER_ADDRESS"],
+    address: bondProtocolConfig["auctioneerAddress"],
     abi: auctioneerABI,
     functionName: "marketPrice",
     args: [bondProtocolConfig["marketId"]],
@@ -216,7 +216,7 @@ export default function Bond() {
   });
 
   const { data: marketScaleData } = useContractRead({
-    address: chainProperties[networkName]["AUCTIONEER_ADDRESS"],
+    address: bondProtocolConfig["auctioneerAddress"],
     abi: auctioneerABI,
     functionName: "marketScale",
     args: [bondProtocolConfig["marketId"]],
@@ -226,7 +226,7 @@ export default function Bond() {
   });
 
   const { data: maxAmountAcceptedData } = useContractRead({
-    address: chainProperties[networkName]["AUCTIONEER_ADDRESS"],
+    address: bondProtocolConfig["auctioneerAddress"],
     abi: auctioneerABI,
     functionName: "maxAmountAccepted",
     args: [bondProtocolConfig["marketId"], bondProtocolConfig["nullReferrer"]],
@@ -269,8 +269,7 @@ export default function Bond() {
   useEffect(() => {
     if (maxAmountAcceptedData) {
       const maxAccepted =
-        (Number(maxAmountAcceptedData) -
-          Number(maxAmountAcceptedData) * 0.005) /
+        (Number(maxAmountAcceptedData)) /
         Math.pow(10, 18);
       setMaxAmountAccepted(maxAccepted);
       setNeedsMaxAmountAcceptedData(false);
@@ -527,7 +526,7 @@ export default function Bond() {
                         ? (
                             parseFloat(formatEther(bnInput)) *
                             (1 / quoteTokensPerPayoutToken)
-                          ).toFixed(4)
+                          ).toFixed(2)
                         : "0"}{" "}
                       FIN
                     </span>
