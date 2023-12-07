@@ -942,7 +942,7 @@ export const fetchEthPrice = () => {
   });
 };
 
-export const fetchUserBonds = (marketId: string, recipient: string) => {
+export const fetchUserBonds = (marketId: string, recipient: string, subgraphUrl: string) => {
   return new Promise(function (resolve) {
     const userBondsQuery = `
         {
@@ -978,7 +978,7 @@ export const fetchUserBonds = (marketId: string, recipient: string) => {
           }
         `;
     const client = new ApolloClient({
-      uri: "https://api.thegraph.com/subgraphs/name/bond-protocol/bp-arbitrum-goerli-testing",
+      uri: subgraphUrl,
       cache: new InMemoryCache(),
     });
     client
@@ -995,7 +995,7 @@ export const fetchUserBonds = (marketId: string, recipient: string) => {
   });
 }
 
-export const fetchBondMarket = (marketId: string) => {
+export const fetchBondMarket = (marketId: string, subgraphUrl: string) => {
   console.log('fetching bond market')
   return new Promise(function (resolve) {
     const bondMarketQuery = `
@@ -1072,7 +1072,7 @@ export const fetchBondMarket = (marketId: string) => {
               }
         `;
     const client = new ApolloClient({
-      uri: "https://api.thegraph.com/subgraphs/name/bond-protocol/bp-arbitrum-goerli-testing",
+      uri: subgraphUrl,
       cache: new InMemoryCache(),
     });
     client

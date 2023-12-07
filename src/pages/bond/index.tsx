@@ -137,7 +137,7 @@ export default function Bond() {
   async function getUserBonds() {
     try {
       if (bondProtocolConfig["marketId"] != undefined) {
-        const data = await fetchUserBonds(bondProtocolConfig["marketId"].toString(), address.toLowerCase());
+        const data = await fetchUserBonds(bondProtocolConfig["marketId"].toString(), address.toLowerCase(), bondProtocolConfig["subgraphUrl"]);
         if (data["data"]) {
           setAllUserBonds(mapUserBondPurchases(data["data"].bondPurchases));
         }
@@ -150,7 +150,7 @@ export default function Bond() {
   async function getMarket() {
     try {
       if (bondProtocolConfig["marketId"] != undefined) {
-        const data = await fetchBondMarket(bondProtocolConfig["marketId"].toString());
+        const data = await fetchBondMarket(bondProtocolConfig["marketId"].toString(), bondProtocolConfig["subgraphUrl"]);
         if (data["data"]) {
           setMarketData(mapBondMarkets(data["data"].markets));
         }
