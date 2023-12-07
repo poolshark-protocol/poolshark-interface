@@ -146,13 +146,13 @@ export default function Cover() {
                 const tokenIn = {
                   name: allCoverPools[0].tokenZero.symbol,
                   address: allCoverPools[0].tokenZero.id,
-                  logoURI: logoMap[allCoverPools[0].tokenZero.symbol],
+                  logoURI: logoMap[allCoverPools[0].tokenZero.id],
                   symbol: allCoverPools[0].tokenZero.symbol,
                 } as tokenCover;
                 const tokenOut = {
                   name: allCoverPools[0].tokenOne.symbol,
                   address: allCoverPools[0].tokenOne.id,
-                  logoURI: logoMap[allCoverPools[0].tokenOne.symbol],
+                  logoURI: logoMap[allCoverPools[0].tokenOne.id],
                   symbol: allCoverPools[0].tokenOne.symbol,
                 } as tokenCover;
                 setCoverTokenIn(tokenOut, tokenIn, "0", true);

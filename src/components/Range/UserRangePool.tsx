@@ -255,11 +255,11 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
               <div className="flex items-center">
                 <img
                   className="w-[25px] h-[25px] aspect-square shrink-0"
-                  src={logoMap[rangePosition.tokenZero.symbol]}
+                  src={logoMap[rangePosition.tokenZero.id]}
                 />
                 <img
                   className="w-[25px] h-[25px] ml-[-8px] aspect-square shrink-0"
-                  src={logoMap[rangePosition.tokenOne.symbol]}
+                  src={logoMap[rangePosition.tokenOne.id]}
                 />
               </div>
               <span className="text-white text-xs flex items-center gap-x-1.5 whitespace-nowrap">

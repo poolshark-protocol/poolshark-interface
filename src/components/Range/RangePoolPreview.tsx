@@ -194,13 +194,13 @@ export default function RangePoolPreview() {
                         </div>
                         <div className="flex flex-col md:flex-row items-center gap-x-5 gap-y-3 mt-3 w-full">
                           <button className="flex w-full items-center gap-x-3 bg-dark border border-grey px-4 py-1.5 rounded-[4px]">
-                            <img className="w-7" src={logoMap[tokenIn.symbol]} />
+                            <img className="w-7" src={logoMap[tokenIn.address]} />
                             {tokenIn.symbol}
                           </button>
                           <button className="flex w-full items-center gap-x-3 bg-dark border border-grey px-4 py-1.5 rounded-[4px]">
                             <img
                               className="w-7 w-full"
-                              src={logoMap[tokenOut.symbol]}
+                              src={logoMap[tokenOut.address]}
                             />
                             {tokenOut.symbol}
                           </button>
@@ -262,7 +262,7 @@ export default function RangePoolPreview() {
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
-                                          src={logoMap[tokenIn.symbol]}
+                                          src={logoMap[tokenIn.address]}
                                         />
                                         {tokenIn.symbol}
                                       </div>
@@ -305,7 +305,7 @@ export default function RangePoolPreview() {
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
-                                          src={logoMap[tokenOut.symbol]}
+                                          src={logoMap[tokenOut.address]}
                                         />
                                         {tokenOut.symbol}
                                       </div>
