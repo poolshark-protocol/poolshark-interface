@@ -179,7 +179,7 @@ function MyApp({ Component, pageProps }) {
             )
             : 
             <div className="h-screen w-screen flex justify-center items-center text-main2 flex-col gap-y-5">
-              <svg stroke="currentColor" className='animate-spin' fill="none" strokeWidth="2" viewBox="0 0 24 24" stroke-linecap="round" strokeLinejoin="round" height="3em" width="3em" xmlns="http://www.w3.org/2000/svg"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+              <svg stroke="currentColor" className='animate-spin' fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="3em" width="3em" xmlns="http://www.w3.org/2000/svg"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
               <h1 className='text-white -mr-8'>Loading...</h1>
             </div> }
             </>

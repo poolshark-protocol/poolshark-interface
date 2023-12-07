@@ -58,7 +58,7 @@ export default function Bond() {
   const [vestingTokenBalance, setVestingTokenBalance] = useState(undefined);
   const [vestingTokenId, setVestingTokenId] = useState(undefined);
 
-  const [finAddress, setFinAddress] = useState("" as `0x${string}`);
+  const [finAddress, setFinAddress] = useState("");
   const [bondProtocolConfig, setBondProtocolConfig] = useState({});
 
   useEffect(() => {
@@ -136,9 +136,11 @@ export default function Bond() {
 
   async function getUserBonds() {
     try {
-      const data = await fetchUserBonds(bondProtocolConfig["marketId"].toString(), address.toLowerCase());
-      if (data["data"]) {
-        setAllUserBonds(mapUserBondPurchases(data["data"].bondPurchases));
+      if (bondProtocolConfig["marketId"] != undefined) {
+        const data = await fetchUserBonds(bondProtocolConfig["marketId"].toString(), address.toLowerCase());
+        if (data["data"]) {
+          setAllUserBonds(mapUserBondPurchases(data["data"].bondPurchases));
+        }
       }
     } catch (error) {
       console.log("user bond subgraph error", error);
@@ -147,9 +149,11 @@ export default function Bond() {
 
   async function getMarket() {
     try {
-      const data = await fetchBondMarket(bondProtocolConfig["marketId"]);
-      if (data["data"]) {
-        setMarketData(mapBondMarkets(data["data"].markets));
+      if (bondProtocolConfig["marketId"] != undefined) {
+        const data = await fetchBondMarket(bondProtocolConfig["marketId"].toString());
+        if (data["data"]) {
+          setMarketData(mapBondMarkets(data["data"].markets));
+        }
       }
     } catch (error) {
       console.log("market subgraph error", error);
@@ -160,7 +164,7 @@ export default function Bond() {
     getMarket();
     getUserBonds();
     setNeedsSubgraph(false);
-  }, []);
+  }, [bondProtocolConfig]);
 
   useEffect(() => {
     if (address && needsSubgraph) {
@@ -179,6 +183,9 @@ export default function Bond() {
     chainId: chainId,
     watch: needsMarketPurchaseData,
     enabled: needsMarketPurchaseData,
+    onError() {
+      console.log('getMarketInfoForPurchase error')
+    }
   });
 
   useEffect(() => {
@@ -196,6 +203,9 @@ export default function Bond() {
     chainId: chainId,
     watch: needsCapacityData,
     enabled: needsCapacityData,
+    onError() {
+      console.log('current capacity error')
+    }
   });
 
   useEffect(() => {
@@ -213,6 +223,9 @@ export default function Bond() {
     chainId: chainId,
     watch: needsMarketPriceData,
     enabled: needsMarketPriceData,
+    onError() {
+      console.log('marketPrice error')
+    }
   });
 
   const { data: marketScaleData } = useContractRead({
@@ -223,6 +236,9 @@ export default function Bond() {
     chainId: chainId,
     watch: needsMarketPriceData,
     enabled: needsMarketPriceData,
+    onError() {
+      console.log('marketScale error')
+    }
   });
 
   const { data: maxAmountAcceptedData } = useContractRead({
@@ -233,6 +249,9 @@ export default function Bond() {
     chainId: chainId,
     watch: needsMaxAmountAcceptedData,
     enabled: needsMaxAmountAcceptedData,
+    onError() {
+      console.log('maxAmountAccepted error')
+    }
   });
 
   const { data: vestingTokenIdData } = useContractRead({
@@ -241,6 +260,10 @@ export default function Bond() {
     functionName: "getTokenId",
     args: [finAddress, marketData[0]?.vesting],
     chainId: chainId,
+    enabled: bondProtocolConfig["tellerAddress"] != undefined && finAddress != "" && marketData[0] != undefined,
+    onError() {
+      console.log('getTokenId error', bondProtocolConfig["tellerAddress"], finAddress, marketData[0]?.vesting)
+    }
   });
 
   useEffect(() => {
@@ -256,7 +279,10 @@ export default function Bond() {
     args: [address, vestingTokenId],
     chainId: chainId,
     watch: needsBondTokenData,
-    enabled: needsBondTokenData,
+    enabled: needsBondTokenData && vestingTokenId != undefined,
+    onError() {
+      console.log('balanceOf error', address, vestingTokenId)
+    }
   });
 
   useEffect(() => {
