@@ -1,10 +1,6 @@
 import { BigNumber } from "ethers";
 import { LimitSubgraph, token, tokenRangeLimit } from "../utils/types";
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../utils/math/constants";
-import {
-  daiAddress,
-  wethAddress,
-} from "../constants/contractAddresses";
 import { create } from "zustand";
 import {
   getLimitPoolFromFactory,
@@ -13,6 +9,7 @@ import {
 import { parseUnits } from "../utils/math/valueMath";
 import { getRangeMintButtonDisabled, getRangeMintButtonMessage } from "../utils/buttons";
 import JSBI from "jsbi";
+import { chainProperties, defaultNetwork } from "../utils/chains";
 
 type RangeLimitState = {
   //rangePoolAddress for current token pairs
@@ -183,13 +180,13 @@ const initialRangeLimitState: RangeLimitState = {
   pairSelected: false,
   //
   tokenIn: {
-    callId: wethAddress.localeCompare(daiAddress) < 0 ? 0 : 1,
+    callId: chainProperties[defaultNetwork]["wethAddress"].localeCompare(chainProperties[defaultNetwork]["daiAddress"],) < 0 ? 0 : 1,
     name: "Wrapped Ether",
     symbol: "WETH",
     native: false,
     //TODO: arbitrumOne values
     logoURI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
-    address: wethAddress,
+    address: chainProperties[defaultNetwork]["wethAddress"],
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: BigNumber.from(0),
@@ -197,13 +194,13 @@ const initialRangeLimitState: RangeLimitState = {
   } as tokenRangeLimit,
   //
   tokenOut: {
-    callId: daiAddress.localeCompare(wethAddress) < 0 ? 0 : 1,
+    callId: chainProperties[defaultNetwork]["daiAddress"].localeCompare(chainProperties[defaultNetwork]["wethAddress"]) < 0 ? 0 : 1,
     name: "DAI",
     symbol: "DAI",
     native: false,
     //TODO: arbitrumOne values
     logoURI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
-    address: daiAddress,
+    address: chainProperties[defaultNetwork]["daiAddress"],
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: BigNumber.from(0),

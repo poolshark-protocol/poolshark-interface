@@ -1,15 +1,13 @@
 import { BigNumber, ethers } from "ethers";
 import { LimitSubgraph, tokenSwap } from "../utils/types";
 import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
-import {
-  wethAddress,
-} from "../constants/contractAddresses";
 import { create } from "zustand";
 import {
   getLimitPoolFromFactory,
 } from "../utils/queries";
 import { parseUnits } from "../utils/math/valueMath";
 import { getTradeButtonDisabled, getTradeButtonMessage } from "../utils/buttons";
+import { chainProperties, defaultNetwork } from "../utils/chains";
 
 type TradeState = {
   //tradePoolData contains all the info about the pool
@@ -133,13 +131,10 @@ const initialTradeState: TradeState = {
   //
   tokenIn: {
     callId: 0,
-    name: "Wrapped Ether",
-    symbol: "WETH",
-    native: false,
-    logoURI:
-    //TODO: arbitrumOne values
-      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
-    address: wethAddress,
+    name: "Ether",
+    symbol: "ETH",
+    native: true,
+    address: chainProperties[defaultNetwork]["wethAddress"],
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: BigNumber.from(0),
@@ -151,7 +146,6 @@ const initialTradeState: TradeState = {
     name: "Select Token",
     symbol: "Select Token",
     native: false,
-    logoURI: "",
     address: ZERO_ADDRESS as `0x${string}`,
     decimals: 18,
     userBalance: 0.0,

@@ -22,21 +22,21 @@ import { useRouter } from 'next/router';
 import TermsOfService from '../components/Modals/ToS';
 import Loader from '../components/Icons/Loader';
 
-
 const { chains, provider } = configureChains(
   [
+    arbitrum,
     arbitrumGoerli,
-    arbitrum
+    
   ],    //TODO: arbitrumOne values
   [
     jsonRpcProvider({
       rpc: (chain) => ({
-        http: `https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/`, // arbitrumGoerli
+        http: `https://patient-distinguished-pallet.arbitrum-mainnet.quiknode.pro/4cbe7cbdb55ec4b33fdc1a4239e1169b167ae351/`, // arbitrum
       }),
     }),
     jsonRpcProvider({
       rpc: (chain) => ({
-        http: `https://patient-distinguished-pallet.arbitrum-mainnet.quiknode.pro/4cbe7cbdb55ec4b33fdc1a4239e1169b167ae351/`, // arbitrum
+        http: `https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/`, // arbitrumGoerli
       }),
     }),
     //TODO: arbitrumOne values
@@ -124,8 +124,10 @@ function MyApp({ Component, pageProps }) {
 
   useEffect(() => {
     setChainId(chainId)
+
     const fetchTokenMetadata = async () => {
       const chainName = chainIdsToNames[chainId];
+      console.log('chain name:', chainId, chainName)
       axios.get(
         `https://raw.githubusercontent.com/poolshark-protocol/token-metadata/` + tokenMetadataBranch + `/blockchains/${
           chainName ?? "arbitrum-one"
@@ -181,7 +183,7 @@ function MyApp({ Component, pageProps }) {
        <title>Poolshark</title>
     </Head>
       <WagmiConfig client={wagmiClient}>
-        <RainbowKitProvider chains={chains} initialChain={arbitrumGoerli}>
+        <RainbowKitProvider chains={chains} initialChain={arbitrum}>
           {/* <ApolloProvider client={apolloClient}> */} 
             <>
             {_isConnected && !tosAccepted && (<TermsOfService setIsOpen={true} isOpen={true} onAccept={handleTosAccept} />)}

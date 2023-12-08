@@ -314,6 +314,7 @@ export default function Trade() {
     token: tokenIn.native ? undefined : tokenIn.address,
     enabled: tokenIn.address != undefined && needsBalanceIn,
     watch: needsBalanceIn,
+    chainId: chainId,
     onSuccess(data) {
       if (needsBalanceIn) {
         setNeedsBalanceIn(false);
@@ -327,6 +328,7 @@ export default function Trade() {
     token: tokenOut.native ? undefined : tokenOut.address,
     enabled: tokenOut.address != undefined && needsBalanceOut,
     watch: needsBalanceOut,
+    chainId: chainId,
     onSuccess(data) {
       if (needsBalanceOut) {
         setNeedsBalanceOut(false);
@@ -339,14 +341,14 @@ export default function Trade() {
     if (isConnected) {
       setTokenInBalance(
         !isNaN(parseFloat(tokenInBal?.formatted.toString()))
-          ? parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+          ? tokenInBal?.formatted.toString()
           : "0.00"
       );
     }
     if (tokenOutBal) {
       setTokenOutBalance(
         !isNaN(parseFloat(tokenOutBal?.formatted.toString()))
-          ? parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
+          ? tokenOutBal?.formatted.toString()
           : "0.00"
       );
     }
@@ -537,7 +539,7 @@ export default function Trade() {
                           <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={logoMap[allHistoricalOrder.tokenIn.address]}
+                              src={logoMap[allHistoricalOrder.tokenIn.address + false]}
                             />
                             {parseFloat(
                                 allHistoricalOrder.amountIn

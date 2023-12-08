@@ -1,5 +1,7 @@
 import { ZERO_ADDRESS } from "./math/constants";
 
+export const defaultNetwork = "arbitrum"
+
 export const chainIdsToNames = {
     1: 'ethereum',
     5: 'goerli',
@@ -65,6 +67,7 @@ export const chainProperties = {
         },
         chainId: '0x66EED',
         wethAddress: '0xefb283ef3167ca2ee9d93b201af15e2af3f6e8c7' as `0x${string}`,
+        daiAddress: '0x19beE8e887a5db5cf20A841eb4DAACBCacF14B1b' as `0x${string}`,
         finAddress: '0x742510a23bf83be959990a510ccae40b2d3d9b83',
         routerAddress: '0x24757e9D68bFCC99A9Dba0a62737703CB1A32e06' as `0x${string}`,
         rangeStakerAddress: '0xe5e2E95A986CE078606C403593593b18Ed98f4d6' as `0x${string}`,
@@ -83,7 +86,8 @@ export const chainProperties = {
             decimals: 18,
         },
         chainId: '0x66EED',
-        wethAddress: '0xefb283ef3167ca2ee9d93b201af15e2af3f6e8c7' as `0x${string}`,
+        wethAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1' as `0x${string}`,
+        daiAddress: '0x19beE8e887a5db5cf20A841eb4DAACBCacF14B1b' as `0x${string}`,
         routerAddress: '0x24757e9D68bFCC99A9Dba0a62737703CB1A32e06' as `0x${string}`,
         rangeStakerAddress: '0xe5e2E95A986CE078606C403593593b18Ed98f4d6' as `0x${string}`,
         coverPoolFactory: '0x5c032AEC3a62AEC6a337D5f2aaA94905ecCBF06B' as `0x${string}`,

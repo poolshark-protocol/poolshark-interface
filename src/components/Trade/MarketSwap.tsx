@@ -578,7 +578,7 @@ export default function MarketSwap() {
                 ).toFixed(2)
               : (0).toFixed(2)}
           </span>
-          <span>BALANCE: {tokenIn.userBalance}</span>
+          <span>BALANCE: {tokenIn.userBalance.toFixed(3)}</span>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3">
           {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox)}

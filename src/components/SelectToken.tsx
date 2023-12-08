@@ -42,6 +42,8 @@ export default function SelectToken(props) {
     state.setDisplayTokenList,
   ]);
 
+  console.log('logomap check:', logoMap[props.displayToken?.address.toLowerCase() + String(props.displayToken?.native)], props.displayToken?.address.toLowerCase(), props.displayToken?.native)
+
   const {
     data: tokenData,
     isError,
@@ -64,6 +66,7 @@ export default function SelectToken(props) {
           symbol: tokenInfo.symbol,
           logoURI: defaultTokenLogo,
           decimals: tokenInfo.decimals,
+          native: false,
         };
         setDisplayTokenList([customToken]);
       }
@@ -277,7 +280,7 @@ export default function SelectToken(props) {
         <div className="flex items-center gap-x-2 w-full">
           {(props.tokenIn.symbol != "Select Token" && props.type == "in") ||
           (props.tokenOut.symbol != "Select Token" && props.type == "out") ? (
-            <img className="md:w-6 w-6" src={logoMap[props.displayToken?.address.toLowerCase()]} />
+            <img className="md:w-6 w-6" src={logoMap[props.displayToken?.address.toLowerCase() + props.displayToken?.native ?? false]} />
           ) : (
             <></>
           )}
