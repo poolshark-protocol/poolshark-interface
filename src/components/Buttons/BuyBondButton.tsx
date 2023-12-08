@@ -5,9 +5,10 @@ import { useState } from "react";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import { SuccessToast } from "../Toasts/Success";
-import { NULL_REFERRER, TELLER_ADDRESS } from "../../constants/bondProtocol";
   
   export default function BuyBondButton({
+    nullReferrer,
+    tellerAddress,
     inputAmount,
     setNeedsSubgraph,
     setNeedsBalance,
@@ -27,17 +28,21 @@ import { NULL_REFERRER, TELLER_ADDRESS } from "../../constants/bondProtocol";
     const { address } = useAccount();
     
     const { config } = usePrepareContractWrite({
-      address: TELLER_ADDRESS,
+      address: tellerAddress,
       abi: bondTellerABI,
       functionName: "purchase",
       args: [
         address,
-        NULL_REFERRER,
+        nullReferrer,
         marketId,
         inputAmount,
         inputAmount,
       ],
       chainId: chainId,
+      enabled: nullReferrer != undefined,
+      onError() {
+        console.log('purchase error', address, nullReferrer, marketId, inputAmount)
+      }
     });
   
     const { data, write } = useContractWrite(config);

@@ -438,7 +438,7 @@ export default function Trade() {
       {/* from here is to stay on trade */}
       <div className="md:mb-20 mb-32 w-full">
         <div className="flex md:flex-row flex-col gap-y-3 item-end justify-between w-full">
-          <h1 className="mt-1.5">Limit Orders</h1>
+          <h1 className="mt-1.5">Orders</h1>
           <div className="text-xs w-full md:w-auto flex">
             <button
               className={`px-5 py-2 w-full md:w-auto ${

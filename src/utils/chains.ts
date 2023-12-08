@@ -65,6 +65,7 @@ export const chainProperties = {
         },
         chainId: '0x66EED',
         wethAddress: '0xefb283ef3167ca2ee9d93b201af15e2af3f6e8c7' as `0x${string}`,
+        finAddress: '0x742510a23bf83be959990a510ccae40b2d3d9b83',
         routerAddress: '0x24757e9D68bFCC99A9Dba0a62737703CB1A32e06' as `0x${string}`,
         rangeStakerAddress: '0xe5e2E95A986CE078606C403593593b18Ed98f4d6' as `0x${string}`,
         coverPoolFactory: '0x5c032AEC3a62AEC6a337D5f2aaA94905ecCBF06B' as `0x${string}`,
@@ -88,6 +89,15 @@ export const chainProperties = {
         coverPoolFactory: '0x5c032AEC3a62AEC6a337D5f2aaA94905ecCBF06B' as `0x${string}`,
         coverSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli',
         limitSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2',
+        bondProtocol: {
+            tellerAddress: "0x007F7735baF391e207E3aA380bb53c4Bd9a5Fed6",
+            auctioneerAddress: "0xF7F9A96cDBFEFd70BDa14a8f30EC503b16bCe9b1",
+            wethAddress: "0x251f7eacde75458b52dbc4995c439128b9ef98ca",
+            finAddress: "0x742510a23bf83be959990a510ccae40b2d3d9b83",
+            nullReferrer: "0x0000000000000000000000000000000000000000",
+            marketId: 46,
+            subgraphUrl: 'https://api.thegraph.com/subgraphs/name/bond-protocol/bp-arbitrum-goerli-testing',
+        }
     },
     //TODO: arbitrumOne values
 };
