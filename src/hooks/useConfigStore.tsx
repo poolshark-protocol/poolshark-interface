@@ -29,7 +29,7 @@ type ConfigAction = {
 const initialConfigState: ConfigState = {
   //
   chainId: 0,
-  networkName: "",
+  networkName: "arbitrum",
   limitSubgraph: undefined,
   coverSubgraph: undefined,
   coverFactoryAddress: undefined,

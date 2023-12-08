@@ -96,6 +96,10 @@ export const gasEstimateSwap = async (
     const provider = new ethers.providers.JsonRpcProvider(
       "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
     );
+    if (poolAddresses?.length == 0 || !provider) {
+      setGasFee("$0.00");
+      setGasLimit(BN_ZERO);
+    }
     const ethUsdQuery = await fetchEthPrice();
     const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
