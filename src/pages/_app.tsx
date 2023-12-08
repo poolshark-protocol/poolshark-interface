@@ -25,7 +25,7 @@ import Loader from '../components/Icons/Loader';
 const { chains, provider } = configureChains(
   [
     arbitrum,
-    arbitrumGoerli,
+    // arbitrumGoerli,
     
   ],    //TODO: arbitrumOne values
   [
@@ -34,11 +34,11 @@ const { chains, provider } = configureChains(
         http: `https://patient-distinguished-pallet.arbitrum-mainnet.quiknode.pro/4cbe7cbdb55ec4b33fdc1a4239e1169b167ae351/`, // arbitrum
       }),
     }),
-    jsonRpcProvider({
-      rpc: (chain) => ({
-        http: `https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/`, // arbitrumGoerli
-      }),
-    }),
+    // jsonRpcProvider({
+    //   rpc: (chain) => ({
+    //     http: `https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/`, // arbitrumGoerli
+    //   }),
+    // }),
     //TODO: arbitrumOne values
   ],
 );
