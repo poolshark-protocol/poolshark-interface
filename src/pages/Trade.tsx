@@ -18,7 +18,7 @@ import {
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { fetchLimitPositions } from "../utils/queries";
-import { getClaimTick, mapUserLimitPositions } from "../utils/maps";
+import { getClaimTick, mapUserHistoricalOrders, mapUserLimitPositions } from "../utils/maps";
 import {
   getAveragePrice,
   getExpectedAmountOut,
@@ -223,6 +223,7 @@ export default function Trade() {
 
   //BOTH
   const [allLimitPositions, setAllLimitPositions] = useState([]);
+  const [allHistoricalOrders, setAllHistoricalOrders] = useState([]);
 
   //BOTH
   useEffect(() => {
@@ -254,6 +255,9 @@ export default function Trade() {
       if (data["data"]) {
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
+        );
+        setAllHistoricalOrders(
+          mapUserHistoricalOrders(data["data"].historicalOrders)
         );
       }
     } catch (error) {
@@ -446,7 +450,7 @@ export default function Trade() {
             >
               ACTIVE ORDERS
             </button>
-            {/*<button
+            <button
               className={`px-5 py-2 w-full md:w-auto ${
                 !activeOrdersSelected
                   ? "bg-main1 border border-main"
@@ -455,7 +459,7 @@ export default function Trade() {
               onClick={() => setActiveOrdersSelected(false)}
             >
               ORDER HISTORY
-            </button>*/}
+            </button>
           </div>
         </div>
         <div className="overflow-hidden rounded-[4px] mt-3 bg-dark  border border-grey">
@@ -522,69 +526,50 @@ export default function Trade() {
               </tbody>
             ) : (
               <tbody className="divide-y divide-grey/70">
-                {allLimitPositions.map((allLimitPosition, index) => {
-                  if (allLimitPosition.positionId != undefined) {
+                {allHistoricalOrders.map((allHistoricalOrder, index) => {
+                  if (allHistoricalOrder.amountIn != undefined) {
                     return (
                       <tr
                         className="text-right text-xs md:text-sm bg-black hover:bg-dark cursor-pointer"
-                        key={allLimitPosition.id}
+                        key={allHistoricalOrder.id}
                       >
                         <td className="py-3 pl-3">
                           <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={logoMap[allLimitPosition.tokenIn.address]}
+                              src={logoMap[allHistoricalOrder.tokenIn.address]}
                             />
                             {parseFloat(
-                              ethers.utils.formatEther(
-                                allLimitPosition.amountIn
-                              )
+                                allHistoricalOrder.amountIn
                             ).toFixed(3) +
                               " " +
-                              allLimitPosition.tokenIn.symbol}
+                              allHistoricalOrder.tokenIn.symbol}
                           </div>
                         </td>
                         <td className="">
                           <div className="flex items-center text-xs text-white gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={logoMap[allLimitPosition.tokenOut.address]}
+                              src={logoMap[allHistoricalOrder.tokenOut.address]}
                             />
                             {parseFloat(
-                              ethers.utils.formatEther(
-                                getExpectedAmountOut(
-                                  parseInt(allLimitPosition.min),
-                                  parseInt(allLimitPosition.max),
-                                  allLimitPosition.tokenIn.id.localeCompare(
-                                    allLimitPosition.tokenOut.id
-                                  ) < 0,
-                                  BigNumber.from(allLimitPosition.liquidity)
-                                )
-                              )
+                              allHistoricalOrder.amountOut
                             ).toFixed(3) +
                               " " +
-                              allLimitPosition.tokenOut.symbol}
+                              allHistoricalOrder.tokenOut.symbol}
                           </div>
                         </td>
                         <td className="text-left text-xs">
                           <div className="flex flex-col">
                             <span>
                               <span className="text-grey1">
-                                1 {allLimitPosition.tokenIn.symbol} ={" "}
+                                1 {allHistoricalOrder.tokenIn.symbol} ={" "}
                               </span>
-                              {getAveragePrice(
-                                allLimitPosition.tokenOut,
-                                allLimitPosition.tokenIn,
-                                parseInt(allLimitPosition.min),
-                                parseInt(allLimitPosition.max),
-                                allLimitPosition.tokenIn.id.localeCompare(
-                                  allLimitPosition.tokenOut.id
-                                ) < 0,
-                                BigNumber.from(allLimitPosition.liquidity),
-                                BigNumber.from(allLimitPosition.amountIn)
-                              ).toFixed(3) +
+                              {parseFloat(
+                                allHistoricalOrder.averagePrice
+                              ).toPrecision(5) +
                                 " " +
-                                allLimitPosition.tokenOut.symbol}
+                                allHistoricalOrder.tokenOut.symbol}
                             </span>
                           </div>
                         </td>
@@ -592,24 +577,7 @@ export default function Trade() {
                           <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
                             <span className="z-50 px-3">
                               {(
-                                parseFloat(
-                                  ethers.utils.formatEther(
-                                    limitFilledAmountList[index]
-                                  )
-                                ) /
-                                parseFloat(
-                                  ethers.utils.formatUnits(
-                                    getExpectedAmountOutFromInput(
-                                      parseInt(allLimitPosition.min),
-                                      parseInt(allLimitPosition.max),
-                                      allLimitPosition.tokenIn.id.localeCompare(
-                                        allLimitPosition.tokenOut.id
-                                      ) < 0,
-                                      BigNumber.from(allLimitPosition.amountIn)
-                                    ),
-                                    allLimitPosition.tokenOut.decimals
-                                  )
-                                )
+                                100
                               ).toFixed(2)}
                               % Filled
                             </span>
@@ -617,7 +585,7 @@ export default function Trade() {
                           </div>
                         </td>
                         <td className="text-grey1 text-left pl-3 text-xs md:table-cell hidden">
-                          {timeDifference(allLimitPosition.timestamp)}
+                          {timeDifference(allHistoricalOrder.completedAtTimestamp)}
                         </td>
                         <td className="w-[39px] h-1 md:table-cell hidden"></td>
                       </tr>
