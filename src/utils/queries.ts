@@ -511,54 +511,82 @@ export const fetchCoverPoolMetrics = (client: CoverSubgraph) => {
 export const fetchLimitPositions = (client: LimitSubgraph, address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
-      query($owner: String) {
-          limitPositions(
-            where: {owner:"${address}"},
-            orderBy: createdAtTimestamp,
-            orderDirection: desc
-          ) {
+    {
+        limitPositions(
+          where: {owner:"${address}"},
+          orderBy: createdAtTimestamp,
+          orderDirection: desc
+        ) {
+            id
+            positionId
+            createdAtTimestamp
+            amountIn
+            amountFilled
+            zeroForOne
+            tokenIn{
                 id
-                positionId
-                createdAtTimestamp
-                amountIn
-                amountFilled
-                zeroForOne
-                tokenIn{
-                    id
-                    name
-                    symbol
-                    decimals
-                }
-                tokenOut{
-                  id
-                  name
-                  symbol
-                  decimals
-                }
-                liquidity
-                lower
-                upper
-                epochLast
-                claimPriceLast
-                owner
-                pool{
-                    id
-                    liquidity
-                    liquidityGlobal
-                    epoch
-                    feeTier{
-                      id
-                      feeAmount
-                      tickSpacing
-                    }
-                    price0
-                    price1
-                    poolPrice
-                    tickSpacing
-                }
-                txnHash
+                name
+                symbol
+                decimals
             }
+            tokenOut{
+              id
+              name
+              symbol
+              decimals
+            }
+            liquidity
+            lower
+            upper
+            epochLast
+            claimPriceLast
+            owner
+            pool{
+                id
+                liquidity
+                liquidityGlobal
+                epoch
+                feeTier{
+                  id
+                  feeAmount
+                  tickSpacing
+                }
+                price0
+                price1
+                poolPrice
+                tickSpacing
+            }
+            txnHash
         }
+        historicalOrders(
+          where: {owner:"${address}", completed: true},
+          orderBy: completedAtTimestamp,
+          orderDirection: desc
+        ) {
+            id
+            tokenIn{
+              id
+              name
+              symbol
+              decimals
+            }
+            pool {
+              id
+            }
+            tokenOut{
+              id
+              name
+              symbol
+              decimals
+            }
+            amountIn
+            amountOut
+            averagePrice
+            completedAtTimestamp
+            completed
+            owner
+        }
+      }
     `;
     client
       .query({

@@ -66,7 +66,6 @@ export const chainProperties = {
         rangeStakerAddress: '0xe5e2E95A986CE078606C403593593b18Ed98f4d6' as `0x${string}`,
         coverPoolFactory: '0x5c032AEC3a62AEC6a337D5f2aaA94905ecCBF06B' as `0x${string}`,
         coverSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli',
-        limitSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2',
         bondProtocol: {
             tellerAddress: "0x007F7735baF391e207E3aA380bb53c4Bd9a5Fed6",
             auctioneerAddress: "0xF7F9A96cDBFEFd70BDa14a8f30EC503b16bCe9b1",
@@ -76,5 +75,6 @@ export const chainProperties = {
             marketId: 46,
             subgraphUrl: 'https://api.thegraph.com/subgraphs/name/bond-protocol/bp-arbitrum-goerli-testing',
         }
+        limitSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/ff8e16f5454291a4fc3e361ff2c31a24/limit-arbitrumGoerli-test',
     },
 };

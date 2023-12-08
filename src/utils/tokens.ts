@@ -44,6 +44,7 @@ export const getLimitTokenUsdPrice = async (
   try {
     const tokenData = await fetchTokenPrice(client, tokenAddress);
     if (
+      tokenData["data"] &&
       tokenData["data"]["tokens"] != undefined &&
       tokenData["data"]["tokens"].length > 0
     ) {

@@ -37,11 +37,18 @@ export const getClaimTick = async (
           epochLast
         );
     // check data length
-    const claimTickDataLength = isCover
-      ? claimTickQuery["data"]["ticks"]?.length
-      : claimTickQuery["data"]["limitTicks"]?.length;
+    let claimTickDataLength;
+    if (isCover) {
+      if (claimTickQuery["data"] && claimTickQuery["data"]["ticks"]) {
+        claimTickDataLength = claimTickQuery["data"]["ticks"]?.length
+      }
+    } else {
+      if (claimTickQuery["data"] && claimTickQuery["data"]["limitTicks"]) {
+        claimTickDataLength = claimTickQuery["data"]["limitTicks"]?.length;
+      }
+    }
     // set claim tick if found
-    if (claimTickDataLength > 0) {
+    if (claimTickDataLength != undefined && claimTickDataLength > 0) {
       if (setAddLiqDisabled != undefined) {
         setAddLiqDisabled(true);
       }
@@ -84,11 +91,18 @@ export const getClaimTick = async (
           epochLast
         );
     // check data length
-    const claimTickDataLength = isCover
-      ? claimTickQuery["data"]["ticks"]?.length
-      : claimTickQuery["data"]["limitTicks"]?.length;
+    let claimTickDataLength
+    if (isCover) {
+      if (claimTickQuery["data"] && claimTickQuery["data"]["ticks"]) {
+        claimTickDataLength = claimTickQuery["data"]["ticks"]?.length
+      }
+    } else {
+      if (claimTickQuery["data"] && claimTickQuery["data"]["limitTicks"]) {
+        claimTickDataLength = claimTickQuery["data"]["limitTicks"]?.length;
+      }
+    }
     // set claim tick if found
-    if (claimTickDataLength > 0) {
+    if (claimTickDataLength && claimTickDataLength > 0) {
       if (setAddLiqDisabled != undefined) {
         setAddLiqDisabled(true);
       }
@@ -285,6 +299,35 @@ export function mapUserLimitPositions(limitPositions) {
     mappedLimitPositions.push(limitPositionData);
   });
   return mappedLimitPositions;
+}
+
+export function mapUserHistoricalOrders(historicalOrders) {
+  const mappedHistoricalOrders = [];
+  historicalOrders?.map((historicalOrder) => {
+    const historicalOrderData = {
+      id: historicalOrder.id,
+      pool: historicalOrder.pool,
+      poolId: historicalOrder.pool.id,
+      amountIn: historicalOrder.amountIn,
+      amountOut: historicalOrder.amountOut,
+      averagePrice: historicalOrder.averagePrice,
+      completedAtTimestamp: historicalOrder.completedAtTimestamp,
+      completed: historicalOrder.completed,
+      tokenIn: {
+        ...historicalOrder.tokenIn,
+        address: historicalOrder.tokenIn.id,
+        logoURI: historicalOrder.tokenIn.logoURI,
+      },
+      tokenOut: {
+        ...historicalOrder.tokenOut,
+        address: historicalOrder.tokenOut.id,
+        logoURI: historicalOrder.tokenOut.logoURI,
+      },
+      userOwnerAddress: historicalOrder.owner.replace(/"|'/g, ""),
+    };
+    mappedHistoricalOrders.push(historicalOrderData);
+  });
+  return mappedHistoricalOrders;
 }
 
 export function mapBondMarkets(markets) {
