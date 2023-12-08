@@ -258,7 +258,7 @@ export default function Bond() {
     address: bondProtocolConfig["tellerAddress"],
     abi: bondTellerABI,
     functionName: "getTokenId",
-    args: [finAddress, marketData[0]?.vesting],
+    args: [finAddress, marketData[0]?.vesting], // add vesting period to each date market is open
     chainId: chainId,
     enabled: bondProtocolConfig["tellerAddress"] != undefined && finAddress != "" && marketData[0] != undefined,
     onError() {
@@ -392,6 +392,7 @@ export default function Bond() {
             </a>
           </div>
         </div>
+        {/* add vesting claim for each day the market is live */}
         {vestingTokenBalance != undefined && vestingTokenId != undefined && parseFloat(formatEther(vestingTokenBalance)) > 0 ? (
           <div className="border bg-main1/30 border-main/40 p-5 mt-5">
           <h1 className="">PAYOUT AVAILABLE</h1>
