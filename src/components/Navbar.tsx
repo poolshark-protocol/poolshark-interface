@@ -59,7 +59,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                   RANGE
                 </div>
               </Link>
-              {/* <Link href="/cover"> */}
+              {/* <Link href="/cover"> 
               <div
                 className={
                   router.pathname.includes("/cover")
@@ -70,7 +70,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                 <Cover />
                 COVER
               </div>
-              {/* </Link> */}
+               </Link> */}
               <Link href="/bond">
                 <div
                   className={
@@ -127,7 +127,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                 RANGE
               </div>
             </Link>
-            {/* <Link href="/cover"> */}
+            {/* <Link href="/cover">
             <div
               className={
                 router.pathname.includes("/cover")
@@ -138,7 +138,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
               <Cover />
               COVER
             </div>
-            {/* </Link> */}
+            </Link> */}
             <Link href="/bond">
               <div
                 className={
