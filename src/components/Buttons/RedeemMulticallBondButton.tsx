@@ -5,9 +5,9 @@ import { useState } from "react";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import { SuccessToast } from "../Toasts/Success";
-import { TELLER_ADDRESS } from "../../constants/bondProtocol";
 
 export default function RedeemMulticallBondButton({
+  tellerAddress,
   tokenId,
   amount,
   setNeedsBondTokenData,
@@ -24,7 +24,7 @@ export default function RedeemMulticallBondButton({
   const { address } = useAccount();
   
   const { config } = usePrepareContractWrite({
-    address: TELLER_ADDRESS,
+    address: tellerAddress,
     abi: bondTellerABI,
     functionName: "redeem",
     args: [
@@ -32,6 +32,9 @@ export default function RedeemMulticallBondButton({
       amount,
     ],
     chainId: chainId,
+    onError() {
+      console.log('redeem error')
+    }
   });
 
   const { data, write } = useContractWrite(config);

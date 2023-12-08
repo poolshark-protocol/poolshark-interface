@@ -21,14 +21,7 @@ import { auctioneerABI } from "../../abis/evm/bondAuctioneer";
 import useInputBox from "../../hooks/useInputBox";
 import { tokenSwap } from "../../utils/types";
 import ApproveBondButton from "../../components/Buttons/ApproveBondButton";
-import {
-  AUCTIONEER_ADDRESS,
-  FIN_ADDRESS,
-  MARKET_ID,
-  NULL_REFERRER,
-  TELLER_ADDRESS,
-  WETH_ADDRESS,
-} from "../../constants/bondProtocol";
+import { chainProperties } from "../../utils/chains";
 
 export default function Bond() {
   const { address } = useAccount();
@@ -43,11 +36,9 @@ export default function Bond() {
     useState(true);
   const [needsBondTokenData, setNeedsBondTokenData] = useState(true);
 
-  const [chainId] = useConfigStore((state) => [
+  const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
-    state.limitSubgraph,
-    state.coverSubgraph,
   ]);
 
   const { bnInput, inputBox, display, maxBalance } = useInputBox();
@@ -67,13 +58,21 @@ export default function Bond() {
   const [vestingTokenBalance, setVestingTokenBalance] = useState(undefined);
   const [vestingTokenId, setVestingTokenId] = useState(undefined);
 
+  const [finAddress, setFinAddress] = useState("");
+  const [bondProtocolConfig, setBondProtocolConfig] = useState({});
+
+  useEffect(() => {
+    setFinAddress(chainProperties[networkName]["finAddress"] ?? chainProperties["arbitrum"]["finAddress"])
+    setBondProtocolConfig(chainProperties[networkName]["bondProtocol"] ?? chainProperties["arbitrum"]["bondProtocol"])
+  }, [chainId]);
+
   const [tellerDisplay, setPoolDisplay] = useState(
-    TELLER_ADDRESS
-      ? TELLER_ADDRESS.toString().substring(0, 6) +
+    bondProtocolConfig["tellerAddress"]
+      ? bondProtocolConfig["tellerAddress"].toString().substring(0, 6) +
           "..." +
-          TELLER_ADDRESS.toString().substring(
-            TELLER_ADDRESS.toString().length - 4,
-            TELLER_ADDRESS.toString().length
+          bondProtocolConfig["tellerAddress"].toString().substring(
+            bondProtocolConfig["tellerAddress"].toString().length - 4,
+            bondProtocolConfig["tellerAddress"].toString().length
           )
       : undefined
   );
@@ -106,8 +105,8 @@ export default function Bond() {
 
   const { data: tokenBalanceData } = useBalance({
     address: address,
-    token: WETH_ADDRESS,
-    enabled: WETH_ADDRESS != undefined && needsBalance,
+    token: bondProtocolConfig["wethAddress"],
+    enabled: bondProtocolConfig["wethAddress"] != undefined && needsBalance,
     watch: needsBalance,
   });
 
@@ -119,13 +118,13 @@ export default function Bond() {
   }, [tokenBalance]);
 
   const { data: tokenAllowanceData } = useContractRead({
-    address: WETH_ADDRESS,
+    address: bondProtocolConfig["wethAddress"],
     abi: methABI,
     functionName: "allowance",
-    args: [address, TELLER_ADDRESS],
+    args: [address, bondProtocolConfig["tellerAddress"]],
     chainId: chainId,
     watch: needsAllowance,
-    enabled: WETH_ADDRESS != undefined,
+    enabled: bondProtocolConfig["wethAddress"] != undefined,
   });
 
   useEffect(() => {
@@ -137,9 +136,11 @@ export default function Bond() {
 
   async function getUserBonds() {
     try {
-      const data = await fetchUserBonds(MARKET_ID.toString(), address.toLowerCase());
-      if (data["data"]) {
-        setAllUserBonds(mapUserBondPurchases(data["data"].bondPurchases));
+      if (bondProtocolConfig["marketId"] != undefined) {
+        const data = await fetchUserBonds(bondProtocolConfig["marketId"].toString(), address.toLowerCase(), bondProtocolConfig["subgraphUrl"]);
+        if (data["data"]) {
+          setAllUserBonds(mapUserBondPurchases(data["data"].bondPurchases));
+        }
       }
     } catch (error) {
       console.log("user bond subgraph error", error);
@@ -148,9 +149,11 @@ export default function Bond() {
 
   async function getMarket() {
     try {
-      const data = await fetchBondMarket(MARKET_ID.toString());
-      if (data["data"]) {
-        setMarketData(mapBondMarkets(data["data"].markets));
+      if (bondProtocolConfig["marketId"] != undefined) {
+        const data = await fetchBondMarket(bondProtocolConfig["marketId"].toString(), bondProtocolConfig["subgraphUrl"]);
+        if (data["data"]) {
+          setMarketData(mapBondMarkets(data["data"].markets));
+        }
       }
     } catch (error) {
       console.log("market subgraph error", error);
@@ -161,7 +164,7 @@ export default function Bond() {
     getMarket();
     getUserBonds();
     setNeedsSubgraph(false);
-  }, []);
+  }, [bondProtocolConfig]);
 
   useEffect(() => {
     if (address && needsSubgraph) {
@@ -173,13 +176,16 @@ export default function Bond() {
   }, [needsSubgraph]);
 
   const { data: marketPurchaseData } = useContractRead({
-    address: AUCTIONEER_ADDRESS,
+    address: bondProtocolConfig["auctioneerAddress"],
     abi: auctioneerABI,
     functionName: "getMarketInfoForPurchase",
-    args: [MARKET_ID],
+    args: [bondProtocolConfig["marketId"]],
     chainId: chainId,
     watch: needsMarketPurchaseData,
     enabled: needsMarketPurchaseData,
+    onError() {
+      console.log('getMarketInfoForPurchase error')
+    }
   });
 
   useEffect(() => {
@@ -190,13 +196,16 @@ export default function Bond() {
   }, [marketPurchaseData]);
 
   const { data: currentCapacityData } = useContractRead({
-    address: AUCTIONEER_ADDRESS,
+    address: bondProtocolConfig["auctioneerAddress"],
     abi: auctioneerABI,
     functionName: "currentCapacity",
-    args: [MARKET_ID],
+    args: [bondProtocolConfig["marketId"]],
     chainId: chainId,
     watch: needsCapacityData,
     enabled: needsCapacityData,
+    onError() {
+      console.log('current capacity error')
+    }
   });
 
   useEffect(() => {
@@ -207,41 +216,54 @@ export default function Bond() {
   }, [currentCapacityData]);
 
   const { data: marketPriceData } = useContractRead({
-    address: AUCTIONEER_ADDRESS,
+    address: bondProtocolConfig["auctioneerAddress"],
     abi: auctioneerABI,
     functionName: "marketPrice",
-    args: [MARKET_ID],
+    args: [bondProtocolConfig["marketId"]],
     chainId: chainId,
     watch: needsMarketPriceData,
     enabled: needsMarketPriceData,
+    onError() {
+      console.log('marketPrice error')
+    }
   });
 
   const { data: marketScaleData } = useContractRead({
-    address: AUCTIONEER_ADDRESS,
+    address: bondProtocolConfig["auctioneerAddress"],
     abi: auctioneerABI,
     functionName: "marketScale",
-    args: [MARKET_ID],
+    args: [bondProtocolConfig["marketId"]],
     chainId: chainId,
     watch: needsMarketPriceData,
     enabled: needsMarketPriceData,
+    onError() {
+      console.log('marketScale error')
+    }
   });
 
   const { data: maxAmountAcceptedData } = useContractRead({
-    address: AUCTIONEER_ADDRESS,
+    address: bondProtocolConfig["auctioneerAddress"],
     abi: auctioneerABI,
     functionName: "maxAmountAccepted",
-    args: [MARKET_ID, NULL_REFERRER],
+    args: [bondProtocolConfig["marketId"], bondProtocolConfig["nullReferrer"]],
     chainId: chainId,
     watch: needsMaxAmountAcceptedData,
     enabled: needsMaxAmountAcceptedData,
+    onError() {
+      console.log('maxAmountAccepted error')
+    }
   });
 
   const { data: vestingTokenIdData } = useContractRead({
-    address: TELLER_ADDRESS,
+    address: bondProtocolConfig["tellerAddress"],
     abi: bondTellerABI,
     functionName: "getTokenId",
-    args: [FIN_ADDRESS, marketData[0]?.vesting],
+    args: [finAddress, marketData[0]?.vesting], // add vesting period to each date market is open
     chainId: chainId,
+    enabled: bondProtocolConfig["tellerAddress"] != undefined && finAddress != "" && marketData[0] != undefined,
+    onError() {
+      console.log('getTokenId error', bondProtocolConfig["tellerAddress"], finAddress, marketData[0]?.vesting)
+    }
   });
 
   useEffect(() => {
@@ -251,13 +273,16 @@ export default function Bond() {
   }, [vestingTokenIdData]);
 
   const { data: vestingTokenBalanceData } = useContractRead({
-    address: TELLER_ADDRESS,
+    address: bondProtocolConfig["tellerAddress"],
     abi: bondTellerABI,
     functionName: "balanceOf",
     args: [address, vestingTokenId],
     chainId: chainId,
     watch: needsBondTokenData,
-    enabled: needsBondTokenData,
+    enabled: needsBondTokenData && vestingTokenId != undefined,
+    onError() {
+      console.log('balanceOf error', address, vestingTokenId)
+    }
   });
 
   useEffect(() => {
@@ -270,8 +295,7 @@ export default function Bond() {
   useEffect(() => {
     if (maxAmountAcceptedData) {
       const maxAccepted =
-        (Number(maxAmountAcceptedData) -
-          Number(maxAmountAcceptedData) * 0.005) /
+        (Number(maxAmountAcceptedData)) /
         Math.pow(10, 18);
       setMaxAmountAccepted(maxAccepted);
       setNeedsMaxAmountAcceptedData(false);
@@ -333,7 +357,7 @@ export default function Bond() {
                   BOND
                 </h1>
                 <a
-                  href={"https://goerli.arbiscan.io/address/" + TELLER_ADDRESS}
+                  href={"https://goerli.arbiscan.io/address/" + bondProtocolConfig["tellerAddress"]}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-x-3 text-grey1 group cursor-pointer"
@@ -368,6 +392,7 @@ export default function Bond() {
             </a>
           </div>
         </div>
+        {/* add vesting claim for each day the market is live */}
         {vestingTokenBalance != undefined && vestingTokenId != undefined && parseFloat(formatEther(vestingTokenBalance)) > 0 ? (
           <div className="border bg-main1/30 border-main/40 p-5 mt-5">
           <h1 className="">PAYOUT AVAILABLE</h1>
@@ -376,7 +401,8 @@ export default function Bond() {
                   AMOUNT <span className="text-white text-lg">{parseFloat(formatEther(vestingTokenBalance)).toFixed(4)} FIN</span>
                 </div>
               </div>
-            <RedeemMulticallBondButton 
+            <RedeemMulticallBondButton
+              tellerAddress={bondProtocolConfig["tellerAddress"]}
               tokenId={vestingTokenId}
               amount={vestingTokenBalance}
               setNeedsBondTokenData={setNeedsBondTokenData}/>
@@ -528,7 +554,7 @@ export default function Bond() {
                         ? (
                             parseFloat(formatEther(bnInput)) *
                             (1 / quoteTokensPerPayoutToken)
-                          ).toFixed(4)
+                          ).toFixed(2)
                         : "0"}{" "}
                       FIN
                     </span>
@@ -559,15 +585,19 @@ export default function Bond() {
                 {parseFloat(formatEther(bnInput)) <= maxAmountAccepted ? (
                   tokenAllowance >= bnInput ? (
                     <BuyBondButton
+                      nullReferrer={bondProtocolConfig["nullReferred"]}
+                      tellerAddress={bondProtocolConfig["tellerAddress"]}
                       inputAmount={bnInput}
                       setNeedsSubgraph={setNeedsSubgraph}
                       setNeedsBalance={setNeedsBalance}
                       setNeedsAllowance={setNeedsAllowance}
                       setNeedsBondTokenData={setNeedsBondTokenData}
-                      marketId={BigNumber.from(MARKET_ID)}
+                      marketId={BigNumber.from(bondProtocolConfig["marketId"])}
                     />
                   ) : (
                     <ApproveBondButton
+                      tellerAddress={bondProtocolConfig["tellerAddress"]}
+                      wethAddress={bondProtocolConfig["wethAddress"]}
                       inputAmount={bnInput}
                       setNeedsAllowance={setNeedsAllowance}
                     />
