@@ -29,7 +29,6 @@ import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { chainProperties } from "../../utils/chains";
 import LimitCreateAndMintButton from "../Buttons/LimitCreateAndMintButton";
 import inputFilter from "../../utils/inputFilter";
-import { getLimitTokenUsdPrice } from "../../utils/tokens";
 import {
   gasEstimateLimitCreateAndMint,
   gasEstimateMintLimit,
@@ -1063,7 +1062,7 @@ export default function LimitSwap() {
             tradePoolData?.id != ZERO_ADDRESS ? (
               <LimitSwapButton
                 routerAddress={chainProperties[networkName]["routerAddress"]}
-                disabled={mintGasLimit.eq(BN_ZERO) || tradeButton.disabled}
+                disabled={mintGasLimit.lt(BigNumber.from('100000')) || tradeButton.disabled}
                 poolAddress={tradePoolData?.id}
                 to={address}
                 amount={amountIn}

@@ -11,7 +11,9 @@ export const getSwapPools = async (
   swapPoolData,
   setSwapPoolData,
   setTokenInTradeUSDPrice,
-  setTokenOutTradeUSDPrice
+  setTokenOutTradeUSDPrice,
+  setSwapPoolPrice?,
+  setSwapPoolLiquidity?
 ) => {
   try {
     const limitPools = await getLimitPoolFromFactory(
@@ -24,18 +26,28 @@ export const getSwapPools = async (
       const allPools = data["limitPools"];
       if (swapPoolData?.id != allPools[0].id) {
         setSwapPoolData(allPools[0]);
-        fetchRangeTokenUSDPrice(
-          allPools[0],
-          tokenIn,
-          setTokenInTradeUSDPrice
-        )
-        fetchRangeTokenUSDPrice(
-          allPools[0],
-          tokenOut,
-          setTokenOutTradeUSDPrice
-        )
+      } else {
+        if (setSwapPoolPrice != undefined) {
+          if (allPools[0].poolPrice != swapPoolData.poolPrice) {
+            setSwapPoolPrice(allPools[0].poolPrice)
+          }
+        }
+        if (setSwapPoolLiquidity != undefined) {
+          if (allPools[0].liquidity != swapPoolData.liquidity) {
+            setSwapPoolLiquidity(allPools[0].liquidity)
+          }
+        }
       }
-
+      fetchRangeTokenUSDPrice(
+        allPools[0],
+        tokenIn,
+        setTokenInTradeUSDPrice
+      )
+      fetchRangeTokenUSDPrice(
+        allPools[0],
+        tokenOut,
+        setTokenOutTradeUSDPrice
+      )
       return allPools;
     } else {
       return setSwapPoolData({

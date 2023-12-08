@@ -20,6 +20,7 @@ import axios from 'axios';
 import { coinsList } from '../utils/types';
 import { useRouter } from 'next/router';
 import TermsOfService from '../components/Modals/ToS';
+import Loader from '../components/Icons/Loader';
 
 
 const { chains, provider } = configureChains(
@@ -69,7 +70,7 @@ const whitelist = [
 
 function MyApp({ Component, pageProps }) {
 
-  const [whitelisted, setWhitelisted] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const { address, isDisconnected, isConnected } = useAccount()
 
   const [_isConnected, _setIsConnected] = useState(false);
@@ -148,6 +149,7 @@ function MyApp({ Component, pageProps }) {
           if (coins.search_tokens != undefined) {
             setSearchTokenList(coins.search_tokens);
           }
+          setIsLoading(false)
         }
       ).catch(function (error) {
         console.log(error);
@@ -183,40 +185,14 @@ function MyApp({ Component, pageProps }) {
           {/* <ApolloProvider client={apolloClient}> */} 
             <>
             {_isConnected && !tosAccepted && (<TermsOfService setIsOpen={true} isOpen={true} onAccept={handleTosAccept} />)}
-            { _isConnected || router.pathname.includes("/blocked") ? (whitelist.map(v => v.toLowerCase()).includes(address?.toLowerCase()) || router.pathname.includes("/blocked") ? (
+            { !isLoading ? (
               <div className="font-Jetbrains"><Component  {...pageProps} /></div>
             )
             : 
-            <div className="min-h-screen flex items-center justify-center px-5 font-Jetbrains">
-            <div className="md:max-w-lg">
-                <img src="/static/images/logo.png" className="mx-auto mb-10 w-56" />
-                <div className="text-white text-center mb-10 text-sm">
-                Poolshark is currently under a closed testnet beta. You must be whitelisted in order to access the platform.  <a href="https://27m2bjslfwm.typeform.com/to/mJZBpT2x" className="text-main2 underline flex items-center justify-center mt-4 gap-x-2">Click here to join the waitlist<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a>
-                </div>
-                <div className="mx-auto text-white text-center">
-                <ConnectWalletButton center={true}/>
-                <div className="mt-5 text-grey">
-                This wallet is not whitelisted
-                </div>
-                </div>
-                </div>
-            </div>
-          ) 
-            : 
-            (<div className="min-h-screen flex items-center justify-center px-5 font-Jetbrains">
-              <div className="md:max-w-lg ">
-                <img src="/static/images/logo.png" className="mx-auto mb-10 w-60" />
-                <div className="text-white text-center mb-10 text-sm">
-                Poolshark is currently under a closed testnet beta. You must be whitelisted in order to access the platform. <a href="https://27m2bjslfwm.typeform.com/to/mJZBpT2x" className="text-main2 underline flex items-center justify-center mt-4 gap-x-2">Click here to join the waitlist<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-</svg>
-</a>
-                </div>
-                <div className="mx-10">
-                <ConnectWalletButton/>
-                </div>
-                </div>
-            </div>) }
+            <div className="h-screen w-screen flex justify-center items-center text-main2 flex-col gap-y-5">
+              <svg stroke="currentColor" className='animate-spin' fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="3em" width="3em" xmlns="http://www.w3.org/2000/svg"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+              <h1 className='text-white -mr-8'>Loading...</h1>
+            </div> }
             </>
             <Analytics />
           {/* </ApolloProvider> */}

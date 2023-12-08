@@ -19,12 +19,13 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 
 export default function ViewCover() {
-  const [chainId, networkName, coverSubgraph, setCoverSubgraph] =
+  const [chainId, networkName, coverSubgraph, setCoverSubgraph, logoMap] =
     useConfigStore((state) => [
       state.chainId,
       state.networkName,
       state.coverSubgraph,
       state.setCoverSubgraph,
+      state.logoMap,
     ]);
 
   const [
@@ -408,7 +409,7 @@ export default function ViewCover() {
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
               ) : (
-                <img height="50" width="50" src={tokenIn.logoURI} />
+                <img height="50" width="50" src={logoMap[tokenIn.address]} />
               )}
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
@@ -417,7 +418,7 @@ export default function ViewCover() {
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={tokenOut.logoURI}
+                  src={logoMap[tokenOut.address]}
                 />
               )}
             </div>
@@ -447,16 +448,16 @@ export default function ViewCover() {
                 </a>
               </div>
               <div className="flex items-center gap-x-5">
-              {isLoading ? (
+                {isLoading ? (
                   <div className="h-5 w-14 bg-grey/60 animate-pulse rounded-[4px]" />
                 ) : (
                   <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
                     {
-                    volTierMap.get(
-                      coverPoolData.volatilityTier?.feeAmount?.toString()
-                    )?.volatility
-                  }
-                  %
+                      volTierMap.get(
+                        coverPoolData.volatilityTier?.feeAmount?.toString()
+                      )?.volatility
+                    }
+                    %
                   </span>
                 )}
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
@@ -556,7 +557,11 @@ export default function ViewCover() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenIn.logoURI} />
+                        <img
+                          height="25"
+                          width="25"
+                          src={logoMap[tokenIn.address]}
+                        />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -755,10 +760,14 @@ export default function ViewCover() {
                   )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
-                    {isLoading ? (
+                      {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenOut.logoURI} />
+                        <img
+                          height="25"
+                          width="25"
+                          src={logoMap[tokenOut.address]}
+                        />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />

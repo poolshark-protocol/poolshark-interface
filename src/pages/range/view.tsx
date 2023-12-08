@@ -416,7 +416,7 @@ export default function ViewRange() {
 
   // store erc-1155 approval status
   useEffect(() => {
-    setStakeApproved(stakeApproveStatus)
+    setStakeApproved(stakeApproveStatus);
   }, [stakeApproveStatus]);
 
   ////////////////////////////////Mint Button Handler
@@ -437,7 +437,7 @@ export default function ViewRange() {
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
               ) : (
-                <img height="50" width="50" src={logoMap[tokenIn.logoURI]} />
+                <img height="50" width="50" src={logoMap[tokenIn.address]} />
               )}
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
@@ -446,7 +446,7 @@ export default function ViewRange() {
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={logoMap[tokenOut.logoURI]}
+                  src={logoMap[tokenOut.address]}
                 />
               )}
             </div>
@@ -561,7 +561,7 @@ export default function ViewRange() {
                         <img
                           height="25"
                           width="25"
-                          src={logoMap[tokenIn.logoURI]}
+                          src={logoMap[tokenIn.address]}
                         />
                       )}
                       {isLoading ? (
@@ -595,7 +595,7 @@ export default function ViewRange() {
                         <img
                           height="25"
                           width="25"
-                          src={logoMap[tokenOut.logoURI]}
+                          src={logoMap[tokenOut.address]}
                         />
                       )}
                       {isLoading ? (
@@ -730,7 +730,7 @@ export default function ViewRange() {
                         <img
                           height="25"
                           width="25"
-                          src={logoMap[tokenIn.logoURI]}
+                          src={logoMap[tokenIn.address]}
                         />
                       )}
                       {isLoading ? (
@@ -764,7 +764,7 @@ export default function ViewRange() {
                         <img
                           height="25"
                           width="25"
-                          src={logoMap[tokenOut.logoURI]}
+                          src={logoMap[tokenOut.address]}
                         />
                       )}
                       {isLoading ? (

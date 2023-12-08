@@ -31,14 +31,14 @@ export default function RangePool({ rangePool, href }) {
     const tokenIn = {
       name: rangePool.tokenZero.symbol,
       address: rangePool.tokenZero.id,
-      logoURI: logoMap[rangePool.tokenZero.symbol],
+      logoURI: logoMap[rangePool.tokenZero.id],
       symbol: rangePool.tokenZero.symbol,
       decimals: rangePool.tokenZero.decimals,
     };
     const tokenOut = {
       name: rangePool.tokenOne.symbol,
       address: rangePool.tokenOne.id,
-      logoURI: logoMap[rangePool.tokenOne.symbol],
+      logoURI: logoMap[rangePool.tokenOne.id],
       symbol: rangePool.tokenOne.symbol,
       decimals: rangePool.tokenOne.decimals,
     };
@@ -62,11 +62,11 @@ export default function RangePool({ rangePool, href }) {
             <div className="flex items-center">
               <img
                 className="w-[25px] h-[25px]"
-                src={logoMap[rangePool.tokenZero.symbol]}
+                src={logoMap[rangePool.tokenZero.id]}
               />
               <img
                 className="w-[25px] h-[25px] ml-[-8px]"
-                src={logoMap[rangePool.tokenOne.symbol]}
+                src={logoMap[rangePool.tokenOne.id]}
               />
             </div>
             <span className="text-white text-xs flex items-center gap-x-1.5 whitespace-nowrap">

@@ -42,12 +42,14 @@ export default function CoverExistingPool({ goBack }) {
     limitSubgraph,
     coverSubgraph,
     coverFactoryAddress,
+    logoMap
   ] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
     state.limitSubgraph,
     state.coverSubgraph,
     state.coverFactoryAddress,
+    state.logoMap
   ]);
 
   const [
@@ -668,7 +670,7 @@ export default function CoverExistingPool({ goBack }) {
         <div className="flex justify-between md:justify-start gap-x-4 items-center">
           <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
             <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
-              <img className="md:w-7 w-6" src={tokenIn.logoURI} />
+              <img className="md:w-7 w-6" src={logoMap[tokenIn.address]} />
               {tokenIn.symbol}
             </div>
           </button>
@@ -680,7 +682,7 @@ export default function CoverExistingPool({ goBack }) {
           />
           <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
             <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
-              <img className="md:w-7 w-6" src={tokenOut.logoURI} />
+              <img className="md:w-7 w-6" src={logoMap[tokenOut.address]} />
               {tokenOut.symbol}
             </div>
           </button>

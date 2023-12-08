@@ -13,7 +13,6 @@ import {
 } from "../utils/chains";
 import { ZERO_ADDRESS } from "../utils/math/constants";
 import {
-  fetchRangeTokenUSDPrice,
   getLimitTokenUsdPrice,
 } from "../utils/tokens";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
@@ -26,7 +25,7 @@ import {
   getExpectedAmountOutFromInput,
 } from "../utils/math/priceMath";
 import { timeDifference } from "../utils/time";
-import { inputHandler, parseUnits } from "../utils/math/valueMath";
+import { parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
 import { useConfigStore } from "../hooks/useConfigStore";
 import MarketSwap from "../components/Trade/MarketSwap";
@@ -534,7 +533,7 @@ export default function Trade() {
                           <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={logoMap[allLimitPosition.tokenIn.symbol]}
+                              src={logoMap[allLimitPosition.tokenIn.address]}
                             />
                             {parseFloat(
                               ethers.utils.formatEther(
@@ -549,7 +548,7 @@ export default function Trade() {
                           <div className="flex items-center text-xs text-white gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={logoMap[allLimitPosition.tokenOut.symbol]}
+                              src={logoMap[allLimitPosition.tokenOut.address]}
                             />
                             {parseFloat(
                               ethers.utils.formatEther(

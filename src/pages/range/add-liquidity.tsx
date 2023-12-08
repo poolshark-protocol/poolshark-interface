@@ -165,7 +165,7 @@ export default function AddLiquidity({}) {
           const originalTokenIn = {
             name: pool.token0.symbol,
             address: pool.token0.id,
-            logoURI: logoMap[pool.token0.symbol],
+            logoURI: logoMap[pool.token0.id],
             symbol: pool.token0.symbol,
             decimals: pool.token0.decimals,
             userBalance: pool.token0.balance,
@@ -174,7 +174,7 @@ export default function AddLiquidity({}) {
           const originalTokenOut = {
             name: pool.token1.symbol,
             address: pool.token1.id,
-            logoURI: logoMap[pool.token1.symbol],
+            logoURI: logoMap[pool.token1.id],
             symbol: pool.token1.symbol,
             decimals: pool.token1.decimals,
             userBalance: pool.token1.balance,
@@ -621,8 +621,8 @@ export default function AddLiquidity({}) {
           <div>
             <div className="flex  items-center gap-x-2 bg-dark border border-grey py-2 px-5 rounded-[4px]">
               <div className="flex items-center">
-                <img className="md:w-6 w-6" src={logoMap[tokenIn?.symbol]} />
-                <img className="md:w-6 w-6 -ml-2" src={logoMap[tokenOut?.symbol]} />
+                <img className="md:w-6 w-6" src={logoMap[tokenIn?.address]} />
+                <img className="md:w-6 w-6 -ml-2" src={logoMap[tokenOut?.address]} />
               </div>
               <span className="text-white text-xs">
                 {tokenIn.callId == 0 ? tokenIn.symbol : tokenOut.symbol} -{" "}
