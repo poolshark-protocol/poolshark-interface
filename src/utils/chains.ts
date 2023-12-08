@@ -74,7 +74,7 @@ export const chainProperties = {
             nullReferrer: "0x0000000000000000000000000000000000000000",
             marketId: 46,
             subgraphUrl: 'https://api.thegraph.com/subgraphs/name/bond-protocol/bp-arbitrum-goerli-testing',
-        }
+        },
         limitSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/ff8e16f5454291a4fc3e361ff2c31a24/limit-arbitrumGoerli-test',
     },
 };
