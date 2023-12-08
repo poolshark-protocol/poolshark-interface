@@ -13,7 +13,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { weth9ABI } from "../../abis/evm/weth9";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
   
-  export default function SwapWrapEtherButton({
+  export default function SwapWrapNativeButton({
     disabled,
     routerAddress,
     wethAddress,
