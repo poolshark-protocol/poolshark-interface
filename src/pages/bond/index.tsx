@@ -400,7 +400,8 @@ export default function Bond() {
                   AMOUNT <span className="text-white text-lg">{parseFloat(formatEther(vestingTokenBalance)).toFixed(4)} FIN</span>
                 </div>
               </div>
-            <RedeemMulticallBondButton 
+            <RedeemMulticallBondButton
+              tellerAddress={bondProtocolConfig["tellerAddress"]}
               tokenId={vestingTokenId}
               amount={vestingTokenBalance}
               setNeedsBondTokenData={setNeedsBondTokenData}/>
@@ -583,6 +584,8 @@ export default function Bond() {
                 {parseFloat(formatEther(bnInput)) <= maxAmountAccepted ? (
                   tokenAllowance >= bnInput ? (
                     <BuyBondButton
+                      nullReferrer={bondProtocolConfig["nullReferred"]}
+                      tellerAddress={bondProtocolConfig["tellerAddress"]}
                       inputAmount={bnInput}
                       setNeedsSubgraph={setNeedsSubgraph}
                       setNeedsBalance={setNeedsBalance}
@@ -592,6 +595,8 @@ export default function Bond() {
                     />
                   ) : (
                     <ApproveBondButton
+                      tellerAddress={bondProtocolConfig["tellerAddress"]}
+                      wethAddress={bondProtocolConfig["wethAddress"]}
                       inputAmount={bnInput}
                       setNeedsAllowance={setNeedsAllowance}
                     />

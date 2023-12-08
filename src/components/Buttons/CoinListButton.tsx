@@ -1,5 +1,4 @@
-import React, { useEffect } from "react";
-import useTokenBalance from "../../hooks/useTokenBalance";
+import React from "react";
 
 function CoinListButton({ chooseToken, coin }) {
 

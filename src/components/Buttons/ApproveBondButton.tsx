@@ -1,14 +1,13 @@
-import { useAccount, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
+import { erc20ABI, useAccount, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { bondTellerABI } from "../../abis/evm/bondTeller";
 import { useState } from "react";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import { SuccessToast } from "../Toasts/Success";
-import { methABI } from "../../abis/evm/meth";
-
   
   export default function ApproveBondButton({
+    tellerAddress,
+    wethAddress,
     inputAmount,
     setNeedsAllowance,
   }) {
@@ -21,20 +20,20 @@ import { methABI } from "../../abis/evm/meth";
     const [errorDisplay, setErrorDisplay] = useState(false);
     const [successDisplay, setSuccessDisplay] = useState(false);
 
-    const TELLER_ADDRESS = "0x007F7735baF391e207E3aA380bb53c4Bd9a5Fed6"
-    const WETH_ADDRESS = "0x251f7eacde75458b52dbc4995c439128b9ef98ca"
-
     const { address } = useAccount();
     
     const { config } = usePrepareContractWrite({
-      address: WETH_ADDRESS,
-      abi: methABI,
+      address: wethAddress,
+      abi: erc20ABI,
       functionName: "approve",
       args: [
-        TELLER_ADDRESS,
+        tellerAddress,
         inputAmount,
       ],
       chainId: chainId,
+      onError() {
+        console.log('approve error')
+      }
     });
   
     const { data, write } = useContractWrite(config);
