@@ -4,7 +4,7 @@ import { coverPoolABI } from "../abis/evm/coverPool";
 import { SwapParams, token, tokenCover, tokenRangeLimit, tokenSwap } from "./types";
 import { TickMath } from "./math/tickMath";
 import { fetchEthPrice } from "./queries";
-import { BN_ZERO } from "./math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "./math/constants";
 import { limitPoolABI } from "../abis/evm/limitPool";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { chainProperties } from "./chains";
@@ -99,6 +99,10 @@ export const gasEstimateSwap = async (
     const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     let gasUnits: BigNumber;
+    if (poolAddresses?.length == 0 || !provider) {
+      setGasFee("$0.00");
+      setGasLimit(BN_ZERO);
+    }
     if (poolRouter && isConnected) {
       const contract = new ethers.Contract(
         poolRouter,
@@ -156,7 +160,10 @@ export const gasEstimateMintLimit = async (
     );
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
-    if (!rangePoolRoute || !provider) {
+    if (!rangePoolRoute || 
+          rangePoolRoute == ZERO_ADDRESS ||
+          !provider ||
+          tokenIn.userRouterAllowance?.lt(bnInput)) {
       setMintGasFee("$0.00");
       setMintGasLimit(BN_ZERO);
     }
@@ -230,7 +237,9 @@ export const gasEstimateLimitCreateAndMint = async (
     );
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
-    if (!provider || !isNaN(parseFloat(startPrice)) || tokenIn.userRouterAllowance?.lt(bnInput)) {
+    if (!provider ||
+          !isNaN(parseFloat(startPrice)) ||
+          tokenIn.userRouterAllowance?.lt(bnInput)) {
       setMintGasFee("$0.00");
       setMintGasLimit(BN_ZERO);
     }
