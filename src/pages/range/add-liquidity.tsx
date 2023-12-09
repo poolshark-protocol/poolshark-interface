@@ -287,6 +287,7 @@ export default function AddLiquidity({}) {
     token: tokenIn.native ? undefined: tokenIn.address,
     enabled: tokenIn.address != ZERO_ADDRESS,
     watch: true,
+    chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceIn(false);
     },
@@ -297,6 +298,7 @@ export default function AddLiquidity({}) {
     token: tokenOut.native ? undefined : tokenOut.address,
     enabled: tokenOut.address != ZERO_ADDRESS,
     watch: true,
+    chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceOut(false);
     },

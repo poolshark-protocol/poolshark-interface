@@ -398,7 +398,12 @@ export const gasEstimateRangeMint = async (
 ): Promise<gasEstimateResult> => {
   try {
     //TODO: arbitrumOne values
-
+    console.log('gas estimate range mint', getRangeMintButtonMsgValue(
+      tokenIn.native,
+      tokenOut.native,
+      amountIn,
+      amountOut
+    ).toString(), tokenIn.native, tokenOut.native)
     if (
       !rangePoolRoute ||
       !signer.provider ||

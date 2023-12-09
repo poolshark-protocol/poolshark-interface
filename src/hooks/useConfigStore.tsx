@@ -85,7 +85,6 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
   setListedTokenList: (listedtokenList: any) => {
     const logoMap: any = {};
     listedtokenList.forEach((token: any) => {
-      console.log('native check:', token.id.toLowerCase(), token.native ?? false, token.id.toLowerCase() + String(token.native ?? false))
       logoMap[token.id.toLowerCase() + nativeString(token)] = token.logoURI;
     });
     set(() => ({

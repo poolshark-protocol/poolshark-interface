@@ -88,7 +88,7 @@ export const chainProperties = {
         chainId: '0xA4B1',
         wethAddress: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1' as `0x${string}`,
         daiAddress: '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1' as `0x${string}`,
-        routerAddress: '0x7183ffeefc0883d499c52c1a1dff1af716467a46' as `0x${string}`,
+        routerAddress: '0x62e0671022af1b2e705f08b282767c57d29c7c4c' as `0x${string}`,
         rangeStakerAddress: '0xde95e92dd151c39eb51cfae80fdff4d6c32c1fad' as `0x${string}`,
         coverPoolFactory: ZERO_ADDRESS as `0x${string}`,
         coverSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli',
