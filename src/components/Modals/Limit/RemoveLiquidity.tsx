@@ -6,6 +6,8 @@ import { BigNumber, ethers } from "ethers";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { parseUnits } from "../../../utils/math/valueMath";
+import { logoMapKey } from "../../../utils/tokens";
+import { useConfigStore } from "../../../hooks/useConfigStore";
 
 export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
   const [
@@ -24,6 +26,16 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
     state.claimTick,
     state.currentAmountOut,
     state.setMintButtonState,
+  ]);
+
+  const [
+    chainId,
+    logoMap,
+    networkName
+  ] = useConfigStore((state) => [
+    state.chainId,
+    state.logoMap,
+    state.networkName
   ]);
 
   const router = useRouter();
@@ -185,7 +197,7 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
                         <div className="flex justify-end">
                           <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
                             <div className="flex items-center gap-x-2 w-full">
-                              <img className="w-7" src={tokenIn.logoURI} />
+                              <img className="w-7" src={logoMap[logoMapKey(tokenIn)]} />
                               {tokenIn.symbol}
                             </div>
                           </button>

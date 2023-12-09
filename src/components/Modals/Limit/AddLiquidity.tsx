@@ -18,13 +18,16 @@ import { gasEstimateMintLimit } from "../../../utils/gas";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { parseUnits } from "../../../utils/math/valueMath";
+import { logoMapKey } from "../../../utils/tokens";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
     chainId,
+    logoMap,
     networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.logoMap,
     state.networkName
   ]);
 
@@ -52,15 +55,11 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
   const { data: signer } = useSigner();
+  const { isConnected } = useAccount();
 
   const [allowanceIn, setAllowanceIn] = useState(BN_ZERO);
-  const { isConnected } = useAccount();
-  const [stateChainName, setStateChainName] = useState();
-
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
   const [mintGasFee, setMintGasFee] = useState("$0.00");
-  
-  const [fetchDelay, setFetchDelay] = useState(false);
   const [buttonState, setButtonState] = useState("");
   const [disabled, setDisabled] = useState(true);
 
@@ -106,7 +105,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   useEffect(() => {
     if (isConnected) {
       setTokenInBalance(
-        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+        tokenInBal?.formatted.toString()
       );
     }
   }, [tokenInBal]);
@@ -130,10 +129,6 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
       setDisabled(false);
     }
   }, [bnInput, tokenIn.userBalance, disabled]);
-
-  useEffect(() => {
-    setStateChainName(chainIdsToNames[chainId]);
-  }, [chainId]);
 
   useEffect(() => {
     if (tokenInAllowance) setAllowanceIn(tokenInAllowance);
@@ -222,7 +217,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                         <div className="flex justify-end">
                           <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
                             <div className="flex items-center gap-x-2 w-full">
-                              <img className="w-7" src={tokenIn.logoURI} />
+                              <img className="w-7" src={logoMap[logoMapKey(tokenIn)]} />
                               {tokenIn.symbol}
                             </div>
                           </button>
@@ -250,7 +245,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                     </div>
                   </div>
                 </div>
-                {isConnected && stateChainName === networkName ? (
+                {isConnected ? (
                   allowanceIn.lt(bnInput) ? (
                     <SwapRouterApproveButton
                       routerAddress={chainProperties[networkName]["routerAddress"]}
