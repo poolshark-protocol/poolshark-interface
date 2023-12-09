@@ -34,7 +34,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
             </Link>
           </div>
           <div className="hidden w-full ml-2 lg:ml-4 xl:ml-0 flex justify-start md:block bg-black">
-            <div className="flex md:gap-x-1 gap-x-2 justify-start">
+            <div className="flex md:gap-x-1 gap-x-2 justify-center">
               <Link href="/">
                 <div
                   className={

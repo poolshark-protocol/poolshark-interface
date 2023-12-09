@@ -22,11 +22,13 @@ import useInputBox from "../../hooks/useInputBox";
 import { tokenSwap } from "../../utils/types";
 import ApproveBondButton from "../../components/Buttons/ApproveBondButton";
 import { chainProperties } from "../../utils/chains";
+import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButton";
 
 export default function Bond() {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
 
   const [needsSubgraph, setNeedsSubgraph] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [needsBalance, setNeedsBalance] = useState(true);
   const [needsAllowance, setNeedsAllowance] = useState(true);
   const [needsMarketPurchaseData, setNeedsMarketPurchaseData] = useState(true);
@@ -158,6 +160,7 @@ export default function Bond() {
     } catch (error) {
       console.log("market subgraph error", error);
     }
+    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -468,7 +471,9 @@ export default function Bond() {
                   <span className="text-grey1">FIN</span>
                 </span>
               </div>
-              <div className="bg-main1/70 relative h-10 rounded-full w-full overflow-hidden border border-main">
+              {isLoading ? (<div className="bg-grey/60 animate-pulse relative h-10 rounded-full w-full overflow-hidden">
+                
+              </div>) : ( <div className="bg-main1/70 relative h-10 rounded-full w-full overflow-hidden border border-main">
                 <div
                   className={`text-sm text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50`}
                 >
@@ -478,7 +483,8 @@ export default function Bond() {
                 style={{width: filledPercentage}}
                   className={`absolute relative flex items-center justify-center h-[38px] bg-main rounded-full `}
                 />
-              </div>
+              </div>)}
+             
             </div>
           </div>
           <div className="flex gap-y-5 flex-col w-full lg:w-1/2">
@@ -582,7 +588,7 @@ export default function Bond() {
                     </span>
                   </div>
                 </div>
-                {parseFloat(formatEther(bnInput)) <= maxAmountAccepted ? (
+                {isConnected ? (parseFloat(formatEther(bnInput)) <= maxAmountAccepted ? (
                   tokenAllowance >= bnInput ? (
                     <BuyBondButton
                       nullReferrer={bondProtocolConfig["nullReferred"]}
@@ -609,6 +615,8 @@ export default function Bond() {
                   >
                     AMOUNT EXCEEDS MAX DEPOSIT PER TX
                   </button>
+                )) : (
+                  <ConnectWalletButton xl={true} />
                 )}
               </div>
             </div>
@@ -641,7 +649,26 @@ export default function Bond() {
                 </button>
               </div>
             </div>
-            <div className="overflow-hidden rounded-[4px] mt-3 bg-dark  border border-grey">
+            {allUserBonds.length === 0 ? (
+                    <div className="flex items-center justify-center w-full rounded-[4px] mt-3 bg-dark  border border-grey">
+                      <div className="text-grey1 text-xs  py-10 text-center w-full">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="w-10 py-4 mx-auto"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Your bond purchases will appear here.
+                </div>
+                    </div>)
+                    : (
+                      <div className="overflow-hidden rounded-[4px] mt-3 bg-dark  border border-grey">
               {activeOrdersSelected ? (
                 <table className="w-full table-auto rounded-[4px]">
                   <thead>
@@ -854,6 +881,8 @@ export default function Bond() {
                 </table>
               )}
             </div>
+                    )}
+            
           </div>
         </div>
       </div>
