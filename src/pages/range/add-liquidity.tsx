@@ -24,6 +24,7 @@ import SelectToken from "../../components/SelectToken";
 import { feeTierMap, feeTiers } from "../../utils/pools";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { fetchRangePools } from "../../utils/queries";
+import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButton";
 
 export default function AddLiquidity({}) {
   const [chainId, networkName, limitSubgraph, coverSubgraph, logoMap] =
@@ -949,7 +950,8 @@ export default function AddLiquidity({}) {
           </div>
         </div>
         <div className="bg-dark mt-8"></div>
-        <RangePoolPreview />
+        {isConnected ? <RangePoolPreview /> : <ConnectWalletButton xl={true} />}
+        
       </div>
     </div>
   );
