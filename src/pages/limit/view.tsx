@@ -388,7 +388,7 @@ export default function ViewLimit() {
                 </h1>
                 <a
                   href={
-                    "https://goerli.arbiscan.io/address/" + limitPoolAddress
+                    `${chainProperties[networkName]["explorerUrl"]}` + limitPoolAddress
                   }
                   target="_blank"
                   rel="noreferrer"

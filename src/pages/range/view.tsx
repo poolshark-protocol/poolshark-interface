@@ -463,7 +463,7 @@ export default function ViewRange() {
                 </h1>
                 <a
                   href={
-                    "https://goerli.arbiscan.io/address/" + rangePoolAddress
+                    `${chainProperties[networkName]["explorerUrl"]}/address/` + rangePoolAddress
                   }
                   target="_blank"
                   rel="noreferrer"

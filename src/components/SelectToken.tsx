@@ -12,7 +12,7 @@ import { chainIdsToNames } from "../utils/chains";
 import axios from "axios";
 import { coinsList } from "../utils/types";
 import { useConfigStore } from "../hooks/useConfigStore";
-import { defaultTokenLogo } from "../utils/tokens";
+import { defaultTokenLogo, nativeString } from "../utils/tokens";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
@@ -41,8 +41,6 @@ export default function SelectToken(props) {
     state.displayTokenList,
     state.setDisplayTokenList,
   ]);
-
-  console.log('logomap check:', logoMap[props.displayToken?.address.toLowerCase() + String(props.displayToken?.native)], props.displayToken?.address.toLowerCase(), props.displayToken?.native)
 
   const {
     data: tokenData,
@@ -280,7 +278,7 @@ export default function SelectToken(props) {
         <div className="flex items-center gap-x-2 w-full">
           {(props.tokenIn.symbol != "Select Token" && props.type == "in") ||
           (props.tokenOut.symbol != "Select Token" && props.type == "out") ? (
-            <img className="md:w-6 w-6" src={logoMap[props.displayToken?.address.toLowerCase() + props.displayToken?.native ?? false]} />
+            <img className="md:w-6 w-6" src={logoMap[props.displayToken?.address.toLowerCase() + nativeString(props.displayToken)]} />
           ) : (
             <></>
           )}

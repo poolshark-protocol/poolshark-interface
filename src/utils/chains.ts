@@ -59,7 +59,7 @@ export const chainProperties = {
         chainName: 'Arbitrum Goerli Test Network',
         logo:"https://assets.trustwalletapp.com/blockchains/polygon/assets/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/logo.png",
         rpcUrls: ['https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/'],
-        blockExplorerUrls: ['https://goerli.arbiscan.io/'],
+        explorerUrl: 'https://goerli.arbiscan.io/',
         nativeCurrency: {
             name: 'ETH',
             symbol: 'ETH',
@@ -79,7 +79,7 @@ export const chainProperties = {
         chainName: 'Arbitrum One',
         logo:"https://assets.trustwalletapp.com/blockchains/polygon/assets/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/logo.png",
         rpcUrls: ['https://patient-distinguished-pallet.arbitrum-mainnet.quiknode.pro/4cbe7cbdb55ec4b33fdc1a4239e1169b167ae351/'],
-        blockExplorerUrls: ['https://arbiscan.io/'],
+        explorerUrl: 'https://arbiscan.io/',
         nativeCurrency: {
             name: 'ETH',
             symbol: 'ETH',

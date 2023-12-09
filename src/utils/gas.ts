@@ -28,13 +28,10 @@ export const gasEstimateWethCall = async (
   signer: Signer,
   isConnected: boolean,
   setGasFee,
-  setGasLimit
+  setGasLimit,
 ): Promise<void> => {
   try {
     //TODO: arbitrumOne values
-    const provider = new ethers.providers.JsonRpcProvider(
-      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
-    );
     const ethUsdQuery = await fetchEthPrice();
     const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
@@ -43,7 +40,7 @@ export const gasEstimateWethCall = async (
       const contract = new ethers.Contract(
         wethAddress,
         weth9ABI,
-        provider
+        signer.provider
       );
       if (tokenIn.native) {
         gasUnits = await contract
@@ -63,7 +60,7 @@ export const gasEstimateWethCall = async (
     } else {
       gasUnits = BigNumber.from(1000000);
     }
-    const gasPrice = await provider.getGasPrice();
+    const gasPrice = await signer.provider.getGasPrice();
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
     const networkFeeUsd = networkFeeEth * Number(ethUsdPrice);
@@ -89,14 +86,11 @@ export const gasEstimateSwap = async (
   signer: Signer,
   isConnected: boolean,
   setGasFee,
-  setGasLimit
+  setGasLimit,
 ): Promise<void> => {
   try {
     //TODO: arbitrumOne values
-    const provider = new ethers.providers.JsonRpcProvider(
-      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
-    );
-    if (poolAddresses?.length == 0 || !provider) {
+    if (poolAddresses?.length == 0 || !signer.provider) {
       setGasFee("$0.00");
       setGasLimit(BN_ZERO);
     }
@@ -104,7 +98,7 @@ export const gasEstimateSwap = async (
     const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     let gasUnits: BigNumber;
-    if (poolAddresses?.length == 0 || !provider) {
+    if (poolAddresses?.length == 0 || !signer.provider) {
       setGasFee("$0.00");
       setGasLimit(BN_ZERO);
     }
@@ -112,7 +106,7 @@ export const gasEstimateSwap = async (
       const contract = new ethers.Contract(
         poolRouter,
         poolsharkRouterABI,
-        provider
+        signer.provider
       );
       gasUnits = await contract
       .connect(signer)
@@ -130,7 +124,7 @@ export const gasEstimateSwap = async (
     } else {
       gasUnits = BigNumber.from(1000000);
     }
-    const gasPrice = await provider.getGasPrice();
+    const gasPrice = await signer.provider.getGasPrice();
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
     const networkFeeUsd = networkFeeEth * Number(ethUsdPrice);
@@ -157,18 +151,16 @@ export const gasEstimateMintLimit = async (
   signer,
   setMintGasFee,
   setMintGasLimit,
-  networkName: string
+  networkName: string,
 ): Promise<void> => {
   try {
     //TODO: arbitrumOne values
-    const provider = new ethers.providers.JsonRpcProvider(
-      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
-    );
+
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
     if (!rangePoolRoute || 
           rangePoolRoute == ZERO_ADDRESS ||
-          !provider ||
+          !signer.provider ||
           tokenIn.userRouterAllowance?.lt(bnInput)) {
       setMintGasFee("$0.00");
       setMintGasLimit(BN_ZERO);
@@ -179,7 +171,7 @@ export const gasEstimateMintLimit = async (
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
-      provider
+      signer.provider
     );
     let gasUnits: BigNumber;
     gasUnits = await routerContract.connect(signer).estimateGas.multiMintLimit(
@@ -204,7 +196,7 @@ export const gasEstimateMintLimit = async (
       }
     );
 
-    const gasPrice = await provider.getGasPrice();
+    const gasPrice = await signer.provider.getGasPrice();
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
     const networkFeeUsd = networkFeeEth * Number(ethUsdPrice);
@@ -235,16 +227,14 @@ export const gasEstimateLimitCreateAndMint = async (
   signer,
   setMintGasFee,
   setMintGasLimit,
-  networkName: string
+  networkName: string,
 ): Promise<void> => {
   try {
     //TODO: arbitrumOne values
-    const provider = new ethers.providers.JsonRpcProvider(
-      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
-    );
+
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
-    if (!provider ||
+    if (!signer.provider ||
           !isNaN(parseFloat(startPrice)) ||
           tokenIn.userRouterAllowance?.lt(bnInput)) {
       setMintGasFee("$0.00");
@@ -275,7 +265,7 @@ export const gasEstimateLimitCreateAndMint = async (
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
-      provider
+      signer.provider
     );
     let gasUnits: BigNumber;
     gasUnits = await routerContract
@@ -309,7 +299,7 @@ export const gasEstimateLimitCreateAndMint = async (
           )
         }
       );
-    const gasPrice = await provider.getGasPrice();
+    const gasPrice = await signer.provider.getGasPrice();
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
     const networkFeeUsd = networkFeeEth * Number(ethUsdPrice);
@@ -335,19 +325,17 @@ export const gasEstimateBurnLimit = async (
   zeroForOne: boolean,
   signer,
   setBurnGasFee,
-  setBurnGasLimit
+  setBurnGasLimit,
 ): Promise<void> => {
   try {
     //TODO: arbitrumOne values
-    const provider = new ethers.providers.JsonRpcProvider(
-      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
-    );
+
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
 
     if (
       !limitPoolRoute ||
-      !provider ||
+      !signer.provider ||
       signer == undefined ||
       positionId == undefined
     ) {
@@ -360,7 +348,7 @@ export const gasEstimateBurnLimit = async (
     const contract = new ethers.Contract(
       limitPoolRoute,
       limitPoolABI,
-      provider
+      signer.provider
     );
 
     let gasUnits: BigNumber;
@@ -371,7 +359,7 @@ export const gasEstimateBurnLimit = async (
       zeroForOne: zeroForOne,
       burnPercent: burnPercent,
     });
-    const gasPrice = await provider.getGasPrice();
+    const gasPrice = await signer.provider.getGasPrice();
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
     const networkFeeUsd = networkFeeEth * Number(ethUsdPrice);
@@ -406,16 +394,14 @@ export const gasEstimateRangeMint = async (
   signer,
   stakeFlag: boolean,
   networkName: string,
-  positionId?: number
+  positionId?: number,
 ): Promise<gasEstimateResult> => {
   try {
     //TODO: arbitrumOne values
-    const provider = new ethers.providers.JsonRpcProvider(
-      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
-    );
+
     if (
       !rangePoolRoute ||
-      !provider ||
+      !signer.provider ||
       (amountIn.eq(BN_ZERO) && amountOut.eq(BN_ZERO)) ||
       !signer
     ) {
@@ -426,7 +412,7 @@ export const gasEstimateRangeMint = async (
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
-      provider
+      signer.provider
     );
     const gasUnits = await routerContract
       .connect(signer)
@@ -453,7 +439,7 @@ export const gasEstimateRangeMint = async (
         }
       );
     const price = await fetchEthPrice();
-    const gasPrice = await provider.getGasPrice();
+    const gasPrice = await signer.provider.getGasPrice();
     const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
@@ -482,14 +468,12 @@ export const gasEstimateRangeCreateAndMint = async (
   amountOut: BigNumber,
   signer,
   stakeFlag: boolean,
-  networkName: string
+  networkName: string,
 ): Promise<gasEstimateResult> => {
   try {
     //TODO: arbitrumOne values
-    const provider = new ethers.providers.JsonRpcProvider(
-      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
-    );
-    if (!provider || (amountIn.eq(BN_ZERO) && amountOut.eq(BN_ZERO))) {
+
+    if (!signer?.provider || (amountIn.eq(BN_ZERO) && amountOut.eq(BN_ZERO))) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     if (
@@ -509,7 +493,7 @@ export const gasEstimateRangeCreateAndMint = async (
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
-      provider
+      signer.provider
     );
     const gasUnits = await routerContract
       .connect(signer)
@@ -544,7 +528,7 @@ export const gasEstimateRangeCreateAndMint = async (
       );
       console.log('create and mint gas units', gasUnits.toString())
     const price = await fetchEthPrice();
-    const gasPrice = await provider.getGasPrice();
+    const gasPrice = await signer.provider.getGasPrice();
     const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
@@ -574,7 +558,7 @@ export const gasEstimateRangeStake = async(
   );
   if (
     !rangePoolAddress ||
-    !provider ||
+    !signer.provider ||
     !signer ||
     !positionId
   ) {
@@ -623,7 +607,7 @@ export const gasEstimateRangeUnstake = async(
   );
   if (
     !rangePoolAddress ||
-    !provider ||
+    !signer.provider ||
     !signer ||
     !positionId
   ) {
@@ -665,16 +649,14 @@ export const gasEstimateRangeBurn = async (
   burnPercent: BigNumber,
   staked: boolean,
   networkName: string,
-  signer
+  signer,
 ): Promise<gasEstimateResult> => {
   try {
     //TODO: arbitrumOne values
-    const provider = new ethers.providers.JsonRpcProvider(
-      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
-    );
+
     if (
       !rangePoolRoute ||
-      !provider ||
+      !signer.provider ||
       !signer ||
       burnPercent.eq(BN_ZERO) ||
       !positionId
@@ -685,7 +667,7 @@ export const gasEstimateRangeBurn = async (
     const contract = new ethers.Contract(
       !staked ? rangePoolRoute : rangeStakerAddress,
       !staked ? rangePoolABI : rangeStakerABI,
-      provider
+      signer.provider
     );
     const gasUnits = !staked ? 
       await contract.connect(signer).estimateGas.burnRange({
@@ -702,7 +684,7 @@ export const gasEstimateRangeBurn = async (
       }
     );
     const price = await fetchEthPrice();
-    const gasPrice = await provider.getGasPrice();
+    const gasPrice = await signer.provider.getGasPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
@@ -732,10 +714,8 @@ export const gasEstimateCoverMint = async (
 ): Promise<gasEstimateResult> => {
   try {
     //TODO: arbitrumOne values
-    const provider = new ethers.providers.JsonRpcProvider(
-      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
-    );
-    if (!coverPoolRoute || !provider || !signer) {
+
+    if (!coverPoolRoute || !signer.provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     if (inAmount.eq(BN_ZERO))
@@ -744,7 +724,7 @@ export const gasEstimateCoverMint = async (
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
-      provider
+      signer.provider
     );
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     const amountIn = BigNumber.from(String(inAmount));
@@ -771,7 +751,7 @@ export const gasEstimateCoverMint = async (
         }
       );
     const price = await fetchEthPrice();
-    const gasPrice = await provider.getGasPrice();
+    const gasPrice = await signer.provider.getGasPrice();
     const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
@@ -801,17 +781,15 @@ export const gasEstimateCoverCreateAndMint = async (
 ): Promise<gasEstimateResult> => {
   try {
     //TODO: arbitrumOne values
-    const provider = new ethers.providers.JsonRpcProvider(
-      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
-    );
-    if (!provider || !signer) {
+
+    if (!signer.provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     const routerAddress = chainProperties[networkName]["routerAddress"];
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
-      provider
+      signer.provider
     );
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     const amountIn = BigNumber.from(String(inAmount));
@@ -846,7 +824,7 @@ export const gasEstimateCoverCreateAndMint = async (
         }
       );
     const price = await fetchEthPrice();
-    const gasPrice = await provider.getGasPrice();
+    const gasPrice = await signer.provider.getGasPrice();
     const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
@@ -870,21 +848,19 @@ export const gasEstimateCoverBurn = async (
   burnPercent: BigNumber,
   claimTick: BigNumber,
   zeroForOne: boolean,
-  signer
+  signer,
 ): Promise<gasEstimateResult> => {
   try {
     //TODO: arbitrumOne values
-    const provider = new ethers.providers.JsonRpcProvider(
-      "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
-    );
 
-    if (!coverPoolRoute || !provider) {
+
+    if (!coverPoolRoute || !signer.provider) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     const contract = new ethers.Contract(
       coverPoolRoute,
       coverPoolABI,
-      provider
+      signer.provider
     );
     const gasUnits = await contract.connect(signer).estimateGas.burn({
       to: address,
@@ -895,7 +871,7 @@ export const gasEstimateCoverBurn = async (
       sync: true,
     });
     const price = await fetchEthPrice();
-    const gasPrice = await provider.getGasPrice();
+    const gasPrice = await signer.provider.getGasPrice();
     const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));

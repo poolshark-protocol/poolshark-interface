@@ -251,7 +251,7 @@ export default function AddLiquidity({}) {
     watch: true,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
-      // console.log('allowance in fetched', allowanceInRange?.toString())
+      console.log('allowance in fetched', allowanceInRange?.toString())
       //setNeedsAllowanceIn(false);
     },
     onError(error) {
@@ -267,7 +267,7 @@ export default function AddLiquidity({}) {
     chainId: chainId,
     watch: true,
     onSuccess(data) {
-      // console.log('allowance out fetched', allowanceOutRange?.toString())
+      console.log('allowance out fetched', allowanceOutRange?.toString())
       //setNeedsAllowanceOut(false);
     },
     onError(error) {

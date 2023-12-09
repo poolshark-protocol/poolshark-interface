@@ -357,7 +357,7 @@ export default function Bond() {
                   BOND
                 </h1>
                 <a
-                  href={"https://goerli.arbiscan.io/address/" + bondProtocolConfig["tellerAddress"]}
+                  href={`${chainProperties[networkName]["explorerUrl"]}/address/` + bondProtocolConfig["tellerAddress"]}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-x-3 text-grey1 group cursor-pointer"
@@ -705,7 +705,7 @@ export default function Bond() {
                                 <div className="flex gap-x-1.5 items-center">
                                 <a
                                   href={
-                                    "https://goerli.arbiscan.io/tx/" +
+                                  `${chainProperties[networkName]["explorerUrl"]}/tx/` +
                                     userBond.id
                                   }
                                   target="_blank"
@@ -810,7 +810,7 @@ export default function Bond() {
                               <td className="text-grey1 text-right pr-2 md:pr-0 md:w-40 ">
                                 <a
                                   href={
-                                    "https://goerli.arbiscan.io/tx/" +
+                                    `${chainProperties[networkName]["explorerUrl"]}/tx/` +
                                     userBond.id
                                   }
                                   target="_blank"

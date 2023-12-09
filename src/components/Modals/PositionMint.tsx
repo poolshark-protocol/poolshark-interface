@@ -3,6 +3,8 @@ import Link from "next/link";
 import router, { useRouter } from "next/router";
 import { Fragment, useState, useEffect } from "react";
 import Loader from "../Icons/Loader";
+import { chainProperties } from "../../utils/chains";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function PositionMintModal({
   errorDisplay,
@@ -14,6 +16,12 @@ export default function PositionMintModal({
 
   const [isOpen, setIsOpen] = useState(false);
   const [buttonWait, setButtonWait] = useState(false);
+
+  const [chainId, networkName,] =
+  useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
+  ]);
 
   useEffect(() => {
     if (errorDisplay || isLoading || successDisplay) {
@@ -171,7 +179,7 @@ export default function PositionMintModal({
                   <a
                     target="_blank"
                     rel="noreferrer"
-                    href={`https://goerli.arbiscan.io/tx/${hash}`}
+                    href={`${chainProperties[networkName]["explorerUrl"]}/tx/${hash}`}
                     className="whitespace-nowrap text-xs flex items-center gap-x-2 text-blue-500 hover:underline"
                   >
                     View on block explorer
