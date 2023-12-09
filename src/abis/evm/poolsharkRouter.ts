@@ -227,9 +227,9 @@ export const poolsharkRouterABI = [
             "type": "uint16"
           },
           {
-            "internalType": "uint8",
+            "internalType": "uint16",
             "name": "poolTypeId",
-            "type": "uint8"
+            "type": "uint16"
           }
         ],
         "internalType": "struct PoolsharkStructs.LimitPoolParams",

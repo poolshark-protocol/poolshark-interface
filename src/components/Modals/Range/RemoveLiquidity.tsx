@@ -9,10 +9,9 @@ import { DyDxMath } from "../../../utils/math/dydxMath";
 import { TickMath } from "../../../utils/math/tickMath";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
-import { useAccount, useSigner } from "wagmi";
+import { useAccount } from "wagmi";
 import { gasEstimateRangeBurn } from "../../../utils/gas";
 import { parseUnits } from "../../../utils/math/valueMath";
-import { formatUnits } from "ethers/lib/utils.js";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { logoMapKey } from "../../../utils/tokens";
 

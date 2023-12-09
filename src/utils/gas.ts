@@ -310,7 +310,7 @@ export const gasEstimateLimitCreateAndMint = async (
     setMintGasFee(formattedPrice);
     setMintGasLimit(gasUnits.mul(150).div(100));
   } catch (error) {
-    console.log("gas error limit create and mint", error);
+    console.log("gas error limit create and mint", lowerTick.toString(), upperTick.toString(), feeTier, error);
     setMintGasFee("$0.00");
     setMintGasLimit(BN_ZERO);
   }
@@ -491,7 +491,7 @@ export const gasEstimateRangeCreateAndMint = async (
         TickMath.MAX_SQRT_RATIO
       )
     ) {
-      console.log('invalid price')
+      console.log('invalid price', startPrice.toString())
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     const routerAddress = chainProperties[networkName]["routerAddress"];

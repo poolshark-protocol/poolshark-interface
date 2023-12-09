@@ -71,31 +71,22 @@ export default function RangePoolPreview() {
     setIsOpen(false);
   }
 
-  console.log('allowances', tokenIn.userRouterAllowance, tokenOut.userRouterAllowance)
-
-
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
-  console.log('mint button disabled', rangeMintParams.disabled || mintGasLimit.lte(BN_ZERO), rangeMintParams.disabled, mintGasLimit.lte(BN_ZERO))
+
 
   useEffect(() => {
-    console.log('gas check:', JSBI.greaterThan(rangeMintParams.liquidityAmount, ONE),
-    rangeMintParams.tokenInAmount?.gt(BN_ZERO) ||
-        rangeMintParams.tokenOutAmount?.gt(BN_ZERO),         Number(rangePositionData.lowerPrice) <
-        Number(rangePositionData.upperPrice),         tokenIn.userRouterAllowance?.gte(rangeMintParams.tokenInAmount),
-        tokenOut.userRouterAllowance?.gte(rangeMintParams.tokenOutAmount))
     if
     (
-        (rangeMintParams.tokenInAmount?.gt(BN_ZERO) ||
+        (rangeMintParams.tokenInAmount?.gt(BN_ZERO) ||                                              // amounts not empty
         rangeMintParams.tokenOutAmount?.gt(BN_ZERO)) && 
         Number(rangePositionData.lowerPrice) <
-          Number(rangePositionData.upperPrice) &&
-        (tokenIn.userRouterAllowance?.gte(rangeMintParams.tokenInAmount) || tokenIn.native) &&
-        (tokenOut.userRouterAllowance?.gte(rangeMintParams.tokenOutAmount) || tokenOut.native) &&
-        JSBI.greaterThan(rangeMintParams.liquidityAmount, ONE)
+          Number(rangePositionData.upperPrice) &&                                                   // valid price range
+        (tokenIn.userRouterAllowance?.gte(rangeMintParams.tokenInAmount) || tokenIn.native) &&      // allowance in
+        (tokenOut.userRouterAllowance?.gte(rangeMintParams.tokenOutAmount) || tokenOut.native) &&   // allowance out
+        JSBI.greaterThan(rangeMintParams.liquidityAmount, ONE)                                      // non-zero liquidity
     ) {
-      console.log('estimating gas')
       updateGasFee();
     }
   }, [
