@@ -8,9 +8,6 @@ import { Transition, Dialog } from "@headlessui/react";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
 import { useAccount, useToken } from "wagmi";
-import { chainIdsToNames } from "../utils/chains";
-import axios from "axios";
-import { coinsList } from "../utils/types";
 import { useConfigStore } from "../hooks/useConfigStore";
 import { defaultTokenLogo, nativeString } from "../utils/tokens";
 

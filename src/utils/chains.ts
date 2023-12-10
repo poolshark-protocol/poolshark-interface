@@ -94,12 +94,13 @@ export const chainProperties = {
         coverSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli',
         limitSubgraphUrl: 'https://arbitrum-mainnet.graph-eu.p2pify.com/f8ac4b5fed674ee03dce11a453dbb27a/limit-arbitrum-test',
         bondProtocol: {
-            tellerAddress: "0x007F7735baF391e207E3aA380bb53c4Bd9a5Fed6",
-            auctioneerAddress: "0xF7F9A96cDBFEFd70BDa14a8f30EC503b16bCe9b1",
-            wethAddress: "0x251f7eacde75458b52dbc4995c439128b9ef98ca",
-            finAddress: "0x742510a23bf83be959990a510ccae40b2d3d9b83",
+            auctioneerAddress: "0xf7f9a96cdbfefd70bda14a8f30ec503b16bce9b1",
+            tellerAddress: "0x007f7735baf391e207e3aa380bb53c4bd9a5fed6",
+            wethAddress: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+            finAddress: "0x3788ce0817512e33130b1ea0490d2957b4ffc406",
             nullReferrer: "0x0000000000000000000000000000000000000000",
-            marketId: 46,
+            marketSubgraphId: "42161_BondFixedTermFPA_117",
+            marketId: 117,
             subgraphUrl: 'https://api.thegraph.com/subgraphs/name/bond-protocol/bond-protocol-arbitrum-mainnet',
         }
     },
