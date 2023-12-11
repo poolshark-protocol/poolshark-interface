@@ -1,4 +1,12 @@
+import { useConfigStore } from "../../hooks/useConfigStore";
+import { chainProperties } from "../../utils/chains";
+
 export const ConfirmingToast = ({hash}) => {
+  const [chainId, networkName,] =
+  useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
+  ]);
 
   return (
     <div className="bg-black py-3 px-4 rounded-xl flex gap-x-5 pr-7 front border-grey border">
@@ -25,7 +33,7 @@ export const ConfirmingToast = ({hash}) => {
           <h1>Your Transaction is being confirmed...</h1>
         </div>
         <a
-          href={`https://goerli.arbiscan.io/tx/${hash}`}
+          href={`${chainProperties[networkName]["explorerUrl"]}/tx/${hash}`}
           rel="noreferrer"
           target="_blank"
           className="text-xs text-blue-500 underline"

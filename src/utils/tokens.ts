@@ -1,9 +1,11 @@
 //eventually this functions should merge into one
 
+import { ZERO_ADDRESS } from "./math/constants";
 import { fetchTokenPrice } from "./queries";
 import { LimitSubgraph } from "./types";
 
 export const defaultTokenLogo =
+//TODO: arbitrumOne values
   "https://raw.githubusercontent.com/poolshark-protocol/token-metadata/master/blockchains/arbitrum-goerli/tokenZero.png";
 
 export const fetchRangeTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
@@ -57,3 +59,16 @@ export const getLimitTokenUsdPrice = async (
     console.log(error);
   }
 };
+
+export const logoMapKey = (token: any) => {
+  return (token.address?.toLowerCase() ?? ZERO_ADDRESS) + nativeString(token)
+}
+
+export const nativeString = (token: any) => {
+  if (token.native == undefined) {
+    return ''
+  } else if (token.native) {
+    return '-native'
+  }
+  return ''
+}

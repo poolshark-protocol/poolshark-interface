@@ -23,6 +23,7 @@ import { tokenSwap } from "../../utils/types";
 import ApproveBondButton from "../../components/Buttons/ApproveBondButton";
 import { chainProperties } from "../../utils/chains";
 import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButton";
+import { logoMapKey } from "../../utils/tokens";
 
 export default function Bond() {
   const { address, isConnected } = useAccount();
@@ -38,9 +39,10 @@ export default function Bond() {
     useState(true);
   const [needsBondTokenData, setNeedsBondTokenData] = useState(true);
 
-  const [chainId, networkName] = useConfigStore((state) => [
+  const [chainId, networkName, logoMap] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
+    state.logoMap,
   ]);
 
   const { bnInput, inputBox, display, maxBalance } = useInputBox();
@@ -59,14 +61,12 @@ export default function Bond() {
   const [maxAmountAccepted, setMaxAmountAccepted] = useState(undefined);
   const [vestingTokenBalance, setVestingTokenBalance] = useState(undefined);
   const [vestingTokenId, setVestingTokenId] = useState(undefined);
-
-  const [finAddress, setFinAddress] = useState("");
   const [bondProtocolConfig, setBondProtocolConfig] = useState({});
 
   useEffect(() => {
-    setFinAddress(chainProperties[networkName]["finAddress"] ?? chainProperties["arbitrum"]["finAddress"])
+    console.log('protocol config', networkName, chainProperties[networkName]["bondProtocol"])
     setBondProtocolConfig(chainProperties[networkName]["bondProtocol"] ?? chainProperties["arbitrum"]["bondProtocol"])
-  }, [chainId]);
+  }, [networkName]);
 
   const [tellerDisplay, setPoolDisplay] = useState(
     bondProtocolConfig["tellerAddress"]
@@ -108,8 +108,8 @@ export default function Bond() {
   const { data: tokenBalanceData } = useBalance({
     address: address,
     token: bondProtocolConfig["wethAddress"],
-    enabled: bondProtocolConfig["wethAddress"] != undefined && needsBalance,
-    watch: needsBalance,
+    enabled: bondProtocolConfig["wethAddress"] != undefined,
+    watch: true,
   });
 
   useEffect(() => {
@@ -261,11 +261,11 @@ export default function Bond() {
     address: bondProtocolConfig["tellerAddress"],
     abi: bondTellerABI,
     functionName: "getTokenId",
-    args: [finAddress, marketData[0]?.vesting], // add vesting period to each date market is open
+    args: [bondProtocolConfig["finAddress"], marketData[0]?.vesting], // add vesting period to each date market is open
     chainId: chainId,
-    enabled: bondProtocolConfig["tellerAddress"] != undefined && finAddress != "" && marketData[0] != undefined,
+    enabled: bondProtocolConfig["tellerAddress"] != undefined && marketData[0] != undefined,
     onError() {
-      console.log('getTokenId error', bondProtocolConfig["tellerAddress"], finAddress, marketData[0]?.vesting)
+      console.log('getTokenId error', bondProtocolConfig["tellerAddress"], bondProtocolConfig["finAddress"], marketData[0]?.vesting)
     }
   });
 
@@ -360,7 +360,7 @@ export default function Bond() {
                   BOND
                 </h1>
                 <a
-                  href={"https://goerli.arbiscan.io/address/" + bondProtocolConfig["tellerAddress"]}
+                  href={`${chainProperties[networkName]["explorerUrl"]}/address/` + bondProtocolConfig["tellerAddress"]}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-x-3 text-grey1 group cursor-pointer"
@@ -543,7 +543,7 @@ export default function Bond() {
                           <img
                             height="28"
                             width="25"
-                            src="/static/images/weth_icon.png"
+                            src={logoMap[bondProtocolConfig["wethAddress"]]}
                           />
                           WETH
                         </div>
@@ -572,7 +572,7 @@ export default function Bond() {
                     MAX BONDABLE PER TX
                     <span className="text-white">
                       {maxAmountAccepted != undefined
-                        ? maxAmountAccepted.toFixed(4)
+                        ? maxAmountAccepted.toFixed(2)
                         : "0"}{" "}
                       WETH
                     </span>
@@ -591,7 +591,8 @@ export default function Bond() {
                 {isConnected ? (parseFloat(formatEther(bnInput)) <= maxAmountAccepted ? (
                   tokenAllowance >= bnInput ? (
                     <BuyBondButton
-                      nullReferrer={bondProtocolConfig["nullReferred"]}
+                      startTime={marketData[0]?.start}
+                      nullReferrer={bondProtocolConfig["nullReferrer"]}
                       tellerAddress={bondProtocolConfig["tellerAddress"]}
                       inputAmount={bnInput}
                       setNeedsSubgraph={setNeedsSubgraph}
@@ -704,7 +705,7 @@ export default function Bond() {
                                 <div className="flex gap-x-1.5 items-center">
                                   <img
                                      className="w-5 md:block hidden"
-                                    src="/static/images/weth_icon.png"
+                                    src={logoMap[bondProtocolConfig["wethAddress"]]}
                                   />
                                   {parseFloat(userBond.amount).toFixed(4)}{" "}
                                   {userBond.quoteTokenSymbol}
@@ -732,7 +733,7 @@ export default function Bond() {
                                 <div className="flex gap-x-1.5 items-center">
                                 <a
                                   href={
-                                    "https://goerli.arbiscan.io/tx/" +
+                                  `${chainProperties[networkName]["explorerUrl"]}/tx/` +
                                     userBond.id
                                   }
                                   target="_blank"
@@ -811,7 +812,7 @@ export default function Bond() {
                                 <div className="flex gap-x-1.5 items-center">
                                   <img
                                     className="w-5 md:block hidden"
-                                    src="/static/images/weth_icon.png"
+                                    src={logoMap[bondProtocolConfig["wethAddress"]]}
                                   />
                                   {parseFloat(userBond.amount).toFixed(4)}{" "}
                                   {userBond.quoteTokenSymbol}
@@ -837,7 +838,7 @@ export default function Bond() {
                               <td className="text-grey1 text-right pr-2 md:pr-0 md:w-40 ">
                                 <a
                                   href={
-                                    "https://goerli.arbiscan.io/tx/" +
+                                    `${chainProperties[networkName]["explorerUrl"]}/tx/` +
                                     userBond.id
                                   }
                                   target="_blank"

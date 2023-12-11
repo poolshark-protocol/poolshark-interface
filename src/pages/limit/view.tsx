@@ -14,7 +14,7 @@ import { limitPoolABI } from "../../abis/evm/limitPool";
 import { getClaimTick, mapUserLimitPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Limit/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Limit/AddLiquidity";
-import { fetchLimitTokenUSDPrice } from "../../utils/tokens";
+import { fetchLimitTokenUSDPrice, logoMapKey } from "../../utils/tokens";
 import { fetchLimitPositions } from "../../utils/queries";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
@@ -29,9 +29,10 @@ import { chainProperties } from "../../utils/chains";
 import { useTradeStore } from "../../hooks/useTradeStore";
 
 export default function ViewLimit() {
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph] =
+  const [chainId, logoMap, networkName, limitSubgraph, setLimitSubgraph] =
     useConfigStore((state) => [
       state.chainId,
+      state.logoMap,
       state.networkName,
       state.limitSubgraph,
       state.setLimitSubgraph,
@@ -311,7 +312,7 @@ export default function ViewLimit() {
   useEffect(() => {
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
-      : chainProperties["arbitrumGoerli"];
+      : chainProperties["arbitrumGoerli"]; //TODO: arbitrumOne values
     setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
     if (
       limitPositionData.positionId == undefined ||
@@ -362,7 +363,7 @@ export default function ViewLimit() {
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
               ) : (
-                <img height="50" width="50" src={tokenIn.logoURI} />
+                <img height="50" width="50" src={logoMap[logoMapKey(tokenIn)]} />
               )}
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
@@ -371,7 +372,7 @@ export default function ViewLimit() {
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={tokenOut.logoURI}
+                  src={logoMap[logoMapKey(tokenOut)]}
                 />
               )}
             </div>
@@ -388,7 +389,7 @@ export default function ViewLimit() {
                 </h1>
                 <a
                   href={
-                    "https://goerli.arbiscan.io/address/" + limitPoolAddress
+                    `${chainProperties[networkName]["explorerUrl"]}` + limitPoolAddress
                   }
                   target="_blank"
                   rel="noreferrer"
@@ -499,7 +500,7 @@ export default function ViewLimit() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenIn.logoURI} />
+                        <img height="25" width="25" src={logoMap[logoMapKey(tokenIn)]} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -762,7 +763,7 @@ export default function ViewLimit() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenOut.logoURI} />
+                        <img height="25" width="25" src={logoMap[logoMapKey(tokenOut)]} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />

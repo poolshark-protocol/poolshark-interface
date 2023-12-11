@@ -70,7 +70,7 @@ export default function Range() {
     if (address) {
       const chainConstants = chainProperties[networkName]
         ? chainProperties[networkName]
-        : chainProperties["arbitrumGoerli"];
+        : chainProperties["arbitrumGoerli"]; //TODO: arbitrumOne values
       setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
       getUserRangePositionData();
     }

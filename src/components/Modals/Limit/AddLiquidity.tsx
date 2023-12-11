@@ -13,18 +13,21 @@ import { BigNumber, ethers } from "ethers";
 import { useContractRead } from "wagmi";
 import { BN_ZERO } from "../../../utils/math/constants";
 import SwapRouterApproveButton from "../../Buttons/SwapRouterApproveButton";
-import { chainIdsToNamesForGitTokenList, chainProperties } from "../../../utils/chains";
+import { chainIdsToNames, chainProperties } from "../../../utils/chains";
 import { gasEstimateMintLimit } from "../../../utils/gas";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { parseUnits } from "../../../utils/math/valueMath";
+import { logoMapKey } from "../../../utils/tokens";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
     chainId,
+    logoMap,
     networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.logoMap,
     state.networkName
   ]);
 
@@ -52,15 +55,11 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
   const { data: signer } = useSigner();
+  const { isConnected } = useAccount();
 
   const [allowanceIn, setAllowanceIn] = useState(BN_ZERO);
-  const { isConnected } = useAccount();
-  const [stateChainName, setStateChainName] = useState();
-
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
   const [mintGasFee, setMintGasFee] = useState("$0.00");
-  
-  const [fetchDelay, setFetchDelay] = useState(false);
   const [buttonState, setButtonState] = useState("");
   const [disabled, setDisabled] = useState(true);
 
@@ -106,7 +105,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   useEffect(() => {
     if (isConnected) {
       setTokenInBalance(
-        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+        tokenInBal?.formatted.toString()
       );
     }
   }, [tokenInBal]);
@@ -130,10 +129,6 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
       setDisabled(false);
     }
   }, [bnInput, tokenIn.userBalance, disabled]);
-
-  useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
-  }, [chainId]);
 
   useEffect(() => {
     if (tokenInAllowance) setAllowanceIn(tokenInAllowance);
@@ -219,7 +214,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                     <div className="flex items-end justify-between mt-2 mb-3">
                       {inputBox("0", tokenIn)}
                       <div className="flex items-center gap-x-2">
-                        {isConnected && stateChainName === networkName ? (
+                        {isConnected ? (
                           <button
                           onClick={() => {
                             maxBalance(tokenIn.userBalance.toString(), "0", tokenIn.decimals);
@@ -230,13 +225,13 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                           </button>
                         ) : null}
                         <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                          <img height="28" width="25" src={tokenIn.logoURI} />
+                          <img height="28" width="25" src={logoMap[logoMapKey(tokenIn)]} />
                           {tokenIn.symbol}
                         </div>
                       </div>
                     </div>
                   </div>
-                {isConnected && stateChainName === networkName ? (
+                {isConnected ? (
                   allowanceIn.lt(bnInput) ? (
                     <SwapRouterApproveButton
                       routerAddress={chainProperties[networkName]["routerAddress"]}

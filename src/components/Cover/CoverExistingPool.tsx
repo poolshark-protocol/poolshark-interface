@@ -24,7 +24,7 @@ import {
 } from "../../utils/gas";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import {
-  chainIdsToNamesForGitTokenList,
+  chainIdsToNames,
   chainProperties,
 } from "../../utils/chains";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
@@ -137,7 +137,7 @@ export default function CoverExistingPool({ goBack }) {
   const [stateChainName, setStateChainName] = useState();
 
   useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
+    setStateChainName(chainIdsToNames[chainId]);
   }, [chainId]);
 
   ////////////////////////////////Token Order

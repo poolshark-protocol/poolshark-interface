@@ -1078,7 +1078,8 @@ export default function LimitSwap() {
               <LimitCreateAndMintButton
                 disabled={mintGasLimit.eq(BN_ZERO) || tradeButton.disabled}
                 routerAddress={
-                  chainProperties["arbitrumGoerli"]["routerAddress"]
+                  //TODO: arbitrumOne values
+                  chainProperties[networkName]["routerAddress"]
                 }
                 poolTypeId={limitPoolTypeIds["constant-product"]}
                 tokenIn={tokenIn}

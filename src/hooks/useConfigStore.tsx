@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { CoverSubgraph, LimitSubgraph } from "../utils/types";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
+import { nativeString } from "../utils/tokens";
 
 type ConfigState = {
   chainId: number;
@@ -29,7 +30,7 @@ type ConfigAction = {
 const initialConfigState: ConfigState = {
   //
   chainId: 0,
-  networkName: "",
+  networkName: "arbitrum",
   limitSubgraph: undefined,
   coverSubgraph: undefined,
   coverFactoryAddress: undefined,
@@ -84,7 +85,7 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
   setListedTokenList: (listedtokenList: any) => {
     const logoMap: any = {};
     listedtokenList.forEach((token: any) => {
-      logoMap[token.id.toLowerCase()] = token.logoURI;
+      logoMap[token.id.toLowerCase() + nativeString(token)] = token.logoURI;
     });
     set(() => ({
       listedtokenList: listedtokenList,

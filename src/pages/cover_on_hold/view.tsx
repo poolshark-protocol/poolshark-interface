@@ -257,7 +257,7 @@ export default function ViewCover() {
   useEffect(() => {
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
-      : chainProperties["arbitrumGoerli"];
+      : chainProperties["arbitrumGoerli"]; //TODO: arbitrumOne values
     setCoverSubgraph(chainConstants["coverSubgraphUrl"]);
     setTimeout(() => {
       if (
@@ -435,7 +435,7 @@ export default function ViewCover() {
                 </h1>
                 <a
                   href={
-                    "https://goerli.arbiscan.io/address/" + coverPoolAddress
+                    `${chainProperties[networkName]["explorerUrl"]}` + coverPoolAddress
                   }
                   target="_blank"
                   rel="noreferrer"

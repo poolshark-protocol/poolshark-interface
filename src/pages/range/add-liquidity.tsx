@@ -161,7 +161,8 @@ export default function AddLiquidity({}) {
       if (
           router.query.feeTier &&
           !isNaN(parseInt(router.query.feeTier.toString())) &&
-          rangePoolData.feeTier == undefined
+          rangePoolData.feeTier == undefined &&
+          router.query.poolId != ZERO_ADDRESS
       ) {
           const originalTokenIn = {
             name: pool.token0.symbol,
@@ -187,7 +188,6 @@ export default function AddLiquidity({}) {
       } else {
         setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
       }
-
     }
   }
 
@@ -252,7 +252,7 @@ export default function AddLiquidity({}) {
     watch: true,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
-      // console.log('allowance in fetched', allowanceInRange?.toString())
+      console.log('allowance in fetched', allowanceInRange?.toString())
       //setNeedsAllowanceIn(false);
     },
     onError(error) {
@@ -268,7 +268,7 @@ export default function AddLiquidity({}) {
     chainId: chainId,
     watch: true,
     onSuccess(data) {
-      // console.log('allowance out fetched', allowanceOutRange?.toString())
+      console.log('allowance out fetched', allowanceOutRange?.toString())
       //setNeedsAllowanceOut(false);
     },
     onError(error) {
@@ -288,6 +288,7 @@ export default function AddLiquidity({}) {
     token: tokenIn.native ? undefined: tokenIn.address,
     enabled: tokenIn.address != ZERO_ADDRESS,
     watch: true,
+    chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceIn(false);
     },
@@ -298,6 +299,7 @@ export default function AddLiquidity({}) {
     token: tokenOut.native ? undefined : tokenOut.address,
     enabled: tokenOut.address != ZERO_ADDRESS,
     watch: true,
+    chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceOut(false);
     },

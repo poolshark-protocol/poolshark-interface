@@ -17,7 +17,7 @@ import { ethers, BigNumber } from "ethers";
 import JSBI from "jsbi";
 import { DyDxMath } from "../../../utils/math/dydxMath";
 import {
-  chainIdsToNamesForGitTokenList,
+  chainIdsToNames,
   chainProperties,
 } from "../../../utils/chains";
 import RangeMintDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveButton";
@@ -27,14 +27,17 @@ import { gasEstimateRangeMint } from "../../../utils/gas";
 import { useRouter } from "next/router";
 import { inputHandler } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
+import { logoMapKey } from "../../../utils/tokens";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [
     chainId,
-    networkName
+    networkName,
+    logoMap
   ] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
+    state.logoMap,
   ]);
 
   const [
@@ -117,7 +120,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   useEffect(() => {
     setTokenInAmount(BN_ZERO)
     setTokenOutAmount(BN_ZERO)
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
+    setStateChainName(chainIdsToNames[chainId]);
   }, [chainId]);
 
   useEffect(() => {
@@ -134,7 +137,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     functionName: "allowance",
     args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
-    watch: needsAllowanceIn && router.isReady,
+    watch: router.isReady,
     enabled: isConnected,
     onSuccess(data) {
       //console.log("Success");
@@ -151,7 +154,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     functionName: "allowance",
     args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
-    watch: needsAllowanceOut && router.isReady,
+    watch: router.isReady,
     enabled: isConnected,
     onSuccess(data) {
       //console.log("Success");
@@ -173,7 +176,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     address: address,
     token: tokenIn.address,
     enabled: tokenIn.address != undefined,
-    watch: needsBalanceIn,
+    watch: true,
     chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceIn(false);
@@ -184,7 +187,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     address: address,
     token: tokenOut.address,
     enabled: tokenOut.address != undefined && needsBalanceOut,
-    watch: needsBalanceOut,
+    watch: true,
     chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceOut(false);
@@ -194,11 +197,11 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   useEffect(() => {
     if (isConnected) {
       setTokenInBalance(
-        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+        tokenInBal?.formatted.toString()
       );
       if (pairSelected) {
         setTokenOutBalance(
-          parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
+          tokenOutBal?.formatted.toString()
         );
       }
     }
@@ -467,7 +470,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                           </button>
                         ) : null}
                         <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                          <img height="28" width="25" src={tokenIn.logoURI} />
+                          <img height="28" width="25" src={logoMap[logoMapKey(tokenIn)]} />
                           {tokenIn.symbol}
                         </div>
                       </div>
@@ -507,7 +510,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                           </button>
                         ) : null}
                         <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                          <img height="28" width="25" src={tokenOut.logoURI} />
+                          <img height="28" width="25" src={logoMap[logoMapKey(tokenOut)]} />
                           {tokenOut.symbol}
                         </div>
                       </div>

@@ -1,8 +1,16 @@
 import { ExclamationTriangleIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
+import { useConfigStore } from "../../hooks/useConfigStore";
+import { chainProperties } from "../../utils/chains";
 
 export const ErrorToast = ({ errorDisplay, setErrorDisplay, hash }) => {
   const [fadeOut, setFadeOut] = useState(false);
+
+  const [chainId, networkName,] =
+  useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
+  ]);
 
   useEffect(() => {
     if (errorDisplay) {
@@ -44,7 +52,7 @@ export const ErrorToast = ({ errorDisplay, setErrorDisplay, hash }) => {
           <h1>Your Transaction was not completed</h1>
         </div>
         <a
-          href={`https://goerli.arbiscan.io/tx/${hash}`}
+          href={`${chainProperties[networkName]["explorerUrl"]}/tx/${hash}`}
           target="_blank"
           rel="noreferrer"
           className="text-xs text-blue-500 underline"

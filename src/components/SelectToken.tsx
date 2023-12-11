@@ -8,11 +8,8 @@ import { Transition, Dialog } from "@headlessui/react";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
 import { useAccount, useToken } from "wagmi";
-import { chainIdsToNamesForGitTokenList } from "../utils/chains";
-import axios from "axios";
-import { coinsList } from "../utils/types";
 import { useConfigStore } from "../hooks/useConfigStore";
-import { defaultTokenLogo } from "../utils/tokens";
+import { defaultTokenLogo, nativeString } from "../utils/tokens";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
@@ -64,6 +61,7 @@ export default function SelectToken(props) {
           symbol: tokenInfo.symbol,
           logoURI: defaultTokenLogo,
           decimals: tokenInfo.decimals,
+          native: false,
         };
         setDisplayTokenList([customToken]);
       }
@@ -277,7 +275,7 @@ export default function SelectToken(props) {
         <div className="flex items-center gap-x-2 w-full">
           {(props.tokenIn.symbol != "Select Token" && props.type == "in") ||
           (props.tokenOut.symbol != "Select Token" && props.type == "out") ? (
-            <img className="md:w-6 w-6" src={logoMap[props.displayToken?.address.toLowerCase()]} />
+            <img className="md:w-6 w-6" src={logoMap[props.displayToken?.address.toLowerCase() + nativeString(props.displayToken)]} />
           ) : (
             <></>
           )}

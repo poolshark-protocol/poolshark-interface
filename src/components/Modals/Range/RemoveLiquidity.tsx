@@ -9,19 +9,21 @@ import { DyDxMath } from "../../../utils/math/dydxMath";
 import { TickMath } from "../../../utils/math/tickMath";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
-import { useAccount, useSigner } from "wagmi";
+import { useAccount } from "wagmi";
 import { gasEstimateRangeBurn } from "../../../utils/gas";
 import { parseUnits } from "../../../utils/math/valueMath";
-import { formatUnits } from "ethers/lib/utils.js";
 import { useConfigStore } from "../../../hooks/useConfigStore";
+import { logoMapKey } from "../../../utils/tokens";
 
 export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked }) {
   const [
     chainId,
-    networkName
+    networkName,
+    logoMap,
   ] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
+    state.logoMap,
   ]);
   
   const [
@@ -283,7 +285,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
                         MAX
                       </button>
                       <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                        <img height="28" width="25" src={tokenIn.logoURI} />
+                        <img height="28" width="25" src={logoMap[logoMapKey(tokenIn)]} />
                         {tokenIn.symbol}
                       </div>
                     </div>
@@ -315,7 +317,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
                         MAX
                       </button>
                       <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                        <img height="28" width="25" src={tokenOut.logoURI} />
+                        <img height="28" width="25" src={logoMap[logoMapKey(tokenOut)]} />
                         {tokenOut.symbol}
                       </div>
                     </div>

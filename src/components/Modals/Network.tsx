@@ -68,13 +68,13 @@ export default function Network({ isOpen, setIsOpen, chainUnsupported, chainId }
                     </div>
                   </div>*/}
                   <div
-                  onClick={() => switchNetwork(421613)}
-                   className={`${ chainId === 421613 ? ' bg-background' :'hover:bg-[#0C0C0C] hover:border-[#1C1C1C]'} flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}>
+                  onClick={() => switchNetwork(42161)}
+                   className={`${ chainId === 421613 || chainId === 42161 ? ' bg-background' :'hover:bg-[#0C0C0C] hover:border-[#1C1C1C]'} flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}>
                     <div className="flex gap-x-2 items-center">
                         <img src="/static/images/arb_icon.svg" />
-                        Arbitrum Goerli
+                        Arbitrum Mainnet
                     </div>
-                    <div className={`${ chainId === 421613 ? ' flex gap-x-2 items-center text-main text-xs' :'hidden'}`}>
+                    <div className={`${ chainId === 421613 || chainId === 42161 ? ' flex gap-x-2 items-center text-main text-xs' :'hidden'}`}>
                         Connected
                         <div className="h-1.5 w-1.5 bg-green-500 rounded-full"/>
                     </div>

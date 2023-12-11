@@ -202,7 +202,7 @@ export default function ViewRange() {
   useEffect(() => {
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
-      : chainProperties["arbitrumGoerli"];
+      : chainProperties["arbitrumGoerli"]; //TODO: arbitrumOne values
     setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
     if (
       rangePositionData.positionId == undefined ||
@@ -463,7 +463,7 @@ export default function ViewRange() {
                 </h1>
                 <a
                   href={
-                    "https://goerli.arbiscan.io/address/" + rangePoolAddress
+                    `${chainProperties[networkName]["explorerUrl"]}/address/` + rangePoolAddress
                   }
                   target="_blank"
                   rel="noreferrer"

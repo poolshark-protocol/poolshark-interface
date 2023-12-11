@@ -19,6 +19,7 @@ import { limitPoolTypeIds } from "../../utils/pools";
 import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import JSBI from "jsbi";
+import { logoMapKey, nativeString } from "../../utils/tokens";
 
 export default function RangePoolPreview() {
   const [
@@ -73,16 +74,18 @@ export default function RangePoolPreview() {
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
+
+
   useEffect(() => {
     if
     (
-        (rangeMintParams.tokenInAmount?.gt(BN_ZERO) ||
+        (rangeMintParams.tokenInAmount?.gt(BN_ZERO) ||                                              // amounts not empty
         rangeMintParams.tokenOutAmount?.gt(BN_ZERO)) && 
         Number(rangePositionData.lowerPrice) <
-          Number(rangePositionData.upperPrice) &&
-        tokenIn.userRouterAllowance?.gte(rangeMintParams.tokenInAmount) &&
-        tokenOut.userRouterAllowance?.gte(rangeMintParams.tokenOutAmount) &&
-        JSBI.greaterThan(rangeMintParams.liquidityAmount, ONE)
+          Number(rangePositionData.upperPrice) &&                                                   // valid price range
+        (tokenIn.userRouterAllowance?.gte(rangeMintParams.tokenInAmount) || tokenIn.native) &&      // allowance in
+        (tokenOut.userRouterAllowance?.gte(rangeMintParams.tokenOutAmount) || tokenOut.native) &&   // allowance out
+        JSBI.greaterThan(rangeMintParams.liquidityAmount, ONE)                                      // non-zero liquidity
     ) {
       updateGasFee();
     }
@@ -194,13 +197,13 @@ export default function RangePoolPreview() {
                         </div>
                         <div className="flex flex-col md:flex-row items-center gap-x-5 gap-y-3 mt-3 w-full">
                           <button className="flex w-full items-center gap-x-3 bg-dark border border-grey px-4 py-1.5 rounded-[4px]">
-                            <img className="w-7" src={logoMap[tokenIn.address]} />
+                            <img className="w-7" src={logoMap[logoMapKey(tokenIn)]} />
                             {tokenIn.symbol}
                           </button>
                           <button className="flex w-full items-center gap-x-3 bg-dark border border-grey px-4 py-1.5 rounded-[4px]">
                             <img
                               className="w-7 w-full"
-                              src={logoMap[tokenOut.address]}
+                              src={logoMap[logoMapKey(tokenOut)]}
                             />
                             {tokenOut.symbol}
                           </button>
@@ -262,7 +265,7 @@ export default function RangePoolPreview() {
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
-                                          src={logoMap[tokenIn.address]}
+                                          src={logoMap[logoMapKey(tokenIn)]}
                                         />
                                         {tokenIn.symbol}
                                       </div>
@@ -305,7 +308,7 @@ export default function RangePoolPreview() {
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
-                                          src={logoMap[tokenOut.address]}
+                                          src={logoMap[logoMapKey(tokenOut)]}
                                         />
                                         {tokenOut.symbol}
                                       </div>

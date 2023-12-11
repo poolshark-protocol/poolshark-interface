@@ -1,20 +1,15 @@
-import { BigNumber, ethers } from "ethers";
-import { CoverSubgraph, LimitSubgraph, tokenCover } from "../utils/types";
+import { BigNumber } from "ethers";
+import { CoverSubgraph, tokenCover } from "../utils/types";
 import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
-import {
-  daiAddress,
-  wethAddress,
-} from "../constants/contractAddresses";
 import { create } from "zustand";
 import { getCoverPoolFromFactory } from "../utils/queries";
-import { volatilityTiers } from "../utils/pools";
 import { parseUnits } from "../utils/math/valueMath";
 import { formatUnits } from "ethers/lib/utils.js";
 import {
   getCoverMintButtonDisabled,
   getCoverMintButtonMessage,
 } from "../utils/buttons";
-import { useConfigStore } from "./useConfigStore";
+import { chainProperties, defaultNetwork } from "../utils/chains";
 
 type CoverState = {
   //poolAddress for current token pairs
@@ -131,12 +126,13 @@ const initialCoverState: CoverState = {
   pairSelected: true,
   //
   tokenIn: {
-    callId: wethAddress.localeCompare(daiAddress) < 0 ? 0 : 1,
+    callId: chainProperties[defaultNetwork]["wethAddress"].localeCompare(chainProperties[defaultNetwork]["daiAddress"]) < 0 ? 0 : 1,
     name: "Wrapped Ether",
     symbol: "WETH",
     native: false,
+    //TODO: arbitrumOne values
     logoURI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
-    address: wethAddress,
+    address: chainProperties[defaultNetwork]["wethAddress"],
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: 0.0,
@@ -144,12 +140,13 @@ const initialCoverState: CoverState = {
   } as tokenCover,
   //
   tokenOut: {
-    callId: daiAddress.localeCompare(wethAddress) < 0 ? 0 : 1,
+    callId: chainProperties[defaultNetwork]["daiAddress"].localeCompare(chainProperties[defaultNetwork]["wethAddress"]) < 0 ? 0 : 1,
     name: "DAI",
     symbol: "DAI",
     native: false,
+    //TODO: arbitrumOne values
     logoURI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
-    address: daiAddress,
+    address: chainProperties[defaultNetwork]["daiAddress"],
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: 0.0,

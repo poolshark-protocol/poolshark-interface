@@ -15,7 +15,7 @@ import { weth9ABI } from "../../abis/evm/weth9";
 import { parseEther } from "ethers/lib/utils.js";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
   
-  export default function SwapUnwrapEtherButton({
+  export default function SwapUnwrapNativeButton({
     disabled,
     routerAddress,
     wethAddress,

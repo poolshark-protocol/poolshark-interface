@@ -5,7 +5,7 @@ import {
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createClient, useProvider, WagmiConfig } from 'wagmi';
-import { arbitrumGoerli } from 'wagmi/chains';
+import { arbitrum, arbitrumGoerli } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import Head from 'next/head'
@@ -15,22 +15,31 @@ import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton';
 import { isMobile } from "react-device-detect";
 import { Analytics } from '@vercel/analytics/react'
 import { useConfigStore } from '../hooks/useConfigStore';
-import { chainIdsToNamesForGitTokenList, chainProperties, supportedNetworkNames } from '../utils/chains';
+import { chainIdsToNames, chainProperties, supportedNetworkNames } from '../utils/chains';
 import axios from 'axios';
 import { coinsList } from '../utils/types';
 import { useRouter } from 'next/router';
 import TermsOfService from '../components/Modals/ToS';
 import Loader from '../components/Icons/Loader';
 
-
 const { chains, provider } = configureChains(
-  [arbitrumGoerli],
+  [
+    arbitrum,
+    // arbitrumGoerli,
+    
+  ],    //TODO: arbitrumOne values
   [
     jsonRpcProvider({
       rpc: (chain) => ({
-        http: `https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/`,
+        http: `https://patient-distinguished-pallet.arbitrum-mainnet.quiknode.pro/4cbe7cbdb55ec4b33fdc1a4239e1169b167ae351/`, // arbitrum
       }),
     }),
+    // jsonRpcProvider({
+    //   rpc: (chain) => ({
+    //     http: `https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/`, // arbitrumGoerli
+    //   }),
+    // }),
+    //TODO: arbitrumOne values
   ],
 );
 
@@ -45,10 +54,10 @@ const wagmiClient = createClient({
   autoConnect: true
 })
 
-const apolloClient = new ApolloClient({
-  cache: new InMemoryCache(),
-  uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
-})
+// const apolloClient = new ApolloClient({
+//   cache: new InMemoryCache(),
+//   uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
+// })
 
 const whitelist = [
   '0x65f5B282E024e3d6CaAD112e848dEc3317dB0902',
@@ -71,6 +80,8 @@ function MyApp({ Component, pageProps }) {
   const [tosAccepted, setTosAccepted] = useState(false);
 
   const router = useRouter();
+
+  const tokenMetadataBranch = 'master';
 
   useEffect(() => {
       // Check if terms of service is accepted
@@ -113,11 +124,13 @@ function MyApp({ Component, pageProps }) {
 
   useEffect(() => {
     setChainId(chainId)
+
     const fetchTokenMetadata = async () => {
-      const chainName = chainIdsToNamesForGitTokenList[chainId];
+      const chainName = chainIdsToNames[chainId];
+      console.log('chain name:', chainId, chainName)
       axios.get(
-        `https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/${
-          chainName === undefined ? "ethereum" : "arbitrum-goerli"
+        `https://raw.githubusercontent.com/poolshark-protocol/token-metadata/` + tokenMetadataBranch + `/blockchains/${
+          chainName ?? "arbitrum-one"
         }/tokenlist.json`
       ).then(
         function (response) {
@@ -150,7 +163,7 @@ function MyApp({ Component, pageProps }) {
   useEffect(() => {
     const networkName = supportedNetworkNames[name] ?? 'unknownNetwork'
     const chainConstants = chainProperties[networkName] ? chainProperties[networkName]
-                                                        : chainProperties['arbitrumGoerli'];
+                                                        : chainProperties['arbitrumGoerli']; //TODO: arbitrumOne values
     setLimitSubgraph(chainConstants['limitSubgraphUrl'])
     setCoverSubgraph(chainConstants['coverSubgraphUrl'])
     setCoverFactoryAddress(chainConstants['coverPoolFactory'])
@@ -170,8 +183,8 @@ function MyApp({ Component, pageProps }) {
        <title>Poolshark</title>
     </Head>
       <WagmiConfig client={wagmiClient}>
-        <RainbowKitProvider chains={chains} initialChain={arbitrumGoerli}>
-          <ApolloProvider client={apolloClient}>
+        <RainbowKitProvider chains={chains} initialChain={arbitrum}>
+          {/* <ApolloProvider client={apolloClient}> */} 
             <>
             {_isConnected && !tosAccepted && (<TermsOfService setIsOpen={true} isOpen={true} onAccept={handleTosAccept} />)}
             { !isLoading ? (
@@ -184,7 +197,7 @@ function MyApp({ Component, pageProps }) {
             </div> }
             </>
             <Analytics />
-          </ApolloProvider>
+          {/* </ApolloProvider> */}
         </RainbowKitProvider>
       </WagmiConfig>
     </>
