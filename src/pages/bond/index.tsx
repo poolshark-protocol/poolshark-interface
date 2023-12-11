@@ -24,6 +24,7 @@ import ApproveBondButton from "../../components/Buttons/ApproveBondButton";
 import { chainProperties } from "../../utils/chains";
 import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButton";
 import { logoMapKey } from "../../utils/tokens";
+import { CheckBadgeIcon, CheckIcon } from "@heroicons/react/20/solid";
 
 export default function Bond() {
   const { address, isConnected } = useAccount();
@@ -487,8 +488,12 @@ export default function Bond() {
              
             </div>
           </div>
-          <div className="flex gap-y-5 flex-col w-full lg:w-1/2">
-              
+          <div className="flex gap-y-5 flex-col w-full lg:w-1/2 relative">
+            <div className="flex items-center justify-center absolute w-full h-full bg-black/70"> 
+            <div className="bg-green-900/20 text-sm rounded-[4px] border border-green-500/30 px-5 py-3">
+              <h1 className="flex items-center gap-x-2"><CheckIcon className="text-green-500 w-5"/> BOND SALE HAS BEEN COMPLETED  </h1>
+            </div>
+            </div>
             <div className="border bg-dark border-grey rounded-[4px] w-full p-5 pb-7 h-full">
               <div className="flex justify-between">
                 <h1 className="uppercase text-white">BUY BOND</h1>
