@@ -54,8 +54,6 @@ export default function LimitSwapBurnButton({
   const [gasLimit, setGasLimit] = useState(BN_ZERO);
 
   const updateClaimTick = async () => {
-    console.log(Number(epochLast), "epochLast");
-
     const tick = await getClaimTick(
       poolAddress,
       Number(lower),
@@ -109,7 +107,6 @@ export default function LimitSwapBurnButton({
         positionId: positionId,
         claim: BigNumber.from(claimTick),
         zeroForOne: zeroForOne,
-        sync: true,
       },
     ],
     chainId: chainId,

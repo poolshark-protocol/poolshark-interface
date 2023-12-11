@@ -48,7 +48,15 @@ export default function LimitCollectButton({
     address: poolAddress,
     abi: limitPoolABI,
     functionName: "burnLimit",
-    args: [[address, BigNumber.from(0), positionId, claim, zeroForOne]],
+    args: [
+      {
+        to: address,
+        burnPercent: BN_ZERO,
+        positionId: positionId,
+        claim: claim,
+        zeroForOne: zeroForOne
+      },
+    ],
     chainId: chainId,
     enabled: positionId != undefined,
     overrides: {
@@ -83,7 +91,7 @@ export default function LimitCollectButton({
           address ? write?.() : null;
         }}
       >
-        {gasLimit.lte(BN_ZERO) ? <Loader /> : disabled ? "Nothing to collect" : "Collect position"}
+        {gasLimit.lte(BN_ZERO) && !disabled ? <Loader /> : disabled ? "Nothing to collect" : "Collect position"}
       </button>
       <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay && (

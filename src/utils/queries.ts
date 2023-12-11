@@ -78,6 +78,7 @@ export const getRangePoolFromFactory = (
             token1 {
               usdPrice
             }
+            poolToken
           }
         }
         `;
@@ -111,6 +112,7 @@ export const getCoverPoolFromFactory = (
                 tickSpread
                 auctionLength
                 feeAmount
+                twapLength
               }
               token0 {
                 id
@@ -131,13 +133,14 @@ export const getCoverPoolFromFactory = (
               tickSpread
               auctionLength
               feeAmount
+              twapLength
             }
           }
          `;
     const client = new ApolloClient({
       uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
       cache: new InMemoryCache(),
-    });
+    }); //TODO: arbitrumOne values
     client
       .query({ query: gql(getPool) })
       .then((data) => {
@@ -414,7 +417,7 @@ export const fetchCoverPositions = (client: CoverSubgraph, address: string) => {
         }
     `;
     client
-      .query({
+      ?.query({
         query: gql(positionsQuery),
         variables: {
           owner: address,
@@ -433,7 +436,7 @@ export const fetchCoverPools = (client: CoverSubgraph) => {
   return new Promise(function (resolve) {
     const poolsQuery = `
             query($id: String) {
-                coverPools(id: $id) {
+                coverPools(orderBy: totalValueLockedUsd, orderDirection: desc) {
                     id
                     inputPool
                     token0{
@@ -508,54 +511,82 @@ export const fetchCoverPoolMetrics = (client: CoverSubgraph) => {
 export const fetchLimitPositions = (client: LimitSubgraph, address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
-      query($owner: String) {
-          limitPositions(
-            where: {owner:"${address}"},
-            orderBy: createdAtTimestamp,
-            orderDirection: desc
-          ) {
+    {
+        limitPositions(
+          where: {owner:"${address}"},
+          orderBy: createdAtTimestamp,
+          orderDirection: desc
+        ) {
+            id
+            positionId
+            createdAtTimestamp
+            amountIn
+            amountFilled
+            zeroForOne
+            tokenIn{
                 id
-                positionId
-                createdAtTimestamp
-                amountIn
-                amountFilled
-                zeroForOne
-                tokenIn{
-                    id
-                    name
-                    symbol
-                    decimals
-                }
-                tokenOut{
-                  id
-                  name
-                  symbol
-                  decimals
-                }
-                liquidity
-                lower
-                upper
-                epochLast
-                claimPriceLast
-                owner
-                pool{
-                    id
-                    liquidity
-                    liquidityGlobal
-                    epoch
-                    feeTier{
-                      id
-                      feeAmount
-                      tickSpacing
-                    }
-                    price0
-                    price1
-                    poolPrice
-                    tickSpacing
-                }
-                txnHash
+                name
+                symbol
+                decimals
             }
+            tokenOut{
+              id
+              name
+              symbol
+              decimals
+            }
+            liquidity
+            lower
+            upper
+            epochLast
+            claimPriceLast
+            owner
+            pool{
+                id
+                liquidity
+                liquidityGlobal
+                epoch
+                feeTier{
+                  id
+                  feeAmount
+                  tickSpacing
+                }
+                price0
+                price1
+                poolPrice
+                tickSpacing
+            }
+            txnHash
         }
+        historicalOrders(
+          where: {owner:"${address}", completed: true},
+          orderBy: completedAtTimestamp,
+          orderDirection: desc
+        ) {
+            id
+            tokenIn{
+              id
+              name
+              symbol
+              decimals
+            }
+            pool {
+              id
+            }
+            tokenOut{
+              id
+              name
+              symbol
+              decimals
+            }
+            amountIn
+            amountOut
+            averagePrice
+            completedAtTimestamp
+            completed
+            owner
+        }
+      }
     `;
     client
       .query({
@@ -703,7 +734,7 @@ export const fetchRangePools = (client: LimitSubgraph) => {
             }
         `;
     client
-      .query({ query: gql(poolsQuery) })
+      ?.query({ query: gql(poolsQuery) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -726,6 +757,7 @@ export const fetchRangePositions = (client: LimitSubgraph, address: string) => {
             id
             positionId
             owner
+            staked
             lower
             upper
             liquidity
@@ -886,19 +918,19 @@ export const fetchTokenPrice = (
   tokenAddress: string
 ) => {
   return new Promise(function (resolve) {
-    const poolsQuery = `
-            query($id: String) {
-                tokens(id: $id) {
-                    usdPrice
-                }
+    const tokenQuery = `
+          { 
+            tokens(
+              first: 1
+              where: {id:"${tokenAddress.toLowerCase()}"}
+            ) {
+              usdPrice
             }
+          }
         `;
     client
       .query({
-        query: gql(poolsQuery),
-        variables: {
-          id: tokenAddress,
-        },
+        query: gql(tokenQuery)
       })
       .then((data) => {
         resolve(data);
@@ -937,3 +969,149 @@ export const fetchEthPrice = () => {
       });
   });
 };
+
+export const fetchUserBonds = (marketId: string, recipient: string, subgraphUrl: string) => {
+  return new Promise(function (resolve) {
+    const userBondsQuery = `
+        {
+          bondPurchases(first: 1000, where: { recipient:"${recipient}", market_: {marketId: "${marketId}"} }, orderBy: timestamp, orderDirection: desc) {
+              amount
+              auctioneer
+              chainId
+              id
+              network
+              owner
+              payout
+              postPurchasePrice
+              purchasePrice
+              recipient
+              referrer
+              teller
+              timestamp
+              quoteToken {
+                address
+                symbol
+                decimals
+                id
+                totalPayoutAmount
+              }
+              payoutToken {
+                address
+                symbol
+                decimals
+                id
+                totalPayoutAmount
+              }
+            }
+          }
+        `;
+    const client = new ApolloClient({
+      uri: subgraphUrl,
+      cache: new InMemoryCache(),
+    });
+    client
+      .query({
+        query: gql(userBondsQuery),
+      })
+      .then((data) => {
+        resolve(data);
+        //console.log(data)
+      })
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+}
+
+export const fetchBondMarket = (marketId: string, subgraphUrl: string) => {
+  return new Promise(function (resolve) {
+    const bondMarketQuery = `
+              {
+                markets(where: { hasClosed: false, marketId: "${marketId}" }) {
+                  id
+                  name
+                  network
+                  auctioneer
+                  teller
+                  marketId
+                  owner
+                  callbackAddress
+                  capacity
+                  capacityInQuote
+                  chainId
+                  minPrice
+                  scale
+                  start
+                  conclusion
+                  payoutToken {
+                    id
+                    address
+                    symbol
+                    decimals
+                    name
+                  }
+                  quoteToken {
+                    id
+                    address
+                    symbol
+                    decimals
+                    name
+                    lpPair {
+                      token0 {
+                        id
+                        address
+                        symbol
+                        decimals
+                        name
+                        typeName
+                      }
+                      token1 {
+                        id
+                        address
+                        symbol
+                        decimals
+                        name
+                        typeName
+                      }
+                    }
+                    balancerWeightedPool {
+                      id
+                      vaultAddress
+                      poolId
+                      constituentTokens {
+                        id
+                        address
+                        symbol
+                        decimals
+                        name
+                        typeName
+                      }
+                    }
+                  }
+                  vesting
+                  vestingType
+                  isInstantSwap
+                  hasClosed
+                  totalBondedAmount
+                  totalPayoutAmount
+                  creationBlockTimestamp
+                }
+              }
+        `;
+    const client = new ApolloClient({
+      uri: subgraphUrl,
+      cache: new InMemoryCache(),
+    });
+    client
+      .query({
+        query: gql(bondMarketQuery),
+      })
+      .then((data) => {
+        resolve(data);
+        //console.log(data)
+      })
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+}

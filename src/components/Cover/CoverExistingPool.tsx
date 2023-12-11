@@ -24,28 +24,32 @@ import {
 } from "../../utils/gas";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import {
-  chainIdsToNamesForGitTokenList,
+  chainIdsToNames,
   chainProperties,
 } from "../../utils/chains";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { volatilityTiers } from "../../utils/pools";
-import { coverPoolABI } from "../../abis/evm/coverPool";
+import { coverPoolTypes, volatilityTiers } from "../../utils/pools";
 import { useRouter } from "next/router";
 import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { fetchRangePositions } from "../../utils/queries";
-import { mapUserLimitPositions, mapUserRangePositions } from "../../utils/maps";
+import { mapUserRangePositions } from "../../utils/maps";
+import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 export default function CoverExistingPool({ goBack }) {
   const [
     chainId,
     networkName,
     limitSubgraph,
     coverSubgraph,
+    coverFactoryAddress,
+    logoMap
   ] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
     state.limitSubgraph,
-    state.coverSubgraph
+    state.coverSubgraph,
+    state.coverFactoryAddress,
+    state.logoMap
   ]);
 
   const [
@@ -65,6 +69,10 @@ export default function CoverExistingPool({ goBack }) {
     setCoverAmountOut, */
     latestTick,
     setLatestTick,
+    inputPoolExists,
+    setInputPoolExists,
+    twapReady,
+    setTwapReady,
     pairSelected,
     switchDirection,
     setCoverPoolFromVolatility,
@@ -93,6 +101,10 @@ export default function CoverExistingPool({ goBack }) {
     state.setCoverAmountOut, */
     state.latestTick,
     state.setLatestTick,
+    state.inputPoolExists,
+    state.setInputPoolExists,
+    state.twapReady,
+    state.setTwapReady,
     state.pairSelected,
     state.switchDirection,
     state.setCoverPoolFromVolatility,
@@ -125,7 +137,7 @@ export default function CoverExistingPool({ goBack }) {
   const [stateChainName, setStateChainName] = useState();
 
   useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
+    setStateChainName(chainIdsToNames[chainId]);
   }, [chainId]);
 
   ////////////////////////////////Token Order
@@ -145,8 +157,8 @@ export default function CoverExistingPool({ goBack }) {
     functionName: "allowance",
     args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
-    watch: needsAllowance,
-    enabled: tokenIn.address != undefined,
+    watch: needsAllowance && !tokenIn.native,
+    enabled: tokenIn.address != ZERO_ADDRESS,
     onSuccess(data) {
       // setNeedsAllowance(false);
     },
@@ -166,8 +178,8 @@ export default function CoverExistingPool({ goBack }) {
 
   const { data: tokenInBal } = useBalance({
     address: address,
-    token: tokenIn.address,
-    enabled: tokenIn.address != undefined && needsBalance,
+    token: tokenIn.native ? undefined: tokenIn.address,
+    enabled: tokenIn.address != ZERO_ADDRESS && needsBalance,
     watch: needsBalance,
     onSuccess(data) {
       setNeedsBalance(false);
@@ -179,28 +191,6 @@ export default function CoverExistingPool({ goBack }) {
       setTokenInBalance(parseFloat(tokenInBal?.formatted).toFixed(2));
     }
   }, [tokenInBal]);
-
-  ////////////////////////////////Latest Tick
-  const { data: newLatestTick } = useContractRead({
-    address: coverPoolAddress,
-    abi: coverPoolABI,
-    functionName: "syncLatestTick",
-    chainId: chainId,
-    enabled: coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS,
-    onSuccess(data) {
-      setNeedsLatestTick(false);
-    },
-    onError(error) {
-      console.log("Error syncLatestTick", error);
-    },
-    onSettled(data, error) {},
-  });
-
-  useEffect(() => {
-    if (newLatestTick) {
-      setLatestTick(parseInt(newLatestTick.toString()));
-    }
-  }, [newLatestTick, router.isReady]);
 
   ////////////////////////////////Token Prices
 
@@ -223,15 +213,57 @@ export default function CoverExistingPool({ goBack }) {
     }
   }, [coverPoolData, tokenIn.callId == 0]);
 
+  ////////////////////////////////Latest Tick
+  const { data: newLatestTick } = useContractRead({
+    address: coverFactoryAddress,
+    abi: coverPoolFactoryABI,
+    functionName: "syncLatestTick",
+    args: [
+      {
+        poolType: coverPoolTypes['constant-product']['poolshark'],
+        tokenIn: tokenIn.address,
+        tokenOut: tokenOut.address,
+        feeTier: coverPoolData.volatilityTier?.feeAmount,
+        tickSpread: coverPoolData.volatilityTier?.tickSpread,
+        twapLength: coverPoolData.volatilityTier?.twapLength
+      }
+    ],
+    chainId: chainId,
+    enabled: coverPoolData.volatilityTier != undefined,
+    watch: needsLatestTick,
+    onSuccess(data) {
+      setNeedsLatestTick(false);
+      // console.log('Success syncLatestTick', newLatestTick, tokenIn.address, tokenOut.address, coverPoolData.volatilityTier)
+    },
+    onError(error) {
+      console.log("Error syncLatestTick", tokenIn.address, tokenOut.address, coverPoolData.volatilityTier.feeAmount, coverPoolData.volatilityTier.tickSpread, coverPoolData.volatilityTier.twapLength, error);
+    },
+    onSettled(data, error) {},
+  });
+
+  useEffect(() => {
+    if (newLatestTick) {
+      // if underlying pool does not exist or twap not ready
+      if (!newLatestTick[1] || !newLatestTick[2]) {
+        setLowerPrice('')
+        setUpperPrice('')
+        setTokenOutAmount(BN_ZERO)
+      } else {
+        setLatestTick(parseInt(newLatestTick[0].toString()));
+      }
+      setInputPoolExists(newLatestTick[1]);
+      setTwapReady(newLatestTick[2]);
+    }
+  }, [newLatestTick, router.isReady]);
+
   //////////////////////////////Cover Pool Data
 
   useEffect(() => {
     if (
       //updating from empty selected token
-      tokenOut.name != "Select Token" &&
-      !coverPoolData
+      tokenOut.name != "Select Token"
     ) {
-      updatePools("1000");
+      updatePools("1000"); // should match fee tier of position by default
       setNeedsLatestTick(true);
     }
   }, [tokenIn.name, tokenOut.name]);
@@ -250,10 +282,10 @@ export default function CoverExistingPool({ goBack }) {
 
   //positionData set at pool data change
   useEffect(() => {
-    if (latestTick != undefined && coverPoolData.volatilityTier) {
+    if (latestTick != undefined && coverPoolData.volatilityTier && inputPoolExists && twapReady) {
       updatePositionData();
     }
-  }, [tokenIn.address, tokenOut.address, coverPoolData, latestTick]);
+  }, [tokenIn.address, tokenOut.address, coverPoolData, latestTick, inputPoolExists, twapReady]);
 
   async function updatePositionData() {
     const tickAtPrice = Number(latestTick);
@@ -336,12 +368,11 @@ export default function CoverExistingPool({ goBack }) {
   }, [coverPositionData.lowerPrice, coverPositionData.upperPrice, tokenIn.callId == 0]); */
 
   useEffect(() => {
-    if (!coverPoolData.id) {
+    if (coverPoolData.volatilityTier == undefined) {
       setCoverPoolFromVolatility(tokenIn, tokenOut, "1000", coverSubgraph);
     }
-
     refetchRangePositionData();
-    updateCoverAmounts();
+    setCoverAmounts();
   }, [
     coverPoolData,
     coverPositionData,
@@ -368,7 +399,7 @@ export default function CoverExistingPool({ goBack }) {
     }
   }
 
-  function updateCoverAmounts() {
+  function setCoverAmounts() {
     if (
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
@@ -447,7 +478,7 @@ export default function CoverExistingPool({ goBack }) {
     if (
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
-      coverPoolData.volatilityTier.tickSpread &&
+      coverPoolData.volatilityTier &&
       latestTick != undefined
     )
       changeValidBounds();
@@ -476,19 +507,26 @@ export default function CoverExistingPool({ goBack }) {
       !needsLatestTick &&
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
-      coverPositionData.lowerPrice > 0 &&
-      coverPositionData.upperPrice > 0 &&
       coverPoolData.volatilityTier &&
       coverMintParams.tokenInAmount &&
       tokenIn.userRouterAllowance &&
       tokenIn.userRouterAllowance >=
-        parseInt(coverMintParams.tokenInAmount.toString())
+        parseInt(coverMintParams.tokenInAmount.toString()) &&
+      (coverPoolAddress != ZERO_ADDRESS ? twapReady &&
+                                          parseInt(coverMintParams.tokenInAmount.toString()) > 0 &&
+                                          coverPositionData.lowerPrice > 0 &&
+                                          coverPositionData.upperPrice > 0 // twap must be ready if pool exists
+                                        : inputPoolExists) // input pool must exist to create pool
     )
       updateGasFee();
   }, [
-    coverMintParams.tokenInAmount,
     coverPoolAddress,
-    coverPositionData,
+    coverMintParams.tokenInAmount,
+    coverPositionData.lowerPrice,
+    coverPositionData.upperPrice,
+    coverMintParams.tokenInAmount,
+    coverMintParams.tokenOutAmount,
+    tokenIn.userRouterAllowance,
     tokenIn,
     tokenOut,
     latestTick,
@@ -520,7 +558,6 @@ export default function CoverExistingPool({ goBack }) {
             networkName
           )
         : await gasEstimateCoverCreateAndMint(
-            "PSHARK-CPROD",
             coverPoolData.volatilityTier
               ? coverPoolData.volatilityTier
               : volatilityTiers[0],
@@ -541,7 +578,8 @@ export default function CoverExistingPool({ goBack }) {
             tokenOut,
             coverMintParams.tokenInAmount,
             signer,
-            networkName
+            networkName,
+            twapReady
           );
     if (!newMintGasFee.gasUnits.mul(120).div(100).eq(mintGasLimit)) {
       setMintGasFee(newMintGasFee.formattedPrice);
@@ -553,7 +591,7 @@ export default function CoverExistingPool({ goBack }) {
 
   useEffect(() => {
     setMintButtonState();
-  }, [tokenIn, coverMintParams.tokenInAmount]);
+  }, [tokenIn, coverMintParams.tokenInAmount, coverPoolAddress, inputPoolExists, twapReady]);
 
   ////////////////////////////////Slider Value change
   const [sliderDisplay, setSliderDisplay] = useState(0);
@@ -595,7 +633,7 @@ export default function CoverExistingPool({ goBack }) {
                 parseFloat(
                   ethers.utils.formatUnits(
                     String(coverMintParams.tokenOutAmount),
-                    18
+                    tokenOut.decimals
                   )
                 ) *
                 (1 - coverPoolData.volatilityTier.tickSpread / 10000)
@@ -632,7 +670,7 @@ export default function CoverExistingPool({ goBack }) {
         <div className="flex justify-between md:justify-start gap-x-4 items-center">
           <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
             <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
-              <img className="md:w-7 w-6" src={tokenIn.logoURI} />
+              <img className="md:w-7 w-6" src={logoMap[tokenIn.address]} />
               {tokenIn.symbol}
             </div>
           </button>
@@ -644,7 +682,7 @@ export default function CoverExistingPool({ goBack }) {
           />
           <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
             <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
-              <img className="md:w-7 w-6" src={tokenOut.logoURI} />
+              <img className="md:w-7 w-6" src={logoMap[tokenOut.address]} />
               {tokenOut.symbol}
             </div>
           </button>
@@ -663,6 +701,7 @@ export default function CoverExistingPool({ goBack }) {
             min="0"
             max="100"
             value={sliderDisplay}
+            disabled={!inputPoolExists || !twapReady}
             onChange={handleChange}
             className="w-full styled-slider slider-progress bg-transparent"
           />
@@ -692,7 +731,7 @@ export default function CoverExistingPool({ goBack }) {
               {Number(
                 ethers.utils.formatUnits(
                   coverMintParams.tokenInAmount.toString(),
-                  18
+                  tokenIn.decimals
                 )
               ).toPrecision(5)}
             </span>
@@ -706,7 +745,7 @@ export default function CoverExistingPool({ goBack }) {
               {Number.parseFloat(
                 ethers.utils.formatUnits(
                   String(coverMintParams.tokenOutAmount),
-                  18
+                  tokenOut.decimals
                 )
               ).toPrecision(5)}
             </div>
@@ -748,6 +787,7 @@ export default function CoverExistingPool({ goBack }) {
                     placeholder="0"
                     id="minInput"
                     type="text"
+                    disabled={!inputPoolExists || !twapReady}
                     value={lowerPrice}
                     onChange={(e) => setLowerPrice(inputFilter(e.target.value))}
                   />
@@ -764,6 +804,7 @@ export default function CoverExistingPool({ goBack }) {
                     placeholder="0"
                     id="maxInput"
                     type="text"
+                    disabled={!inputPoolExists || !twapReady}
                     value={upperPrice}
                     onChange={(e) => setUpperPrice(inputFilter(e.target.value))}
                   />
@@ -783,7 +824,7 @@ export default function CoverExistingPool({ goBack }) {
                   : tokenOut.symbol}{" "}
                 =
                 {" " +
-                  parseFloat(
+                  (twapReady ? parseFloat(
                     invertPrice(
                       TickMath.getPriceStringAtTick(
                         latestTick,
@@ -792,7 +833,8 @@ export default function CoverExistingPool({ goBack }) {
                       ),
                       priceOrder
                     )
-                  ).toPrecision(5) +
+                  ).toPrecision(5)
+                : '?.??') +
                   " " +
                   (priceOrder == (tokenIn.callId == 0)
                     ? tokenOut.symbol
@@ -837,7 +879,7 @@ export default function CoverExistingPool({ goBack }) {
         </div>
       </div>
       {allowanceInCover ? (
-        allowanceInCover.lt(coverMintParams.tokenInAmount) ? (
+        allowanceInCover.lt(coverMintParams.tokenInAmount) && !tokenIn.native ? (
           <CoverMintApproveButton
             routerAddress={chainProperties[networkName]["routerAddress"]}
             approveToken={tokenIn.address}

@@ -3,9 +3,17 @@ import {
   XMarkIcon
 } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
+import { chainProperties } from "../../utils/chains";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export const SuccessToast = ({ successDisplay, setSuccessDisplay, hash }) => {
   const [fadeOut, setFadeOut] = useState(false);
+
+  const [chainId, networkName,] =
+  useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
+  ]);
 
   useEffect(() => {
     if (successDisplay) {
@@ -47,7 +55,7 @@ export const SuccessToast = ({ successDisplay, setSuccessDisplay, hash }) => {
           <h1>Your Transaction was successful</h1>
         </div>
         <a
-          href={`https://goerli.arbiscan.io/tx/${hash}`}
+          href={`${chainProperties[networkName]["explorerUrl"]}/tx/${hash}`}
           rel="noreferrer"
           target="_blank"
           className="text-xs text-blue-500 underline"

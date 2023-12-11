@@ -1,13 +1,18 @@
 import { create } from "zustand";
 import { CoverSubgraph, LimitSubgraph } from "../utils/types";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
+import { nativeString } from "../utils/tokens";
 
 type ConfigState = {
   chainId: number;
   networkName: string;
   limitSubgraph: LimitSubgraph;
   coverSubgraph: CoverSubgraph;
-  tokenList: any;
+  coverFactoryAddress: string;
+  listedtokenList: any;
+  searchtokenList: any;
+  displayTokenList: any;
+  logoMap: any;
 };
 
 type ConfigAction = {
@@ -16,16 +21,23 @@ type ConfigAction = {
   setNetworkName: (networkName: string) => void;
   setLimitSubgraph: (limitSubgraphUrl: string) => void;
   setCoverSubgraph: (coverSubgraphUrl: string) => void;
-  setTokenList: (tokenList: any) => void;
+  setCoverFactoryAddress: (coverFactoryAddress: string) => void;
+  setListedTokenList: (listedtokenList: any) => void;
+  setSearchTokenList: (searchtokenList: any) => void;
+  setDisplayTokenList: (displayTokenList: any) => void;
 };
 
 const initialConfigState: ConfigState = {
   //
   chainId: 0,
-  networkName: "",
+  networkName: "arbitrum",
   limitSubgraph: undefined,
   coverSubgraph: undefined,
-  tokenList: undefined,
+  coverFactoryAddress: undefined,
+  listedtokenList: undefined,
+  searchtokenList: undefined,
+  displayTokenList: undefined,
+  logoMap: {},
 };
 
 export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
@@ -34,7 +46,11 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
   networkName: initialConfigState.networkName,
   limitSubgraph: initialConfigState.limitSubgraph,
   coverSubgraph: initialConfigState.coverSubgraph,
-  tokenList: initialConfigState.tokenList,
+  coverFactoryAddress: initialConfigState.coverFactoryAddress,
+  listedtokenList: initialConfigState.listedtokenList,
+  searchtokenList: initialConfigState.searchtokenList,
+  displayTokenList: initialConfigState.displayTokenList,
+  logoMap: initialConfigState.logoMap,
   setChainId: (chainId: number) => {
     set(() => ({
       chainId: chainId,
@@ -61,9 +77,29 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
       }),
     }));
   },
-  setTokenList: (tokenList: any) => {
+  setCoverFactoryAddress(coverFactoryAddress: string) {
     set(() => ({
-      tokenList: tokenList,
+      coverFactoryAddress: coverFactoryAddress,
+    }));
+  },
+  setListedTokenList: (listedtokenList: any) => {
+    const logoMap: any = {};
+    listedtokenList.forEach((token: any) => {
+      logoMap[token.id.toLowerCase() + nativeString(token)] = token.logoURI;
+    });
+    set(() => ({
+      listedtokenList: listedtokenList,
+      logoMap: logoMap,
+    }));
+  },
+  setSearchTokenList: (searchtokenList: any) => {
+    set(() => ({
+      searchtokenList: searchtokenList,
+    }));
+  },
+  setDisplayTokenList: (displaytokenList: any) => {
+    set(() => ({
+      displayTokenList: displaytokenList,
     }));
   },
 }));

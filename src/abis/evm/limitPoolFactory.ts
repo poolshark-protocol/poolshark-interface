@@ -11,31 +11,6 @@ export const limitPoolFactoryABI = [
     "type": "constructor"
   },
   {
-    "inputs": [],
-    "name": "FeeTierNotSupported",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidTokenAddress",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "OwnerOnly",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "PoolAlreadyExists",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "PoolTypeNotSupported",
-    "type": "error"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -49,12 +24,6 @@ export const limitPoolFactoryABI = [
         "internalType": "address",
         "name": "token",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "poolType",
-        "type": "bytes32"
       },
       {
         "indexed": true,
@@ -79,6 +48,12 @@ export const limitPoolFactoryABI = [
         "internalType": "int16",
         "name": "tickSpacing",
         "type": "int16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "poolTypeId",
+        "type": "uint16"
       }
     ],
     "name": "PoolCreated",
@@ -88,11 +63,6 @@ export const limitPoolFactoryABI = [
     "inputs": [
       {
         "components": [
-          {
-            "internalType": "bytes32",
-            "name": "poolType",
-            "type": "bytes32"
-          },
           {
             "internalType": "address",
             "name": "tokenIn",
@@ -111,6 +81,11 @@ export const limitPoolFactoryABI = [
           {
             "internalType": "uint16",
             "name": "swapFee",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "poolTypeId",
             "type": "uint16"
           }
         ],
@@ -138,11 +113,6 @@ export const limitPoolFactoryABI = [
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "poolType",
-        "type": "bytes32"
-      },
-      {
         "internalType": "address",
         "name": "tokenIn",
         "type": "address"
@@ -155,6 +125,11 @@ export const limitPoolFactoryABI = [
       {
         "internalType": "uint16",
         "name": "swapFee",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "poolTypeId",
         "type": "uint16"
       }
     ],
