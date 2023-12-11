@@ -108,7 +108,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
           <>
             {buttonState === "amount" ? <>Input Amount</> : <></>}
             {buttonState === "balance" ? (
-              <>Insufficient {tokenSymbol} Balance</>
+              <>Low {tokenSymbol} Balance</>
             ) : (
               <></>
             )}

@@ -59,7 +59,7 @@ export default function CoverCreate() {
     setState(router.query.state)
   }, [router.query.state]);
 
-  const handleDiselectPool = (state) => {
+  const handleDeselectPool = (state) => {
     setState(state);
     setSelectedPool(undefined);
   };
@@ -90,7 +90,7 @@ export default function CoverCreate() {
                   onClick={() => setIsShifted("createCover")}
                   className="px-24 py-6 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto my-12 border border-grey bg-black/50 backdrop-blur uppercase shadow-lg text-sm disabled:opacity-50 hover:opacity-80"
                 >
-                  CREATE CUSTOM COVER POOL
+                  CREATE COVER POSITION
                 </button>
               </a>
             </div>
@@ -119,14 +119,14 @@ export default function CoverCreate() {
             </div>
           )}
           {state === "custom" && (
-            <CreateCover query={router.query} goBack={handleDiselectPool} />
+            <CreateCover query={router.query} goBack={handleDeselectPool} />
           )}
           {state === "range-cover" && (
             <CoverExistingPool goBack={setIsShifted} />
           )}
           {/*}
           {selectedPool != undefined && state == "existing" ? (
-            <CreateCover query={router.query} goBack={handleDiselectPool} />
+            <CreateCover query={router.query} goBack={handleDeselectPool} />
           ) : shifted === "initial" ? (
             <div className="text-white relative">
               <div className="absolute opacity-50 w-full h-full bg-black top-0 left-0" />

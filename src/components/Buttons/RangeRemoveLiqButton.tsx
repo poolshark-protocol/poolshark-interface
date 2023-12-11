@@ -8,10 +8,12 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { rangePoolABI } from "../../abis/evm/rangePool";
-import { BN_ZERO } from "../../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { chainProperties } from "../../utils/chains";
+import { rangeStakerABI } from "../../abis/evm/rangeStaker";
 
 export default function RangeRemoveLiqButton({
   poolAddress,
@@ -21,6 +23,7 @@ export default function RangeRemoveLiqButton({
   closeModal,
   setIsOpen,
   gasLimit,
+  staked,
   disabled,
 }) {
   const [
@@ -46,11 +49,31 @@ export default function RangeRemoveLiqButton({
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
-  const { config } = usePrepareContractWrite({
+  const { config: burnConfig } = usePrepareContractWrite({
     address: poolAddress,
     abi: rangePoolABI,
     functionName: "burnRange",
+    enabled: positionId != undefined 
+              && staked != undefined 
+              && !staked 
+              && poolAddress != ZERO_ADDRESS,
+    args:[[
+        address,
+        positionId,
+        burnPercent
+      ]],
+    chainId: chainId,
+    onError(err) {
+      console.log('compound error')
+    },
+  });
+
+  const { config: burnStakeConfig } = usePrepareContractWrite({
+    address: chainProperties[networkName]["rangeStakerAddress"],
+    abi: rangeStakerABI,
+    functionName: "burnRangeStake",
     args: [
+      poolAddress,
       {
         to: address,
         positionId: positionId,
@@ -58,13 +81,20 @@ export default function RangeRemoveLiqButton({
       }
     ],
     chainId: chainId,
-    enabled: positionId != undefined,
-    overrides: {
-      gasLimit: gasLimit,
+    enabled: positionId != undefined 
+              && staked != undefined
+              && staked
+              && poolAddress != ZERO_ADDRESS,
+    onError(err) {
+        console.log('compound stake errored')
     },
   });
 
-  const { data, write } = useContractWrite(config);
+  const { data: burnData, write: burnWrite } = useContractWrite(burnConfig)
+  const { data: burnStakeData, write: burnStakeWrite } = useContractWrite(burnStakeConfig)
+
+  const data = !staked ? burnData : burnStakeData
+  const write = !staked ? burnWrite : burnStakeWrite
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
