@@ -97,10 +97,10 @@ export const chainProperties = {
             auctioneerAddress: "0xf7f9a96cdbfefd70bda14a8f30ec503b16bce9b1",
             tellerAddress: "0x007f7735baf391e207e3aa380bb53c4bd9a5fed6",
             wethAddress: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
-            finAddress: "0x3788ce0817512e33130b1ea0490d2957b4ffc406",
+            finAddress: "0x903ca00944d0b51e50d9f4fc96167c89f211542a", // FIN
             nullReferrer: "0x0000000000000000000000000000000000000000",
-            marketSubgraphId: "42161_BondFixedTermFPA_117",
-            marketId: 117,
+            marketSubgraphId: "42161_BondFixedTermFPA_120",
+            marketId: 120,
             subgraphUrl: 'https://api.thegraph.com/subgraphs/name/bond-protocol/bond-protocol-arbitrum-mainnet',
         }
     },

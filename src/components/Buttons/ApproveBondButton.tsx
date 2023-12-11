@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import { SuccessToast } from "../Toasts/Success";
+import { BN_ZERO } from "../../utils/math/constants";
   
   export default function ApproveBondButton({
     tellerAddress,
@@ -31,8 +32,9 @@ import { SuccessToast } from "../Toasts/Success";
         inputAmount,
       ],
       chainId: chainId,
+      enabled: tellerAddress != undefined && inputAmount?.gt(BN_ZERO),
       onError() {
-        console.log('approve error')
+        console.log('approve error', tellerAddress, inputAmount)
       }
     });
   

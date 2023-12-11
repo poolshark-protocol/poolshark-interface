@@ -591,6 +591,7 @@ export default function Bond() {
                 {isConnected ? (parseFloat(formatEther(bnInput)) <= maxAmountAccepted ? (
                   tokenAllowance >= bnInput ? (
                     <BuyBondButton
+                      startTime={marketData[0]?.start}
                       nullReferrer={bondProtocolConfig["nullReferrer"]}
                       tellerAddress={bondProtocolConfig["tellerAddress"]}
                       inputAmount={bnInput}
