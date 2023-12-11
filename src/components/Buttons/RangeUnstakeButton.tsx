@@ -118,7 +118,7 @@ const [
         <>
         <button
           disabled={unstakeGasLimit?.lte(BN_ZERO)}
-          className="bg-green-800/20 whitespace-nowrap border w-full border-green-500/50 text-green-500 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
+          className="bg-red-800/20 whitespace-nowrap border w-full border-red-500/50 text-red-500 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
           onClick={() => write?.()}
         >
             Unstake Position
