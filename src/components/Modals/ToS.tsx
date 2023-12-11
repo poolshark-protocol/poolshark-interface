@@ -91,7 +91,7 @@ export default function TermsOfService({
              {!read &&
              (
                 <div className="flex items-center justify-end w-full">
-             <button disabled={!isButtonEnabled} className="bg-main1 px-12 py-2 rounded-full border border-main text-sm mt-6 disabled:opacity-60 disabled:cursor-not-allowed" onClick={onAccept}>Accept Terms</button>
+             <button className="bg-main1 px-12 py-2 rounded-full border border-main text-sm mt-6 disabled:opacity-60 disabled:cursor-not-allowed" onClick={onAccept}>Accept Terms</button>
              </div>
              )}
               </Dialog.Panel>
