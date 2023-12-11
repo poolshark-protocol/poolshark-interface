@@ -21,7 +21,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
         <div className="xl:grid flex justify-between items-center grid-cols-3 w-full mx-auto">
           <div className="flex items-center justify-start flex-shrink-0">
             <Link href="/">
-              <div>
+              <div className="flex items-center">
                 <Image
                   src="/static/images/logo.png"
                   width={70}
