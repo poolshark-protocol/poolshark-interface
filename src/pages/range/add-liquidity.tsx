@@ -161,7 +161,8 @@ export default function AddLiquidity({}) {
       if (
           router.query.feeTier &&
           !isNaN(parseInt(router.query.feeTier.toString())) &&
-          rangePoolData.feeTier == undefined
+          rangePoolData.feeTier == undefined &&
+          router.query.poolId != ZERO_ADDRESS
       ) {
           const originalTokenIn = {
             name: pool.token0.symbol,
@@ -187,7 +188,6 @@ export default function AddLiquidity({}) {
       } else {
         setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
       }
-
     }
   }
 

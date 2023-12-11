@@ -718,10 +718,12 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
             }));
           }
         }
+        console.log('pool found:', poolFound)
         if (!poolFound) {
           set((state) => ({
             rangePoolAddress: ZERO_ADDRESS as `0x${string}`,
             rangePoolData: {
+              id: ZERO_ADDRESS as `0x${string}`,
               feeTier: state.rangePoolData.feeTier,
             },
           }));
