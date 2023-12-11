@@ -40,7 +40,7 @@ import { SuccessToast } from "../Toasts/Success";
         inputAmount,
       ],
       chainId: chainId,
-      enabled: nullReferrer != undefined && startTime != undefined && (Date.now() / 1000) < startTime,
+      enabled: nullReferrer != undefined && startTime != undefined,
       onError() {
         console.log('purchase error', address, tellerAddress, nullReferrer, marketId.toString(), startTime)
       }
