@@ -21,6 +21,7 @@ import { coinsList } from '../utils/types';
 import { useRouter } from 'next/router';
 import TermsOfService from '../components/Modals/ToS';
 import Loader from '../components/Icons/Loader';
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 const { chains, provider } = configureChains(
   [
@@ -196,6 +197,7 @@ function MyApp({ Component, pageProps }) {
               <h1 className='text-white -mr-8'>Loading...</h1>
             </div> }
             </>
+            <SpeedInsights />
             <Analytics />
           {/* </ApolloProvider> */}
         </RainbowKitProvider>
