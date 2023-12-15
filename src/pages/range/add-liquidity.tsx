@@ -13,7 +13,7 @@ import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ONE, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
-import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice, logoMapKey } from "../../utils/tokens";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
@@ -124,8 +124,6 @@ export default function AddLiquidity({}) {
   const [amountInDisabled, setAmountInDisabled] = useState(false);
   const [amountOutDisabled, setAmountOutDisabled] = useState(false);
 
-  console.log("tokenIn", tokenIn);
-  console.log("tokenOut", tokenOut);
   ////////////////////////////////Pools
 
   useEffect(() => {
@@ -642,11 +640,11 @@ export default function AddLiquidity({}) {
               <div className="flex items-center">
                 <img
                   className="md:w-6 w-6"
-                  src={logoMap[tokenIn?.address.toLowerCase()]}
+                  src={logoMap[logoMapKey(tokenIn)]}
                 />
                 <img
                   className="md:w-6 w-6 -ml-2"
-                  src={logoMap[tokenOut?.address.toLowerCase()]}
+                  src={logoMap[logoMapKey(tokenOut)]}
                 />
               </div>
               <span className="text-white text-xs">
