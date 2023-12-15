@@ -126,17 +126,59 @@ function MyApp({ Component, pageProps }) {
 
   useEffect(() => {
     setChainId(chainId);
-
-    const fetchTokenMetadata = async () => {
-      const config = {
-        apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
-        network: Network.ETH_MAINNET,
-      };
+    const config = {
+      apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
+      network: Network.ARB_MAINNET,
+    };
+    const tokenAddresses = [];
+    const fetchTokenBalances = async () => {
       const alchemy = new Alchemy(config);
+      const data = await alchemy.core.getTokenBalances(address, tokenAddresses);
+      console.log("data", data);
+    };
+    const fetchTokenMetadata = async () => {
+      const chainName = chainIdsToNames[chainId];
+      axios
+        .get(
+          `https://raw.githubusercontent.com/poolshark-protocol/token-metadata/` +
+            tokenMetadataBranch +
+            `/blockchains/${chainName ?? "arbitrum-one"}/tokenlist.json`
+        )
+        .then(function (response) {
+          console.log(response.data);
+          for (let i = 0; i < response.data.search_tokens.length; i++) {
+            tokenAddresses.push(response.data.search_tokens[i].id);
+          }
+          const coins = {
+            listed_tokens: response.data.listed_tokens,
+            search_tokens: response.data.search_tokens,
+          } as coinsList;
+          for (let i = 0; i < coins.listed_tokens?.length; i++) {
+            coins.listed_tokens[i].address = coins.listed_tokens[i].id;
+          }
+          if (coins.listed_tokens != undefined) {
+            setListedTokenList(coins.listed_tokens);
+            setDisplayTokenList(coins.listed_tokens);
+          }
+          for (let i = 0; i < coins.search_tokens?.length; i++) {
+            coins.search_tokens[i].address = coins.search_tokens[i].id;
+          }
+          if (coins.search_tokens != undefined) {
+            setSearchTokenList(coins.search_tokens);
+          }
+          setIsLoading(false);
+        })
+        .catch(function (error) {
+          console.log(error);
+        })
+        .then(() => {
+          fetchTokenBalances();
+        });
+
+      /* ;
       // Get token balances
       const balances = await alchemy.core.getTokenBalances(address);
       const tokens = balances.tokenBalances;
-      const tokensList = {};
       for (const token of tokens) {
         const tokenAddress = token.contractAddress;
         const tokenMetadata = await alchemy.core.getTokenMetadata(tokenAddress);
@@ -152,9 +194,7 @@ function MyApp({ Component, pageProps }) {
           tokenBalance,
           tokenLogo,
         };
-      }
-
-      console.log("tokensList", tokensList);
+      } */
     };
     fetchTokenMetadata();
   }, [chainId]);
