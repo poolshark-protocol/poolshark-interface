@@ -1,6 +1,6 @@
 import Navbar from "../../components/Navbar";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
-import BuyBondButton from "../../components/Buttons/BuyBondButton";
+import BuyBondButton from "../../components/Buttons/ClaimFinButton";
 import RedeemMulticallBondButton from "../../components/Buttons/RedeemMulticallBondButton";
 import RedeemBondButton from "../../components/Buttons/RedeemBondButton";
 import { useEffect, useState } from "react";
@@ -25,11 +25,14 @@ import { chainProperties } from "../../utils/chains";
 import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButton";
 import { logoMapKey } from "../../utils/tokens";
 import { CheckBadgeIcon, CheckIcon } from "@heroicons/react/20/solid";
+import ClaimFinButton from "../../components/Buttons/ClaimFinButton";
+import VestFinButton from "../../components/Buttons/VestFinButton";
 
 export default function Bond() {
   const { address, isConnected } = useAccount();
 
   const [needsSubgraph, setNeedsSubgraph] = useState(true);
+  const [isVested, setIsVested] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [needsBalance, setNeedsBalance] = useState(true);
   const [needsAllowance, setNeedsAllowance] = useState(true);
@@ -65,18 +68,27 @@ export default function Bond() {
   const [bondProtocolConfig, setBondProtocolConfig] = useState({});
 
   useEffect(() => {
-    console.log('protocol config', networkName, chainProperties[networkName]["bondProtocol"])
-    setBondProtocolConfig(chainProperties[networkName]["bondProtocol"] ?? chainProperties["arbitrum"]["bondProtocol"])
+    console.log(
+      "protocol config",
+      networkName,
+      chainProperties[networkName]["bondProtocol"]
+    );
+    setBondProtocolConfig(
+      chainProperties[networkName]["bondProtocol"] ??
+        chainProperties["arbitrum"]["bondProtocol"]
+    );
   }, [networkName]);
 
   const [tellerDisplay, setPoolDisplay] = useState(
     bondProtocolConfig["tellerAddress"]
       ? bondProtocolConfig["tellerAddress"].toString().substring(0, 6) +
           "..." +
-          bondProtocolConfig["tellerAddress"].toString().substring(
-            bondProtocolConfig["tellerAddress"].toString().length - 4,
-            bondProtocolConfig["tellerAddress"].toString().length
-          )
+          bondProtocolConfig["tellerAddress"]
+            .toString()
+            .substring(
+              bondProtocolConfig["tellerAddress"].toString().length - 4,
+              bondProtocolConfig["tellerAddress"].toString().length
+            )
       : undefined
   );
 
@@ -140,7 +152,11 @@ export default function Bond() {
   async function getUserBonds() {
     try {
       if (bondProtocolConfig["marketId"] != undefined) {
-        const data = await fetchUserBonds(bondProtocolConfig["marketId"].toString(), address.toLowerCase(), bondProtocolConfig["subgraphUrl"]);
+        const data = await fetchUserBonds(
+          bondProtocolConfig["marketId"].toString(),
+          address.toLowerCase(),
+          bondProtocolConfig["subgraphUrl"]
+        );
         if (data["data"]) {
           setAllUserBonds(mapUserBondPurchases(data["data"].bondPurchases));
         }
@@ -153,7 +169,10 @@ export default function Bond() {
   async function getMarket() {
     try {
       if (bondProtocolConfig["marketId"] != undefined) {
-        const data = await fetchBondMarket(bondProtocolConfig["marketId"].toString(), bondProtocolConfig["subgraphUrl"]);
+        const data = await fetchBondMarket(
+          bondProtocolConfig["marketId"].toString(),
+          bondProtocolConfig["subgraphUrl"]
+        );
         if (data["data"]) {
           setMarketData(mapBondMarkets(data["data"].markets));
         }
@@ -161,7 +180,7 @@ export default function Bond() {
     } catch (error) {
       console.log("market subgraph error", error);
     }
-    setIsLoading(false)
+    setIsLoading(false);
   }
 
   useEffect(() => {
@@ -188,8 +207,8 @@ export default function Bond() {
     watch: needsMarketPurchaseData,
     enabled: needsMarketPurchaseData,
     onError() {
-      console.log('getMarketInfoForPurchase error')
-    }
+      console.log("getMarketInfoForPurchase error");
+    },
   });
 
   useEffect(() => {
@@ -208,8 +227,8 @@ export default function Bond() {
     watch: needsCapacityData,
     enabled: needsCapacityData,
     onError() {
-      console.log('current capacity error')
-    }
+      console.log("current capacity error");
+    },
   });
 
   useEffect(() => {
@@ -228,8 +247,8 @@ export default function Bond() {
     watch: needsMarketPriceData,
     enabled: needsMarketPriceData,
     onError() {
-      console.log('marketPrice error')
-    }
+      console.log("marketPrice error");
+    },
   });
 
   const { data: marketScaleData } = useContractRead({
@@ -241,8 +260,8 @@ export default function Bond() {
     watch: needsMarketPriceData,
     enabled: needsMarketPriceData,
     onError() {
-      console.log('marketScale error')
-    }
+      console.log("marketScale error");
+    },
   });
 
   const { data: maxAmountAcceptedData } = useContractRead({
@@ -254,8 +273,8 @@ export default function Bond() {
     watch: needsMaxAmountAcceptedData,
     enabled: needsMaxAmountAcceptedData,
     onError() {
-      console.log('maxAmountAccepted error')
-    }
+      console.log("maxAmountAccepted error");
+    },
   });
 
   const { data: vestingTokenIdData } = useContractRead({
@@ -264,10 +283,17 @@ export default function Bond() {
     functionName: "getTokenId",
     args: [bondProtocolConfig["finAddress"], marketData[0]?.vesting], // add vesting period to each date market is open
     chainId: chainId,
-    enabled: bondProtocolConfig["tellerAddress"] != undefined && marketData[0] != undefined,
+    enabled:
+      bondProtocolConfig["tellerAddress"] != undefined &&
+      marketData[0] != undefined,
     onError() {
-      console.log('getTokenId error', bondProtocolConfig["tellerAddress"], bondProtocolConfig["finAddress"], marketData[0]?.vesting)
-    }
+      console.log(
+        "getTokenId error",
+        bondProtocolConfig["tellerAddress"],
+        bondProtocolConfig["finAddress"],
+        marketData[0]?.vesting
+      );
+    },
   });
 
   useEffect(() => {
@@ -285,8 +311,8 @@ export default function Bond() {
     watch: needsBondTokenData,
     enabled: needsBondTokenData && vestingTokenId != undefined,
     onError() {
-      console.log('balanceOf error', address, vestingTokenId)
-    }
+      console.log("balanceOf error", address, vestingTokenId);
+    },
   });
 
   useEffect(() => {
@@ -298,9 +324,7 @@ export default function Bond() {
 
   useEffect(() => {
     if (maxAmountAcceptedData) {
-      const maxAccepted =
-        (Number(maxAmountAcceptedData)) /
-        Math.pow(10, 18);
+      const maxAccepted = Number(maxAmountAcceptedData) / Math.pow(10, 18);
       setMaxAmountAccepted(maxAccepted);
       setNeedsMaxAmountAcceptedData(false);
     }
@@ -339,8 +363,7 @@ export default function Bond() {
         ).toFixed(2)
       : "0";
 
-  const filledPercentage = parseFloat(filledAmount).toFixed(2) + "%"
-
+  const filledPercentage = parseFloat(filledAmount).toFixed(2) + "%";
 
   return (
     <div className="bg-black min-h-screen  ">
@@ -361,7 +384,10 @@ export default function Bond() {
                   BOND
                 </h1>
                 <a
-                  href={`${chainProperties[networkName]["explorerUrl"]}/address/` + bondProtocolConfig["tellerAddress"]}
+                  href={
+                    `${chainProperties[networkName]["explorerUrl"]}/address/` +
+                    bondProtocolConfig["tellerAddress"]
+                  }
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-x-3 text-grey1 group cursor-pointer"
@@ -373,11 +399,9 @@ export default function Bond() {
                 </a>
               </div>
               <div className="flex text-xs text-[#999999] items-center gap-x-3">
-                END DATE:{" "}
+                STATUS:{" "}
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {marketData[0] != undefined
-                    ? convertTimestampToDateFormat(marketData[0]?.conclusion)
-                    : "Loading..."}
+                  100% FILLED
                 </span>
               </div>
             </div>
@@ -397,25 +421,32 @@ export default function Bond() {
           </div>
         </div>
         {/* add vesting claim for each day the market is live */}
-        {vestingTokenBalance != undefined && vestingTokenId != undefined && parseFloat(formatEther(vestingTokenBalance)) > 0 ? (
+        {vestingTokenBalance != undefined &&
+        vestingTokenId != undefined &&
+        parseFloat(formatEther(vestingTokenBalance)) > 0 ? (
           <div className="border bg-main1/30 border-main/40 p-5 mt-5">
-          <h1 className="">PAYOUT AVAILABLE</h1>
-          <div className="flex flex-col gap-y-4 border-main/60 border rounded-[4px] text-xs p-5 mt-4 bg-black/50 mb-2">
-                <div className="flex flex-col gap-y-1 justify-between w-full items-center text-white/20">
-                  AMOUNT <span className="text-white text-lg">{parseFloat(formatEther(vestingTokenBalance)).toFixed(4)} FIN</span>
-                </div>
+            <h1 className="">PAYOUT AVAILABLE</h1>
+            <div className="flex flex-col gap-y-4 border-main/60 border rounded-[4px] text-xs p-5 mt-4 bg-black/50 mb-2">
+              <div className="flex flex-col gap-y-1 justify-between w-full items-center text-white/20">
+                AMOUNT{" "}
+                <span className="text-white text-lg">
+                  {parseFloat(formatEther(vestingTokenBalance)).toFixed(4)} FIN
+                </span>
               </div>
+            </div>
             <RedeemMulticallBondButton
               tellerAddress={bondProtocolConfig["tellerAddress"]}
               tokenId={vestingTokenId}
               amount={vestingTokenBalance}
-              setNeedsBondTokenData={setNeedsBondTokenData}/>
-        </div>)
-          : null}
+              setNeedsBondTokenData={setNeedsBondTokenData}
+            />
+          </div>
+        ) : null}
         <div className="flex lg:flex-row flex-col justify-between w-full mt-8 gap-10">
           <div className="border h-min border-grey rounded-[4px] lg:w-1/2 w-full p-5 pb-7">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">STATISTICS</h1>
+              <span className="text-grey1">100% FILLED</span>
             </div>
             <div className="flex flex-col gap-y-3 mt-2">
               <div className="flex items-center gap-x-5 mt-3">
@@ -462,6 +493,7 @@ export default function Bond() {
                 </span>
               </div>
             </div>
+            {/*
             <div className="flex flex-col gap-y-3 mt-5">
               <div className="flex justify-between ">
                 <h1 className="uppercase text-white">REMAINING CAPACITY</h1>
@@ -482,148 +514,63 @@ export default function Bond() {
                 </div>
                 <div
                 style={{width: filledPercentage}}
-                  className={`absolute relative flex items-center justify-center h-[38px] bg-main rounded-full `}
+                  className={`absolute relative flex items-center justify-center h-[38px] bg-main1 rounded-full `}
                 />
               </div>)}
              
             </div>
+            */}
           </div>
           <div className="flex gap-y-5 flex-col w-full lg:w-1/2 relative">
-            <div className="flex items-center justify-center absolute w-full h-full bg-black/70"> 
-            <div className="bg-green-900/20 text-sm rounded-[4px] border border-green-500/30 px-5 py-3">
-              <h1 className="flex items-center gap-x-2"><CheckIcon className="text-green-500 w-5"/> BOND SALE HAS BEEN COMPLETED  </h1>
-            </div>
-            </div>
-            <div className="border bg-dark border-grey rounded-[4px] w-full p-5 pb-7 h-full">
-              <div className="flex justify-between">
-                <h1 className="uppercase text-white">BUY BOND</h1>
+          {isVested && <div className="bg-black/60 backdrop-blur-[4px] w-full h-full absolute z-50 px-5 flex items-center justify-center ">
+          <div className="flex w-full flex-col gap-y-8 items-start justify-center bg-dark border border-grey rounded-[4px] p-5">
+          <div className="">
+                <h1 className="uppercase text-white">CLAIM BOND</h1>
+                <p className="text-sm text-grey3 font-light mt-1">
+                  Lorem ipsum dolor sit amet consectetur adipiscing elit a
+                  pharetra maecenas, vivamus parturient faucibus
+                </p>
               </div>
-              <div className="flex flex-col gap-y-7">
-                <div className="border border-grey bg-black rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
-                  <div className="flex items-end justify-between text-[11px] text-grey1">
-                    <span>
-                      ~$
-                      {ethPrice != undefined && display != ""
-                        ? (parseFloat(display) * ethPrice).toFixed(2)
-                        : "0.00"}
-                    </span>
-                    <span>
-                      BALANCE:{" "}
-                      {tokenBalance != undefined
-                        ? formatEther(tokenBalance.value)
-                        : "0"}
-                    </span>
-                  </div>
-                  <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                    {inputBox("0", {
-                      callId: 0,
-                      name: marketData[0]?.quoteTokenName,
-                      symbol: marketData[0]?.quoteTokenSymbol,
-                      logoURI: "",
-                      address: marketData[0]?.quoteTokenAddress,
-                      decimals: marketData[0]?.quoteTokenDecimals,
-                      userBalance: tokenBalance,
-                      userRouterAllowance: BigNumber.from(0),
-                      USDPrice: 0,
-                    } as tokenSwap)}
-                    <div className="flex items-center gap-x-2 ">
-                      <button
-                        className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden"
-                        onClick={() => {
-                          maxBalance(
-                            tokenBalance != undefined
-                              ? formatEther(tokenBalance.value)
-                              : "0",
-                            "0",
-                            marketData != undefined
-                              ? marketData[0].quoteTokenDecimals
-                              : 18
-                          );
-                        }}
-                      >
-                        MAX
-                      </button>
-                      <div className="flex items-center gap-x-2">
-                        <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px] min-w-[120px]">
-                          <img
-                            height="28"
-                            width="25"
-                            src={logoMap[bondProtocolConfig["wethAddress"]]}
-                          />
-                          WETH
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-y-4 border-grey border rounded-[4px] text-xs p-5">
-                  <div className="flex justify-between w-full text-grey1">
-                    YOU WILL GET{" "}
-                    <span className="text-white">
-                      {bnInput != undefined &&
-                      quoteTokensPerPayoutToken != undefined
-                        ? (
-                            parseFloat(formatEther(bnInput)) *
-                            (1 / quoteTokensPerPayoutToken)
-                          ).toFixed(2)
-                        : "0"}{" "}
-                      FIN
-                    </span>
-                  </div>
-                  {/*<div className="flex justify-between w-full text-grey1">
-                  DAILY UNLOCK <span className="text-white">0.5 FIN</span>
-                </div>*/}
-                  <div className="flex justify-between w-full text-grey1">
-                    MAX BONDABLE PER TX
-                    <span className="text-white">
-                      {maxAmountAccepted != undefined
-                        ? maxAmountAccepted.toFixed(2)
-                        : "0"}{" "}
-                      WETH
-                    </span>
-                  </div>
-                  <div className="flex justify-between w-full text-grey1">
-                    UNLOCK DATE{" "}
-                    <span className="text-white">
-                      {marketData[0] != undefined
-                        ? convertTimestampToDateFormat(
-                            Date.now() / 1000 + marketData[0]?.vesting
-                          )
-                        : ""}
-                    </span>
-                  </div>
-                </div>
-                {isConnected ? (parseFloat(formatEther(bnInput)) <= maxAmountAccepted ? (
-                  tokenAllowance >= bnInput ? (
-                    <BuyBondButton
-                      startTime={marketData[0]?.start}
-                      nullReferrer={bondProtocolConfig["nullReferrer"]}
-                      tellerAddress={bondProtocolConfig["tellerAddress"]}
-                      inputAmount={bnInput}
-                      setNeedsSubgraph={setNeedsSubgraph}
-                      setNeedsBalance={setNeedsBalance}
-                      setNeedsAllowance={setNeedsAllowance}
-                      setNeedsBondTokenData={setNeedsBondTokenData}
-                      marketId={BigNumber.from(bondProtocolConfig["marketId"])}
-                    />
-                  ) : (
-                    <ApproveBondButton
-                      tellerAddress={bondProtocolConfig["tellerAddress"]}
-                      wethAddress={bondProtocolConfig["wethAddress"]}
-                      inputAmount={bnInput}
-                      setNeedsAllowance={setNeedsAllowance}
-                    />
-                  )
-                ) : (
-                  <button
-                    className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer flex items-center justify-center text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
-                    disabled={true}
+                <VestFinButton />
+          </div>
+</div>}
+            <div className="border relative bg-dark border-grey rounded-[4px] w-full p-5 pb-7 h-full">
+              <div className="">
+                <h1 className="uppercase text-white">CLAIM BOND</h1>
+                <p className="text-sm text-grey3 font-light mt-1">
+                  Lorem ipsum dolor sit amet consectetur adipiscing elit a
+                  pharetra maecenas, vivamus parturient faucibus
+                </p>
+              </div>
+              <div className="relative">
+                <div className="bg-black relative h-10 rounded-full w-full overflow-hidden border border-grey/70 mt-5">
+                  <div
+                    className={`text-sm text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40`}
                   >
-                    AMOUNT EXCEEDS MAX DEPOSIT PER TX
-                  </button>
-                )) : (
-                  <ConnectWalletButton xl={true} />
-                )}
+                    35% VESTED <span className="opacity-50">(27 FIN)</span>
+                  </div>
+                  <div
+                    style={{ width: "35%" }}
+                    className={`absolute relative flex items-center justify-center h-[38px] bg-grey/50 rounded-full `}
+                  />
+                </div>
+                <div className="flex flex-col bg-black gap-y-4 border-grey/70 border rounded-[4px] text-xs pt-5 pb-3 px-2 mt-5">
+                  <div className="flex justify-between w-full text-grey1 px-3">
+                    VESTED
+                    <span className="text-grey1">27 FIN</span>
+                  </div>
+                  <div className="flex justify-between w-full text-grey1 px-3">
+                    CLAIMED
+                    <span className="text-grey1">18 FIN</span>
+                  </div>
+                  <div className="w-full bg-grey h-[1px]" />
+                  <div className="flex justify-between w-full text-main2 bg-main1 py-3 border border-main/30 px-3 rounded-[4px]">
+                    AVAILABLE TO CLAIM <span className="text-main2">2 FIN</span>
+                  </div>
+                </div>
+                <div className="mt-6">
+                  <ClaimFinButton />
+                </div>
               </div>
             </div>
           </div>
@@ -656,8 +603,8 @@ export default function Bond() {
               </div>
             </div>
             {allUserBonds.length === 0 ? (
-                    <div className="flex items-center justify-center w-full rounded-[4px] mt-3 bg-dark  border border-grey">
-                      <div className="text-grey1 text-xs  py-10 text-center w-full">
+              <div className="flex items-center justify-center w-full rounded-[4px] mt-3 bg-dark  border border-grey">
+                <div className="text-grey1 text-xs  py-10 text-center w-full">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
@@ -672,100 +619,111 @@ export default function Bond() {
                   </svg>
                   Your bond purchases will appear here.
                 </div>
-                    </div>)
-                    : (
-                      <div className="overflow-hidden rounded-[4px] mt-3 bg-dark  border border-grey">
-              {activeOrdersSelected ? (
-                <table className="w-full table-auto rounded-[4px]">
-                  <thead>
-                    <tr className="text-[11px] text-grey1/90 mb-3 leading-normal">
-                      <th className="text-left pl-3 py-3 uppercase">DATE</th>
-                      <th className="text-left uppercase">BOND AMOUNT</th>
-                      <th className="text-left uppercase">PAYOUT AMOUNT</th>
-                      {/*<th className="text-left uppercase">DISCOUNT</th>
+              </div>
+            ) : (
+              <div className="overflow-hidden rounded-[4px] mt-3 bg-dark  border border-grey">
+                {activeOrdersSelected ? (
+                  <table className="w-full table-auto rounded-[4px]">
+                    <thead>
+                      <tr className="text-[11px] text-grey1/90 mb-3 leading-normal">
+                        <th className="text-left pl-3 py-3 uppercase">DATE</th>
+                        <th className="text-left uppercase">BOND AMOUNT</th>
+                        <th className="text-left uppercase">PAYOUT AMOUNT</th>
+                        {/*<th className="text-left uppercase">DISCOUNT</th>
                     <th className="text-left uppercase">DAILY UNLOCK</th>*/}
-                      <th className="text-left uppercase">UNLOCKS ON</th>
-                      <th className="text-left uppercase md:table-cell hidden">TRANSACTION HASH</th>
-                      {/*<th className="text-left uppercase">ADDRESS</th>*/}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-grey/70">
-                    {allUserBonds.map((userBond) => {
-                      if (userBond.id != undefined) {
-                        if (
-                          Date.now() / 1000 <
-                          userBond.timestamp + marketData[0]?.vesting
-                        ) {
-                          return (
-                            <tr
-                              key={userBond.id}
-                              className="text-left text-xs py-2 md:text-sm bg-black"
-                            >
-                              <td className="pl-3 py-2 text-grey1">
-                                {convertTimestampToDateFormat(
-                                  userBond.timestamp
-                                )}
-                              </td>
-                              <td className="">
-                                <div className="flex gap-x-1.5 items-center">
-                                  <img
-                                     className="w-5 md:block hidden"
-                                    src={logoMap[bondProtocolConfig["wethAddress"]]}
-                                  />
-                                  {parseFloat(userBond.amount).toFixed(4)}{" "}
-                                  {userBond.quoteTokenSymbol}
-                                </div>
-                              </td>
-                              <td className="">
-                                <div className="flex gap-x-1.5 items-center">
-                                  <img
-                                     className="w-5 md:block hidden"
-                                    src="/static/images/fin_icon.png"
-                                  />
-                                  {parseFloat(userBond.payout).toFixed(4)}{" "}
-                                  {userBond.payoutTokenSymbol}
-                                </div>
-                              </td>
-                              {/*<td className="">0.9%</td>
-                            <td className="">0.94 FIN</td>*/}
-                              <td className="">
-                                {convertTimestampToDateFormat(
-                                  Date.now() / 1000 + marketData[0]?.vesting
-                                )}
-                              </td>
-                              <td className="text-grey1 text-right pr-2 md:pr-0 md:w-40">
-                                {" "}
-                                <div className="flex gap-x-1.5 items-center">
-                                <a
-                                  href={
-                                  `${chainProperties[networkName]["explorerUrl"]}/tx/` +
-                                    userBond.id
-                                  }
-                                  target="_blank"
-                                  rel="noreferrer"
-                                >
-                                  <div className="flex md:justify-start justify-end gap-x-1.5 items-center hover:underline">
-                                    <span className="md:block hidden">{userBond.id
-                                      ? userBond.id.toString().substring(0, 6) +
-                                        "..." +
-                                        userBond.id
-                                          .toString()
-                                          .substring(
-                                            userBond.id.toString().length - 4,
-                                            userBond.id.toString().length
-                                          )
-                                      : undefined}</span>
-                                    <ExternalLinkIcon />
+                        <th className="text-left uppercase">UNLOCKS ON</th>
+                        <th className="text-left uppercase md:table-cell hidden">
+                          TRANSACTION HASH
+                        </th>
+                        {/*<th className="text-left uppercase">ADDRESS</th>*/}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-grey/70">
+                      {allUserBonds.map((userBond) => {
+                        if (userBond.id != undefined) {
+                          if (
+                            Date.now() / 1000 <
+                            userBond.timestamp + marketData[0]?.vesting
+                          ) {
+                            return (
+                              <tr
+                                key={userBond.id}
+                                className="text-left text-xs py-2 md:text-sm bg-black"
+                              >
+                                <td className="pl-3 py-2 text-grey1">
+                                  {convertTimestampToDateFormat(
+                                    userBond.timestamp
+                                  )}
+                                </td>
+                                <td className="">
+                                  <div className="flex gap-x-1.5 items-center">
+                                    <img
+                                      className="w-5 md:block hidden"
+                                      src={
+                                        logoMap[
+                                          bondProtocolConfig["wethAddress"]
+                                        ]
+                                      }
+                                    />
+                                    {parseFloat(userBond.amount).toFixed(4)}{" "}
+                                    {userBond.quoteTokenSymbol}
                                   </div>
-                                </a>
-                                </div>
-                              </td>
-                              {/*<td className="text-grey1">
+                                </td>
+                                <td className="">
+                                  <div className="flex gap-x-1.5 items-center">
+                                    <img
+                                      className="w-5 md:block hidden"
+                                      src="/static/images/fin_icon.png"
+                                    />
+                                    {parseFloat(userBond.payout).toFixed(4)}{" "}
+                                    {userBond.payoutTokenSymbol}
+                                  </div>
+                                </td>
+                                {/*<td className="">0.9%</td>
+                            <td className="">0.94 FIN</td>*/}
+                                <td className="">
+                                  {convertTimestampToDateFormat(
+                                    Date.now() / 1000 + marketData[0]?.vesting
+                                  )}
+                                </td>
+                                <td className="text-grey1 text-right pr-2 md:pr-0 md:w-40">
+                                  {" "}
+                                  <div className="flex gap-x-1.5 items-center">
+                                    <a
+                                      href={
+                                        `${chainProperties[networkName]["explorerUrl"]}/tx/` +
+                                        userBond.id
+                                      }
+                                      target="_blank"
+                                      rel="noreferrer"
+                                    >
+                                      <div className="flex md:justify-start justify-end gap-x-1.5 items-center hover:underline">
+                                        <span className="md:block hidden">
+                                          {userBond.id
+                                            ? userBond.id
+                                                .toString()
+                                                .substring(0, 6) +
+                                              "..." +
+                                              userBond.id
+                                                .toString()
+                                                .substring(
+                                                  userBond.id.toString()
+                                                    .length - 4,
+                                                  userBond.id.toString().length
+                                                )
+                                            : undefined}
+                                        </span>
+                                        <ExternalLinkIcon />
+                                      </div>
+                                    </a>
+                                  </div>
+                                </td>
+                                {/*<td className="text-grey1">
                               <div className="flex gap-x-1.5 items-center">
                                 0x123...456 <ExternalLinkIcon />
                               </div>
                             </td>*/}
-                            {/*
+                                {/*
                               <td className="w-28">
                                 <RedeemBondButton 
                           tokenId={vestingTokenId != undefined ? vestingTokenId : BigNumber.from(0)}
@@ -775,101 +733,112 @@ export default function Bond() {
                             />
                               </td>
                               */}
-                            </tr>
-                          );
+                              </tr>
+                            );
+                          }
                         }
-                      }
-                    })}
-                  </tbody>
-                </table>
-              ) : (
-                <table className="w-full table-auto rounded-[4px]">
-                  <thead>
-                    <tr className="text-[11px] text-grey1/90 mb-3 leading-normal">
-                      <th className="text-left pl-3 py-3 uppercase">DATE</th>
-                      <th className="text-left uppercase">BOND AMOUNT</th>
-                      <th className="text-left uppercase">PAYOUT AMOUNT</th>
-                      {/*<th className="text-left uppercase">DISCOUNT</th>
+                      })}
+                    </tbody>
+                  </table>
+                ) : (
+                  <table className="w-full table-auto rounded-[4px]">
+                    <thead>
+                      <tr className="text-[11px] text-grey1/90 mb-3 leading-normal">
+                        <th className="text-left pl-3 py-3 uppercase">DATE</th>
+                        <th className="text-left uppercase">BOND AMOUNT</th>
+                        <th className="text-left uppercase">PAYOUT AMOUNT</th>
+                        {/*<th className="text-left uppercase">DISCOUNT</th>
                           <th className="text-left uppercase">DAILY UNLOCK</th>*/}
-                      <th className="text-left uppercase">UNLOCKED ON</th>
-                      <th className="text-left uppercase md:table-cell hidden">TRANSACTION HASH</th>
-                      {/*<th className="text-left uppercase">ADDRESS</th>*/}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-grey/70">
-                    {allUserBonds.map((userBond) => {
-                      if (userBond.id != undefined) {
-                        if (
-                          Date.now() / 1000 >=
-                          userBond.timestamp + marketData[0]?.vesting
-                        ) {
-                          return (
-                            <tr
-                              key={userBond.id}
-                              className="text-left text-xs py-2 md:text-sm bg-black"
-                            >
-                              <td className="pl-3 py-2 text-grey1">
-                                {convertTimestampToDateFormat(
-                                  userBond.timestamp
-                                )}
-                              </td>
-                              <td className="">
-                                <div className="flex gap-x-1.5 items-center">
-                                  <img
-                                    className="w-5 md:block hidden"
-                                    src={logoMap[bondProtocolConfig["wethAddress"]]}
-                                  />
-                                  {parseFloat(userBond.amount).toFixed(4)}{" "}
-                                  {userBond.quoteTokenSymbol}
-                                </div>
-                              </td>
-                              <td className="">
-                                <div className="flex gap-x-1.5 items-center">
-                                  <img
-                                    className="w-5 md:block hidden"
-                                    src="/static/images/fin_icon.png"
-                                  />
-                                  {parseFloat(userBond.payout).toFixed(4)}{" "}
-                                  {userBond.payoutTokenSymbol}
-                                </div>
-                              </td>
-                              {/*<td className="">0.9%</td>
-                            <td className="">0.94 FIN</td>*/}
-                              <td className="">
-                                {convertTimestampToDateFormat(
-                                  Date.now() / 1000 + marketData[0]?.vesting
-                                )}
-                              </td>
-                              <td className="text-grey1 text-right pr-2 md:pr-0 md:w-40 ">
-                                <a
-                                  href={
-                                    `${chainProperties[networkName]["explorerUrl"]}/tx/` +
-                                    userBond.id
-                                  }
-                                  target="_blank"
-                                  rel="noreferrer"
-                                >
-                                  <div className="flex md:justify-start justify-end gap-x-1.5 items-center hover:underline">
-                                    <span className="md:block hidden">{userBond.id
-                                      ? userBond.id.toString().substring(0, 6) +
-                                        "..." +
-                                        userBond.id
-                                          .toString()
-                                          .substring(
-                                            userBond.id.toString().length - 4,
-                                            userBond.id.toString().length
-                                          )
-                                      : undefined}</span>
-                                    <ExternalLinkIcon />
+                        <th className="text-left uppercase">UNLOCKED ON</th>
+                        <th className="text-left uppercase md:table-cell hidden">
+                          TRANSACTION HASH
+                        </th>
+                        {/*<th className="text-left uppercase">ADDRESS</th>*/}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-grey/70">
+                      {allUserBonds.map((userBond) => {
+                        if (userBond.id != undefined) {
+                          if (
+                            Date.now() / 1000 >=
+                            userBond.timestamp + marketData[0]?.vesting
+                          ) {
+                            return (
+                              <tr
+                                key={userBond.id}
+                                className="text-left text-xs py-2 md:text-sm bg-black"
+                              >
+                                <td className="pl-3 py-2 text-grey1">
+                                  {convertTimestampToDateFormat(
+                                    userBond.timestamp
+                                  )}
+                                </td>
+                                <td className="">
+                                  <div className="flex gap-x-1.5 items-center">
+                                    <img
+                                      className="w-5 md:block hidden"
+                                      src={
+                                        logoMap[
+                                          bondProtocolConfig["wethAddress"]
+                                        ]
+                                      }
+                                    />
+                                    {parseFloat(userBond.amount).toFixed(4)}{" "}
+                                    {userBond.quoteTokenSymbol}
                                   </div>
-                                </a>
-                              </td>
-                              {/*<td className="text-grey1">
+                                </td>
+                                <td className="">
+                                  <div className="flex gap-x-1.5 items-center">
+                                    <img
+                                      className="w-5 md:block hidden"
+                                      src="/static/images/fin_icon.png"
+                                    />
+                                    {parseFloat(userBond.payout).toFixed(4)}{" "}
+                                    {userBond.payoutTokenSymbol}
+                                  </div>
+                                </td>
+                                {/*<td className="">0.9%</td>
+                            <td className="">0.94 FIN</td>*/}
+                                <td className="">
+                                  {convertTimestampToDateFormat(
+                                    Date.now() / 1000 + marketData[0]?.vesting
+                                  )}
+                                </td>
+                                <td className="text-grey1 text-right pr-2 md:pr-0 md:w-40 ">
+                                  <a
+                                    href={
+                                      `${chainProperties[networkName]["explorerUrl"]}/tx/` +
+                                      userBond.id
+                                    }
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    <div className="flex md:justify-start justify-end gap-x-1.5 items-center hover:underline">
+                                      <span className="md:block hidden">
+                                        {userBond.id
+                                          ? userBond.id
+                                              .toString()
+                                              .substring(0, 6) +
+                                            "..." +
+                                            userBond.id
+                                              .toString()
+                                              .substring(
+                                                userBond.id.toString().length -
+                                                  4,
+                                                userBond.id.toString().length
+                                              )
+                                          : undefined}
+                                      </span>
+                                      <ExternalLinkIcon />
+                                    </div>
+                                  </a>
+                                </td>
+                                {/*<td className="text-grey1">
                               <div className="flex gap-x-1.5 items-center">
                                 0x123...456 <ExternalLinkIcon />
                               </div>
                             </td>*/}
-                              {/*
+                                {/*
                               <td className="w-28">
                                 <RedeemBondButton 
                           tokenId={vestingTokenId != undefined ? vestingTokenId : BigNumber.from(0)}
@@ -878,17 +847,16 @@ export default function Bond() {
                           disabled={marketData != undefined ? ((Date.now() / 1000) < (userBond.timestamp + marketData[0]?.vesting)) : true}
                             />
                               </td>*/}
-                            </tr>
-                          );
+                              </tr>
+                            );
+                          }
                         }
-                      }
-                    })}
-                  </tbody>
-                </table>
-              )}
-            </div>
-                    )}
-            
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

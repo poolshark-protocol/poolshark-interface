@@ -6,7 +6,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import { SuccessToast } from "../Toasts/Success";
   
-  export default function BuyBondButton({
+  export default function ClaimFinButton({
     startTime,
     nullReferrer,
     tellerAddress,
@@ -68,10 +68,8 @@ import { SuccessToast } from "../Toasts/Success";
       <>
         <button
           className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer flex items-center justify-center text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
-          onClick={() => {address ? write?.() : null}}
-          disabled={(Date.now() / 1000) < startTime}
         >
-          BUY BOND
+          CLAIM VESTED FIN
         </button>
         <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
           {errorDisplay && (
