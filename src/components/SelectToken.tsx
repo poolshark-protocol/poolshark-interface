@@ -9,7 +9,7 @@ import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
 import { useAccount, useToken } from "wagmi";
 import { useConfigStore } from "../hooks/useConfigStore";
-import { defaultTokenLogo, nativeString } from "../utils/tokens";
+import { defaultTokenLogo, logoMapKey, nativeString } from "../utils/tokens";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
@@ -275,7 +275,7 @@ export default function SelectToken(props) {
         <div className="flex items-center gap-x-2 w-full">
           {(props.tokenIn.symbol != "Select Token" && props.type == "in") ||
           (props.tokenOut.symbol != "Select Token" && props.type == "out") ? (
-            <img className="md:w-6 w-6" src={logoMap[props.displayToken?.address.toLowerCase() + nativeString(props.displayToken)]} />
+            <img className="md:w-6 w-6" src={logoMap[logoMapKey(props.displayToken)]} />
           ) : (
             <></>
           )}
