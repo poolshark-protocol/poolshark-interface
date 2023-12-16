@@ -19,11 +19,6 @@ import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { fetchLimitPositions } from "../utils/queries";
 import { getClaimTick, mapUserHistoricalOrders, mapUserLimitPositions } from "../utils/maps";
-import {
-  getAveragePrice,
-  getExpectedAmountOut,
-  getExpectedAmountOutFromInput,
-} from "../utils/math/priceMath";
 import { timeDifference } from "../utils/time";
 import { parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";

@@ -2,15 +2,12 @@ import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import RangeCompoundButton from "../../components/Buttons/RangeCompoundButton";
 import {
-  ChainDoesNotSupportMulticallError,
   useAccount,
-  useProvider,
   useSigner,
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
-import { useCopyElementUseEffect } from "../../utils/misc";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import { useContractRead } from "wagmi";
@@ -31,7 +28,6 @@ import { tokenRangeLimit } from "../../utils/types";
 import RangeStakeButton from "../../components/Buttons/RangeStakeButton";
 import RangeUnstakeButton from "../../components/Buttons/RangeUnstakeButton";
 import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
-import { rangePoolFactoryABI } from "../../abis/evm/rangePoolFactory";
 
 export default function ViewRange() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
