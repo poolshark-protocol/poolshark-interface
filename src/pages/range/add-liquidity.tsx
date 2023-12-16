@@ -13,7 +13,7 @@ import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ONE, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
-import { fetchRangeTokenUSDPrice, logoMapKey } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice, getLogoURI } from "../../utils/tokens";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
@@ -640,11 +640,11 @@ export default function AddLiquidity({}) {
               <div className="flex items-center">
                 <img
                   className="md:w-6 w-6"
-                  src={logoMap[logoMapKey(tokenIn)]}
+                  src={getLogoURI(logoMap, tokenIn)}
                 />
                 <img
                   className="md:w-6 w-6 -ml-2"
-                  src={logoMap[logoMapKey(tokenOut)]}
+                  src={getLogoURI(logoMap, tokenOut)}
                 />
               </div>
               <span className="text-white text-xs">

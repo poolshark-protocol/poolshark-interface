@@ -11,7 +11,7 @@ import RemoveLiquidity from "../../components/Modals/Cover/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Cover/AddLiquidity";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
+import { fetchCoverTokenUSDPrice, getLogoURI } from "../../utils/tokens";
 import { fetchCoverPositions } from "../../utils/queries";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
@@ -409,7 +409,7 @@ export default function ViewCover() {
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
               ) : (
-                <img height="50" width="50" src={logoMap[tokenIn.address]} />
+                <img height="50" width="50" src={getLogoURI(logoMap, tokenIn)} />
               )}
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
@@ -418,7 +418,7 @@ export default function ViewCover() {
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={logoMap[tokenOut.address]}
+                  src={getLogoURI(logoMap, tokenOut)}
                 />
               )}
             </div>
@@ -560,7 +560,7 @@ export default function ViewCover() {
                         <img
                           height="25"
                           width="25"
-                          src={logoMap[tokenIn.address]}
+                          src={getLogoURI(logoMap, tokenIn)}
                         />
                       )}
                       {isLoading ? (
@@ -766,7 +766,7 @@ export default function ViewCover() {
                         <img
                           height="25"
                           width="25"
-                          src={logoMap[tokenOut.address]}
+                          src={getLogoURI(logoMap, tokenOut)}
                         />
                       )}
                       {isLoading ? (

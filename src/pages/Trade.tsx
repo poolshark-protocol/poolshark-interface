@@ -13,7 +13,7 @@ import {
 } from "../utils/chains";
 import { ZERO_ADDRESS } from "../utils/math/constants";
 import {
-  getLimitTokenUsdPrice,
+  getLimitTokenUsdPrice, getLogoURI,
 } from "../utils/tokens";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { useTradeStore } from "../hooks/useTradeStore";
@@ -539,7 +539,7 @@ export default function Trade() {
                           <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={logoMap[allHistoricalOrder.tokenIn.address + false]}
+                              src={getLogoURI(logoMap, allHistoricalOrder.tokenIn)}
                             />
                             {parseFloat(
                                 allHistoricalOrder.amountIn
@@ -552,7 +552,7 @@ export default function Trade() {
                           <div className="flex items-center text-xs text-white gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={logoMap[allHistoricalOrder.tokenOut.address]}
+                              src={getLogoURI(logoMap, allHistoricalOrder.tokenOut)}
                             />
                             {parseFloat(
                               allHistoricalOrder.amountOut

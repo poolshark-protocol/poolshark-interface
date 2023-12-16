@@ -60,12 +60,12 @@ export const getLimitTokenUsdPrice = async (
   }
 };
 
-export const logoMapKey = (token: any) => {
-  return (token.address?.toLowerCase() ?? ZERO_ADDRESS) + nativeString(token)
+export const getLogoURI = (logoMap: any, token: any) => {
+  return logoMap[(token?.address?.toLowerCase() ?? ZERO_ADDRESS) + nativeString(token)] ?? defaultTokenLogo
 }
 
 export const nativeString = (token: any) => {
-  if (token.native == undefined) {
+  if (token?.native == undefined) {
     return ''
   } else if (token.native) {
     return '-native'

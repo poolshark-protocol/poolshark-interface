@@ -17,7 +17,7 @@ import { useContractRead } from "wagmi";
 import RemoveLiquidity from "../../components/Modals/Range/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Range/AddLiquidity";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice, getLogoURI } from "../../utils/tokens";
 import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
@@ -437,7 +437,7 @@ export default function ViewRange() {
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
               ) : (
-                <img height="50" width="50" src={logoMap[tokenIn.address]} />
+                <img height="50" width="50" src={getLogoURI(logoMap, tokenIn)} />
               )}
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
@@ -446,7 +446,7 @@ export default function ViewRange() {
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={logoMap[tokenOut.address]}
+                  src={getLogoURI(logoMap, tokenOut)}
                 />
               )}
             </div>
@@ -561,7 +561,7 @@ export default function ViewRange() {
                         <img
                           height="25"
                           width="25"
-                          src={logoMap[tokenIn.address]}
+                          src={getLogoURI(logoMap, tokenIn)}
                         />
                       )}
                       {isLoading ? (
@@ -595,7 +595,7 @@ export default function ViewRange() {
                         <img
                           height="25"
                           width="25"
-                          src={logoMap[tokenOut.address]}
+                          src={getLogoURI(logoMap, tokenOut)}
                         />
                       )}
                       {isLoading ? (
@@ -730,7 +730,7 @@ export default function ViewRange() {
                         <img
                           height="25"
                           width="25"
-                          src={logoMap[tokenIn.address]}
+                          src={getLogoURI(logoMap, tokenIn)}
                         />
                       )}
                       {isLoading ? (
@@ -764,7 +764,7 @@ export default function ViewRange() {
                         <img
                           height="25"
                           width="25"
-                          src={logoMap[tokenOut.address]}
+                          src={getLogoURI(logoMap, tokenOut)}
                         />
                       )}
                       {isLoading ? (
