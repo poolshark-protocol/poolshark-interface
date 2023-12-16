@@ -246,7 +246,7 @@ export const getCoverTickIfZeroForOne = (
       }
         `;
     client
-      .query({ query: gql(getTicks) })
+      ?.query({ query: gql(getTicks) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -278,7 +278,7 @@ export const getCoverTickIfNotZeroForOne = (
       }
         `;
     client
-      .query({ query: gql(getTicks) })
+      ?.query({ query: gql(getTicks) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -310,7 +310,7 @@ export const getLimitTickIfNotZeroForOne = (
       }
         `;
     client
-      .query({ query: gql(getTicks) })
+      ?.query({ query: gql(getTicks) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -342,7 +342,7 @@ export const getLimitTickIfZeroForOne = (
       }
         `;
     client
-      .query({ query: gql(getTicks) })
+      ?.query({ query: gql(getTicks) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */

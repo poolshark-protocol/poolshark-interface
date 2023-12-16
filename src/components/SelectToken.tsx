@@ -20,8 +20,6 @@ export default function SelectToken(props) {
   const isAddress = (input: string) => {
     // validate address
     const tokenAddressRegex = /^0x[a-fA-F0-9]{40}$/;
-    console.log('checking for match', customInput.match(tokenAddressRegex)?.length == 1 &&
-    customInput.length == 42)
     if (
       customInput.match(tokenAddressRegex)?.length == 1 &&
       customInput.length == 42
@@ -73,7 +71,6 @@ export default function SelectToken(props) {
 
   useEffect(() => {
     const fetch = async () => {
-      console.log('token info updated', tokenInfo == undefined)
       if (tokenInfo != undefined) {
         const customToken = {
           id: tokenInfo.address,
