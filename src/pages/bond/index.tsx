@@ -522,7 +522,7 @@ export default function Bond() {
             */}
           </div>
           <div className="flex gap-y-5 flex-col w-full lg:w-1/2 relative">
-          {isVested && <div className="bg-black/60 backdrop-blur-[4px] w-full h-full absolute z-50 px-5 flex items-center justify-center ">
+          {!isVested && <div className="bg-black/60 backdrop-blur-[4px] w-full h-full absolute z-50 px-5 flex items-center justify-center ">
           <div className="flex w-full flex-col gap-y-8 items-start justify-center bg-dark border border-grey rounded-[4px] p-5">
           <div className="">
                 <h1 className="uppercase text-white">CLAIM BOND</h1>

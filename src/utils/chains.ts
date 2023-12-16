@@ -77,7 +77,7 @@ export const chainProperties = {
     },
     arbitrum: {
         chainName: 'Arbitrum One',
-        logo:"https://assets.trustwalletapp.com/blockchains/polygon/assets/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/logo.png",
+        logo:"https://raw.githubusercontent.com/poolshark-protocol/token-metadata/master/blockchains/arbitrum-one/logo.png",
         rpcUrls: ['https://patient-distinguished-pallet.arbitrum-mainnet.quiknode.pro/4cbe7cbdb55ec4b33fdc1a4239e1169b167ae351/'],
         explorerUrl: 'https://arbiscan.io/',
         nativeCurrency: {
