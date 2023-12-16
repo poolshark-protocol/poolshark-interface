@@ -2,22 +2,19 @@ import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import RangeCompoundButton from "../../components/Buttons/RangeCompoundButton";
 import {
-  ChainDoesNotSupportMulticallError,
   useAccount,
-  useProvider,
   useSigner,
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
-import { useCopyElementUseEffect } from "../../utils/misc";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import { useContractRead } from "wagmi";
 import RemoveLiquidity from "../../components/Modals/Range/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Range/AddLiquidity";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice, getLogoURI } from "../../utils/tokens";
 import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
@@ -31,7 +28,6 @@ import { tokenRangeLimit } from "../../utils/types";
 import RangeStakeButton from "../../components/Buttons/RangeStakeButton";
 import RangeUnstakeButton from "../../components/Buttons/RangeUnstakeButton";
 import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
-import { rangePoolFactoryABI } from "../../abis/evm/rangePoolFactory";
 
 export default function ViewRange() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -437,7 +433,7 @@ export default function ViewRange() {
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
               ) : (
-                <img height="50" width="50" src={logoMap[tokenIn.address]} />
+                <img height="50" width="50" src={getLogoURI(logoMap, tokenIn)} />
               )}
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
@@ -446,7 +442,7 @@ export default function ViewRange() {
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={logoMap[tokenOut.address]}
+                  src={getLogoURI(logoMap, tokenOut)}
                 />
               )}
             </div>
@@ -561,7 +557,7 @@ export default function ViewRange() {
                         <img
                           height="25"
                           width="25"
-                          src={logoMap[tokenIn.address]}
+                          src={getLogoURI(logoMap, tokenIn)}
                         />
                       )}
                       {isLoading ? (
@@ -595,7 +591,7 @@ export default function ViewRange() {
                         <img
                           height="25"
                           width="25"
-                          src={logoMap[tokenOut.address]}
+                          src={getLogoURI(logoMap, tokenOut)}
                         />
                       )}
                       {isLoading ? (
@@ -730,7 +726,7 @@ export default function ViewRange() {
                         <img
                           height="25"
                           width="25"
-                          src={logoMap[tokenIn.address]}
+                          src={getLogoURI(logoMap, tokenIn)}
                         />
                       )}
                       {isLoading ? (
@@ -764,7 +760,7 @@ export default function ViewRange() {
                         <img
                           height="25"
                           width="25"
-                          src={logoMap[tokenOut.address]}
+                          src={getLogoURI(logoMap, tokenOut)}
                         />
                       )}
                       {isLoading ? (

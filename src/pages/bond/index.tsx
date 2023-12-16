@@ -23,7 +23,7 @@ import { tokenSwap } from "../../utils/types";
 import ApproveBondButton from "../../components/Buttons/ApproveBondButton";
 import { chainProperties } from "../../utils/chains";
 import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButton";
-import { logoMapKey } from "../../utils/tokens";
+import { getLogoURI } from "../../utils/tokens";
 import { CheckBadgeIcon, CheckIcon } from "@heroicons/react/20/solid";
 import ClaimFinButton from "../../components/Buttons/ClaimFinButton";
 import VestFinButton from "../../components/Buttons/VestFinButton";

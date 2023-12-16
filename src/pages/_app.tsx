@@ -5,13 +5,11 @@ import {
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createClient, useProvider, WagmiConfig } from 'wagmi';
-import { arbitrum, arbitrumGoerli } from 'wagmi/chains';
+import { arbitrum } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import Head from 'next/head'
 import { useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
-import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton';
 import { isMobile } from "react-device-detect";
 import { Analytics } from '@vercel/analytics/react'
 import { useConfigStore } from '../hooks/useConfigStore';
@@ -20,7 +18,6 @@ import axios from 'axios';
 import { coinsList } from '../utils/types';
 import { useRouter } from 'next/router';
 import TermsOfService from '../components/Modals/ToS';
-import Loader from '../components/Icons/Loader';
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
 const { chains, provider } = configureChains(

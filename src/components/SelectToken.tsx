@@ -9,13 +9,28 @@ import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
 import { useAccount, useToken } from "wagmi";
 import { useConfigStore } from "../hooks/useConfigStore";
-import { defaultTokenLogo, nativeString } from "../utils/tokens";
+import { defaultTokenLogo, getLogoURI, nativeString } from "../utils/tokens";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
   const [customInput, setCustomInput] = useState("");
   const [tokenInfo, setTokenInfo] = useState(undefined);
+
+  const isAddress = (input: string) => {
+    // validate address
+    const tokenAddressRegex = /^0x[a-fA-F0-9]{40}$/;
+    console.log('checking for match', customInput.match(tokenAddressRegex)?.length == 1 &&
+    customInput.length == 42)
+    if (
+      customInput.match(tokenAddressRegex)?.length == 1 &&
+      customInput.length == 42
+    ) {
+      // if not in listed tokens or search tokens we need to fetch data from the chain
+      return true;
+    }
+    return false;
+  };
 
   const [
     chainId,
@@ -46,13 +61,19 @@ export default function SelectToken(props) {
     refetch: refetchTokenInfo,
   } = useToken({
     address: customInput as `0x${string}`,
+    enabled: isAddress(customInput),
     onSuccess() {
-      setTokenInfo(tokenData);
+      console.log('setting token info', tokenData?.toString())
+      if (tokenData)
+        setTokenInfo(tokenData);
+      else 
+        refetchTokenInfo()
     },
   });
 
   useEffect(() => {
     const fetch = async () => {
+      console.log('token info updated', tokenInfo == undefined)
       if (tokenInfo != undefined) {
         const customToken = {
           id: tokenInfo.address,
@@ -72,10 +93,9 @@ export default function SelectToken(props) {
   useEffect(() => {
     const fetch = async () => {
       // validate address
-      const tokenAddressRegex = /^0x[a-fA-F0-9]{40}$/;
+
       if (
-        customInput.match(tokenAddressRegex)?.length == 1 &&
-        customInput.length == 42
+        isAddress(customInput)
       ) {
         // if not in listed tokens or search tokens we need to fetch data from the chain
         refetchTokenInfo();
@@ -85,6 +105,18 @@ export default function SelectToken(props) {
     };
     fetch();
   }, [customInput, listedTokenList]);
+
+  function delay(ms: number) {
+    return new Promise( resolve => setTimeout(resolve, ms) );
+  }
+
+  useEffect(() => {
+    if (isOpen) {
+      // delay(1000);
+      setCustomInput('')
+      setDisplayTokenList(listedTokenList)
+    }
+  }, [isOpen]);
 
   const chooseToken = (coin) => {
     coin = {
@@ -150,6 +182,7 @@ export default function SelectToken(props) {
   };
 
   function closeModal() {
+    console.log('closing modal')
     setIsOpen(false);
   }
 
@@ -189,7 +222,7 @@ export default function SelectToken(props) {
                     <div className="flex justify-between items-center mb-6">
                       <h1 className="text-white">Select Token</h1>
                       <XMarkIcon
-                        onClick={() => setIsOpen(false)}
+                        onClick={() => closeModal()}
                         className="w-6 text-white cursor-pointer"
                       />
                     </div>
@@ -275,7 +308,7 @@ export default function SelectToken(props) {
         <div className="flex items-center gap-x-2 w-full">
           {(props.tokenIn.symbol != "Select Token" && props.type == "in") ||
           (props.tokenOut.symbol != "Select Token" && props.type == "out") ? (
-            <img className="md:w-6 w-6" src={logoMap[props.displayToken?.address.toLowerCase() + nativeString(props.displayToken)]} />
+            <img className="md:w-6 w-6" src={getLogoURI(logoMap, props.displayToken)} />
           ) : (
             <></>
           )}
