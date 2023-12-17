@@ -974,7 +974,7 @@ export const fetchUserVFinPositions = (client: LimitSubgraph, ownerAddress: stri
   return new Promise(function (resolve) {
     const userVestingQuery = `
         {
-          vfinPositions(first: 1, where: { owner:"${ownerAddress}"}) {
+          vfinPositions(first: 1, where: { owner:"${ownerAddress.toLowerCase()}"}) {
             positionId
             owner
             vFinAddress

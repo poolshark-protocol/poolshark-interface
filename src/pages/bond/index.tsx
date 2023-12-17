@@ -18,7 +18,7 @@ import { formatEther, formatUnits, parseUnits } from "ethers/lib/utils.js";
 import { methABI } from "../../abis/evm/meth";
 import { auctioneerABI } from "../../abis/evm/bondAuctioneer";
 import useInputBox from "../../hooks/useInputBox";
-import { chainProperties } from "../../utils/chains";
+import { chainProperties, supportedNetworkNames } from "../../utils/chains";
 import ClaimFinButton from "../../components/Buttons/ClaimFinButton";
 import VestFinButton from "../../components/Buttons/VestFinButton";
 import { vFinABI } from "../../abis/evm/vFin";
@@ -39,11 +39,12 @@ export default function Bond() {
     useState(true);
   const [needsBondTokenData, setNeedsBondTokenData] = useState(true);
 
-  const [chainId, networkName, logoMap, limitSubgraph] = useConfigStore((state) => [
+  const [chainId, networkName, logoMap, limitSubgraph, setLimitSubgraph] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
     state.logoMap,
     state.limitSubgraph,
+    state.setLimitSubgraph,
   ]);
 
   const [tokenAllowance, setTokenAllowance] = useState(undefined);
@@ -103,7 +104,7 @@ export default function Bond() {
     functionName: "vestPositions",
     args: [vestingPositionId],
     chainId: chainId,
-    watch: needsVestingPosition,
+    watch: true,
     enabled: bondProtocolConfig["vFinAddress"] != undefined
               && vestingPositionId != undefined,
     onSuccess() {
@@ -119,7 +120,7 @@ export default function Bond() {
     functionName: "viewClaim",
     args: [vestingPositionId],
     chainId: chainId,
-    watch: needsVestingPosition,
+    watch: true,
     enabled: bondProtocolConfig["vFinAddress"] != undefined
               && vestingPositionId != undefined,
     onSuccess() {
@@ -156,9 +157,13 @@ export default function Bond() {
           limitSubgraph,
           address,
         );
+        const chainConstants = chainProperties[networkName] ? chainProperties[networkName]
+                                                            : chainProperties['arbitrumGoerli']; //TODO: arbitrumOne values
+        setLimitSubgraph(chainConstants['limitSubgraphUrl'])
         if (data["data"] && data["data"]["vfinPositions"]?.length == 1) {
           setVestingPositionId(data["data"]["vfinPositions"][0].positionId);
         }
+        setNeedsVestingPosition(false)
       }
     } catch (error) {
       console.log("vesting position subgraph error", limitSubgraph, address, error);
@@ -206,7 +211,7 @@ export default function Bond() {
   }, [bondProtocolConfig]);
 
   useEffect(() => {
-    if (needsVestingPosition) {
+    if (vestingPositionId == undefined) {
       getUserVesting();
     }
   }, [needsVestingPosition]);
@@ -559,6 +564,7 @@ export default function Bond() {
                   vFinAddress={bondProtocolConfig['vFinAddress']}
                   tellerAddress={bondProtocolConfig['mockTellerAddress']}
                   bondTokenId={bondProtocolConfig['bondTokenId']}
+                  needsVestingPosition={needsVestingPosition}
                   setNeedsVestingPosition={setNeedsVestingPosition}
                 />
             </div>

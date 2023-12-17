@@ -96,8 +96,8 @@ export const chainProperties = {
         bondProtocol: {
             auctioneerAddress: "0xf7f9a96cdbfefd70bda14a8f30ec503b16bce9b1",
             tellerAddress: "0x007f7735baf391e207e3aa380bb53c4bd9a5fed6",
-            mockTellerAddress: "0xf152c4fe16c1f08110a40980408db8f9f4247dae",
-            vFinAddress: "0x02ab13dae76304fbb09fb1f01e57908cc06c3239",
+            mockTellerAddress: "0x88B607038b944DFCeDF7D5785eaABBAd0D5a53ba",
+            vFinAddress: "0x9D7758AA1D9ae91c49c50884F324fcb5266D38eE",
             wethAddress: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
             bondTokenId: "50041069287616932026042816520963973508955622977186811114648766172172485699723",
             finAddress: "0x903ca00944d0b51e50d9f4fc96167c89f211542a", // FIN

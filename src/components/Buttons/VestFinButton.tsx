@@ -8,11 +8,13 @@ import { SuccessToast } from "../Toasts/Success";
 import { BigNumber } from "ethers";
 import { BN_ZERO } from "../../utils/math/constants";
 import { vFinABI } from "../../abis/evm/vFin";
+import { parseUnits } from "../../utils/math/valueMath";
   
   export default function VestFinButton({
     vFinAddress,
     tellerAddress,
     bondTokenId,
+    needsVestingPosition,
     setNeedsVestingPosition,
   }) {
     const [
@@ -66,7 +68,7 @@ import { vFinABI } from "../../abis/evm/vFin";
     });
 
     useEffect(() => {
-      if (bondApprovalData) {
+      if (bondApprovalData != undefined) {
         setBondApproved(Boolean(bondApprovalData));
       }
     }, [bondApprovalData]);
@@ -76,7 +78,8 @@ import { vFinABI } from "../../abis/evm/vFin";
       abi: vFinABI,
       functionName: "exchangeBond",
       args: [
-        bondBalance, // exchange entire balance
+        // bondBalance, //TODO: exchange entire balance
+        parseUnits('100', 18),
         0            // creates new vFIN position
       ],
       chainId: chainId,
@@ -87,7 +90,7 @@ import { vFinABI } from "../../abis/evm/vFin";
       onSuccess() {
       },
       onError() {
-        console.log('exchangeBonds error',)
+        console.log('exchangeBonds error', bondBalance.toString(), bondApproved, bondTokenId, vFinAddress)
       },
     });
 
@@ -120,7 +123,7 @@ import { vFinABI } from "../../abis/evm/vFin";
         if (bondApproved) {
           setTimeout(() => {
             setNeedsVestingPosition(true)
-          }, 2000);
+          }, 3000);
         } else {
           refetchBondApproval();
         }
