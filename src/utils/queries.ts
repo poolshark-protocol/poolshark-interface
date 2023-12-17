@@ -971,7 +971,6 @@ export const fetchEthPrice = () => {
 };
 
 export const fetchUserVFinPositions = (client: LimitSubgraph, ownerAddress: string) => {
-  console.log('fetching vfin position', client, ownerAddress)
   return new Promise(function (resolve) {
     const userVestingQuery = `
         {

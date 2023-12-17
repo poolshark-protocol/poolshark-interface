@@ -107,7 +107,6 @@ export default function Bond() {
     enabled: bondProtocolConfig["vFinAddress"] != undefined
               && vestingPositionId != undefined,
     onSuccess() {
-      console.log("vested position data:", vestedPosition.toString())
     },
     onError() {
       console.log("vestPositions error");
@@ -124,7 +123,6 @@ export default function Bond() {
     enabled: bondProtocolConfig["vFinAddress"] != undefined
               && vestingPositionId != undefined,
     onSuccess() {
-      console.log("vested position data:", vestedPosition.toString())
     },
     onError() {
       console.log("vestPositions error");
@@ -142,7 +140,6 @@ export default function Bond() {
   useEffect(() => {
 
     if (viewClaimData != undefined) {
-          console.log('view claim data:', viewClaimData.toString())
       setVestedClaimAmount(parseFloat(formatUnits(viewClaimData?.toString(), 18)))
     }
     // if (vestedPosition != undefined) {
@@ -159,7 +156,6 @@ export default function Bond() {
           limitSubgraph,
           address,
         );
-        console.log('data check:', vestingPositionId)
         if (data["data"] && data["data"]["vfinPositions"]?.length == 1) {
           setVestingPositionId(data["data"]["vfinPositions"][0].positionId);
         }

@@ -33,8 +33,6 @@ import { vFinABI } from "../../abis/evm/vFin";
         console.log('vFIN claim error',)
       }
     });
-
-    console.log('claim amount check', claimAmount)
   
     const { data, write } = useContractWrite(config);
 
