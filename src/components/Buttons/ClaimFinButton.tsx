@@ -1,21 +1,15 @@
-import { useAccount, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
+import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { bondTellerABI } from "../../abis/evm/bondTeller";
 import { useState } from "react";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import { SuccessToast } from "../Toasts/Success";
+import { vFinABI } from "../../abis/evm/vFin";
   
   export default function ClaimFinButton({
-    startTime,
-    nullReferrer,
-    tellerAddress,
-    inputAmount,
-    setNeedsSubgraph,
-    setNeedsBalance,
-    setNeedsAllowance,
-    setNeedsBondTokenData,
-    marketId,
+    vFinAddress,
+    positionId,
+    claimAmount,
   }) {
     const [
       chainId
@@ -26,38 +20,30 @@ import { SuccessToast } from "../Toasts/Success";
     const [errorDisplay, setErrorDisplay] = useState(false);
     const [successDisplay, setSuccessDisplay] = useState(false);
 
-    const { address } = useAccount();
-    
     const { config } = usePrepareContractWrite({
-      address: tellerAddress,
-      abi: bondTellerABI,
-      functionName: "purchase",
+      address: vFinAddress,
+      abi: vFinABI,
+      functionName: "claim",
       args: [
-        address,
-        nullReferrer,
-        marketId,
-        inputAmount,
-        inputAmount,
+        positionId,
       ],
       chainId: chainId,
-      enabled: nullReferrer != undefined && startTime != undefined,
+      enabled: vFinAddress != undefined && positionId != undefined,
       onError() {
-        console.log('purchase error', address, tellerAddress, nullReferrer, marketId.toString(), startTime)
+        console.log('vFIN claim error',)
       }
     });
+
+    console.log('claim amount check', claimAmount)
   
     const { data, write } = useContractWrite(config);
+
+    const disabled = claimAmount == undefined || claimAmount < 0.005
   
     const { isLoading } = useWaitForTransaction({
       hash: data?.hash,
       onSuccess() {
-        setTimeout(() => {
-          setNeedsSubgraph(true);
-        }, 2000);
-        setSuccessDisplay(true); 
-        setNeedsBalance(true);
-        setNeedsAllowance(true);
-        setNeedsBondTokenData(true);
+        // we could refetch viewClaim
       },
       onError() {
         setErrorDisplay(true);
@@ -68,8 +54,10 @@ import { SuccessToast } from "../Toasts/Success";
       <>
         <button
           className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer flex items-center justify-center text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
+          onClick={() => write?.()}
+          disabled={disabled}
         >
-          CLAIM VESTED FIN
+          {disabled ? "NOTHING TO CLAIM" : "CLAIM VESTED FIN"}
         </button>
         <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
           {errorDisplay && (

@@ -1,21 +1,20 @@
-import { useAccount, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
+import { useAccount, useContractRead, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { bondTellerABI } from "../../abis/evm/bondTeller";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import { SuccessToast } from "../Toasts/Success";
+import { BigNumber } from "ethers";
+import { BN_ZERO } from "../../utils/math/constants";
+import { vFinABI } from "../../abis/evm/vFin";
+import { parseUnits } from "ethers/lib/utils.js";
   
   export default function VestFinButton({
-    startTime,
-    nullReferrer,
+    vFinAddress,
     tellerAddress,
-    inputAmount,
-    setNeedsSubgraph,
-    setNeedsBalance,
-    setNeedsAllowance,
-    setNeedsBondTokenData,
-    marketId,
+    bondTokenId,
+    setNeedsVestingPosition,
   }) {
     const [
       chainId
@@ -23,41 +22,102 @@ import { SuccessToast } from "../Toasts/Success";
       state.chainId,
     ]);
 
+    const [bondBalance, setBondBalance] = useState(BN_ZERO);
+    const [bondApproved, setBondApproved] = useState(false);
+
     const [errorDisplay, setErrorDisplay] = useState(false);
     const [successDisplay, setSuccessDisplay] = useState(false);
 
     const { address } = useAccount();
-    
-    const { config } = usePrepareContractWrite({
+
+    const { data: bondBalanceData } = useContractRead({
       address: tellerAddress,
       abi: bondTellerABI,
-      functionName: "purchase",
+      functionName: "balanceOf",
+      args: [address, bondTokenId],
+      chainId: chainId,
+      watch: true,
+      enabled: tellerAddress != undefined
+                && vFinAddress != undefined,
+    });
+
+    useEffect(() => {
+      if (bondBalanceData) {
+        setBondBalance(BigNumber.from(bondBalanceData.toString()));
+      }
+    }, [bondBalanceData]);
+
+    const { data: bondApprovalData, refetch: refetchBondApproval } = useContractRead({
+      address: tellerAddress,
+      abi: bondTellerABI,
+      functionName: "isApprovedForAll",
+      args: [address, vFinAddress],
+      chainId: chainId,
+      watch: true,
+      enabled: tellerAddress != undefined
+                && vFinAddress != undefined,
+    });
+
+    useEffect(() => {
+      if (bondApprovalData) {
+        setBondApproved(Boolean(bondApprovalData));
+      }
+    }, [bondApprovalData]);
+    
+    const { config: exchangeConfig } = usePrepareContractWrite({
+      address: vFinAddress,
+      abi: vFinABI,
+      functionName: "exchangeBond",
       args: [
-        address,
-        nullReferrer,
-        marketId,
-        inputAmount,
-        inputAmount,
+        parseUnits('100', 18),
+        // bondBalance, // exchange entire balance
+        0            // creates new vFIN position
       ],
       chainId: chainId,
-      enabled: nullReferrer != undefined && startTime != undefined,
+      enabled: bondBalance != undefined
+                && bondApproved
+                && bondTokenId != undefined
+                && vFinAddress != undefined,
+      onSuccess() {
+        console.log('exchangeBonds config success', bondBalance.toString(), 100)
+      },
       onError() {
-        console.log('purchase error', address, tellerAddress, nullReferrer, marketId.toString(), startTime)
+        console.log('exchangeBonds error',)
+      },
+    });
+
+    const { data: exchangeData, write: exchangeWrite } = useContractWrite(exchangeConfig);
+
+    const { config: approvalConfig } = usePrepareContractWrite({
+      address: tellerAddress,
+      abi: bondTellerABI,
+      functionName: "setApprovalForAll",
+      args: [
+        vFinAddress,
+        true
+      ],
+      chainId: chainId,
+      enabled: vFinAddress != undefined && tellerAddress != undefined,
+      onError() {
+        console.log('setApprovalForAll error',)
       }
     });
+
+    const { data: approveData, write: approveWrite } = useContractWrite(approvalConfig);
   
-    const { data, write } = useContractWrite(config);
+    const data = bondApproved ? exchangeData : approveData
+    const write = bondApproved ? exchangeWrite : approveWrite
   
     const { isLoading } = useWaitForTransaction({
       hash: data?.hash,
       onSuccess() {
-        setTimeout(() => {
-          setNeedsSubgraph(true);
-        }, 2000);
-        setSuccessDisplay(true); 
-        setNeedsBalance(true);
-        setNeedsAllowance(true);
-        setNeedsBondTokenData(true);
+        if (bondApproved) {
+          setTimeout(() => {
+            setNeedsVestingPosition(true)
+          }, 2000);
+        } else {
+          refetchBondApproval();
+        }
       },
       onError() {
         setErrorDisplay(true);
@@ -68,8 +128,9 @@ import { SuccessToast } from "../Toasts/Success";
       <>
         <button
           className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer flex items-center justify-center text-center transition rounded-[4px]  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
+          onClick={() => write?.()}
         >
-          VEST MY FIN
+          {bondApproved ? "VEST MY FIN" : "APPROVE VEST"}
         </button>
         <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
           {errorDisplay && (

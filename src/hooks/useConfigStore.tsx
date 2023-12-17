@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { CoverSubgraph, LimitSubgraph } from "../utils/types";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { logoMapKey, nativeString } from "../utils/tokens";
+import { logoMapKey } from "../utils/tokens";
 
 type ConfigState = {
   chainId: number;
