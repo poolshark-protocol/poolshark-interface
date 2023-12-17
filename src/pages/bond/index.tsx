@@ -66,11 +66,6 @@ export default function Bond() {
   const [bondProtocolConfig, setBondProtocolConfig] = useState({});
 
   useEffect(() => {
-    console.log(
-      "protocol config",
-      networkName,
-      chainProperties[networkName]["bondProtocol"]
-    );
     setBondProtocolConfig(
       chainProperties[networkName]["bondProtocol"] ??
         chainProperties["arbitrum"]["bondProtocol"]

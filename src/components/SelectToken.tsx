@@ -61,7 +61,6 @@ export default function SelectToken(props) {
     address: customInput as `0x${string}`,
     enabled: isAddress(customInput),
     onSuccess() {
-      console.log('setting token info', tokenData?.toString())
       if (tokenData)
         setTokenInfo(tokenData);
       else 
@@ -103,13 +102,8 @@ export default function SelectToken(props) {
     fetch();
   }, [customInput, listedTokenList]);
 
-  function delay(ms: number) {
-    return new Promise( resolve => setTimeout(resolve, ms) );
-  }
-
   useEffect(() => {
     if (isOpen) {
-      // delay(1000);
       setCustomInput('')
       setDisplayTokenList(listedTokenList)
     }
@@ -179,7 +173,6 @@ export default function SelectToken(props) {
   };
 
   function closeModal() {
-    console.log('closing modal')
     setIsOpen(false);
   }
 

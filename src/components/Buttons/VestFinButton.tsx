@@ -8,7 +8,6 @@ import { SuccessToast } from "../Toasts/Success";
 import { BigNumber } from "ethers";
 import { BN_ZERO } from "../../utils/math/constants";
 import { vFinABI } from "../../abis/evm/vFin";
-import { parseUnits } from "ethers/lib/utils.js";
   
   export default function VestFinButton({
     vFinAddress,
@@ -69,8 +68,7 @@ import { parseUnits } from "ethers/lib/utils.js";
       abi: vFinABI,
       functionName: "exchangeBond",
       args: [
-        parseUnits('100', 18),
-        // bondBalance, // exchange entire balance
+        bondBalance, // exchange entire balance
         0            // creates new vFIN position
       ],
       chainId: chainId,
@@ -79,7 +77,6 @@ import { parseUnits } from "ethers/lib/utils.js";
                 && bondTokenId != undefined
                 && vFinAddress != undefined,
       onSuccess() {
-        console.log('exchangeBonds config success', bondBalance.toString(), 100)
       },
       onError() {
         console.log('exchangeBonds error',)
