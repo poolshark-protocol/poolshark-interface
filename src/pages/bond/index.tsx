@@ -48,9 +48,8 @@ export default function Bond() {
 
   const [tokenAllowance, setTokenAllowance] = useState(undefined);
 
-  const vestStartTime = 1702314000 // Dec 11th, 2023 @ 5pm UTC
-
-  const vestEndTime = 1707498000   // Feb 9th, 2024 @ 5pm UTC
+  const vestStartTime = 1702314000  // Dec 11th, 2023 @ 5pm UTC
+  const vestEndTime   = 1707498000  // Feb 9th, 2024 @ 5pm UTC
 
   const [allUserBonds, setAllUserBonds] = useState([]);
   const [marketData, setMarketData] = useState([]);
@@ -66,6 +65,7 @@ export default function Bond() {
   const [bondProtocolConfig, setBondProtocolConfig] = useState({});
 
   useEffect(() => {
+    console.log('network name', networkName)
     setBondProtocolConfig(
       chainProperties[networkName]["bondProtocol"] ??
         chainProperties["arbitrum"]["bondProtocol"]
@@ -167,7 +167,7 @@ export default function Bond() {
 
   async function getUserBonds() {
     try {
-      if (bondProtocolConfig["marketId"] != undefined) {
+      if (isConnected && bondProtocolConfig["marketId"] != undefined) {
         const data = await fetchUserBonds(
           bondProtocolConfig["marketId"].toString(),
           address.toLowerCase(),
@@ -212,7 +212,7 @@ export default function Bond() {
   }, [needsVestingPosition]);
 
   useEffect(() => {
-    if (address && needsSubgraph) {
+    if (needsSubgraph) {
       getMarket();
       getUserBonds();
       getEthUsdPrice();
@@ -331,7 +331,9 @@ export default function Bond() {
     args: [address, vestingTokenId],
     chainId: chainId,
     watch: needsBondTokenData,
-    enabled: needsBondTokenData && vestingTokenId != undefined,
+    enabled: needsBondTokenData 
+              && vestingTokenId != undefined
+              && address != undefined,
     onError() {
       console.log("balanceOf error", address, vestingTokenId);
     },

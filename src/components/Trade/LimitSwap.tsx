@@ -9,7 +9,7 @@ import LimitSwapButton from "../Buttons/LimitSwapButton";
 import SelectToken from "../SelectToken";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { BigNumber, ethers } from "ethers";
-import { inputHandler, parseUnits } from "../../utils/math/valueMath";
+import { inputHandler, numFormat, parseUnits } from "../../utils/math/valueMath";
 import { getSwapPools, limitPoolTypeIds } from "../../utils/pools";
 import { QuoteParams } from "../../utils/types";
 
@@ -263,7 +263,7 @@ export default function LimitSwap() {
   useEffect(() => {
     if (needsPairUpdate) return
     if (tradePoolData.poolPrice != undefined) {
-      var newPrice = parseFloat(
+      var newPrice = numFormat(parseFloat(
         invertPrice(
           TickMath.getPriceStringAtSqrtPrice(
             JSBI.BigInt(tradePoolData.poolPrice),
@@ -271,7 +271,7 @@ export default function LimitSwap() {
           ),
           limitPriceOrder
         )
-      ).toPrecision(6);
+      ), 6);
       setLimitPriceString(newPrice);
     } else {
       setLimitPriceString('0.00')
@@ -473,12 +473,12 @@ export default function LimitSwap() {
             tokenIn.callId == 0,
             amountIn
           );
-          const tokenOutAmountDisplay = parseFloat(
+          const tokenOutAmountDisplay = numFormat(parseFloat(
             ethers.utils.formatUnits(
               tokenOutAmount.toString(),
               tokenOut.decimals
             )
-          ).toPrecision(6);
+          ), 6);
           if (tokenOutAmount.gt(BN_ZERO)) {
             setDisplayOut(tokenOutAmountDisplay);
             setAmountOut(tokenOutAmount);
@@ -504,9 +504,9 @@ export default function LimitSwap() {
             tokenIn.callId == 0,
             amountOut
           );
-          const tokenInAmountDisplay = parseFloat(
+          const tokenInAmountDisplay = numFormat(parseFloat(
             ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
-          ).toPrecision(6);
+          ), 6);
           setDisplayIn(tokenInAmountDisplay);
           setAmountIn(tokenInAmount);
         }
@@ -530,12 +530,12 @@ export default function LimitSwap() {
             tokenIn.callId == 0,
             bnValue
           );
-          const tokenOutAmountDisplay = parseFloat(
+          const tokenOutAmountDisplay = numFormat(parseFloat(
             ethers.utils.formatUnits(
               tokenOutAmount.toString(),
               tokenOut.decimals
             )
-          ).toPrecision(6);
+          ), 6);
           setDisplayOut(tokenOutAmountDisplay);
           setAmountOut(tokenOutAmount);
         }
@@ -555,9 +555,9 @@ export default function LimitSwap() {
             tokenIn.callId == 0,
             bnValue
           );
-          const tokenInAmountDisplay = parseFloat(
+          const tokenInAmountDisplay = numFormat(parseFloat(
             ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
-          ).toPrecision(6);
+          ), 6);
           setDisplayIn(tokenInAmountDisplay);
           setAmountIn(tokenInAmount);
         }
@@ -710,12 +710,12 @@ export default function LimitSwap() {
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
             <div className="ml-auto text-xs">
               {pairSelected
-                ? parseFloat(
+                ? numFormat(parseFloat(
                     ethers.utils.formatUnits(
                       amountOut ?? BN_ZERO,
                       tokenOut.decimals
                     )
-                  ).toPrecision(6)
+                  ), 6)
                 : "Select Token"}
             </div>
           </div>
@@ -724,13 +724,13 @@ export default function LimitSwap() {
               Minimum received after slippage ({tradeSlippage}%)
             </div>
             <div className="ml-auto text-xs">
-              {(
+              {numFormat(
                 (parseFloat(
                   ethers.utils.formatUnits(amountOut, tokenOut.decimals)
                 ) *
                   (100 - parseFloat(tradeSlippage))) /
                 100
-              ).toPrecision(6)}
+              , 6)}
             </div>
           </div>
         </div>

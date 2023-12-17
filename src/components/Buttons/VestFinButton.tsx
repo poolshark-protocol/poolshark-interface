@@ -37,7 +37,11 @@ import { vFinABI } from "../../abis/evm/vFin";
       chainId: chainId,
       watch: true,
       enabled: tellerAddress != undefined
-                && vFinAddress != undefined,
+                && vFinAddress != undefined
+                && address != undefined,
+      onError() {
+        console.log('balanceOf error',)
+      },
     });
 
     useEffect(() => {
@@ -54,7 +58,11 @@ import { vFinABI } from "../../abis/evm/vFin";
       chainId: chainId,
       watch: true,
       enabled: tellerAddress != undefined
-                && vFinAddress != undefined,
+                && vFinAddress != undefined
+                && address != undefined,
+      onError() {
+        console.log('isApprovedForAll error',)
+      },
     });
 
     useEffect(() => {
@@ -94,7 +102,8 @@ import { vFinABI } from "../../abis/evm/vFin";
         true
       ],
       chainId: chainId,
-      enabled: vFinAddress != undefined && tellerAddress != undefined,
+      enabled: vFinAddress != undefined 
+                && tellerAddress != undefined,
       onError() {
         console.log('setApprovalForAll error',)
       }
@@ -126,8 +135,11 @@ import { vFinABI } from "../../abis/evm/vFin";
         <button
           className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer flex items-center justify-center text-center transition rounded-[4px]  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
           onClick={() => write?.()}
+          disabled={bondBalance?.eq(BN_ZERO)}
         >
-          {bondApproved ? "VEST MY FIN" : "APPROVE VEST"}
+          {bondBalance?.eq(BN_ZERO) ?
+            "BOND BALANCE EMPTY"
+            : (!bondApproved ? "APPROVE VEST" : "VEST MY FIN")}
         </button>
         <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
           {errorDisplay && (
