@@ -66,7 +66,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const { bnInput, inputBox, maxBalance } = useInputBox();
   const { data: signer } = useSigner();
   const { isConnected } = useAccount();
-  const [stateChainName, setStateChainName] = useState(); //TODO: arbitrumOne values
+  const [stateChainName, setStateChainName] = useState(); 
   const [buttonState, setButtonState] = useState("");
   const [disabled, setDisabled] = useState(true);
 
@@ -137,7 +137,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   }, [bnInput, tokenIn.userBalance, disabled]);
 
   useEffect(() => {
-    setStateChainName(chainIdsToNames[chainId]); //TODO: arbitrumOne values
+    setStateChainName(chainIdsToNames[chainId]); 
   }, [chainId]);
 
   ////////////////////////////////Gas Fees Estimation
@@ -269,7 +269,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                     amount={bnInput}
                     tokenSymbol={tokenIn.symbol}
                   />
-                ) : stateChainName === networkName ? ( //TODO: arbitrumOne values
+                ) : stateChainName === networkName ? ( 
                   <CoverAddLiqButton
                     disabled={disabled}
                     toAddress={address}
