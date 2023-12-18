@@ -28,7 +28,7 @@ const { chains, provider } = configureChains(
     arbitrum,
     // arbitrumGoerli,
     
-  ],    //TODO: arbitrumOne values
+  ],    
   [
     jsonRpcProvider({
       rpc: (chain) => ({
@@ -40,7 +40,7 @@ const { chains, provider } = configureChains(
     //     http: `https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/`, // arbitrumGoerli
     //   }),
     // }),
-    //TODO: arbitrumOne values
+    
   ],
 );
 
@@ -164,7 +164,7 @@ function MyApp({ Component, pageProps }) {
   useEffect(() => {
     const networkName = supportedNetworkNames[name] ?? 'unknownNetwork'
     const chainConstants = chainProperties[networkName] ? chainProperties[networkName]
-                                                        : chainProperties['arbitrumGoerli']; //TODO: arbitrumOne values
+                                                        : chainProperties['arbitrumGoerli']; 
     setLimitSubgraph(chainConstants['limitSubgraphUrl'])
     setCoverSubgraph(chainConstants['coverSubgraphUrl'])
     setCoverFactoryAddress(chainConstants['coverPoolFactory'])
