@@ -20,7 +20,7 @@ import {
 import { gasEstimateCoverMint } from "../../../utils/gas";
 import { useCoverStore } from "../../../hooks/useCoverStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
-import { logoMapKey } from "../../../utils/tokens";
+import { getLogoURI } from "../../../utils/tokens";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
@@ -66,7 +66,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const { bnInput, inputBox, maxBalance } = useInputBox();
   const { data: signer } = useSigner();
   const { isConnected } = useAccount();
-  const [stateChainName, setStateChainName] = useState(); //TODO: arbitrumOne values
+  const [stateChainName, setStateChainName] = useState(); 
   const [buttonState, setButtonState] = useState("");
   const [disabled, setDisabled] = useState(true);
 
@@ -137,7 +137,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   }, [bnInput, tokenIn.userBalance, disabled]);
 
   useEffect(() => {
-    setStateChainName(chainIdsToNames[chainId]); //TODO: arbitrumOne values
+    setStateChainName(chainIdsToNames[chainId]); 
   }, [chainId]);
 
   ////////////////////////////////Gas Fees Estimation
@@ -252,7 +252,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                           </button>
                         ) : null}
                         <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                          <img height="28" width="25" src={logoMap[logoMapKey(tokenIn)]} />
+                          <img height="28" width="25" src={getLogoURI(logoMap, tokenIn)} />
                           {tokenIn.symbol}
                         </div>
                       </div>
@@ -269,7 +269,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                     amount={bnInput}
                     tokenSymbol={tokenIn.symbol}
                   />
-                ) : stateChainName === networkName ? ( //TODO: arbitrumOne values
+                ) : stateChainName === networkName ? ( 
                   <CoverAddLiqButton
                     disabled={disabled}
                     toAddress={address}

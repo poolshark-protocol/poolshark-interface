@@ -6,7 +6,7 @@ import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import SelectToken from "../SelectToken";
-import { inputHandler, parseUnits } from "../../utils/math/valueMath";
+import { inputHandler, numFormat, parseUnits } from "../../utils/math/valueMath";
 import { getSwapPools } from "../../utils/pools";
 import { QuoteParams, SwapParams } from "../../utils/types";
 import { TickMath, maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
@@ -301,22 +301,22 @@ export default function MarketSwap() {
         if (exactIn) {
           setAmountOut(poolQuotes[0].amountOut);
           setDisplayOut(
-            parseFloat(
+            numFormat(parseFloat(
               ethers.utils.formatUnits(
                 poolQuotes[0].amountOut.toString(),
                 tokenOut.decimals
               )
-            ).toPrecision(6)
+            ), 6)
           );
         } else {
           setAmountIn(poolQuotes[0].amountIn);
           setDisplayIn(
-            parseFloat(
+            numFormat(parseFloat(
               ethers.utils.formatUnits(
                 poolQuotes[0].amountIn.toString(),
                 tokenIn.decimals
               )
-            ).toPrecision(6)
+            ), 6)
           );
         }
         updateSwapParams(poolQuotes);
@@ -509,12 +509,12 @@ export default function MarketSwap() {
               }`}
             >
               {pairSelected
-                ? parseFloat(
+                ? numFormat(parseFloat(
                     ethers.utils.formatUnits(
                       amountOut ?? BN_ZERO,
                       tokenOut.decimals
                     )
-                  ).toPrecision(6)
+                  ), 6)
                 : "Select Token"}
             </div>
           </div>
@@ -537,13 +537,13 @@ export default function MarketSwap() {
               Minimum received after slippage ({tradeSlippage}%)
             </div>
             <div className="ml-auto text-xs">
-              {(
+              {numFormat(
                 (parseFloat(
                   ethers.utils.formatUnits(amountOut, tokenOut.decimals)
                 ) *
                   (100 - parseFloat(tradeSlippage))) /
                 100
-              ).toPrecision(6)}
+                , 6)}
             </div>
           </div>
 
@@ -578,7 +578,11 @@ export default function MarketSwap() {
                 ).toFixed(2)
               : (0).toFixed(2)}
           </span>
-          <span>BALANCE: {tokenIn.userBalance?.toFixed(3)}</span>
+          <span>{tokenIn?.address != ZERO_ADDRESS ? ("Balance: " +
+              (!isNaN(tokenIn?.userBalance) && tokenIn.userBalance > 0 ? numFormat(tokenIn.userBalance, 6) : "0.00")
+            ) : (
+              <></>
+            )}</span>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3">
           {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox)}
@@ -652,9 +656,9 @@ export default function MarketSwap() {
             )}
           </span>
           <span>
-            {pairSelected ? (
+            {tokenOut?.address != ZERO_ADDRESS ? (
               "Balance: " +
-              (!isNaN(tokenOut?.userBalance) ? tokenOut.userBalance : "0")
+              (!isNaN(tokenOut?.userBalance) && tokenOut.userBalance > 0 ? numFormat(tokenOut.userBalance, 6) : "0.00")
             ) : (
               <></>
             )}

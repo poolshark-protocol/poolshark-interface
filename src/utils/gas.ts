@@ -31,7 +31,7 @@ export const gasEstimateWethCall = async (
   setGasLimit,
 ): Promise<void> => {
   try {
-    //TODO: arbitrumOne values
+    
     const ethUsdQuery = await fetchEthPrice();
     const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
@@ -89,7 +89,7 @@ export const gasEstimateSwap = async (
   setGasLimit,
 ): Promise<void> => {
   try {
-    //TODO: arbitrumOne values
+    
     if (poolAddresses?.length == 0 || !signer.provider) {
       setGasFee("$0.00");
       setGasLimit(BN_ZERO);
@@ -154,7 +154,7 @@ export const gasEstimateMintLimit = async (
   networkName: string,
 ): Promise<void> => {
   try {
-    //TODO: arbitrumOne values
+    
 
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
@@ -230,7 +230,7 @@ export const gasEstimateLimitCreateAndMint = async (
   networkName: string,
 ): Promise<void> => {
   try {
-    //TODO: arbitrumOne values
+    
 
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
@@ -328,7 +328,7 @@ export const gasEstimateBurnLimit = async (
   setBurnGasLimit,
 ): Promise<void> => {
   try {
-    //TODO: arbitrumOne values
+    
 
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
@@ -397,7 +397,7 @@ export const gasEstimateRangeMint = async (
   positionId?: number,
 ): Promise<gasEstimateResult> => {
   try {
-    //TODO: arbitrumOne values
+    
     console.log('gas estimate range mint', getRangeMintButtonMsgValue(
       tokenIn.native,
       tokenOut.native,
@@ -476,7 +476,7 @@ export const gasEstimateRangeCreateAndMint = async (
   networkName: string,
 ): Promise<gasEstimateResult> => {
   try {
-    //TODO: arbitrumOne values
+    
 
     if (!signer?.provider || (amountIn.eq(BN_ZERO) && amountOut.eq(BN_ZERO))) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
@@ -557,7 +557,7 @@ export const gasEstimateRangeStake = async(
   signer
 ): Promise<gasEstimateResult> => {
   try {
-  //TODO: arbitrumOne values
+  
   const provider = new ethers.providers.JsonRpcProvider(
     "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
   );
@@ -606,7 +606,7 @@ export const gasEstimateRangeUnstake = async(
   signer
 ): Promise<gasEstimateResult> => {
   try {
-  //TODO: arbitrumOne values
+  
   const provider = new ethers.providers.JsonRpcProvider(
     "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
   );
@@ -657,7 +657,7 @@ export const gasEstimateRangeBurn = async (
   signer,
 ): Promise<gasEstimateResult> => {
   try {
-    //TODO: arbitrumOne values
+    
 
     if (
       !rangePoolRoute ||
@@ -718,7 +718,7 @@ export const gasEstimateCoverMint = async (
   positionId?: number
 ): Promise<gasEstimateResult> => {
   try {
-    //TODO: arbitrumOne values
+    
 
     if (!coverPoolRoute || !signer.provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
@@ -785,7 +785,7 @@ export const gasEstimateCoverCreateAndMint = async (
   twapReady: boolean,
 ): Promise<gasEstimateResult> => {
   try {
-    //TODO: arbitrumOne values
+    
 
     if (!signer.provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
@@ -856,7 +856,7 @@ export const gasEstimateCoverBurn = async (
   signer,
 ): Promise<gasEstimateResult> => {
   try {
-    //TODO: arbitrumOne values
+    
 
 
     if (!coverPoolRoute || !signer.provider) {

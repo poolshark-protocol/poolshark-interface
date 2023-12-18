@@ -5,7 +5,7 @@ import { fetchTokenPrice } from "./queries";
 import { LimitSubgraph } from "./types";
 
 export const defaultTokenLogo =
-//TODO: arbitrumOne values
+
   "https://raw.githubusercontent.com/poolshark-protocol/token-metadata/master/blockchains/arbitrum-goerli/tokenZero.png";
 
 export const fetchRangeTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
@@ -60,12 +60,16 @@ export const getLimitTokenUsdPrice = async (
   }
 };
 
+export const getLogoURI = (logoMap: any, token: any) => {
+  return logoMap[logoMapKey(token)] ?? defaultTokenLogo
+}
+
 export const logoMapKey = (token: any) => {
-  return (token.address?.toLowerCase() ?? ZERO_ADDRESS) + nativeString(token)
+  return (token?.address?.toLowerCase() ?? ZERO_ADDRESS) + nativeString(token)
 }
 
 export const nativeString = (token: any) => {
-  if (token.native == undefined) {
+  if (token?.native == undefined) {
     return ''
   } else if (token.native) {
     return '-native'

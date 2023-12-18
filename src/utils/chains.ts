@@ -6,26 +6,26 @@ export const chainIdsToNames = {
     1: 'ethereum',
     5: 'goerli',
     421613: 'arbitrum-goerli',
-    42161: 'arbitrum-one',//TODO: arbitrumOne values
+    42161: 'arbitrum-one',
 };
 
 export const decToHex = {
     1: '0x1',
     5: '0x5',
     421613: '0x66EED',
-    42161: '0xA4B1',//TODO: arbitrumOne values
+    42161: '0xA4B1',
 };
 
 export const supportedChainIds = {
     1: 'mainnet',
     5: 'goerli',
     421613: 'arbitrumGoerli',
-    42161: 'arbitrum',//TODO: arbitrumOne values
+    42161: 'arbitrum',
 };
 
 export const supportedNetworkNames = {
     'arbitrum-goerli': 'arbitrumGoerli',
-    'arbitrum': 'arbitrum'//TODO: arbitrumOne values
+    'arbitrum': 'arbitrum'
 };
 
 export const chainProperties = {
@@ -77,7 +77,7 @@ export const chainProperties = {
     },
     arbitrum: {
         chainName: 'Arbitrum One',
-        logo:"https://assets.trustwalletapp.com/blockchains/polygon/assets/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/logo.png",
+        logo:"https://raw.githubusercontent.com/poolshark-protocol/token-metadata/master/blockchains/arbitrum-one/logo.png",
         rpcUrls: ['https://patient-distinguished-pallet.arbitrum-mainnet.quiknode.pro/4cbe7cbdb55ec4b33fdc1a4239e1169b167ae351/'],
         explorerUrl: 'https://arbiscan.io/',
         nativeCurrency: {
@@ -96,7 +96,9 @@ export const chainProperties = {
         bondProtocol: {
             auctioneerAddress: "0xf7f9a96cdbfefd70bda14a8f30ec503b16bce9b1",
             tellerAddress: "0x007f7735baf391e207e3aa380bb53c4bd9a5fed6",
+            vFinAddress: "0xFA3e62Aae5DE014c4CD20377Ec90Eb8e59d31169",
             wethAddress: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+            bondTokenId: "50041069287616932026042816520963973508955622977186811114648766172172485699723",
             finAddress: "0x903ca00944d0b51e50d9f4fc96167c89f211542a", // FIN
             nullReferrer: "0x0000000000000000000000000000000000000000",
             marketSubgraphId: "42161_BondFixedTermFPA_120",
@@ -104,5 +106,4 @@ export const chainProperties = {
             subgraphUrl: 'https://api.thegraph.com/subgraphs/name/bond-protocol/bond-protocol-arbitrum-mainnet',
         }
     },
-    //TODO: arbitrumOne values
 };
