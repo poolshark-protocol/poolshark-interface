@@ -59,7 +59,6 @@ export function roundUp(tick: number, tickSpacing: number): number {
     let roundedUp = Math.round(tick / tickSpacing) * tickSpacing;
     if (roundedUp < minTick) return minTick
     if (roundedUp > maxTick) return maxTick
-    console.log('rounded up', roundedUp, tick)
     if (roundedUp < tick) return roundedUp -= -tickSpacing;
     return roundedUp
   }

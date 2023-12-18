@@ -8,12 +8,14 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { BN_ZERO } from "../../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BigNumber, ethers } from "ethers";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { getRangeMintInputData } from "../../utils/buttons";
+import { chainProperties } from "../../utils/chains";
 
 export default function RangeAddLiqButton({
   routerAddress,
@@ -37,6 +39,7 @@ export default function RangeAddLiqButton({
   ]);
 
   const [
+    rangePositionData,
     setNeedsAllowanceIn,
     setNeedsAllowanceOut,
     setNeedsBalanceIn,
@@ -44,6 +47,7 @@ export default function RangeAddLiqButton({
     setNeedsRefetch,
     setNeedsPosRefetch,
   ] = useRangeLimitStore((state) => [
+    state.rangePositionData,
     state.setNeedsAllowanceIn,
     state.setNeedsAllowanceOut,
     state.setNeedsBalanceIn,
@@ -71,15 +75,18 @@ export default function RangeAddLiqButton({
           positionId: positionId,
           amount0: amount0,
           amount1: amount1,
-          callbackData: ethers.utils.formatBytes32String(""),
+          callbackData: getRangeMintInputData(rangePositionData.staked, chainProperties[networkName]["rangeStakerAddress"]),
         },
       ],
     ],
     chainId: chainId,
+    enabled: positionId != undefined && poolAddress != ZERO_ADDRESS,
     overrides: {
       gasLimit: gasLimit,
     },
-    onSuccess() {},
+    onError(err) {
+      console.log('mint error')  
+    },
   });
 
   const { data, isSuccess, write } = useContractWrite(config);
@@ -115,7 +122,7 @@ export default function RangeAddLiqButton({
           address ? write?.() : null;
         }}
       >
-        {gasLimit.lte(BN_ZERO) && (amount0.gt(BN_ZERO) || amount1.gt(BN_ZERO)) ? <Loader/> : "Add liquidity"}
+        {gasLimit?.lte(BN_ZERO) && (amount0?.gt(BN_ZERO) || amount1?.gt(BN_ZERO)) ? <Loader/> : "Add liquidity"}
       </button>
       <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay && (

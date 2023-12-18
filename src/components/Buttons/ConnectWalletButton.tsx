@@ -1,7 +1,7 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import Network from "../Modals/Network";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import React from "react";
 
 interface Props {
@@ -12,6 +12,22 @@ interface Props {
 
 export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [tosAccepted, setTosAccepted] = useState(false);
+
+  useEffect(() => {
+    // Check if terms of service is accepted
+    const isTosAccepted = localStorage.getItem('tosAccepted') === 'true';
+    setTosAccepted(isTosAccepted);
+
+    // Simulate wallet connection logic
+    // In real scenario, this will be replaced with actual wallet connection logic
+    // setWalletConnected(true/false) based on wallet connection status
+}, []);
+
+const handleTosAccept = () => {
+    localStorage.setItem('tosAccepted', 'true');
+    setTosAccepted(true);
+};
 
   return (
     <>
@@ -47,7 +63,7 @@ export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
                 if (!connected) {
                   return (
                     <button
-                      className={`w-full mx-auto text-white px-8  text-center transition cursor-pointer bg-main1 border border-main hover:opacity-80 ${xl ? `py-4 ` : `py-2.5 text-sm`}`}
+                      className={`w-full mx-auto text-white uppercase px-8  text-center transition cursor-pointer bg-main1 border border-main hover:opacity-80 ${xl ? `py-4 ` : `py-2.5 text-sm`}`}
                       onClick={openConnectModal}
                       type="button"
                     >
@@ -61,7 +77,7 @@ export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
                       <button
                         onClick={() => setIsOpen(true)}
                         type="button"
-                        className="w-full flex gap-x-2 items-center py-2.5 text-sm mx-auto text-white px-5  text-center transition rounded-lg cursor-pointer bg-black border border-red-500 hover:opacity-80"
+                        className="w-full flex gap-x-2 items-center py-2.5 text-sm mx-auto text-white px-5  text-center transition rounded-[4px] uppercase cursor-pointer bg-black border border-red-500 hover:opacity-80"
                       >
                         Wrong network
                         <ChevronDownIcon className="w-5" />
@@ -71,7 +87,7 @@ export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
                 }
                 return (
                   <>
-                    <div className={`flex flex-row  items-end  justify-end gap-y-4 text-white gap-x-4 ${center ? `justify-center` : ``}`}
+                    <div className={`flex w-full flex-row  items-end  justify-end gap-y-4 text-white gap-x-4 ${center ? `justify-center` : ``}`}
                     >
                       <button
                         onClick={() => setIsOpen(true)}
@@ -91,10 +107,11 @@ export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
                           </div>
                         )}
                         */}
-                        {chain.id === 421613 ? (
+                        {chain.id === 421613 || chain.id === 42161 ? (
                           <img
                             style={{ width: 17, height: 17 }}
                             src="/static/images/arb_icon.svg"
+                            className="aspect-square"
                           />
                         ) : (
                           ""
@@ -113,10 +130,10 @@ export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
                           ""
                         )}
                         <div className="bg-black flex gap-x-2 rounded-[4px] border-grey border mt-[-1px] mr-[-1px] mb-[-1px] ">
-                          <div className="py-2 pl-5 pr-3 whitespace-nowrap">
+                          <div className="py-2 pl-5 lg:pr-3 pr-5 whitespace-nowrap">
                             {account.displayName}
                           </div>
-                          <div className="border-l border-grey py-2.5 px-3">
+                          <div className="border-l border-grey lg:block hidden py-2.5 px-3">
                             <ChevronDownIcon className="w-5" />
                           </div>
                         </div>

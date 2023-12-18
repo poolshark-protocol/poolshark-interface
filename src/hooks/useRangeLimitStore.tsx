@@ -1,10 +1,6 @@
 import { BigNumber } from "ethers";
 import { LimitSubgraph, token, tokenRangeLimit } from "../utils/types";
-import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
-import {
-  tokenOneAddress,
-  tokenZeroAddress,
-} from "../constants/contractAddresses";
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import { create } from "zustand";
 import {
   getLimitPoolFromFactory,
@@ -12,6 +8,8 @@ import {
 } from "../utils/queries";
 import { parseUnits } from "../utils/math/valueMath";
 import { getRangeMintButtonDisabled, getRangeMintButtonMessage } from "../utils/buttons";
+import JSBI from "jsbi";
+import { chainProperties, defaultNetwork } from "../utils/chains";
 
 type RangeLimitState = {
   //rangePoolAddress for current token pairs
@@ -29,6 +27,8 @@ type RangeLimitState = {
     gasLimit: BigNumber;
     disabled: boolean;
     buttonMessage: string;
+    liquidityAmount: JSBI;
+    stakeFlag: boolean;
   };
   //limitPoolAddress for current token pairs
   limitPoolAddress: `0x${string}`;
@@ -97,6 +97,7 @@ type RangeLimitAction = {
   setTokenOutRangeUSDPrice: (price: number) => void;
   setTokenOutRangeAllowance: (allowance: BigNumber) => void;
   setTokenOutBalance: (balance: string) => void;
+  setLiquidityAmount: (liquidityAmount: JSBI) => void;
   //
   setMinInput: (newMinTick: string) => void;
   setMaxInput: (newMaxTick: string) => void;
@@ -109,8 +110,8 @@ type RangeLimitAction = {
   //
   switchDirection: () => void;
   setRangePoolFromFeeTier: (
-    tokenIn: token,
-    tokenOut: token,
+    tokenIn: any,
+    tokenOut: any,
     volatility: any,
     client: LimitSubgraph,
     poolPrice?: any,
@@ -142,6 +143,7 @@ type RangeLimitAction = {
   setCurrentAmountOut: (currentAmountOut: string) => void;
   setStartPrice: (startPrice: string) => void;
   setLimitAddLiqDisabled: (limitAddLiqDisabled: boolean) => void;
+  setStakeFlag: (stakeFlag: boolean) => void;
 };
 
 const initialRangeLimitState: RangeLimitState = {
@@ -154,10 +156,12 @@ const initialRangeLimitState: RangeLimitState = {
   rangeMintParams: {
     tokenInAmount: BN_ZERO,
     tokenOutAmount: BN_ZERO,
+    liquidityAmount: ZERO,
     gasFee: "$0.00",
     gasLimit: BN_ZERO,
     disabled: true,
     buttonMessage: "",
+    stakeFlag: false,
   },
   //limit pools
   limitPoolAddress: ZERO_ADDRESS as `0x${string}`,
@@ -176,11 +180,13 @@ const initialRangeLimitState: RangeLimitState = {
   pairSelected: false,
   //
   tokenIn: {
-    callId: 0,
+    callId: chainProperties[defaultNetwork]["wethAddress"].localeCompare(chainProperties[defaultNetwork]["daiAddress"],) < 0 ? 0 : 1,
     name: "Wrapped Ether",
     symbol: "WETH",
-    logoURI: "/static/images/eth_icon.svg",
-    address: tokenZeroAddress,
+    native: false,
+    //TODO: arbitrumOne values
+    logoURI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+    address: chainProperties[defaultNetwork]["wethAddress"],
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: BigNumber.from(0),
@@ -188,11 +194,13 @@ const initialRangeLimitState: RangeLimitState = {
   } as tokenRangeLimit,
   //
   tokenOut: {
-    callId: 1,
+    callId: chainProperties[defaultNetwork]["daiAddress"].localeCompare(chainProperties[defaultNetwork]["wethAddress"]) < 0 ? 0 : 1,
     name: "DAI",
     symbol: "DAI",
-    logoURI: "/static/images/dai_icon.png",
-    address: tokenOneAddress,
+    native: false,
+    //TODO: arbitrumOne values
+    logoURI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
+    address: chainProperties[defaultNetwork]["daiAddress"],
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: BigNumber.from(0),
@@ -273,26 +281,24 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         if (newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase()) {
           set((state) => ({
             tokenIn: {
+              ...newTokenIn,
               callId: state.tokenOut.callId,
-              name: state.tokenOut.name,
-              symbol: state.tokenOut.symbol,
-              logoURI: state.tokenOut.logoURI,
               address: state.tokenOut.address,
               decimals: state.tokenOut.decimals,
               USDPrice: state.tokenOut.USDPrice,
-              userBalance: state.tokenOut.userBalance,
-              userRouterAllowance: state.tokenOut.userRouterAllowance,
+              userRouterAllowance: state.tokenOut.userRouterAllowance ?? BN_ZERO
             },
             tokenOut: {
               callId: state.tokenIn.callId,
               name: state.tokenIn.name,
               symbol: state.tokenIn.symbol,
+              native: state.tokenIn.native,
               logoURI: state.tokenIn.logoURI,
               address: state.tokenIn.address,
               decimals: state.tokenIn.decimals,
               USDPrice: state.tokenIn.USDPrice,
               userBalance: state.tokenIn.userBalance,
-              userRouterAllowance: state.tokenIn.userRouterAllowance,
+              userRouterAllowance: state.tokenIn.userRouterAllowance ?? BN_ZERO,
             },
             rangeMintParams: {
               ...state.rangeMintParams,
@@ -311,14 +317,17 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           //if tokens are different
           set((state) => ({
             tokenIn: {
+              ...newTokenIn,
               callId:
                 newTokenIn.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
-              ...newTokenIn,
+              native: newTokenIn.native ?? false,
+              userRouterAllowance: BN_ZERO
             },
             tokenOut: {
+              ...tokenOut,
               callId:
                 tokenOut.address.localeCompare(newTokenIn.address) < 0 ? 0 : 1,
-              ...tokenOut,
+              userRouterAllowance: BN_ZERO
             },
             pairSelected: true,
             rangeMintParams: {
@@ -334,15 +343,26 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         }
       } else {
         //if tokenOut its not selected
-        set(() => ({
+        set((state) => ({
           tokenIn: {
-            callId: 1,
             ...newTokenIn,
+            callId: 1,
+            native: newTokenIn.native ?? false,
+            userRouterAllowance: state.tokenIn?.userRouterAllowance ?? BN_ZERO
           },
           tokenOut: {
-            callId: 0,
             ...tokenOut,
+            callId: 0,
           },
+          rangeMintParams: {
+            ...state.rangeMintParams,
+            tokenInAmount: isAmountIn ? parseUnits(amount, newTokenIn.decimals) : state.rangeMintParams.tokenInAmount,
+          },
+          limitMintParams: {
+            ...state.limitMintParams,
+            tokenInAmount: isAmountIn ? parseUnits(amount, newTokenIn.decimals) : state.limitMintParams.tokenInAmount,
+          },
+          needsAllowanceIn: true,
           pairSelected: false,
         }));
       }
@@ -352,6 +372,14 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         rangeMintParams: {
           ...state.rangeMintParams,
           tokenInAmount: newAmount,
+        },
+      }));
+    },
+    setLiquidityAmount: (liquidityAmount: JSBI) => {
+      set((state) => ({
+        rangeMintParams: {
+          ...state.rangeMintParams,
+          liquidityAmount: liquidityAmount,
         },
       }));
     },
@@ -381,6 +409,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         tokenIn.address != initialRangeLimitState.tokenOut.address ||
         tokenIn.symbol != "Select Token"
       ) {
+        
         //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
         if (newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase()) {
           set((state) => ({
@@ -388,23 +417,21 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               callId: state.tokenOut.callId,
               name: state.tokenOut.name,
               symbol: state.tokenOut.symbol,
+              native: state.tokenOut.native,
               logoURI: state.tokenOut.logoURI,
               address: state.tokenOut.address,
               decimals: state.tokenOut.decimals,
               USDPrice: state.tokenOut.USDPrice,
               userBalance: state.tokenOut.userBalance,
-              userRouterAllowance: state.tokenOut.userRouterAllowance,
+              userRouterAllowance: state.tokenOut.userRouterAllowance ?? BN_ZERO
             },
             tokenOut: {
+              ...newTokenOut,
               callId: state.tokenIn.callId,
-              name: state.tokenIn.name,
-              symbol: state.tokenIn.symbol,
-              logoURI: state.tokenIn.logoURI,
               address: state.tokenIn.address,
               decimals: state.tokenIn.decimals,
               USDPrice: state.tokenIn.USDPrice,
-              userBalance: state.tokenIn.userBalance,
-              userRouterAllowance: state.tokenIn.userRouterAllowance,
+              userRouterAllowance: state.tokenIn.userRouterAllowance ?? BN_ZERO
             },
             rangeMintParams: {
               ...state.rangeMintParams,
@@ -423,14 +450,17 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           //if tokens are different
           set((state) => ({
             tokenIn: {
+              ...state.tokenIn,
               callId:
-                tokenIn.address.localeCompare(newTokenOut.address) < 0 ? 0 : 1,
-              ...tokenIn,
+                state.tokenIn.address.localeCompare(newTokenOut.address) < 0 ? 0 : 1,
+              userRouterAllowance: state.tokenIn.userRouterAllowance ?? BN_ZERO
             },
             tokenOut: {
+              ...newTokenOut,
               callId:
                 newTokenOut.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
-              ...newTokenOut,
+              native: newTokenOut.native ?? false,
+              userRouterAllowance: BN_ZERO
             },
             rangeMintParams: {
               ...state.rangeMintParams,
@@ -441,14 +471,24 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               tokenOutAmount: isAmountIn ? state.limitMintParams.tokenOutAmount : parseUnits(amount, newTokenOut.decimals),
             },
             pairSelected: true,
+            needsAllowanceIn: true,
             needsAllowanceOut: true
           }));
         }
       } else {
         //if tokenIn its not selected
-        set(() => ({
-          tokenIn: { callId: 0, ...tokenIn},
-          tokenOut: { callId: 1, ...newTokenOut},
+        set((state) => ({
+          tokenIn: { ...tokenIn, callId: 0 },
+          tokenOut: { ...newTokenOut, callId: 1},
+          rangeMintParams: {
+            ...state.rangeMintParams,
+            tokenOutAmount: isAmountIn ? state.rangeMintParams.tokenOutAmount : parseUnits(amount, newTokenOut.decimals),
+          },
+          limitMintParams: {
+            ...state.limitMintParams,
+            tokenOutAmount: isAmountIn ? state.limitMintParams.tokenOutAmount : parseUnits(amount, newTokenOut.decimals),
+          },
+          needsAllowanceOut: true,
           pairSelected: false,
         }));
       }
@@ -569,6 +609,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           buttonMessage: getRangeMintButtonMessage(
             state.rangeMintParams.tokenInAmount,
             state.rangeMintParams.tokenOutAmount,
+            state.rangeMintParams.liquidityAmount,
             state.tokenIn,
             state.tokenOut,
             state.rangePoolAddress,
@@ -577,6 +618,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           disabled: getRangeMintButtonDisabled(
             state.rangeMintParams.tokenInAmount,
             state.rangeMintParams.tokenOutAmount,
+            state.rangeMintParams.liquidityAmount,
             state.tokenIn,
             state.tokenOut,
             state.rangePoolAddress,
@@ -624,6 +666,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               : 1,
           name: state.tokenOut.name,
           symbol: state.tokenOut.symbol,
+          native: state.tokenOut.native,
           logoURI: state.tokenOut.logoURI,
           address: state.tokenOut.address,
           decimals: state.tokenOut.decimals,
@@ -638,6 +681,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               : 0,
           name: state.tokenIn.name,
           symbol: state.tokenIn.symbol,
+          native: state.tokenIn.native,
           logoURI: state.tokenIn.logoURI,
           address: state.tokenIn.address,
           decimals: state.tokenIn.decimals,
@@ -674,10 +718,12 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
             }));
           }
         }
+        console.log('pool found:', poolFound)
         if (!poolFound) {
           set((state) => ({
             rangePoolAddress: ZERO_ADDRESS as `0x${string}`,
             rangePoolData: {
+              id: ZERO_ADDRESS as `0x${string}`,
               feeTier: state.rangePoolData.feeTier,
             },
           }));
@@ -726,6 +772,14 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     setStartPrice: (startPrice: string) =>  {
       set(() => ({
         startPrice: startPrice
+      }))
+    },
+    setStakeFlag: (stakeFlag: boolean) => {
+      set((state) => ({
+        rangeMintParams: {
+          ...state.rangeMintParams,
+          stakeFlag: stakeFlag
+        }
       }))
     },
     resetRangeLimitParams: () => {

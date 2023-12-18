@@ -8,25 +8,35 @@ import { Transition, Dialog } from "@headlessui/react";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
 import { useAccount, useToken } from "wagmi";
-import { chainIdsToNamesForGitTokenList } from "../utils/chains";
-import axios from "axios";
-import { coinsList } from "../utils/types";
 import { useConfigStore } from "../hooks/useConfigStore";
-import { defaultTokenLogo } from "../utils/tokens";
+import { defaultTokenLogo, nativeString } from "../utils/tokens";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
   const [customInput, setCustomInput] = useState("");
-  const [displayTokenList, setDisplayTokenList] = useState([]);
-  const [listedTokenList, setListedTokenList] = useState([]);
-  const [searchTokenList, setSearchTokenList] = useState([]);
   const [tokenInfo, setTokenInfo] = useState(undefined);
 
-  const [chainId, networkName, setTokenList] = useConfigStore((state) => [
+  const [
+    chainId,
+    networkName,
+    logoMap,
+    listedTokenList,
+    setListedTokenList,
+    searchtokenList,
+    setSearchTokenList,
+    displayTokenList,
+    setDisplayTokenList,
+  ] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
-    state.setTokenList,
+    state.logoMap,
+    state.listedtokenList,
+    state.setListedTokenList,
+    state.searchtokenList,
+    state.setSearchTokenList,
+    state.displayTokenList,
+    state.setDisplayTokenList,
   ]);
 
   const {
@@ -51,48 +61,13 @@ export default function SelectToken(props) {
           symbol: tokenInfo.symbol,
           logoURI: defaultTokenLogo,
           decimals: tokenInfo.decimals,
+          native: false,
         };
         setDisplayTokenList([customToken]);
       }
     };
     fetch();
   }, [tokenInfo]);
-
-  useEffect(() => {
-    const fetch = async () => {
-      const chainName = chainIdsToNamesForGitTokenList[chainId];
-      axios
-        .get(
-          `https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/${
-            chainName === undefined ? "ethereum" : "arbitrum-goerli"
-          }/tokenlist.json`
-        )
-        .then(function (response) {
-          const coins = {
-            listed_tokens: response.data.listed_tokens,
-            search_tokens: response.data.search_tokens,
-          } as coinsList;
-          for (let i = 0; i < coins.listed_tokens?.length; i++) {
-            coins.listed_tokens[i].address = coins.listed_tokens[i].id;
-          }
-          if (coins.listed_tokens != undefined) {
-            setListedTokenList(coins.listed_tokens);
-            setDisplayTokenList(coins.listed_tokens);
-            setTokenList(coins.listed_tokens);
-          }
-          for (let i = 0; i < coins.search_tokens?.length; i++) {
-            coins.search_tokens[i].address = coins.search_tokens[i].id;
-          }
-          if (coins.search_tokens != undefined) {
-            setSearchTokenList(coins.search_tokens);
-          }
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    };
-    fetch();
-  }, [chainId, address]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -109,7 +84,7 @@ export default function SelectToken(props) {
       }
     };
     fetch();
-  }, [customInput]);
+  }, [customInput, listedTokenList]);
 
   const chooseToken = (coin) => {
     coin = {
@@ -118,6 +93,7 @@ export default function SelectToken(props) {
       symbol: coin?.symbol,
       logoURI: coin?.logoURI,
       decimals: coin?.decimals,
+      native: coin?.native ?? false
     };
     if (props.amount != undefined && props.isAmountIn != undefined) {
       if (props.type === "in") {
@@ -129,6 +105,7 @@ export default function SelectToken(props) {
             symbol: coin?.symbol,
             logoURI: coin?.logoURI,
             decimals: coin?.decimals,
+            native: coin?.native ?? false,
           },
           props.amount,
           props.isAmountIn
@@ -142,6 +119,7 @@ export default function SelectToken(props) {
             symbol: coin?.symbol,
             logoURI: coin?.logoURI,
             decimals: coin?.decimals,
+            native: coin?.native ?? false,
           },
           props.amount,
           props.isAmountIn
@@ -155,6 +133,7 @@ export default function SelectToken(props) {
           symbol: coin?.symbol,
           logoURI: coin?.logoURI,
           decimals: coin?.decimals,
+          native: coin?.native ?? false,
         });
       } else {
         props.setTokenOut(props.tokenIn, {
@@ -163,6 +142,7 @@ export default function SelectToken(props) {
           symbol: coin?.symbol,
           logoURI: coin?.logoURI,
           decimals: coin?.decimals,
+          native: coin?.native ?? false,
         });
       }
     }
@@ -223,7 +203,7 @@ export default function SelectToken(props) {
                       onChange={(e) => setCustomInput(e.target.value)}
                     ></input>
                     <div className="flex justify-between flex-wrap mt-4 gap-y-2">
-                      {displayTokenList.map((coin) => {
+                      {displayTokenList?.map((coin) => {
                         if (
                           customInput.toLowerCase() == "" ||
                           customInput.toLowerCase() == " " ||
@@ -239,7 +219,7 @@ export default function SelectToken(props) {
                         ) {
                           return (
                             <CoinListButton
-                              key={coin.symbol + "top"}
+                              key={coin.id + coin.symbol}
                               coin={coin}
                               chooseToken={chooseToken}
                             />
@@ -250,30 +230,32 @@ export default function SelectToken(props) {
                   </div>
                   <div>
                     {displayTokenList
-                      .sort((a, b) => b.balance - a.balance)
-                      .map((coin) => {
-                        if (
-                          customInput.toLowerCase() == "" ||
-                          customInput.toLowerCase() == " " ||
-                          coin.symbol
-                            .toLowerCase()
-                            .includes(customInput.toLowerCase()) ||
-                          coin.name
-                            .toLowerCase()
-                            .includes(customInput.toLowerCase()) ||
-                          coin.address
-                            .toLowerCase()
-                            .includes(customInput.toLowerCase())
-                        ) {
-                          return (
-                            <CoinListItem
-                              key={coin.symbol}
-                              coin={coin}
-                              chooseToken={chooseToken}
-                            />
-                          );
-                        }
-                      })}
+                      ? displayTokenList
+                          .sort((a, b) => b.balance - a.balance)
+                          .map((coin) => {
+                            if (
+                              customInput.toLowerCase() == "" ||
+                              customInput.toLowerCase() == " " ||
+                              coin.symbol
+                                .toLowerCase()
+                                .includes(customInput.toLowerCase()) ||
+                              coin.name
+                                .toLowerCase()
+                                .includes(customInput.toLowerCase()) ||
+                              coin.address
+                                .toLowerCase()
+                                .includes(customInput.toLowerCase())
+                            ) {
+                              return (
+                                <CoinListItem
+                                  key={coin.id+coin.symbol}
+                                  coin={coin}
+                                  chooseToken={chooseToken}
+                                />
+                              );
+                            }
+                          })
+                      : null}
                   </div>
                 </Dialog.Panel>
               </Transition.Child>
@@ -293,7 +275,7 @@ export default function SelectToken(props) {
         <div className="flex items-center gap-x-2 w-full">
           {(props.tokenIn.symbol != "Select Token" && props.type == "in") ||
           (props.tokenOut.symbol != "Select Token" && props.type == "out") ? (
-            <img className="md:w-6 w-6" src={props.displayToken?.logoURI} />
+            <img className="md:w-6 w-6" src={logoMap[props.displayToken?.address.toLowerCase() + nativeString(props.displayToken)]} />
           ) : (
             <></>
           )}

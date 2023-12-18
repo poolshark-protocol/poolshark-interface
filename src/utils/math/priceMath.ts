@@ -4,7 +4,7 @@ import JSBI from "jsbi";
 import invariant from "tiny-invariant";
 import { DyDxMath } from "./dydxMath";
 import { TickMath, invertPrice } from "./tickMath";
-import { BN_ZERO } from "./constants";
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from "./constants";
 import { token, tokenSwap } from "../types";
 
 export function priceToString(price: Decimal): string {
@@ -22,22 +22,45 @@ export function precision(price: JSBD): number {
     return stringArr[1].length
 }
 
-export function displayPoolPrice(pairSelected: boolean, poolPrice: any, tokenA: token, tokenB: token): string {
-    if (!pairSelected || !poolPrice) return ' '
+export function displayPoolPrice(wethCall: boolean, pairSelected: boolean, poolPrice: any, tokenA: token, tokenB: token): string {
+    if (wethCall) return ' 1'
+    if (!pairSelected || !poolPrice || JSBI.lessThanOrEqual(JSBI.BigInt(poolPrice), TickMath.MIN_SQRT_RATIO)) return ' ?'
     const token0 = tokenA.address.localeCompare(tokenB.address) < 0 ? tokenA : tokenB
     const tokenOrder = token0.address == tokenA.address ? true : false
     return invertPrice(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(poolPrice), tokenA, tokenB), tokenOrder)
 }
 
-export function getMarketPriceAboveBelowString(limitStringPriceQuote: string, pairSelected: boolean, limitPriceOrder: boolean, tokenIn: tokenSwap, tokenOut: tokenSwap): string {
+export function calculateBasePrice(tokenIn: tokenSwap, tokenOut: tokenSwap, limitPriceOrder: boolean, tradePoolData: any): number {
+    if (tradePoolData.id == undefined || tradePoolData.poolPrice == undefined) return 0;
+    if (tradePoolData.id != ZERO_ADDRESS) {
+        return parseFloat(
+            invertPrice(
+              TickMath.getPriceStringAtSqrtPrice(
+                JSBI.BigInt(tradePoolData.poolPrice),
+                tokenIn, tokenOut
+              ),
+              limitPriceOrder
+            )
+        )
+    } else if (!isNaN(tradePoolData.poolPrice) && JSBI.greaterThan(
+        JSBI.BigInt(tradePoolData.poolPrice),
+        TickMath.MIN_SQRT_RATIO
+      )) {
+        return parseFloat(invertPrice(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(tradePoolData.poolPrice), tokenIn, tokenOut), limitPriceOrder))
+    } else {
+        return 0
+    }
+}
+
+export function getMarketPriceAboveBelowString(limitStringPriceQuote: string, pairSelected: boolean, limitPriceOrder: boolean, tradePoolData: any, tokenIn: tokenSwap, tokenOut: tokenSwap): string {
     if (parseFloat(limitStringPriceQuote) == 0) return '0.00% above Market Price'
-    const basePrice = limitPriceOrder == (tokenIn.callId == 0)
-                        ? tokenIn.USDPrice / tokenOut.USDPrice
-                        : tokenOut.USDPrice / tokenIn.USDPrice
+    const basePrice = calculateBasePrice(tokenIn, tokenOut, limitPriceOrder, tradePoolData)
+    if (basePrice == 0) return '0.00% above Market Price'
     const limitPrice = parseFloat(limitStringPriceQuote) 
     let priceString
     if(pairSelected && !isNaN(parseFloat(limitStringPriceQuote))) {
         const percentDiff = parseFloat((limitPrice / basePrice * 100).toFixed(2))
+        if (isNaN(percentDiff)) return '0.00% above Market Price'
         if (percentDiff >= 100) {
             priceString = (percentDiff - 100).toFixed(2) + "% above Market Price"
         } else {

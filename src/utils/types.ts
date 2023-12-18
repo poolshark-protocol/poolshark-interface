@@ -42,6 +42,7 @@ export type tokenSwap = {
   userBalance: number;
   userRouterAllowance: BigNumber;
   USDPrice: number;
+  native: boolean;
 };
 
 export type tokenRangeLimit = {
@@ -54,6 +55,7 @@ export type tokenRangeLimit = {
   userBalance: number;
   userRouterAllowance: BigNumber;
   USDPrice: number;
+  native: boolean;
 };
 
 export type tokenCover = {
@@ -66,6 +68,7 @@ export type tokenCover = {
   userBalance: number;
   userRouterAllowance: number;
   coverUSDPrice: number;
+  native: boolean;
 };
 
 export type token = tokenCover | tokenRangeLimit | tokenSwap;

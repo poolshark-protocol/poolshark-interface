@@ -17,6 +17,9 @@ import { BN_ZERO } from "../../utils/math/constants";
 import Loader from "../Icons/Loader";
 import { useEffect } from "react";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { formatBytes32String } from "ethers/lib/utils.js";
+import { coverPoolTypes } from "../../utils/pools";
+import { getCoverMintButtonMsgValue } from "../../utils/buttons";
 
 export default function CoverCreateAndMintButton({
   routerAddress,
@@ -47,11 +50,12 @@ export default function CoverCreateAndMintButton({
     state.networkName
   ]);
 
-  const [setNeedsRefetch, setNeedsAllowance, setNeedsBalance] = useCoverStore(
+  const [setNeedsRefetch, setNeedsAllowance, setNeedsBalance, twapReady] = useCoverStore(
     (state) => [
       state.setNeedsRefetch,
       state.setNeedsAllowance,
       state.setNeedsBalance,
+      state.twapReady
     ]
   );
 
@@ -63,14 +67,14 @@ export default function CoverCreateAndMintButton({
     functionName: "createCoverPoolAndMint",
     args: [
       {
-        poolType: ethers.utils.formatBytes32String(poolType),
+        poolType: coverPoolTypes['constant-product']['poolshark'],
         tokenIn: tokenIn.address,
         tokenOut: tokenOut.address,
         feeTier: volTier.feeAmount,
         tickSpread: volTier.tickSpread,
         twapLength: volTier.twapLength,
       }, // pool params
-      [
+      twapReady ? [
         {
           to: to,
           amount: amount,
@@ -80,10 +84,14 @@ export default function CoverCreateAndMintButton({
           zeroForOne: zeroForOne,
           callbackData: ethers.utils.formatBytes32String(""),
         },
-      ], // cover positions
+      ] : [], // cover positions
     ],
     overrides: {
       gasLimit: gasLimit,
+      value: getCoverMintButtonMsgValue(
+        tokenIn.native,
+        amount
+      )
     },
     enabled: !disabled,
     chainId: chainId,
@@ -124,7 +132,7 @@ export default function CoverCreateAndMintButton({
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full flex items-center justify-center border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         onClick={() => write?.()}
       >
-        {gasLimit.lte(BN_ZERO) ? <Loader/> : buttonMessage}
+        {gasLimit.lte(BN_ZERO) && !disabled ? <Loader/> : buttonMessage}
       </button>
     </>
   );
