@@ -257,7 +257,7 @@ export default function ViewCover() {
   useEffect(() => {
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
-      : chainProperties["arbitrumGoerli"]; //TODO: arbitrumOne values
+      : chainProperties["arbitrumGoerli"]; 
     setCoverSubgraph(chainConstants["coverSubgraphUrl"]);
     setTimeout(() => {
       if (

@@ -78,8 +78,7 @@ import { parseUnits } from "../../utils/math/valueMath";
       abi: vFinABI,
       functionName: "exchangeBond",
       args: [
-        // bondBalance, //TODO: exchange entire balance
-        parseUnits('100', 18),
+        bondBalance, // exchange entire balance
         0            // creates new vFIN position
       ],
       chainId: chainId,

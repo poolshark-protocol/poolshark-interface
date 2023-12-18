@@ -312,7 +312,7 @@ export default function ViewLimit() {
   useEffect(() => {
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
-      : chainProperties["arbitrumGoerli"]; //TODO: arbitrumOne values
+      : chainProperties["arbitrumGoerli"]; 
     setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
     if (
       limitPositionData.positionId == undefined ||

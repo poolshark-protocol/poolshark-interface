@@ -124,6 +124,7 @@ export default function Bond() {
     enabled: bondProtocolConfig["vFinAddress"] != undefined
               && vestingPositionId != undefined,
     onSuccess() {
+      console.log('current claim:', viewClaimData?.toString())
     },
     onError() {
       console.log("vestPositions error");
@@ -158,7 +159,7 @@ export default function Bond() {
           address,
         );
         const chainConstants = chainProperties[networkName] ? chainProperties[networkName]
-                                                            : chainProperties['arbitrumGoerli']; //TODO: arbitrumOne values
+                                                            : chainProperties['arbitrumGoerli'];
         setLimitSubgraph(chainConstants['limitSubgraphUrl'])
         if (data["data"] && data["data"]["vfinPositions"]?.length == 1) {
           setVestingPositionId(data["data"]["vfinPositions"][0].positionId);
@@ -562,7 +563,7 @@ export default function Bond() {
               </div>
                 <VestFinButton
                   vFinAddress={bondProtocolConfig['vFinAddress']}
-                  tellerAddress={bondProtocolConfig['mockTellerAddress']}
+                  tellerAddress={bondProtocolConfig['tellerAddress']} // use teller address
                   bondTokenId={bondProtocolConfig['bondTokenId']}
                   needsVestingPosition={needsVestingPosition}
                   setNeedsVestingPosition={setNeedsVestingPosition}
