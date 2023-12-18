@@ -38,7 +38,7 @@ export default function MarketSwap() {
   //CONFIG STORE
   const [stateChainName, setStateChainName] = useState();
 
-  // @dev - pool price and liquidity fetched every X milliseconds
+  //PRICE AND LIQUIDITY FETCHED EVERY 5 SECONDS
   const quoteRefetchDelay = 5000;
 
   const [

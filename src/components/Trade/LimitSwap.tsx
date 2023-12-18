@@ -51,9 +51,14 @@ export default function LimitSwap() {
   //CONFIG STORE
   const [stateChainName, setStateChainName] = useState();
 
+  //PRICE AND LIQUIDITY FETCHED EVERY 5 SECONDS
+  const quoteRefetchDelay = 5000;
+
   const [
     tradePoolData,
     setTradePoolData,
+    setTradePoolPrice,
+    setTradePoolLiquidity,
     tradeButton,
     pairSelected,
     setPairSelected,
@@ -72,6 +77,8 @@ export default function LimitSwap() {
     setAmountIn,
     amountOut,
     setAmountOut,
+    exactIn,
+    setExactIn,
     needsAllowanceIn,
     needsPairUpdate,
     needsSetAmounts,
@@ -87,6 +94,8 @@ export default function LimitSwap() {
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
+    s.setTradePoolPrice,
+    s.setTradePoolLiquidity,
     s.tradeButton,
     s.pairSelected,
     s.setPairSelected,
@@ -105,6 +114,8 @@ export default function LimitSwap() {
     s.setAmountIn,
     s.amountOut,
     s.setAmountOut,
+    s.exactIn,
+    s.setExactIn,
     s.needsAllowanceIn,
     s.needsPairUpdate,
     s.needsSetAmounts,
@@ -152,6 +163,27 @@ export default function LimitSwap() {
       setAmountOut(BN_ZERO)
     }
   }, [limitTabSelected]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Code to run every 5 seconds
+      if (exactIn ? amountIn.gt(BN_ZERO) : amountOut.gt(BN_ZERO)) {
+        getSwapPools(
+          limitSubgraph,
+          tokenIn,
+          tokenOut,
+          tradePoolData,
+          setTradePoolData,
+          setTokenInTradeUSDPrice,
+          setTokenOutTradeUSDPrice,
+          setTradePoolPrice,
+          setTradePoolLiquidity,
+        );
+      }
+    }, quoteRefetchDelay);
+    // Clear the interval when the component unmounts
+    return () => clearInterval(interval);
+   }, [exactIn ? amountIn : amountOut, tradePoolData?.id]);
 
   useEffect(() => {
     if (!needsPairUpdate) return
@@ -216,7 +248,6 @@ export default function LimitSwap() {
   }
 
   /////////////////////Double Input Boxes
-  const [exactIn, setExactIn] = useState(true);
 
   const handleInputBox = (e) => {
     if (e.target.name === "tokenIn") {
