@@ -9,7 +9,7 @@ import LimitSwapButton from "../Buttons/LimitSwapButton";
 import SelectToken from "../SelectToken";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { BigNumber, ethers } from "ethers";
-import { inputHandler, parseUnits } from "../../utils/math/valueMath";
+import { inputHandler, numFormat, parseUnits } from "../../utils/math/valueMath";
 import { getSwapPools, limitPoolTypeIds } from "../../utils/pools";
 import { QuoteParams } from "../../utils/types";
 
@@ -51,9 +51,14 @@ export default function LimitSwap() {
   //CONFIG STORE
   const [stateChainName, setStateChainName] = useState();
 
+  //PRICE AND LIQUIDITY FETCHED EVERY 5 SECONDS
+  const quoteRefetchDelay = 5000;
+
   const [
     tradePoolData,
     setTradePoolData,
+    setTradePoolPrice,
+    setTradePoolLiquidity,
     tradeButton,
     pairSelected,
     setPairSelected,
@@ -72,6 +77,8 @@ export default function LimitSwap() {
     setAmountIn,
     amountOut,
     setAmountOut,
+    exactIn,
+    setExactIn,
     needsAllowanceIn,
     needsPairUpdate,
     needsSetAmounts,
@@ -87,6 +94,8 @@ export default function LimitSwap() {
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
+    s.setTradePoolPrice,
+    s.setTradePoolLiquidity,
     s.tradeButton,
     s.pairSelected,
     s.setPairSelected,
@@ -105,6 +114,8 @@ export default function LimitSwap() {
     s.setAmountIn,
     s.amountOut,
     s.setAmountOut,
+    s.exactIn,
+    s.setExactIn,
     s.needsAllowanceIn,
     s.needsPairUpdate,
     s.needsSetAmounts,
@@ -152,6 +163,27 @@ export default function LimitSwap() {
       setAmountOut(BN_ZERO)
     }
   }, [limitTabSelected]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Code to run every 5 seconds
+      if (exactIn ? amountIn.gt(BN_ZERO) : amountOut.gt(BN_ZERO)) {
+        getSwapPools(
+          limitSubgraph,
+          tokenIn,
+          tokenOut,
+          tradePoolData,
+          setTradePoolData,
+          setTokenInTradeUSDPrice,
+          setTokenOutTradeUSDPrice,
+          setTradePoolPrice,
+          setTradePoolLiquidity,
+        );
+      }
+    }, quoteRefetchDelay);
+    // Clear the interval when the component unmounts
+    return () => clearInterval(interval);
+   }, [exactIn ? amountIn : amountOut, tradePoolData?.id]);
 
   useEffect(() => {
     if (!needsPairUpdate) return
@@ -216,7 +248,6 @@ export default function LimitSwap() {
   }
 
   /////////////////////Double Input Boxes
-  const [exactIn, setExactIn] = useState(true);
 
   const handleInputBox = (e) => {
     if (e.target.name === "tokenIn") {
@@ -263,7 +294,7 @@ export default function LimitSwap() {
   useEffect(() => {
     if (needsPairUpdate) return
     if (tradePoolData.poolPrice != undefined) {
-      var newPrice = parseFloat(
+      var newPrice = numFormat(parseFloat(
         invertPrice(
           TickMath.getPriceStringAtSqrtPrice(
             JSBI.BigInt(tradePoolData.poolPrice),
@@ -271,7 +302,7 @@ export default function LimitSwap() {
           ),
           limitPriceOrder
         )
-      ).toPrecision(6);
+      ), 6);
       setLimitPriceString(newPrice);
     } else {
       setLimitPriceString('0.00')
@@ -473,12 +504,12 @@ export default function LimitSwap() {
             tokenIn.callId == 0,
             amountIn
           );
-          const tokenOutAmountDisplay = parseFloat(
+          const tokenOutAmountDisplay = numFormat(parseFloat(
             ethers.utils.formatUnits(
               tokenOutAmount.toString(),
               tokenOut.decimals
             )
-          ).toPrecision(6);
+          ), 6);
           if (tokenOutAmount.gt(BN_ZERO)) {
             setDisplayOut(tokenOutAmountDisplay);
             setAmountOut(tokenOutAmount);
@@ -504,9 +535,9 @@ export default function LimitSwap() {
             tokenIn.callId == 0,
             amountOut
           );
-          const tokenInAmountDisplay = parseFloat(
+          const tokenInAmountDisplay = numFormat(parseFloat(
             ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
-          ).toPrecision(6);
+          ), 6);
           setDisplayIn(tokenInAmountDisplay);
           setAmountIn(tokenInAmount);
         }
@@ -530,12 +561,12 @@ export default function LimitSwap() {
             tokenIn.callId == 0,
             bnValue
           );
-          const tokenOutAmountDisplay = parseFloat(
+          const tokenOutAmountDisplay = numFormat(parseFloat(
             ethers.utils.formatUnits(
               tokenOutAmount.toString(),
               tokenOut.decimals
             )
-          ).toPrecision(6);
+          ), 6);
           setDisplayOut(tokenOutAmountDisplay);
           setAmountOut(tokenOutAmount);
         }
@@ -555,9 +586,9 @@ export default function LimitSwap() {
             tokenIn.callId == 0,
             bnValue
           );
-          const tokenInAmountDisplay = parseFloat(
+          const tokenInAmountDisplay = numFormat(parseFloat(
             ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
-          ).toPrecision(6);
+          ), 6);
           setDisplayIn(tokenInAmountDisplay);
           setAmountIn(tokenInAmount);
         }
@@ -710,12 +741,12 @@ export default function LimitSwap() {
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
             <div className="ml-auto text-xs">
               {pairSelected
-                ? parseFloat(
+                ? numFormat(parseFloat(
                     ethers.utils.formatUnits(
                       amountOut ?? BN_ZERO,
                       tokenOut.decimals
                     )
-                  ).toPrecision(6)
+                  ), 6)
                 : "Select Token"}
             </div>
           </div>
@@ -724,13 +755,13 @@ export default function LimitSwap() {
               Minimum received after slippage ({tradeSlippage}%)
             </div>
             <div className="ml-auto text-xs">
-              {(
+              {numFormat(
                 (parseFloat(
                   ethers.utils.formatUnits(amountOut, tokenOut.decimals)
                 ) *
                   (100 - parseFloat(tradeSlippage))) /
                 100
-              ).toPrecision(6)}
+              , 6)}
             </div>
           </div>
         </div>
@@ -1078,7 +1109,7 @@ export default function LimitSwap() {
               <LimitCreateAndMintButton
                 disabled={mintGasLimit.eq(BN_ZERO) || tradeButton.disabled}
                 routerAddress={
-                  //TODO: arbitrumOne values
+                  
                   chainProperties[networkName]["routerAddress"]
                 }
                 poolTypeId={limitPoolTypeIds["constant-product"]}

@@ -1,6 +1,5 @@
 import Trade from "./Trade";
 import Navbar from "../components/Navbar";
-import Notification from "../components/Modals/Notification";
 
 export default function Home() {
   return (
