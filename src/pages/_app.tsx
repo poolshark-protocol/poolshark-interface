@@ -129,7 +129,6 @@ function MyApp({ Component, pageProps }) {
   } = useProvider();
 
   useEffect(() => {
-    setChainId(chainId);
     const config = {
       apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
       network: Network.ARB_MAINNET,

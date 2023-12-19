@@ -1,10 +1,7 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import RangeCompoundButton from "../../components/Buttons/RangeCompoundButton";
-import {
-  useAccount,
-  useSigner,
-} from "wagmi";
+import { useAccount, useSigner } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
@@ -198,7 +195,7 @@ export default function ViewRange() {
   useEffect(() => {
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
-      : chainProperties["arbitrumGoerli"]; 
+      : chainProperties["arbitrumGoerli"];
     setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
     if (
       rangePositionData.positionId == undefined ||
@@ -433,7 +430,7 @@ export default function ViewRange() {
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
               ) : (
-                <img height="50" width="50" src={getLogoURI(logoMap, tokenIn)} />
+                <img height="50" width="50" src={tokenIn.logoURI} />
               )}
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
@@ -442,7 +439,7 @@ export default function ViewRange() {
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={getLogoURI(logoMap, tokenOut)}
+                  src={tokenOut.logoURI}
                 />
               )}
             </div>
@@ -459,7 +456,8 @@ export default function ViewRange() {
                 </h1>
                 <a
                   href={
-                    `${chainProperties[networkName]["explorerUrl"]}/address/` + rangePoolAddress
+                    `${chainProperties[networkName]["explorerUrl"]}/address/` +
+                    rangePoolAddress
                   }
                   target="_blank"
                   rel="noreferrer"
@@ -554,11 +552,7 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img
-                          height="25"
-                          width="25"
-                          src={getLogoURI(logoMap, tokenIn)}
-                        />
+                        <img height="25" width="25" src={tokenIn.logoURI} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -588,11 +582,7 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img
-                          height="25"
-                          width="25"
-                          src={getLogoURI(logoMap, tokenOut)}
-                        />
+                        <img height="25" width="25" src={tokenOut.logoURI} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -723,11 +713,7 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img
-                          height="25"
-                          width="25"
-                          src={getLogoURI(logoMap, tokenIn)}
-                        />
+                        <img height="25" width="25" src={tokenIn.logoURI} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -757,11 +743,7 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img
-                          height="25"
-                          width="25"
-                          src={getLogoURI(logoMap, tokenOut)}
-                        />
+                        <img height="25" width="25" src={tokenOut.logoURI} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />

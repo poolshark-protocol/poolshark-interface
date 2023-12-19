@@ -2,7 +2,13 @@ import { Fragment, useEffect, useState } from "react";
 import { Transition, Dialog } from "@headlessui/react";
 import RangeMintButton from "../Buttons/RangeMintButton";
 import { BigNumber, ethers } from "ethers";
-import { erc20ABI, useAccount, useContractRead, useProvider, useSigner } from "wagmi";
+import {
+  erc20ABI,
+  useAccount,
+  useContractRead,
+  useProvider,
+  useSigner,
+} from "wagmi";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButton";
 import { useRouter } from "next/router";
@@ -22,14 +28,10 @@ import JSBI from "jsbi";
 import { getLogoURI, nativeString } from "../../utils/tokens";
 
 export default function RangePoolPreview() {
-  const [
-    chainId,
-    logoMap,
-    networkName
-  ] = useConfigStore((state) => [
+  const [chainId, logoMap, networkName] = useConfigStore((state) => [
     state.chainId,
     state.logoMap,
-    state.networkName
+    state.networkName,
   ]);
 
   const [
@@ -74,18 +76,17 @@ export default function RangePoolPreview() {
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
-
-
   useEffect(() => {
-    if
-    (
-        (rangeMintParams.tokenInAmount?.gt(BN_ZERO) ||                                              // amounts not empty
-        rangeMintParams.tokenOutAmount?.gt(BN_ZERO)) && 
-        Number(rangePositionData.lowerPrice) <
-          Number(rangePositionData.upperPrice) &&                                                   // valid price range
-        (tokenIn.userRouterAllowance?.gte(rangeMintParams.tokenInAmount) || tokenIn.native) &&      // allowance in
-        (tokenOut.userRouterAllowance?.gte(rangeMintParams.tokenOutAmount) || tokenOut.native) &&   // allowance out
-        JSBI.greaterThan(rangeMintParams.liquidityAmount, ONE)                                      // non-zero liquidity
+    if (
+      (rangeMintParams.tokenInAmount?.gt(BN_ZERO) || // amounts not empty
+        rangeMintParams.tokenOutAmount?.gt(BN_ZERO)) &&
+      Number(rangePositionData.lowerPrice) <
+        Number(rangePositionData.upperPrice) && // valid price range
+      (tokenIn.userRouterAllowance?.gte(rangeMintParams.tokenInAmount) ||
+        tokenIn.native) && // allowance in
+      (tokenOut.userRouterAllowance?.gte(rangeMintParams.tokenOutAmount) ||
+        tokenOut.native) && // allowance out
+      JSBI.greaterThan(rangeMintParams.liquidityAmount, ONE) // non-zero liquidity
     ) {
       updateGasFee();
     }
@@ -97,7 +98,7 @@ export default function RangePoolPreview() {
     rangePositionData.lowerPrice,
     rangePositionData.upperPrice,
     rangePoolData?.poolPrice,
-    rangePoolData?.feeTier
+    rangePoolData?.feeTier,
   ]);
 
   async function updateGasFee() {
@@ -109,14 +110,16 @@ export default function RangePoolPreview() {
             BigNumber.from(
               TickMath.getTickAtPriceString(
                 rangePositionData.lowerPrice,
-                tokenIn, tokenOut,
+                tokenIn,
+                tokenOut,
                 parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
               )
             ),
             BigNumber.from(
               TickMath.getTickAtPriceString(
                 rangePositionData.upperPrice,
-                tokenIn, tokenOut,
+                tokenIn,
+                tokenOut,
                 parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
               )
             ),
@@ -135,21 +138,21 @@ export default function RangePoolPreview() {
             BigNumber.from(
               TickMath.getTickAtPriceString(
                 rangePositionData.lowerPrice,
-                tokenIn, tokenOut,
+                tokenIn,
+                tokenOut,
                 parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
               )
             ),
             BigNumber.from(
               TickMath.getTickAtPriceString(
                 rangePositionData.upperPrice,
-                tokenIn, tokenOut,
+                tokenIn,
+                tokenOut,
                 parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
               )
             ),
             // pool price set using start price input box
-            BigNumber.from(String(
-              rangePoolData?.poolPrice ?? '0'
-            )),
+            BigNumber.from(String(rangePoolData?.poolPrice ?? "0")),
             tokenIn,
             tokenOut,
             rangeMintParams.tokenInAmount,
@@ -197,13 +200,13 @@ export default function RangePoolPreview() {
                         </div>
                         <div className="flex flex-col md:flex-row items-center gap-x-5 gap-y-3 mt-3 w-full">
                           <button className="flex w-full items-center gap-x-3 bg-dark border border-grey px-4 py-1.5 rounded-[4px]">
-                            <img className="w-7" src={getLogoURI(logoMap, tokenIn)} />
+                            <img className="w-7" src={tokenIn.logoURI} />
                             {tokenIn.symbol}
                           </button>
                           <button className="flex w-full items-center gap-x-3 bg-dark border border-grey px-4 py-1.5 rounded-[4px]">
                             <img
                               className="w-7 w-full"
-                              src={getLogoURI(logoMap, tokenOut)}
+                              src={tokenOut.logoURI}
                             />
                             {tokenOut.symbol}
                           </button>
@@ -245,15 +248,17 @@ export default function RangePoolPreview() {
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
                                   $
-                                  {!isNaN(tokenIn.USDPrice) ? (
-                                    tokenIn.USDPrice *
-                                    Number(
-                                      ethers.utils.formatUnits(
-                                        rangeMintParams.tokenInAmount,
-                                        tokenIn.decimals
-                                      )
-                                    )
-                                  ).toFixed(2) : '?.??'}
+                                  {!isNaN(tokenIn.USDPrice)
+                                    ? (
+                                        tokenIn.USDPrice *
+                                        Number(
+                                          ethers.utils.formatUnits(
+                                            rangeMintParams.tokenInAmount,
+                                            tokenIn.decimals
+                                          )
+                                        )
+                                      ).toFixed(2)
+                                    : "?.??"}
                                 </div>
                               </div>
                             </div>
@@ -265,7 +270,7 @@ export default function RangePoolPreview() {
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
-                                          src={getLogoURI(logoMap, tokenIn)}
+                                          src={tokenIn.logoURI}
                                         />
                                         {tokenIn.symbol}
                                       </div>
@@ -291,12 +296,17 @@ export default function RangePoolPreview() {
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
                                   $
-                                  {!isNaN(tokenOut.USDPrice) ? ((
-                                    Number(tokenOut.USDPrice) *
-                                    Number(
-                                      ethers.utils.formatUnits(rangeMintParams.tokenOutAmount, tokenOut.decimals)
-                                    )
-                                  ).toFixed(2)) : '?.??'}
+                                  {!isNaN(tokenOut.USDPrice)
+                                    ? (
+                                        Number(tokenOut.USDPrice) *
+                                        Number(
+                                          ethers.utils.formatUnits(
+                                            rangeMintParams.tokenOutAmount,
+                                            tokenOut.decimals
+                                          )
+                                        )
+                                      ).toFixed(2)
+                                    : "?.??"}
                                 </div>
                               </div>
                             </div>
@@ -308,7 +318,7 @@ export default function RangePoolPreview() {
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
-                                          src={getLogoURI(logoMap, tokenOut)}
+                                          src={tokenOut.logoURI}
                                         />
                                         {tokenOut.symbol}
                                       </div>
@@ -376,7 +386,9 @@ export default function RangePoolPreview() {
                         ) &&
                         tokenOut.userRouterAllowance?.lt(
                           rangeMintParams.tokenOutAmount
-                        ) && !tokenIn.native && !tokenOut.native ? (
+                        ) &&
+                        !tokenIn.native &&
+                        !tokenOut.native ? (
                           <RangeMintDoubleApproveButton
                             routerAddress={
                               chainProperties[networkName]["routerAddress"]
@@ -418,7 +430,8 @@ export default function RangePoolPreview() {
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.lowerPrice,
-                                      tokenIn, tokenOut,
+                                      tokenIn,
+                                      tokenOut,
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
@@ -433,7 +446,8 @@ export default function RangePoolPreview() {
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.upperPrice,
-                                      tokenIn, tokenOut,
+                                      tokenIn,
+                                      tokenOut,
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
@@ -443,7 +457,10 @@ export default function RangePoolPreview() {
                                   )
                                 : BN_ZERO
                             }
-                            disabled={rangeMintParams.disabled || mintGasLimit.lte(BN_ZERO)}
+                            disabled={
+                              rangeMintParams.disabled ||
+                              mintGasLimit.lte(BN_ZERO)
+                            }
                             buttonMessage={rangeMintParams.buttonMessage}
                             amount0={
                               tokenIn.callId === 0
@@ -470,19 +487,17 @@ export default function RangePoolPreview() {
                             token0={tokenIn}
                             token1={tokenOut}
                             startPrice={BigNumber.from(
-                              rangePoolData?.poolPrice ?? '0'
+                              rangePoolData?.poolPrice ?? "0"
                             )}
-                            feeTier={
-                              rangePoolData.feeTier?.feeAmount
-                                ?? 3000
-                            }
+                            feeTier={rangePoolData.feeTier?.feeAmount ?? 3000}
                             to={address}
                             lower={
                               rangePositionData.lowerPrice
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.lowerPrice,
-                                      tokenIn, tokenOut,
+                                      tokenIn,
+                                      tokenOut,
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
@@ -497,7 +512,8 @@ export default function RangePoolPreview() {
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.upperPrice,
-                                      tokenIn, tokenOut,
+                                      tokenIn,
+                                      tokenOut,
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
@@ -507,7 +523,10 @@ export default function RangePoolPreview() {
                                   )
                                 : BN_ZERO
                             }
-                            disabled={rangeMintParams.disabled || mintGasLimit.lte(BN_ZERO)}
+                            disabled={
+                              rangeMintParams.disabled ||
+                              mintGasLimit.lte(BN_ZERO)
+                            }
                             buttonMessage={rangeMintParams.buttonMessage}
                             amount0={
                               tokenIn.callId === 0
