@@ -248,8 +248,8 @@ export default function SelectToken(props) {
                     </div>
                   </div>
                   <div>
-                    {searchtokenList
-                      ? searchtokenList
+                    {customInput == ""
+                      ? listedTokenList
                           .sort((a, b) => b.balance - a.balance)
                           .map((coin) => {
                             if (
@@ -274,7 +274,31 @@ export default function SelectToken(props) {
                               );
                             }
                           })
-                      : null}
+                      : searchtokenList
+                          .sort((a, b) => b.balance - a.balance)
+                          .map((coin) => {
+                            if (
+                              customInput.toLowerCase() == "" ||
+                              customInput.toLowerCase() == " " ||
+                              coin.symbol
+                                .toLowerCase()
+                                .includes(customInput.toLowerCase()) ||
+                              coin.name
+                                .toLowerCase()
+                                .includes(customInput.toLowerCase()) ||
+                              coin.address
+                                .toLowerCase()
+                                .includes(customInput.toLowerCase())
+                            ) {
+                              return (
+                                <CoinListItem
+                                  key={coin.id + coin.symbol}
+                                  coin={coin}
+                                  chooseToken={chooseToken}
+                                />
+                              );
+                            }
+                          })}
                   </div>
                 </Dialog.Panel>
               </Transition.Child>
