@@ -25,6 +25,7 @@ import Loader from "../components/Icons/Loader";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Alchemy, Network } from "alchemy-sdk";
 import { ZERO_ADDRESS } from "../utils/math/constants";
+import { getChainName } from "@usedapp/core";
 
 const { chains, provider } = configureChains(
   [
@@ -102,6 +103,7 @@ function MyApp({ Component, pageProps }) {
   };
 
   const [
+    search_tokens,
     setChainId,
     setNetworkName,
     setLimitSubgraph,
@@ -111,6 +113,7 @@ function MyApp({ Component, pageProps }) {
     setSearchTokenList,
     setDisplayTokenList,
   ] = useConfigStore((state) => [
+    state.searchtokenList,
     state.setChainId,
     state.setNetworkName,
     state.setLimitSubgraph,
@@ -135,7 +138,11 @@ function MyApp({ Component, pageProps }) {
     const fetchTokenBalances = async () => {
       const alchemy = new Alchemy(config);
       const data = await alchemy.core.getTokenBalances(address, tokenAddresses);
-      console.log("data", data);
+      console.log("search_tokens", search_tokens);
+      for (let i = 0; i < data.tokenBalances.length; i++) {
+        search_tokens[i].balance = data.tokenBalances[i].tokenBalance;
+        setSearchTokenList(search_tokens);
+      }
     };
     const fetchTokenMetadata = async () => {
       const chainName = chainIdsToNames[chainId];
@@ -173,29 +180,10 @@ function MyApp({ Component, pageProps }) {
           console.log(error);
         })
         .then(() => {
-          fetchTokenBalances();
+          if (!!search_tokens) {
+            fetchTokenBalances();
+          }
         });
-
-      /* ;
-      // Get token balances
-      const balances = await alchemy.core.getTokenBalances(address);
-      const tokens = balances.tokenBalances;
-      for (const token of tokens) {
-        const tokenAddress = token.contractAddress;
-        const tokenMetadata = await alchemy.core.getTokenMetadata(tokenAddress);
-        const tokenSymbol = tokenMetadata.symbol;
-        const tokenName = tokenMetadata.name;
-        const tokenDecimals = tokenMetadata.decimals;
-        const tokenBalance = token.tokenBalance;
-        const tokenLogo = tokenMetadata.logo;
-        tokensList[tokenAddress] = {
-          tokenSymbol,
-          tokenName,
-          tokenDecimals,
-          tokenBalance,
-          tokenLogo,
-        };
-      } */
     };
     fetchTokenMetadata();
   }, [chainId]);

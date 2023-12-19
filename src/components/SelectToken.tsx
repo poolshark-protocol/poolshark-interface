@@ -61,10 +61,8 @@ export default function SelectToken(props) {
     address: customInput as `0x${string}`,
     enabled: isAddress(customInput),
     onSuccess() {
-      if (tokenData)
-        setTokenInfo(tokenData);
-      else 
-        refetchTokenInfo()
+      if (tokenData) setTokenInfo(tokenData);
+      else refetchTokenInfo();
     },
   });
 
@@ -90,9 +88,7 @@ export default function SelectToken(props) {
     const fetch = async () => {
       // validate address
 
-      if (
-        isAddress(customInput)
-      ) {
+      if (isAddress(customInput)) {
         // if not in listed tokens or search tokens we need to fetch data from the chain
         refetchTokenInfo();
       } else {
@@ -104,8 +100,8 @@ export default function SelectToken(props) {
 
   useEffect(() => {
     if (isOpen) {
-      setCustomInput('')
-      setDisplayTokenList(listedTokenList)
+      setCustomInput("");
+      setDisplayTokenList(listedTokenList);
     }
   }, [isOpen]);
 
@@ -116,7 +112,7 @@ export default function SelectToken(props) {
       symbol: coin?.symbol,
       logoURI: coin?.logoURI,
       decimals: coin?.decimals,
-      native: coin?.native ?? false
+      native: coin?.native ?? false,
     };
     if (props.amount != undefined && props.isAmountIn != undefined) {
       if (props.type === "in") {
@@ -252,8 +248,8 @@ export default function SelectToken(props) {
                     </div>
                   </div>
                   <div>
-                    {displayTokenList
-                      ? displayTokenList
+                    {searchtokenList
+                      ? searchtokenList
                           .sort((a, b) => b.balance - a.balance)
                           .map((coin) => {
                             if (
@@ -271,7 +267,7 @@ export default function SelectToken(props) {
                             ) {
                               return (
                                 <CoinListItem
-                                  key={coin.id+coin.symbol}
+                                  key={coin.id + coin.symbol}
                                   coin={coin}
                                   chooseToken={chooseToken}
                                 />
@@ -298,7 +294,10 @@ export default function SelectToken(props) {
         <div className="flex items-center gap-x-2 w-full">
           {(props.tokenIn.symbol != "Select Token" && props.type == "in") ||
           (props.tokenOut.symbol != "Select Token" && props.type == "out") ? (
-            <img className="md:w-6 w-6" src={getLogoURI(logoMap, props.displayToken)} />
+            <img
+              className="md:w-6 w-6"
+              src={getLogoURI(logoMap, props.displayToken)}
+            />
           ) : (
             <></>
           )}
