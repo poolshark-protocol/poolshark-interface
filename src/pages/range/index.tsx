@@ -158,7 +158,7 @@ export default function Range() {
                   router.push({
                     pathname: "/range/add-liquidity",
                     query: {
-                      feeTier: allRangePools[0].feeTier ?? 10,
+                      feeTier: allRangePools[0].feeTier ?? 3000,
                       poolId: allRangePools[0].poolId,
                     },
                   });
