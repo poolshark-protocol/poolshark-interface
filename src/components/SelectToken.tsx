@@ -294,10 +294,7 @@ export default function SelectToken(props) {
         <div className="flex items-center gap-x-2 w-full">
           {(props.tokenIn.symbol != "Select Token" && props.type == "in") ||
           (props.tokenOut.symbol != "Select Token" && props.type == "out") ? (
-            <img
-              className="md:w-6 w-6"
-              src={getLogoURI(logoMap, props.displayToken)}
-            />
+            <img className="md:w-6 w-6" src={props.displayToken?.logoURI} />
           ) : (
             <></>
           )}
