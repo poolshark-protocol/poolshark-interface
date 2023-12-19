@@ -13,7 +13,7 @@ import { useAccount } from "wagmi";
 import { gasEstimateRangeBurn } from "../../../utils/gas";
 import { parseUnits } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
-import { logoMapKey } from "../../../utils/tokens";
+import { getLogoURI } from "../../../utils/tokens";
 
 export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked }) {
   const [
@@ -285,7 +285,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
                         MAX
                       </button>
                       <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                        <img height="28" width="25" src={logoMap[logoMapKey(tokenIn)]} />
+                        <img height="28" width="25" src={getLogoURI(logoMap, tokenIn)} />
                         {tokenIn.symbol}
                       </div>
                     </div>
@@ -317,7 +317,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
                         MAX
                       </button>
                       <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                        <img height="28" width="25" src={logoMap[logoMapKey(tokenOut)]} />
+                        <img height="28" width="25" src={getLogoURI(logoMap, tokenOut)} />
                         {tokenOut.symbol}
                       </div>
                     </div>

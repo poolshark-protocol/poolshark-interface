@@ -31,6 +31,7 @@ const { chains, provider } = configureChains(
     arbitrum,
     // arbitrumGoerli,
   ], //TODO: arbitrumOne values
+
   [
     jsonRpcProvider({
       rpc: (chain) => ({
@@ -203,7 +204,7 @@ function MyApp({ Component, pageProps }) {
     const networkName = supportedNetworkNames[name] ?? "unknownNetwork";
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
-      : chainProperties["arbitrumGoerli"]; //TODO: arbitrumOne values
+      : chainProperties["arbitrumGoerli"];
     setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
     setCoverSubgraph(chainConstants["coverSubgraphUrl"]);
     setCoverFactoryAddress(chainConstants["coverPoolFactory"]);
