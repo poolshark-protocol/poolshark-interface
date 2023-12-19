@@ -137,11 +137,10 @@ function MyApp({ Component, pageProps }) {
     const fetchTokenBalances = async () => {
       const alchemy = new Alchemy(config);
       const data = await alchemy.core.getTokenBalances(address, tokenAddresses);
-      console.log("search_tokens", search_tokens);
       for (let i = 0; i < data.tokenBalances.length; i++) {
         search_tokens[i].balance = data.tokenBalances[i].tokenBalance;
-        setSearchTokenList(search_tokens);
       }
+      setSearchTokenList(search_tokens);
     };
     const fetchTokenMetadata = async () => {
       const chainName = chainIdsToNames[chainId];
