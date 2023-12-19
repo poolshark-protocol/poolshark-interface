@@ -34,7 +34,7 @@ export function convertTimestampToDateFormat(timestampInSeconds: number): string
     const formattedMonth = month < 10 ? `0${month}` : `${month}`;
 
     // Create the DD/MM/YYYY formatted string
-    const formattedDate = `${formattedDay}/${formattedMonth}/${year}`;
+    const formattedDate = `${formattedMonth}/${formattedDay}/${year}`;
 
     return formattedDate;
 }

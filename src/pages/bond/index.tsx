@@ -23,6 +23,7 @@ import ClaimFinButton from "../../components/Buttons/ClaimFinButton";
 import VestFinButton from "../../components/Buttons/VestFinButton";
 import { vFinABI } from "../../abis/evm/vFin";
 import { BN_ZERO } from "../../utils/math/constants";
+import { numFormat } from "../../utils/math/valueMath";
 
 export default function Bond() {
   const { address, isConnected } = useAccount();
@@ -460,7 +461,7 @@ export default function Bond() {
               <div className="flex flex-col gap-y-1 justify-between w-full items-center text-white/20">
                 AMOUNT{" "}
                 <span className="text-white text-lg">
-                  {parseFloat(formatEther(vestingTokenBalance)).toFixed(4)} FIN
+                  {parseFloat(formatEther(vestingTokenBalance)).toFixed(2)} FIN
                 </span>
               </div>
             </div>
@@ -582,7 +583,7 @@ export default function Bond() {
                   <div
                     className={`text-sm text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40`}
                   >
-                    {vestPercent}% VESTED <span className="opacity-50">({parseFloat(vestPercent) * vestedAmount / 100} FIN)</span>
+                    {vestPercent}% VESTED <span className="opacity-50">({numFormat(parseFloat(vestPercent) * vestedAmount / 100, 6)} FIN)</span>
                   </div>
                   <div
                     style={{ width: vestPercent + "%" }}
@@ -718,7 +719,7 @@ export default function Bond() {
                             <td className="">0.94 FIN</td>*/}
                                 <td className="">
                                   {convertTimestampToDateFormat(
-                                    Date.now() / 1000 + marketData[0]?.vesting
+                                    userBond.timestamp + marketData[0]?.vesting
                                   )}
                                 </td>
                                 <td className="text-grey1 text-right pr-2 md:pr-0 md:w-40">
