@@ -391,7 +391,7 @@ export default function LimitSwap() {
   ]);
 
   function updateLimitTicks() {
-    const tickSpacing = tradePoolData.feeTier?.tickSpacing ?? 100;
+    const tickSpacing = tradePoolData.feeTier?.tickSpacing ?? 10;
     const priceString = invertPrice(limitPriceString, limitPriceOrder);
     if (isFinite(parseFloat(limitPriceString)) && parseFloat(priceString) > 0) {
       if (
