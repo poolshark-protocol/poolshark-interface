@@ -350,7 +350,7 @@ export default function MarketSwap() {
         // set base price from quote
         const basePrice: number = parseFloat(
           TickMath.getPriceStringAtSqrtPrice(
-            poolQuotes[i].priceAfter,
+            poolQuotes[0].priceAfter,
             tokenIn,
             tokenOut
           )
