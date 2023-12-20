@@ -545,7 +545,7 @@ export default function AddLiquidity({}) {
           priceOrder ? minInput : maxInput,
           tokenIn,
           tokenOut,
-          rangePoolData.feeTier.tickSpacing
+          rangePoolData.feeTier?.tickSpacing ?? 10
         ),
         priceOrder
       );
@@ -554,7 +554,7 @@ export default function AddLiquidity({}) {
           priceOrder ? maxInput : minInput,
           tokenIn,
           tokenOut,
-          rangePoolData.feeTier.tickSpacing
+          rangePoolData.feeTier?.tickSpacing ?? 10
         ),
         priceOrder
       );
@@ -771,7 +771,7 @@ export default function AddLiquidity({}) {
                     TickMath.getPriceStringAtTick(
                       roundTick(
                         -887272,
-                        parseInt(rangePoolData.feeTier.tickSpacing)
+                        parseInt(rangePoolData.feeTier?.tickSpacing ?? 10)
                       ),
                       tokenIn,
                       tokenOut
@@ -781,7 +781,7 @@ export default function AddLiquidity({}) {
                     TickMath.getPriceStringAtTick(
                       roundTick(
                         887272,
-                        parseInt(rangePoolData.feeTier.tickSpacing)
+                        parseInt(rangePoolData.feeTier?.tickSpacing ?? 10)
                       ),
                       tokenIn,
                       tokenOut

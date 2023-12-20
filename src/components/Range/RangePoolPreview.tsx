@@ -435,7 +435,7 @@ export default function RangePoolPreview() {
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
-                                          : 20
+                                          : 10
                                       )
                                     )
                                   )
@@ -451,7 +451,7 @@ export default function RangePoolPreview() {
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
-                                          : 20
+                                          : 10
                                       )
                                     )
                                   )
@@ -501,7 +501,7 @@ export default function RangePoolPreview() {
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
-                                          : 20
+                                          : 10
                                       )
                                     )
                                   )
@@ -517,7 +517,7 @@ export default function RangePoolPreview() {
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
-                                          : 20
+                                          : 10
                                       )
                                     )
                                   )
