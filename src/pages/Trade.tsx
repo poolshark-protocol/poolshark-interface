@@ -7,18 +7,17 @@ import {
   useBalance,
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
-import {
-  chainIdsToNames,
-  chainProperties,
-} from "../utils/chains";
+import { chainIdsToNames, chainProperties } from "../utils/chains";
 import { ZERO_ADDRESS } from "../utils/math/constants";
-import {
-  getLimitTokenUsdPrice, getLogoURI,
-} from "../utils/tokens";
+import { getLimitTokenUsdPrice, getLogoURI } from "../utils/tokens";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { fetchLimitPositions } from "../utils/queries";
-import { getClaimTick, mapUserHistoricalOrders, mapUserLimitPositions } from "../utils/maps";
+import {
+  getClaimTick,
+  mapUserHistoricalOrders,
+  mapUserLimitPositions,
+} from "../utils/maps";
 import { timeDifference } from "../utils/time";
 import { parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
@@ -223,10 +222,9 @@ export default function Trade() {
   //BOTH
   useEffect(() => {
     if (address) {
-      const chainConstants = 
-          chainProperties[networkName]
+      const chainConstants = chainProperties[networkName]
         ? chainProperties[networkName]
-        : chainProperties["arbitrumGoerli"]; 
+        : chainProperties["arbitrumGoerli"];
       setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
       getUserLimitPositionData();
       setNeedsRefetch(false);
@@ -534,11 +532,11 @@ export default function Trade() {
                           <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={getLogoURI(logoMap, allHistoricalOrder.tokenIn)}
+                              src={allHistoricalOrder.tokenIn.logoURI}
                             />
-                            {parseFloat(
-                                allHistoricalOrder.amountIn
-                            ).toFixed(3) +
+                            {parseFloat(allHistoricalOrder.amountIn).toFixed(
+                              3
+                            ) +
                               " " +
                               allHistoricalOrder.tokenIn.symbol}
                           </div>
@@ -547,11 +545,11 @@ export default function Trade() {
                           <div className="flex items-center text-xs text-white gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={getLogoURI(logoMap, allHistoricalOrder.tokenOut)}
+                              src={allHistoricalOrder.tokenOut.logoURI}
                             />
-                            {parseFloat(
-                              allHistoricalOrder.amountOut
-                            ).toFixed(3) +
+                            {parseFloat(allHistoricalOrder.amountOut).toFixed(
+                              3
+                            ) +
                               " " +
                               allHistoricalOrder.tokenOut.symbol}
                           </div>
@@ -573,16 +571,15 @@ export default function Trade() {
                         <td className="md:table-cell hidden">
                           <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
                             <span className="z-50 px-3">
-                              {(
-                                100
-                              ).toFixed(2)}
-                              % Filled
+                              {(100).toFixed(2)}% Filled
                             </span>
                             <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
                           </div>
                         </td>
                         <td className="text-grey1 text-left pl-3 text-xs md:table-cell hidden">
-                          {timeDifference(allHistoricalOrder.completedAtTimestamp)}
+                          {timeDifference(
+                            allHistoricalOrder.completedAtTimestamp
+                          )}
                         </td>
                         <td className="w-[39px] h-1 md:table-cell hidden"></td>
                       </tr>

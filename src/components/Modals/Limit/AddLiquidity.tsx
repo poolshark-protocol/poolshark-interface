@@ -1,12 +1,7 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import {
-  useAccount,
-  erc20ABI,
-  useSigner,
-  useBalance,
-} from "wagmi";
+import { useAccount, erc20ABI, useSigner, useBalance } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import LimitAddLiqButton from "../../Buttons/LimitAddLiqButton";
 import { BigNumber, ethers } from "ethers";
@@ -21,14 +16,10 @@ import { parseUnits } from "../../../utils/math/valueMath";
 import { getLogoURI } from "../../../utils/tokens";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
-  const [
-    chainId,
-    logoMap,
-    networkName
-  ] = useConfigStore((state) => [
+  const [chainId, logoMap, networkName] = useConfigStore((state) => [
     state.chainId,
     state.logoMap,
-    state.networkName
+    state.networkName,
   ]);
 
   const [
@@ -70,9 +61,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
     args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowance,
-    enabled:
-      isConnected &&
-      tokenIn.address != undefined && needsAllowance,
+    enabled: isConnected && tokenIn.address != undefined && needsAllowance,
     onSuccess(data) {
       setNeedsAllowance(false);
     },
@@ -99,14 +88,12 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
     watch: needsBalance,
     onSuccess(data) {
       setNeedsBalance(false);
-    }
+    },
   });
 
   useEffect(() => {
     if (isConnected) {
-      setTokenInBalance(
-        tokenInBal?.formatted.toString()
-      );
+      setTokenInBalance(tokenInBal?.formatted.toString());
     }
   }, [tokenInBal]);
 
@@ -114,7 +101,9 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
 
   // disabled messages
   useEffect(() => {
-    if (Number(ethers.utils.formatUnits(bnInput)) > Number(tokenIn.userBalance)) {
+    if (
+      Number(ethers.utils.formatUnits(bnInput)) > Number(tokenIn.userBalance)
+    ) {
       setButtonState("balance");
     }
     if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
@@ -195,46 +184,63 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                   />
                 </div>
                 <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2 mb-5 mt-2">
-                    <div className="flex items-end justify-between text-[11px] text-grey1">
-                      <span>
-                        ~$
-                        {!isNaN(tokenIn.USDPrice) && !isNaN(parseFloat(ethers.utils.formatUnits(bnInput, tokenIn.decimals))) ?
-                          Number(
+                  <div className="flex items-end justify-between text-[11px] text-grey1">
+                    <span>
+                      ~$
+                      {!isNaN(tokenIn.USDPrice) &&
+                      !isNaN(
+                        parseFloat(
+                          ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                        )
+                      )
+                        ? Number(
                             tokenIn.USDPrice *
-                              parseFloat(ethers.utils.formatUnits(bnInput, tokenIn.decimals))
+                              parseFloat(
+                                ethers.utils.formatUnits(
+                                  bnInput,
+                                  tokenIn.decimals
+                                )
+                              )
                           ).toFixed(2)
                         : "0.00"}
-                      </span>
-                      <span>
-                        BALANCE: {isNaN(tokenIn.userBalance)
-                              ? "0.00"
-                              : Number(tokenIn.userBalance).toPrecision(5)}
-                      </span>
-                    </div>
-                    <div className="flex items-end justify-between mt-2 mb-3">
-                      {inputBox("0", tokenIn)}
-                      <div className="flex items-center gap-x-2">
-                        {isConnected ? (
-                          <button
+                    </span>
+                    <span>
+                      BALANCE:{" "}
+                      {isNaN(tokenIn.userBalance)
+                        ? "0.00"
+                        : Number(tokenIn.userBalance).toPrecision(5)}
+                    </span>
+                  </div>
+                  <div className="flex items-end justify-between mt-2 mb-3">
+                    {inputBox("0", tokenIn)}
+                    <div className="flex items-center gap-x-2">
+                      {isConnected ? (
+                        <button
                           onClick={() => {
-                            maxBalance(tokenIn.userBalance.toString(), "0", tokenIn.decimals);
+                            maxBalance(
+                              tokenIn.userBalance.toString(),
+                              "0",
+                              tokenIn.decimals
+                            );
                           }}
-                            className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
-                          >
-                            MAX
-                          </button>
-                        ) : null}
-                        <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                          <img height="28" width="25" src={getLogoURI(logoMap, tokenIn)} />
-                          {tokenIn.symbol}
-                        </div>
+                          className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
+                        >
+                          MAX
+                        </button>
+                      ) : null}
+                      <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
+                        <img height="28" width="25" src={tokenIn.logoURI} />
+                        {tokenIn.symbol}
                       </div>
                     </div>
                   </div>
+                </div>
                 {isConnected ? (
                   allowanceIn.lt(bnInput) ? (
                     <SwapRouterApproveButton
-                      routerAddress={chainProperties[networkName]["routerAddress"]}
+                      routerAddress={
+                        chainProperties[networkName]["routerAddress"]
+                      }
                       approveToken={tokenIn.address}
                       amount={bnInput}
                       tokenSymbol={tokenIn.symbol}
@@ -244,7 +250,9 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                       disabled={disabled || mintGasLimit.lte(BN_ZERO)}
                       to={address}
                       poolAddress={limitPoolAddress}
-                      routerAddress={chainProperties[networkName]["routerAddress"]}
+                      routerAddress={
+                        chainProperties[networkName]["routerAddress"]
+                      }
                       lower={Number(limitPositionData.min)}
                       upper={Number(limitPositionData.max)}
                       positionId={BigNumber.from(limitPositionData.positionId)}
@@ -256,7 +264,8 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                       tokenSymbol={tokenIn.symbol}
                       setIsOpen={setIsOpen}
                     />
-                )) : null}
+                  )
+                ) : null}
               </Dialog.Panel>
             </Transition.Child>
           </div>

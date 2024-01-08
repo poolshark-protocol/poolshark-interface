@@ -545,7 +545,7 @@ export default function AddLiquidity({}) {
           priceOrder ? minInput : maxInput,
           tokenIn,
           tokenOut,
-          rangePoolData.feeTier.tickSpacing
+          rangePoolData.feeTier?.tickSpacing ?? 30
         ),
         priceOrder
       );
@@ -554,7 +554,7 @@ export default function AddLiquidity({}) {
           priceOrder ? maxInput : minInput,
           tokenIn,
           tokenOut,
-          rangePoolData.feeTier.tickSpacing
+          rangePoolData.feeTier?.tickSpacing ?? 30
         ),
         priceOrder
       );
@@ -638,14 +638,8 @@ export default function AddLiquidity({}) {
           <div>
             <div className="flex  items-center gap-x-2 bg-dark border border-grey py-2 px-5 rounded-[4px]">
               <div className="flex items-center">
-                <img
-                  className="md:w-6 w-6"
-                  src={getLogoURI(logoMap, tokenIn)}
-                />
-                <img
-                  className="md:w-6 w-6 -ml-2"
-                  src={getLogoURI(logoMap, tokenOut)}
-                />
+                <img className="md:w-6 w-6" src={tokenIn.logoURI} />
+                <img className="md:w-6 w-6 -ml-2" src={tokenOut.logoURI} />
               </div>
               <span className="text-white text-xs">
                 {tokenIn.callId == 0 ? tokenIn.symbol : tokenOut.symbol} -{" "}
@@ -777,7 +771,7 @@ export default function AddLiquidity({}) {
                     TickMath.getPriceStringAtTick(
                       roundTick(
                         -887272,
-                        parseInt(rangePoolData.feeTier.tickSpacing)
+                        parseInt(rangePoolData.feeTier?.tickSpacing ?? 30)
                       ),
                       tokenIn,
                       tokenOut
@@ -787,7 +781,7 @@ export default function AddLiquidity({}) {
                     TickMath.getPriceStringAtTick(
                       roundTick(
                         887272,
-                        parseInt(rangePoolData.feeTier.tickSpacing)
+                        parseInt(rangePoolData.feeTier?.tickSpacing ?? 30)
                       ),
                       tokenIn,
                       tokenOut
