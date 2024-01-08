@@ -37,7 +37,7 @@ export default function Range() {
     state.limitSubgraph,
     state.setLimitSubgraph,
     state.listedtokenList,
-    logoMap,
+    state.logoMap,
   ]);
 
   const [
@@ -142,6 +142,7 @@ export default function Range() {
               onClick={() => {
                 resetRangeLimitParams();
                 if (allRangePools?.length > 0) {
+                  console.log(allRangePools[0]);
                   const tokenIn = {
                     name: allRangePools[0].tokenZero.symbol,
                     address: allRangePools[0].tokenZero.id,
