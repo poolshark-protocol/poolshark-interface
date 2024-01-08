@@ -233,14 +233,14 @@ export default function ViewRange() {
           const tokenInNew = {
             name: position.tokenZero.name,
             symbol: position.tokenZero.symbol,
-            logoURI: position.tokenZero.symbol,
+            logoURI: logoMap[position.tokenZero.id],
             address: position.tokenZero.id,
             decimals: position.tokenZero.decimals,
           } as tokenRangeLimit;
           const tokenOutNew = {
             name: position.tokenOne.name,
             symbol: position.tokenOne.symbol,
-            logoURI: position.tokenOne.symbol,
+            logoURI: logoMap[position.tokenOne.id],
             address: position.tokenOne.id,
             decimals: position.tokenOne.decimals,
           } as tokenRangeLimit;

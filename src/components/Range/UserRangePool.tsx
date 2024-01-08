@@ -4,7 +4,7 @@ import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { token, tokenCover } from "../../utils/types";
+import { token, tokenCover, tokenRangeLimit } from "../../utils/types";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import JSBI from "jsbi";
 import { getRangePoolFromFactory } from "../../utils/queries";
@@ -89,14 +89,14 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       logoURI: logoMap[rangePosition.tokenZero.id],
       address: rangePosition.tokenZero.id,
       decimals: rangePosition.tokenZero.decimals,
-    } as tokenCover;
+    } as tokenRangeLimit;
     const tokenOutNew = {
       name: rangePosition.tokenOne.name,
       symbol: rangePosition.tokenOne.symbol,
       logoURI: logoMap[rangePosition.tokenOne.id],
       address: rangePosition.tokenOne.id,
       decimals: rangePosition.tokenOne.decimals,
-    } as tokenCover;
+    } as tokenRangeLimit;
     const pool = await getRangePoolFromFactory(
       limitSubgraph,
       tokenInNew.address,
