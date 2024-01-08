@@ -404,3 +404,17 @@ export function mapUserBondPurchases(bondPurchases) {
   });
   return mappedBondPurchases;
 }
+
+export function mapUserVestingPositions(vestingPositions) {
+  const mappedVestingPositions = [];
+  vestingPositions.map((vestingPosition) => {
+    const vestingPositionData = {
+      id: vestingPosition.id,
+      owner: vestingPosition.owner,
+      positionId: vestingPosition.positionId,
+      vFinAddress: vestingPosition.vFinAddress,
+    };
+    mappedVestingPositions.push(vestingPositionData);
+  });
+  return mappedVestingPositions;
+}

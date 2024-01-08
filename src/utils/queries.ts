@@ -83,7 +83,7 @@ export const getRangePoolFromFactory = (
         }
         `;
     client
-      .query({ query: gql(getPool) })
+      ?.query({ query: gql(getPool) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -140,9 +140,9 @@ export const getCoverPoolFromFactory = (
     const client = new ApolloClient({
       uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
       cache: new InMemoryCache(),
-    }); //TODO: arbitrumOne values
+    }); 
     client
-      .query({ query: gql(getPool) })
+      ?.query({ query: gql(getPool) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -213,7 +213,7 @@ export const getLimitPoolFromFactory = (
           }
          `;
     client
-      .query({ query: gql(getPool) })
+      ?.query({ query: gql(getPool) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -246,7 +246,7 @@ export const getCoverTickIfZeroForOne = (
       }
         `;
     client
-      .query({ query: gql(getTicks) })
+      ?.query({ query: gql(getTicks) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -278,7 +278,7 @@ export const getCoverTickIfNotZeroForOne = (
       }
         `;
     client
-      .query({ query: gql(getTicks) })
+      ?.query({ query: gql(getTicks) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -310,7 +310,7 @@ export const getLimitTickIfNotZeroForOne = (
       }
         `;
     client
-      .query({ query: gql(getTicks) })
+      ?.query({ query: gql(getTicks) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -342,7 +342,7 @@ export const getLimitTickIfZeroForOne = (
       }
         `;
     client
-      .query({ query: gql(getTicks) })
+      ?.query({ query: gql(getTicks) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -358,7 +358,7 @@ export const fetchCoverPositions = (client: CoverSubgraph, address: string) => {
     const positionsQuery = `
       query($owner: String) {
           positions(
-            where: {owner:"${address}"},
+            where: {owner:"${address.toLowerCase()}"},
             orderBy: liquidity,
             orderDirection: desc
           ) {
@@ -475,7 +475,7 @@ export const fetchCoverPools = (client: CoverSubgraph) => {
             }
         `;
     client
-      .query({ query: gql(poolsQuery) })
+      ?.query({ query: gql(poolsQuery) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -497,7 +497,7 @@ export const fetchCoverPoolMetrics = (client: CoverSubgraph) => {
             }
         `;
     client
-      .query({ query: gql(poolsMetricsQuery) })
+      ?.query({ query: gql(poolsMetricsQuery) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -513,7 +513,7 @@ export const fetchLimitPositions = (client: LimitSubgraph, address: string) => {
     const positionsQuery = `
     {
         limitPositions(
-          where: {owner:"${address}"},
+          where: {owner:"${address.toLowerCase()}"},
           orderBy: createdAtTimestamp,
           orderDirection: desc
         ) {
@@ -559,7 +559,7 @@ export const fetchLimitPositions = (client: LimitSubgraph, address: string) => {
             txnHash
         }
         historicalOrders(
-          where: {owner:"${address}", completed: true},
+          where: {owner:"${address.toLowerCase()}", completed: true},
           orderBy: completedAtTimestamp,
           orderDirection: desc
         ) {
@@ -589,7 +589,7 @@ export const fetchLimitPositions = (client: LimitSubgraph, address: string) => {
       }
     `;
     client
-      .query({
+      ?.query({
         query: gql(positionsQuery),
         variables: {
           owner: address,
@@ -653,7 +653,7 @@ export const fetchLimitPools = (client: LimitSubgraph) => {
             }
         `;
     client
-      .query({ query: gql(poolsQuery) })
+      ?.query({ query: gql(poolsQuery) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -675,7 +675,7 @@ export const fetchLimitPoolMetrics = (client: LimitSubgraph) => {
             }
         `;
     client
-      .query({ query: gql(poolsMetricsQuery) })
+      ?.query({ query: gql(poolsMetricsQuery) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -750,7 +750,7 @@ export const fetchRangePositions = (client: LimitSubgraph, address: string) => {
     const positionsQuery = `
     {
       rangePositions(
-        where: {owner:"${address}"},
+        where: {owner:"${address.toLowerCase()}"},
         orderBy: liquidity,
         orderDirection: desc
       ) {
@@ -802,7 +802,7 @@ export const fetchRangePositions = (client: LimitSubgraph, address: string) => {
   }
     `;
     client
-      .query({
+      ?.query({
         query: gql(positionsQuery),
         variables: {
           owner: address,
@@ -851,7 +851,7 @@ export const fetchUniV3Pools = () => {
       cache: new InMemoryCache(),
     });
     client
-      .query({ query: gql(univ3PoolsQuery) })
+      ?.query({ query: gql(univ3PoolsQuery) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -897,7 +897,7 @@ export const fetchUniV3Positions = (address: string) => {
       cache: new InMemoryCache(),
     });
     client
-      .query({
+      ?.query({
         query: gql(univ3PositionsQuery),
         variables: {
           owner: address,
@@ -929,7 +929,7 @@ export const fetchTokenPrice = (
           }
         `;
     client
-      .query({
+      ?.query({
         query: gql(tokenQuery)
       })
       .then((data) => {
@@ -957,7 +957,7 @@ export const fetchEthPrice = () => {
       cache: new InMemoryCache(),
     });
     client
-      .query({
+      ?.query({
         query: gql(univ3Price),
       })
       .then((data) => {
@@ -969,6 +969,31 @@ export const fetchEthPrice = () => {
       });
   });
 };
+
+export const fetchUserVFinPositions = (client: LimitSubgraph, ownerAddress: string) => {
+  return new Promise(function (resolve) {
+    const userVestingQuery = `
+        {
+          vfinPositions(first: 1, where: { owner:"${ownerAddress.toLowerCase()}"}) {
+            positionId
+            owner
+            vFinAddress
+          }
+        }
+        `;
+    client
+      ?.query({
+        query: gql(userVestingQuery),
+      })
+      .then((data) => {
+        resolve(data);
+        //console.log(data)
+      })
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+}
 
 export const fetchUserBonds = (marketId: string, recipient: string, subgraphUrl: string) => {
   return new Promise(function (resolve) {
@@ -1010,7 +1035,7 @@ export const fetchUserBonds = (marketId: string, recipient: string, subgraphUrl:
       cache: new InMemoryCache(),
     });
     client
-      .query({
+      ?.query({
         query: gql(userBondsQuery),
       })
       .then((data) => {
@@ -1103,7 +1128,7 @@ export const fetchBondMarket = (marketId: string, subgraphUrl: string) => {
       cache: new InMemoryCache(),
     });
     client
-      .query({
+      ?.query({
         query: gql(bondMarketQuery),
       })
       .then((data) => {

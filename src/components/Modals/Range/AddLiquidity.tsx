@@ -27,7 +27,7 @@ import { gasEstimateRangeMint } from "../../../utils/gas";
 import { useRouter } from "next/router";
 import { inputHandler } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
-import { logoMapKey } from "../../../utils/tokens";
+import { getLogoURI } from "../../../utils/tokens";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [
@@ -470,7 +470,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                           </button>
                         ) : null}
                         <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                          <img height="28" width="25" src={logoMap[logoMapKey(tokenIn)]} />
+                          <img height="28" width="25" src={getLogoURI(logoMap, tokenIn)} />
                           {tokenIn.symbol}
                         </div>
                       </div>
@@ -510,7 +510,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                           </button>
                         ) : null}
                         <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                          <img height="28" width="25" src={logoMap[logoMapKey(tokenOut)]} />
+                          <img height="28" width="25" src={getLogoURI(logoMap, tokenOut)} />
                           {tokenOut.symbol}
                         </div>
                       </div>
