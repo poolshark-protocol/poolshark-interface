@@ -192,6 +192,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
   function choosePosition() {
     setNeedsAllowanceIn(true);
     setNeedsAllowanceOut(true);
+    //TODO: this should change to tokenRange Limit and not tokenCover
     const tokenInNew = {
       name: rangePosition.tokenZero.name,
       symbol: rangePosition.tokenZero.symbol,
