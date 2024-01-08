@@ -195,14 +195,14 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     const tokenInNew = {
       name: rangePosition.tokenZero.name,
       symbol: rangePosition.tokenZero.symbol,
-      logoURI: rangePosition.tokenZero.symbol,
+      logoURI: logoMap[rangePosition.tokenZero.id],
       address: rangePosition.tokenZero.id,
       decimals: rangePosition.tokenZero.decimals,
     } as tokenCover;
     const tokenOutNew = {
       name: rangePosition.tokenOne.name,
       symbol: rangePosition.tokenOne.symbol,
-      logoURI: rangePosition.tokenOne.symbol,
+      logoURI: logoMap[rangePosition.tokenOne.id],
       address: rangePosition.tokenOne.id,
       decimals: rangePosition.tokenOne.decimals,
     } as tokenCover;
