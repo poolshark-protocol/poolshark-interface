@@ -102,7 +102,7 @@ export default function Network({
                     </div>
                     <div
                       className={`${
-                        chainId === 1
+                        chainId === 11155111
                           ? " flex gap-x-2 items-center text-main text-xs"
                           : "hidden"
                       }`}

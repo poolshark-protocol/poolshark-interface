@@ -28,7 +28,6 @@ export const ConnectWalletButton = ({ xl = false, center = false }: Props) => {
     setTosAccepted(true);
   };
 
-
   return (
     <>
       <ConnectButton.Custom>
@@ -73,7 +72,7 @@ export const ConnectWalletButton = ({ xl = false, center = false }: Props) => {
                     </button>
                   );
                 }
-                if (chain.unsupported) {
+                if (chain.unsupported && chain.id != 11155111) {
                   return (
                     <>
                       <button
