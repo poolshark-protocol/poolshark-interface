@@ -6,6 +6,7 @@ export const chainIdsToNames = {
     1: 'ethereum',
     5: 'goerli',
     421613: 'arbitrum-goerli',
+    421614: 'arbitrum-sepolia',
     42161: 'arbitrum-one',
 };
 
@@ -13,6 +14,7 @@ export const decToHex = {
     1: '0x1',
     5: '0x5',
     421613: '0x66EED',
+    421614: '0x66EEE',
     42161: '0xA4B1',
 };
 
@@ -20,11 +22,13 @@ export const supportedChainIds = {
     1: 'mainnet',
     5: 'goerli',
     421613: 'arbitrumGoerli',
+    421614: 'arbitrumSepolia',
     42161: 'arbitrum',
 };
 
 export const supportedNetworkNames = {
     'arbitrum-goerli': 'arbitrumGoerli',
+    'arbitrum-sepolia': 'arbitrumSepolia',
     'arbitrum': 'arbitrum'
 };
 
@@ -55,25 +59,25 @@ export const chainProperties = {
         chainId: '0x5',
         routerAddress: ZERO_ADDRESS as `0x${string}`
     },
-    arbitrumGoerli: {
-        chainName: 'Arbitrum Goerli Test Network',
+    arbitrumSepolia: {
+        chainName: 'Arbitrum Sepolia Test Network',
         logo:"https://assets.trustwalletapp.com/blockchains/polygon/assets/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/logo.png",
-        rpcUrls: ['https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/'],
-        explorerUrl: 'https://goerli.arbiscan.io/',
+        rpcUrls: ['https://arbitrum-sepolia.core.chainstack.com/a0fd1794b40136e3d035e89ecbeca764'],
+        explorerUrl: 'https://sepolia.arbiscan.io/',
         nativeCurrency: {
             name: 'ETH',
             symbol: 'ETH',
             decimals: 18,
         },
-        chainId: '0x66EED',
-        wethAddress: '0xefb283ef3167ca2ee9d93b201af15e2af3f6e8c7' as `0x${string}`,
-        daiAddress: '0x19beE8e887a5db5cf20A841eb4DAACBCacF14B1b' as `0x${string}`,
-        finAddress: '0x742510a23bf83be959990a510ccae40b2d3d9b83',
-        routerAddress: '0x24757e9D68bFCC99A9Dba0a62737703CB1A32e06' as `0x${string}`,
-        rangeStakerAddress: '0xe5e2E95A986CE078606C403593593b18Ed98f4d6' as `0x${string}`,
+        chainId: '0x66EEE',
+        wethAddress: '0x414b73f989e7ca0653b5c98186749a348405e6d5' as `0x${string}`,
+        daiAddress: '0x9f479560cd8a531e6c0fe04521cb246264fe6b71' as `0x${string}`,
+        finAddress: '0xcd453b942f35adf0364d89c05a892518825c1c3b',
+        routerAddress: '0x33df95efe07a3b3e69ba31438ae511d360d89b32' as `0x${string}`,
+        rangeStakerAddress: '0x62e0671022af1b2e705f08b282767c57d29c7c4c' as `0x${string}`,
         coverPoolFactory: '0x5c032AEC3a62AEC6a337D5f2aaA94905ecCBF06B' as `0x${string}`,
         coverSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli',
-        limitSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/ff8e16f5454291a4fc3e361ff2c31a24/limit-arbitrumGoerli-test',
+        limitSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/871e9ed9089def9ec3ed8b54d340e36e/limit-arbitrum-sepolia',
     },
     arbitrum: {
         chainName: 'Arbitrum One',
