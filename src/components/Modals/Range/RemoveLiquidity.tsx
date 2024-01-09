@@ -285,7 +285,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
                         MAX
                       </button>
                       <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                        <img height="28" width="25" src={getLogoURI(logoMap, tokenIn)} />
+                        <img height="28" width="25" src={tokenIn.logoURI} />
                         {tokenIn.symbol}
                       </div>
                     </div>
@@ -317,7 +317,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
                         MAX
                       </button>
                       <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                        <img height="28" width="25" src={getLogoURI(logoMap, tokenOut)} />
+                        <img height="28" width="25" src={tokenOut.logoURI} />
                         {tokenOut.symbol}
                       </div>
                     </div>
