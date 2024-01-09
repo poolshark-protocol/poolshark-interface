@@ -1,4 +1,25 @@
 import { ZERO_ADDRESS } from "./math/constants";
+import { Chain } from "wagmi";
+
+export const arbitrumSepolia: Chain = {
+    id: 421614,
+    name: 'Arbitrum Sepolia',
+    network: 'arbitrumSepolia',
+    nativeCurrency: {
+        decimals: 18,
+        name: 'Ether',
+        symbol: 'ETH',
+    },
+    rpcUrls: {
+        default: {
+          http: ['https://arbitrum-sepolia.core.chainstack.com/a0fd1794b40136e3d035e89ecbeca764'],
+        },
+        public: {
+          http: ['https://arbitrum-sepolia.core.chainstack.com/a0fd1794b40136e3d035e89ecbeca764'],
+        },
+    },
+}
+  
 
 export const defaultNetwork = "arbitrum"
 

@@ -2,49 +2,43 @@ import "../styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createClient, useProvider, WagmiConfig } from "wagmi";
-import { arbitrum, arbitrumGoerli } from "wagmi/chains";
+import { arbitrum } from "wagmi/chains";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
-import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import Head from "next/head";
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
-import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import { isMobile } from "react-device-detect";
-import { Analytics } from "@vercel/analytics/react";
+// import { Analytics } from "@vercel/analytics/react";
 import { useConfigStore } from "../hooks/useConfigStore";
 import {
   chainIdsToNames,
   chainProperties,
   supportedNetworkNames,
+  arbitrumSepolia,
 } from "../utils/chains";
 import axios from "axios";
 import { coinsList } from "../utils/types";
 import { useRouter } from "next/router";
 import TermsOfService from "../components/Modals/ToS";
-import Loader from "../components/Icons/Loader";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Alchemy, Network } from "alchemy-sdk";
-import { ZERO_ADDRESS } from "../utils/math/constants";
-import { getChainName } from "@usedapp/core";
 
 const { chains, provider } = configureChains(
   [
     arbitrum,
-    // arbitrumGoerli,
-  ], //TODO: arbitrumOne values
-
+    arbitrumSepolia,
+  ],
   [
     jsonRpcProvider({
       rpc: (chain) => ({
         http: `https://patient-distinguished-pallet.arbitrum-mainnet.quiknode.pro/4cbe7cbdb55ec4b33fdc1a4239e1169b167ae351/`, // arbitrum
       }),
     }),
-    // jsonRpcProvider({
-    //   rpc: (chain) => ({
-    //     http: `https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/`, // arbitrumGoerli
-    //   }),
-    // }),
-    //TODO: arbitrumOne values
+    jsonRpcProvider({
+      rpc: (chain) => ({
+        http: `https://arbitrum-sepolia.core.chainstack.com/a0fd1794b40136e3d035e89ecbeca764`, // arbitrumSepolia
+      }),
+    }),
   ]
 );
 
@@ -190,7 +184,7 @@ function MyApp({ Component, pageProps }) {
     const networkName = supportedNetworkNames[name] ?? "unknownNetwork";
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
-      : chainProperties["arbitrumGoerli"];
+      : chainProperties["arbitrum"];
     setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
     setCoverSubgraph(chainConstants["coverSubgraphUrl"]);
     setCoverFactoryAddress(chainConstants["coverPoolFactory"]);
@@ -245,8 +239,8 @@ function MyApp({ Component, pageProps }) {
             )}
           </>
           <SpeedInsights />
-          <Analytics />
-          {/* </ApolloProvider> */}
+          
+          {/* <Analytics /> </ApolloProvider> */}
         </RainbowKitProvider>
       </WagmiConfig>
     </>
