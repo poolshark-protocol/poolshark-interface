@@ -40,7 +40,6 @@ export const ConnectWalletButton = ({ xl = false, center = false }: Props) => {
           authenticationStatus,
           mounted,
         }) => {
-          console.log("chainId", chain);
           // Note: If your app doesn't use authentication, you
           // can remove all 'authenticationStatus' checks
           const ready = mounted && authenticationStatus !== "loading";
