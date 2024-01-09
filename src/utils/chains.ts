@@ -6,6 +6,7 @@ export const chainIdsToNames = {
     1: 'ethereum',
     5: 'goerli',
     421613: 'arbitrum-goerli',
+    421614: 'arbitrum-sepolia',
     42161: 'arbitrum-one',
 };
 
@@ -21,11 +22,13 @@ export const supportedChainIds = {
     1: 'mainnet',
     5: 'goerli',
     421613: 'arbitrumGoerli',
+    421614: 'arbitrumSepolia',
     42161: 'arbitrum',
 };
 
 export const supportedNetworkNames = {
     'arbitrum-goerli': 'arbitrumGoerli',
+    'arbitrum-sepolia': 'arbitrumSepolia',
     'arbitrum': 'arbitrum'
 };
 
