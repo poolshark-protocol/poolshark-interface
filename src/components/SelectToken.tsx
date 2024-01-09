@@ -269,7 +269,7 @@ export default function SelectToken(props) {
                       })}
                     </div>
                   </div>
-                  <div>
+                  <div className="h-[360px] overflow-y-auto">
                     {customInput == ""
                       ? listedTokenList
                           .sort((a, b) => b.balance - a.balance)
