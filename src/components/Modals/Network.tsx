@@ -89,9 +89,9 @@ export default function Network({
                     </div>
                   </div>
                   <div
-                    onClick={() => switchNetwork(421614)}
+                    onClick={() => switchNetwork(11155111)}
                     className={`${
-                      chainId === 421614
+                      chainId === 11155111
                         ? " bg-background"
                         : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
                     } flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}
