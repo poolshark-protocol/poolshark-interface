@@ -117,7 +117,7 @@ export const ConnectWalletButton = ({ xl = false, center = false }: Props) => {
                           <img
                             style={{ width: 17, height: 17 }}
                             src="/static/images/arb_icon.svg"
-                            className="aspect-square"
+                            className={`aspect-square ${chain.id === 421614 && "saturate-0"}`}
                           />
                         ) : (
                           ""
