@@ -891,6 +891,22 @@ export default function LimitSwap() {
           </div>
         </div>
       </div>
+      <div className="flex w-full items-center mt-5 gap-x-10 justify-between bg-dark border-grey/80 p-2 border rounded-[4px]">
+        <div className="bg-dark text-sm uppercase pl-2 rounded-[4px]">
+          SELECT Fee Tier:
+        </div>
+        <div className="grid grid-cols-3 gap-x-3">
+          <div className="py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey px-5 rounded-[4px]">
+            0.01%
+          </div>
+          <div className="py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey px-5 rounded-[4px]">
+            0.03%
+          </div>
+          <div className="py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey px-5 rounded-[4px]">
+            0.1%
+          </div>
+        </div>
+      </div>
       <div className="mt-5">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-x-3 text-sm">
