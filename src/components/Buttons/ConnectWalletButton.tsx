@@ -113,7 +113,7 @@ export const ConnectWalletButton = ({ xl = false, center = false }: Props) => {
                         */}
                         {chain.id === 421613 ||
                         chain.id === 42161 ||
-                        chain.id === 11155111 ? (
+                        chain.id === 421614 ? (
                           <img
                             style={{ width: 17, height: 17 }}
                             src="/static/images/arb_icon.svg"
