@@ -2,6 +2,7 @@ import { Transition, Dialog } from "@headlessui/react";
 import { Fragment } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { useSwitchNetwork } from "wagmi";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function Network({
   isOpen,
@@ -9,6 +10,8 @@ export default function Network({
   chainUnsupported,
   chainId,
 }) {
+  const [setNetworkName] = useConfigStore((state) => [state.setNetworkName]);
+
   const {
     chains,
     error: networkError,
@@ -66,7 +69,10 @@ export default function Network({
                 )}
                 <div className="mt-4 space-y-1">
                   <div
-                    onClick={() => switchNetwork(42161)}
+                    onClick={() => {
+                      setNetworkName("arbitrum-one");
+                      switchNetwork(42161);
+                    }}
                     className={`${
                       chainId === 421613 || chainId === 42161
                         ? " bg-background"
@@ -89,9 +95,12 @@ export default function Network({
                     </div>
                   </div>
                   <div
-                    onClick={() => switchNetwork(11155111)}
+                    onClick={() => {
+                      setNetworkName("arbitrum-sepolia");
+                      switchNetwork(421614);
+                    }}
                     className={`${
-                      chainId === 11155111
+                      chainId === 421614
                         ? " bg-background"
                         : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
                     } flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}
@@ -102,7 +111,7 @@ export default function Network({
                     </div>
                     <div
                       className={`${
-                        chainId === 11155111
+                        chainId === 421614
                           ? " flex gap-x-2 items-center text-main text-xs"
                           : "hidden"
                       }`}

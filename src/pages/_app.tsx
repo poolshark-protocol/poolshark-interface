@@ -24,10 +24,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Alchemy, Network } from "alchemy-sdk";
 
 const { chains, provider } = configureChains(
-  [
-    arbitrum,
-    arbitrumSepolia,
-  ],
+  [arbitrum, arbitrumSepolia],
   [
     jsonRpcProvider({
       rpc: (chain) => ({
@@ -41,6 +38,7 @@ const { chains, provider } = configureChains(
     }),
   ]
 );
+
 
 const { connectors } = getDefaultWallets({
   appName: "Poolshark UI",
@@ -125,8 +123,10 @@ function MyApp({ Component, pageProps }) {
   useEffect(() => {
     const config = {
       apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
-      network: Network.ARB_MAINNET,
+      network:
+        chainId == Number("42161") ? Network.ARB_MAINNET : Network.ARB_SEPOLIA,
     };
+
     const tokenAddresses = [];
     const fetchTokenBalances = async () => {
       const alchemy = new Alchemy(config);
@@ -138,6 +138,7 @@ function MyApp({ Component, pageProps }) {
     };
     const fetchTokenMetadata = async () => {
       const chainName = chainIdsToNames[chainId];
+      console.log("chainName: ", chainName);
       axios
         .get(
           `https://raw.githubusercontent.com/poolshark-protocol/token-metadata/` +
@@ -181,7 +182,7 @@ function MyApp({ Component, pageProps }) {
   }, [chainId]);
 
   useEffect(() => {
-    const networkName = supportedNetworkNames[name] ?? "unknownNetwork";
+    const networkName = supportedNetworkNames[name] ?? "unknownNetwork";  
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
       : chainProperties["arbitrum"];
@@ -239,7 +240,7 @@ function MyApp({ Component, pageProps }) {
             )}
           </>
           <SpeedInsights />
-          
+
           {/* <Analytics /> </ApolloProvider> */}
         </RainbowKitProvider>
       </WagmiConfig>

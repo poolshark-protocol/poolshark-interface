@@ -135,15 +135,6 @@ export default function Trade() {
   //BOTH
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
 
-  ////////////////////////////////ChainId
-  //CONFIG STORE
-  const [stateChainName, setStateChainName] = useState();
-
-  // BOTH
-  useEffect(() => {
-    setStateChainName(chainIdsToNames[chainId]);
-  }, [chainId]);
-
   ////////////////////////////////Pools
 
   //log addresses and ids
