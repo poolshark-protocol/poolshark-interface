@@ -39,7 +39,6 @@ const { chains, provider } = configureChains(
   ]
 );
 
-
 const { connectors } = getDefaultWallets({
   appName: "Poolshark UI",
   chains,
@@ -182,7 +181,7 @@ function MyApp({ Component, pageProps }) {
   }, [chainId]);
 
   useEffect(() => {
-    const networkName = supportedNetworkNames[name] ?? "unknownNetwork";  
+    const networkName = supportedNetworkNames[name] ?? "unknownNetwork";
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
       : chainProperties["arbitrum"];

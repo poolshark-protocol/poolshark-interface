@@ -182,7 +182,8 @@ export default function SelectToken(props) {
     console.log("fetching token balances");
     const config = {
       apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
-      network: Network.ARB_MAINNET,
+      network:
+        chainId == Number("42161") ? Network.ARB_MAINNET : Network.ARB_SEPOLIA,
     };
     const alchemy = new Alchemy(config);
     const data = await alchemy.core.getTokenBalances(

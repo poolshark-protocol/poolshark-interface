@@ -74,7 +74,7 @@ export default function Network({
                       switchNetwork(42161);
                     }}
                     className={`${
-                      chainId === 421613 || chainId === 42161
+                      chainId === 42161
                         ? " bg-background"
                         : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
                     } flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}
@@ -85,7 +85,7 @@ export default function Network({
                     </div>
                     <div
                       className={`${
-                        chainId === 421613
+                        chainId === 42161
                           ? " flex gap-x-2 items-center text-main text-xs"
                           : "hidden"
                       }`}
@@ -106,7 +106,10 @@ export default function Network({
                     } flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}
                   >
                     <div className="flex gap-x-2 items-center">
-                      <img className="saturate-0" src="/static/images/arb_icon.svg" />
+                      <img
+                        className="saturate-0"
+                        src="/static/images/arb_icon.svg"
+                      />
                       <span className="opacity-70">Arbitrum Sepolia</span>
                     </div>
                     <div
