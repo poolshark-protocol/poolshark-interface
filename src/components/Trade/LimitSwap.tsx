@@ -9,7 +9,11 @@ import LimitSwapButton from "../Buttons/LimitSwapButton";
 import SelectToken from "../SelectToken";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { BigNumber, ethers } from "ethers";
-import { inputHandler, numFormat, parseUnits } from "../../utils/math/valueMath";
+import {
+  inputHandler,
+  numFormat,
+  parseUnits,
+} from "../../utils/math/valueMath";
 import { getSwapPools, limitPoolTypeIds } from "../../utils/pools";
 import { QuoteParams } from "../../utils/types";
 
@@ -90,7 +94,7 @@ export default function LimitSwap() {
     setStartPrice,
     setLimitPriceOrder,
     setNeedsPairUpdate,
-    setNeedsSetAmounts
+    setNeedsSetAmounts,
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
@@ -152,15 +156,17 @@ export default function LimitSwap() {
   /////////////////////////////Fetch Pools
   const [availablePools, setAvailablePools] = useState(undefined);
   const [quoteParams, setQuoteParams] = useState(undefined);
+  const [availableFeeTiers, setAvailableFeeTiers] = useState([]);
+  const [selectedFeeTier, setSelectedFeeTier] = useState(undefined);
 
   useEffect(() => {
-    if(!limitTabSelected) return
+    if (!limitTabSelected) return;
     if (exactIn) {
-      setDisplayIn('')
-      setAmountIn(BN_ZERO)
+      setDisplayIn("");
+      setAmountIn(BN_ZERO);
     } else {
-      setDisplayOut('')
-      setAmountOut(BN_ZERO)
+      setDisplayOut("");
+      setAmountOut(BN_ZERO);
     }
   }, [limitTabSelected]);
 
@@ -177,7 +183,7 @@ export default function LimitSwap() {
           setTokenInTradeUSDPrice,
           setTokenOutTradeUSDPrice,
           setTradePoolPrice,
-          setTradePoolLiquidity,
+          setTradePoolLiquidity
         );
       }
     }, quoteRefetchDelay);
@@ -229,6 +235,7 @@ export default function LimitSwap() {
       setTokenInTradeUSDPrice,
       setTokenOutTradeUSDPrice
     );
+
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
     if (pools) {
@@ -241,7 +248,11 @@ export default function LimitSwap() {
         };
         quoteList[i] = params;
         poolAdresses[i] = pools[i].id;
+        availableFeeTiers[i] = pools[i].feeTier.id;
       }
+    }
+    if (pools.length == 1) {
+      setSelectedFeeTier(pools[0].feeTier.id);
     }
     setAvailablePools(poolAdresses);
     setQuoteParams(quoteList);
@@ -760,8 +771,9 @@ export default function LimitSwap() {
                   ethers.utils.formatUnits(amountOut, tokenOut.decimals)
                 ) *
                   (100 - parseFloat(tradeSlippage))) /
-                100
-              , 6)}
+                  100,
+                6
+              )}
             </div>
           </div>
         </div>
@@ -896,13 +908,40 @@ export default function LimitSwap() {
           <span className="md:block hidden">SELECT A</span> Fee tier:
         </div>
         <div className="grid grid-cols-3 gap-x-3">
-          <div className="py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]">
+          <div
+            className={
+              selectedFeeTier == "1000"
+                ? "py-1.5 text-sm bg-white hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+                : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+            }
+            onClick={() => {
+              setSelectedFeeTier(1000);
+            }}
+          >
             0.01%
           </div>
-          <div className="py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]">
+          <div
+            className={
+              selectedFeeTier == "3000"
+                ? "py-1.5 text-sm bg-white hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+                : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+            }
+            onClick={() => {
+              setSelectedFeeTier(3000);
+            }}
+          >
             0.03%
           </div>
-          <div className="py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]">
+          <div
+            className={
+              selectedFeeTier == "10000"
+                ? "py-1.5 text-sm bg-white hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+                : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+            }
+            onClick={() => {
+              setSelectedFeeTier(10000);
+            }}
+          >
             0.1%
           </div>
         </div>
