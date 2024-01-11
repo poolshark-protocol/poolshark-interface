@@ -24,14 +24,21 @@ export default function Range() {
   const [isPositionsLoading, setIsPositionsLoading] = useState(false);
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
 
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph, listedtokenList] =
-    useConfigStore((state) => [
-      state.chainId,
-      state.networkName,
-      state.limitSubgraph,
-      state.setLimitSubgraph,
-      state.listedtokenList,
-    ]);
+  const [
+    chainId,
+    networkName,
+    limitSubgraph,
+    setLimitSubgraph,
+    listedtokenList,
+    logoMap,
+  ] = useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
+    state.limitSubgraph,
+    state.setLimitSubgraph,
+    state.listedtokenList,
+    state.logoMap,
+  ]);
 
   const [
     setTokenIn,
@@ -70,7 +77,7 @@ export default function Range() {
     if (address) {
       const chainConstants = chainProperties[networkName]
         ? chainProperties[networkName]
-        : chainProperties["arbitrumGoerli"]; 
+        : chainProperties["arbitrumGoerli"];
       setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
       getUserRangePositionData();
     }
@@ -116,15 +123,17 @@ export default function Range() {
                 BECOME A LIQUIDITY PROVIDER AND EARN FEES
               </h1>
               <p className="text-sm text-white/40 font-light">
-                Range LPs bootstrap
-                token swaps in return for a share of trading fees.
-                <br/><br/>
-                The main advantage of range-bound liquidity is
-                earning more fees with less capital.
-                <br/>
-                Wider price ranges are recommended to
-                reduce losses when removing liquidity.
-                <br/><br/>
+                Range LPs bootstrap token swaps in return for a share of trading
+                fees.
+                <br />
+                <br />
+                The main advantage of range-bound liquidity is earning more fees
+                with less capital.
+                <br />
+                Wider price ranges are recommended to reduce losses when
+                removing liquidity.
+                <br />
+                <br />
                 Provide liquidity and start earning FIN rewards now.
               </p>
             </div>
@@ -133,17 +142,18 @@ export default function Range() {
               onClick={() => {
                 resetRangeLimitParams();
                 if (allRangePools?.length > 0) {
+                  console.log(allRangePools[0]);
                   const tokenIn = {
                     name: allRangePools[0].tokenZero.symbol,
                     address: allRangePools[0].tokenZero.id,
-                    logoURI: allRangePools[0].tokenZero.symbol,
+                    logoURI: logoMap[allRangePools[0].tokenZero.id],
                     symbol: allRangePools[0].tokenZero.symbol,
                     decimals: allRangePools[0].tokenZero.decimals,
                   } as tokenRangeLimit;
                   const tokenOut = {
                     name: allRangePools[0].tokenOne.symbol,
                     address: allRangePools[0].tokenOne.id,
-                    logoURI: allRangePools[0].tokenOne.symbol,
+                    logoURI: logoMap[allRangePools[0].tokenOne.id],
                     symbol: allRangePools[0].tokenOne.symbol,
                     decimals: allRangePools[0].tokenOne.decimals,
                   } as tokenRangeLimit;
@@ -158,7 +168,7 @@ export default function Range() {
                   router.push({
                     pathname: "/range/add-liquidity",
                     query: {
-                      feeTier: allRangePools[0].feeTier ?? 1000,
+                      feeTier: allRangePools[0].feeTier ?? 3000,
                       poolId: allRangePools[0].poolId,
                     },
                   });
@@ -174,9 +184,8 @@ export default function Range() {
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">How it works</h1>
               <p className="text-sm text-grey3 font-light">
-                Range Pools use a dynamic fee system to increase fee
-                revenue.
-                <br/>
+                Range Pools use a dynamic fee system to increase fee revenue.
+                <br />
                 LPs earn more fees on large price swings to reduce loss to
                 arbitrageurs.
                 <br />
@@ -184,7 +193,6 @@ export default function Range() {
                 <span className="text-xs">
                   Tighter ranges increase fee revenue.
                 </span>
-                
                 <br />
                 <span className="text-xs">Wider ranges decrease LVR risk.</span>
               </p>

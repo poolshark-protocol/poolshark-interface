@@ -145,7 +145,12 @@ export default function ViewLimit() {
         );
       }
     }
-  }, [limitFilledAmount, tokenIn.address, tokenOut.address, limitPositionData.liquidity]);
+  }, [
+    limitFilledAmount,
+    tokenIn.address,
+    tokenOut.address,
+    limitPositionData.liquidity,
+  ]);
 
   useEffect(() => {
     if (
@@ -312,7 +317,7 @@ export default function ViewLimit() {
   useEffect(() => {
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
-      : chainProperties["arbitrumGoerli"]; 
+      : chainProperties["arbitrumGoerli"];
     setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
     if (
       limitPositionData.positionId == undefined ||
@@ -363,7 +368,7 @@ export default function ViewLimit() {
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
               ) : (
-                <img height="50" width="50" src={getLogoURI(logoMap, tokenIn)} />
+                <img height="50" width="50" src={tokenIn.logoURI} />
               )}
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
@@ -372,7 +377,7 @@ export default function ViewLimit() {
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={getLogoURI(logoMap, tokenOut)}
+                  src={tokenOut.logoURI}
                 />
               )}
             </div>
@@ -389,7 +394,8 @@ export default function ViewLimit() {
                 </h1>
                 <a
                   href={
-                    `${chainProperties[networkName]["explorerUrl"]}` + limitPoolAddress
+                    `${chainProperties[networkName]["explorerUrl"]}` +
+                    limitPoolAddress
                   }
                   target="_blank"
                   rel="noreferrer"
@@ -500,7 +506,7 @@ export default function ViewLimit() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={getLogoURI(logoMap, tokenIn)} />
+                        <img height="25" width="25" src={tokenIn.logoURI} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -763,7 +769,7 @@ export default function ViewLimit() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={getLogoURI(logoMap, tokenOut)} />
+                        <img height="25" width="25" src={tokenOut.logoURI} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />

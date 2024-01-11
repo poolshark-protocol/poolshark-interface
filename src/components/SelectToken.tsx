@@ -10,6 +10,7 @@ import CoinListItem from "./CoinListItem";
 import { useAccount, useToken } from "wagmi";
 import { useConfigStore } from "../hooks/useConfigStore";
 import { defaultTokenLogo, getLogoURI, nativeString } from "../utils/tokens";
+import { Alchemy, Network } from "alchemy-sdk";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
@@ -61,10 +62,8 @@ export default function SelectToken(props) {
     address: customInput as `0x${string}`,
     enabled: isAddress(customInput),
     onSuccess() {
-      if (tokenData)
-        setTokenInfo(tokenData);
-      else 
-        refetchTokenInfo()
+      if (tokenData) setTokenInfo(tokenData);
+      else refetchTokenInfo();
     },
   });
 
@@ -90,9 +89,7 @@ export default function SelectToken(props) {
     const fetch = async () => {
       // validate address
 
-      if (
-        isAddress(customInput)
-      ) {
+      if (isAddress(customInput)) {
         // if not in listed tokens or search tokens we need to fetch data from the chain
         refetchTokenInfo();
       } else {
@@ -104,8 +101,8 @@ export default function SelectToken(props) {
 
   useEffect(() => {
     if (isOpen) {
-      setCustomInput('')
-      setDisplayTokenList(listedTokenList)
+      setCustomInput("");
+      setDisplayTokenList(listedTokenList);
     }
   }, [isOpen]);
 
@@ -116,7 +113,7 @@ export default function SelectToken(props) {
       symbol: coin?.symbol,
       logoURI: coin?.logoURI,
       decimals: coin?.decimals,
-      native: coin?.native ?? false
+      native: coin?.native ?? false,
     };
     if (props.amount != undefined && props.isAmountIn != undefined) {
       if (props.type === "in") {
@@ -178,7 +175,28 @@ export default function SelectToken(props) {
 
   function openModal() {
     setIsOpen(true);
+    fetchTokenBalances();
   }
+
+  const fetchTokenBalances = async () => {
+    console.log("fetching token balances");
+    const config = {
+      apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
+      network: Network.ARB_MAINNET,
+    };
+    const alchemy = new Alchemy(config);
+    const data = await alchemy.core.getTokenBalances(
+      address,
+      listedTokenList.map((token) => token.address)
+    );
+    for (let i = 0; i < data.tokenBalances.length; i++) {
+      listedTokenList[i].balance = data.tokenBalances[i].tokenBalance;
+    }
+    setListedTokenList(listedTokenList);
+    setTimeout(() => {
+      fetchTokenBalances();
+    }, 2500);
+  };
 
   return (
     <div className="w-full">
@@ -251,9 +269,9 @@ export default function SelectToken(props) {
                       })}
                     </div>
                   </div>
-                  <div>
-                    {displayTokenList
-                      ? displayTokenList
+                  <div className="h-[360px] overflow-y-auto">
+                    {customInput == ""
+                      ? listedTokenList
                           .sort((a, b) => b.balance - a.balance)
                           .map((coin) => {
                             if (
@@ -271,14 +289,38 @@ export default function SelectToken(props) {
                             ) {
                               return (
                                 <CoinListItem
-                                  key={coin.id+coin.symbol}
+                                  key={coin.id + coin.symbol}
                                   coin={coin}
                                   chooseToken={chooseToken}
                                 />
                               );
                             }
                           })
-                      : null}
+                      : searchtokenList
+                          .sort((a, b) => b.balance - a.balance)
+                          .map((coin) => {
+                            if (
+                              customInput.toLowerCase() == "" ||
+                              customInput.toLowerCase() == " " ||
+                              coin.symbol
+                                .toLowerCase()
+                                .includes(customInput.toLowerCase()) ||
+                              coin.name
+                                .toLowerCase()
+                                .includes(customInput.toLowerCase()) ||
+                              coin.address
+                                .toLowerCase()
+                                .includes(customInput.toLowerCase())
+                            ) {
+                              return (
+                                <CoinListItem
+                                  key={coin.id + coin.symbol}
+                                  coin={coin}
+                                  chooseToken={chooseToken}
+                                />
+                              );
+                            }
+                          })}
                   </div>
                 </Dialog.Panel>
               </Transition.Child>
@@ -298,7 +340,7 @@ export default function SelectToken(props) {
         <div className="flex items-center gap-x-2 w-full">
           {(props.tokenIn.symbol != "Select Token" && props.type == "in") ||
           (props.tokenOut.symbol != "Select Token" && props.type == "out") ? (
-            <img className="md:w-6 w-6" src={getLogoURI(logoMap, props.displayToken)} />
+            <img className="md:w-6 w-6" src={props.displayToken?.logoURI} />
           ) : (
             <></>
           )}

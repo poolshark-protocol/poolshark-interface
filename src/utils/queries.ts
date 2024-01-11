@@ -358,7 +358,7 @@ export const fetchCoverPositions = (client: CoverSubgraph, address: string) => {
     const positionsQuery = `
       query($owner: String) {
           positions(
-            where: {owner:"${address}"},
+            where: {owner:"${address.toLowerCase()}"},
             orderBy: liquidity,
             orderDirection: desc
           ) {
@@ -513,7 +513,7 @@ export const fetchLimitPositions = (client: LimitSubgraph, address: string) => {
     const positionsQuery = `
     {
         limitPositions(
-          where: {owner:"${address}"},
+          where: {owner:"${address.toLowerCase()}"},
           orderBy: createdAtTimestamp,
           orderDirection: desc
         ) {
@@ -559,7 +559,7 @@ export const fetchLimitPositions = (client: LimitSubgraph, address: string) => {
             txnHash
         }
         historicalOrders(
-          where: {owner:"${address}", completed: true},
+          where: {owner:"${address.toLowerCase()}", completed: true},
           orderBy: completedAtTimestamp,
           orderDirection: desc
         ) {
@@ -750,7 +750,7 @@ export const fetchRangePositions = (client: LimitSubgraph, address: string) => {
     const positionsQuery = `
     {
       rangePositions(
-        where: {owner:"${address}"},
+        where: {owner:"${address.toLowerCase()}"},
         orderBy: liquidity,
         orderDirection: desc
       ) {

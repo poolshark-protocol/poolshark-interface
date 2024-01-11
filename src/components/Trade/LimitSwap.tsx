@@ -391,7 +391,7 @@ export default function LimitSwap() {
   ]);
 
   function updateLimitTicks() {
-    const tickSpacing = tradePoolData.feeTier.tickSpacing;
+    const tickSpacing = tradePoolData.feeTier?.tickSpacing ?? 30;
     const priceString = invertPrice(limitPriceString, limitPriceOrder);
     if (isFinite(parseFloat(limitPriceString)) && parseFloat(priceString) > 0) {
       if (
@@ -888,6 +888,22 @@ export default function LimitSwap() {
               amount={exactIn ? displayIn : displayOut}
               isAmountIn={exactIn}
             />
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-y-4 w-full items-center mt-5 justify-between bg-dark border-grey/80 p-2 border rounded-[4px]">
+        <div className="bg-dark text-sm uppercase pl-2 rounded-[4px] flex items-center gap-x-2">
+          <span className="md:block hidden">SELECT A</span> Fee tier:
+        </div>
+        <div className="grid grid-cols-3 gap-x-3">
+          <div className="py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]">
+            0.01%
+          </div>
+          <div className="py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]">
+            0.03%
+          </div>
+          <div className="py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]">
+            0.1%
           </div>
         </div>
       </div>
