@@ -133,10 +133,14 @@ function MyApp({ Component, pageProps }) {
     const fetchTokenBalances = async () => {
       const alchemy = new Alchemy(config);
       const data = await alchemy.core.getTokenBalances(address, tokenAddresses);
-      for (let i = 0; i < data.tokenBalances.length; i++) {
-        search_tokens[i].balance = data.tokenBalances[i].tokenBalance;
+      if (data.tokenBalances.length != 0) {
+        for (let i = 0; i < data.tokenBalances.length; i++) {
+          if (search_tokens[i]?.balance) {
+            search_tokens[i].balance = data.tokenBalances[i].tokenBalance;
+          }
+        }
+        setSearchTokenList(search_tokens);
       }
-      setSearchTokenList(search_tokens);
       setTimeout(() => {
         fetchTokenBalances();
       }, 2500);
