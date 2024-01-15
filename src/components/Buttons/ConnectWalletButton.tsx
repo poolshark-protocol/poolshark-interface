@@ -59,8 +59,6 @@ export const ConnectWalletButton = ({ xl = false, center = false }: Props) => {
               })}
             >
               {(() => {
-                console.log("account", account);
-                console.log("chain", chain);
                 if (!connected) {
                   return (
                     <button
