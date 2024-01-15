@@ -55,6 +55,14 @@ export const supportedNetworkNames = {
   arbitrum: "arbitrum-one",
 };
 
+export const chainIdToRpc = {
+  42161:
+    "https://patient-distinguished-pallet.arbitrum-mainnet.quiknode.pro/4cbe7cbdb55ec4b33fdc1a4239e1169b167ae351/",
+
+  421614:
+    "https://arbitrum-sepolia.core.chainstack.com/a0fd1794b40136e3d035e89ecbeca764",
+};
+
 export const chainProperties = {
   mainnet: {
     chainName: "Ethereum Mainnet",
@@ -109,7 +117,7 @@ export const chainProperties = {
     limitSubgraphUrl:
       "https://arbitrum-goerli.graph-eu.p2pify.com/871e9ed9089def9ec3ed8b54d340e36e/limit-arbitrum-sepolia",
   },
-  'arbitrum-one': {
+  "arbitrum-one": {
     chainName: "Arbitrum One",
     logo: "https://raw.githubusercontent.com/poolshark-protocol/token-metadata/master/blockchains/arbitrum-one/logo.png",
     rpcUrls: [

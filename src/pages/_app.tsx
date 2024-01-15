@@ -15,6 +15,7 @@ import {
   chainProperties,
   supportedNetworkNames,
   arbitrumSepolia,
+  chainIdToRpc,
 } from "../utils/chains";
 import axios from "axios";
 import { coinsList } from "../utils/types";
@@ -28,12 +29,7 @@ const { chains, provider } = configureChains(
   [
     jsonRpcProvider({
       rpc: (chain) => ({
-        http: `https://patient-distinguished-pallet.arbitrum-mainnet.quiknode.pro/4cbe7cbdb55ec4b33fdc1a4239e1169b167ae351/`, // arbitrum
-      }),
-    }),
-    jsonRpcProvider({
-      rpc: (chain) => ({
-        http: `https://arbitrum-sepolia.core.chainstack.com/a0fd1794b40136e3d035e89ecbeca764`, // arbitrumSepolia
+        http: chainIdToRpc[chain.id],
       }),
     }),
   ]
