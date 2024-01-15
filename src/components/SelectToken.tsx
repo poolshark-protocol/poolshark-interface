@@ -175,32 +175,7 @@ export default function SelectToken(props) {
 
   function openModal() {
     setIsOpen(true);
-    fetchTokenBalances();
   }
-
-  useEffect(() => {
-    fetchTokenBalances();
-  }, [chainId]);
-
-  const fetchTokenBalances = async () => {
-    const config = {
-      apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
-      network:
-        chainId == Number("42161") ? Network.ARB_MAINNET : Network.ARB_SEPOLIA,
-    };
-    const alchemy = new Alchemy(config);
-    const data = await alchemy.core.getTokenBalances(
-      address,
-      listedTokenList.map((token) => token.address)
-    );
-    for (let i = 0; i < data.tokenBalances.length; i++) {
-      listedTokenList[i].balance = data.tokenBalances[i].tokenBalance;
-    }
-    setListedTokenList(listedTokenList);
-    setTimeout(() => {
-      fetchTokenBalances();
-    }, 2500);
-  };
 
   return (
     <div className="w-full">

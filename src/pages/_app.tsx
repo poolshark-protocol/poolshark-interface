@@ -130,7 +130,6 @@ function MyApp({ Component, pageProps }) {
 
     const tokenAddresses = [];
 
-    
     const fetchTokenBalances = async () => {
       const alchemy = new Alchemy(config);
       const data = await alchemy.core.getTokenBalances(address, tokenAddresses);
@@ -138,6 +137,9 @@ function MyApp({ Component, pageProps }) {
         search_tokens[i].balance = data.tokenBalances[i].tokenBalance;
       }
       setSearchTokenList(search_tokens);
+      setTimeout(() => {
+        fetchTokenBalances();
+      }, 2500);
     };
     const fetchTokenMetadata = async () => {
       const chainName = chainIdsToNames[chainId];
