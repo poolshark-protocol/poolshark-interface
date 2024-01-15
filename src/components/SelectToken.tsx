@@ -178,8 +178,11 @@ export default function SelectToken(props) {
     fetchTokenBalances();
   }
 
+  useEffect(() => {
+    fetchTokenBalances();
+  }, [chainId]);
+
   const fetchTokenBalances = async () => {
-    console.log("fetching token balances");
     const config = {
       apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
       network:

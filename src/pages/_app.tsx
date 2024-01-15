@@ -129,6 +129,8 @@ function MyApp({ Component, pageProps }) {
     };
 
     const tokenAddresses = [];
+
+    
     const fetchTokenBalances = async () => {
       const alchemy = new Alchemy(config);
       const data = await alchemy.core.getTokenBalances(address, tokenAddresses);
