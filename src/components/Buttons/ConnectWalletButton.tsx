@@ -59,6 +59,8 @@ export const ConnectWalletButton = ({ xl = false, center = false }: Props) => {
               })}
             >
               {(() => {
+                console.log("account", account);
+                console.log("chain", chain);
                 if (!connected) {
                   return (
                     <button
@@ -117,7 +119,9 @@ export const ConnectWalletButton = ({ xl = false, center = false }: Props) => {
                           <img
                             style={{ width: 17, height: 17 }}
                             src="/static/images/arb_icon.svg"
-                            className={`aspect-square ${chain.id === 421614 && "saturate-0"}`}
+                            className={`aspect-square ${
+                              chain.id === 421614 && "saturate-0"
+                            }`}
                           />
                         ) : (
                           ""
@@ -129,9 +133,15 @@ export const ConnectWalletButton = ({ xl = false, center = false }: Props) => {
                         className="flex bg-dark rounded-[4px] 2xl:border-grey border-transparent border hover:opacity-80 "
                       >
                         {account.displayBalance ? (
-                          <div className="bg-dark py-2.5 px-4 rounded-l-lg whitespace-nowrap hidden 2xl:block text-sm flex items-center">
-                            <span>{account.displayBalance}</span>
-                          </div>
+                          chain.id === 421614 ? (
+                            <>
+                              {/* TODO:fetch here eth balance for arbitrum sepolia */}
+                            </>
+                          ) : (
+                            <div className="bg-dark py-2.5 px-4 rounded-l-lg whitespace-nowrap hidden 2xl:block text-sm flex items-center">
+                              <span>{account.displayBalance}</span>
+                            </div>
+                          )
                         ) : (
                           ""
                         )}
