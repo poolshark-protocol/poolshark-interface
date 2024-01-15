@@ -147,7 +147,6 @@ function MyApp({ Component, pageProps }) {
     };
     const fetchTokenMetadata = async () => {
       const chainName = chainIdsToNames[chainId];
-      console.log("chainName: ", chainName);
       axios
         .get(
           `https://raw.githubusercontent.com/poolshark-protocol/token-metadata/` +
@@ -155,7 +154,6 @@ function MyApp({ Component, pageProps }) {
             `/blockchains/${chainName ?? "arbitrum-one"}/tokenlist.json`
         )
         .then(function (response) {
-          console.log(response.data);
           for (let i = 0; i < response.data.search_tokens.length; i++) {
             tokenAddresses.push(response.data.search_tokens[i].id);
           }
