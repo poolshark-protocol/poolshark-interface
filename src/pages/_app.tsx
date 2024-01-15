@@ -120,6 +120,12 @@ function MyApp({ Component, pageProps }) {
   } = useProvider();
 
   useEffect(() => {
+    console.log("chainId: ", chainId);
+    console.log("name: ", name);
+    setChainId(chainId);
+  }, [chainId]);
+
+  useEffect(() => {
     const config = {
       apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
       network:

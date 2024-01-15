@@ -298,8 +298,15 @@ export default function Trade() {
     token: tokenIn.native ? undefined : tokenIn.address,
     enabled: tokenIn.address != undefined && needsBalanceIn,
     watch: needsBalanceIn,
-    chainId: chainId,
+    chainId: 421614,
     onSuccess(data) {
+      console.log(
+        "token address",
+        tokenIn.native ? undefined : tokenIn.address
+      );
+      console.log("chainId", chainId);
+      console.log("token in", tokenIn);
+      console.log("Success balance in", data);
       if (needsBalanceIn) {
         setNeedsBalanceIn(false);
       }
@@ -312,8 +319,9 @@ export default function Trade() {
     token: tokenOut.native ? undefined : tokenOut.address,
     enabled: tokenOut.address != undefined && needsBalanceOut,
     watch: needsBalanceOut,
-    chainId: chainId,
+    chainId: 421614,
     onSuccess(data) {
+      console.log("Success balance out", data);
       if (needsBalanceOut) {
         setNeedsBalanceOut(false);
       }
