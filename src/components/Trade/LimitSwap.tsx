@@ -911,7 +911,7 @@ export default function LimitSwap() {
           <div
             className={
               selectedFeeTier == "1000"
-                ? "py-1.5 text-sm bg-white hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+                ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
                 : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
             }
             onClick={() => {
@@ -923,7 +923,7 @@ export default function LimitSwap() {
           <div
             className={
               selectedFeeTier == "3000"
-                ? "py-1.5 text-sm bg-white hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+                ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
                 : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
             }
             onClick={() => {
@@ -935,7 +935,7 @@ export default function LimitSwap() {
           <div
             className={
               selectedFeeTier == "10000"
-                ? "py-1.5 text-sm bg-white hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+                ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
                 : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
             }
             onClick={() => {
