@@ -75,7 +75,6 @@ export default function Network({
                     onClick={() => {
                       setNetworkName("arbitrum-one");
                       switchNetwork(42161);
-                      setChainId(42161);
                     }}
                     className={`${
                       chainId === 42161
@@ -102,7 +101,6 @@ export default function Network({
                     onClick={() => {
                       setNetworkName("arbitrum-sepolia");
                       switchNetwork(421614);
-                      setChainId(421614);
                     }}
                     className={`${
                       chainId === 421614
