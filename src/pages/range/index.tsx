@@ -61,7 +61,7 @@ export default function Range() {
   //////////////////////Get Pools Data
   useEffect(() => {
     getRangePoolData();
-  }, []);
+  }, [chainId]);
 
   async function getRangePoolData() {
     setIsPoolsLoading(true);
@@ -84,11 +84,11 @@ export default function Range() {
   }, []);
 
   useEffect(() => {
-    if (address && needsRefetch) {
+    if (address) {
       getUserRangePositionData();
       setNeedsRefetch(false);
     }
-  }, [address, needsRefetch]);
+  }, [address, needsRefetch, chainId]);
 
   async function getUserRangePositionData() {
     try {
