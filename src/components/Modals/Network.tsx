@@ -97,35 +97,37 @@ export default function Network({
                       <div className="h-1.5 w-1.5 bg-green-500 rounded-full" />
                     </div>
                   </div>
-                  <div
-                    onClick={() => {
-                      setNetworkName("arbitrum-sepolia");
-                      switchNetwork(421614);
-                    }}
-                    className={`${
-                      chainId === 421614
-                        ? " bg-background"
-                        : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
-                    } flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}
-                  >
-                    <div className="flex gap-x-2 items-center">
-                      <img
-                        className="saturate-0"
-                        src="/static/images/arb_icon.svg"
-                      />
-                      <span className="opacity-70">Arbitrum Sepolia</span>
-                    </div>
+                  {process.env.NEXT_PUBLIC_isPRODUCTION === "false" && (
                     <div
+                      onClick={() => {
+                        setNetworkName("arbitrum-sepolia");
+                        switchNetwork(421614);
+                      }}
                       className={`${
                         chainId === 421614
-                          ? " flex gap-x-2 items-center text-main text-xs"
-                          : "hidden"
-                      }`}
+                          ? " bg-background"
+                          : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
+                      } flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}
                     >
-                      Connected
-                      <div className="h-1.5 w-1.5 bg-green-500 rounded-full" />
+                      <div className="flex gap-x-2 items-center">
+                        <img
+                          className="saturate-0"
+                          src="/static/images/arb_icon.svg"
+                        />
+                        <span className="opacity-70">Arbitrum Sepolia</span>
+                      </div>
+                      <div
+                        className={`${
+                          chainId === 421614
+                            ? " flex gap-x-2 items-center text-main text-xs"
+                            : "hidden"
+                        }`}
+                      >
+                        Connected
+                        <div className="h-1.5 w-1.5 bg-green-500 rounded-full" />
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </Dialog.Panel>
             </Transition.Child>
