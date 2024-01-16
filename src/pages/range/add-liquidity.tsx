@@ -137,7 +137,7 @@ export default function AddLiquidity({}) {
     } else {
       setPairSelected(false);
     }
-  }, [tokenIn.address, tokenOut.address]);
+  }, [tokenIn.address, tokenOut.address, chainId]);
 
   useEffect(() => {
     if (
@@ -147,18 +147,48 @@ export default function AddLiquidity({}) {
     ) {
       updatePools(parseInt(router.query.feeTier.toString()));
     }
-  }, [router.query.feeTier]);
+  }, [router.query.feeTier, chainId]);
 
   async function updatePools(feeAmount: number) {
     /// @notice - this should filter by the poolId in the actual query
     const data = await fetchRangePools(limitSubgraph);
+    console.log("pools data", data);
     if (data["data"]) {
       const pools = data["data"].limitPools;
-      const pool = pools.find(
+      //try to get the pool from routing params
+      var pool = pools.find(
         (pool) =>
           pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
       );
-      if (
+      if (pool == undefined || router.query.poolId == pool.id) {
+        pool = data["data"].limitPools[0];
+        const originalTokenIn = {
+          name: pool.token0.symbol,
+          address: pool.token0.id,
+          logoURI: logoMap[pool.token0.id.toLowerCase()],
+          symbol: pool.token0.symbol,
+          decimals: pool.token0.decimals,
+          userBalance: pool.token0.balance,
+          callId: 0,
+        };
+        const originalTokenOut = {
+          name: pool.token1.symbol,
+          address: pool.token1.id,
+          logoURI: logoMap[pool.token1.id.toLowerCase()],
+          symbol: pool.token1.symbol,
+          decimals: pool.token1.decimals,
+          userBalance: pool.token1.balance,
+          callId: 1,
+        };
+        setTokenIn(originalTokenOut, originalTokenIn, "0", true);
+        setTokenOut(originalTokenIn, originalTokenOut, "0", false);
+        setRangePoolFromFeeTier(
+          originalTokenIn,
+          originalTokenOut,
+          feeAmount,
+          limitSubgraph
+        );
+      } else if (
         router.query.feeTier &&
         !isNaN(parseInt(router.query.feeTier.toString())) &&
         rangePoolData.feeTier == undefined &&

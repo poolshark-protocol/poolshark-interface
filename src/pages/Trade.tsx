@@ -135,15 +135,6 @@ export default function Trade() {
   //BOTH
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
 
-  ////////////////////////////////ChainId
-  //CONFIG STORE
-  const [stateChainName, setStateChainName] = useState();
-
-  // BOTH
-  useEffect(() => {
-    setStateChainName(chainIdsToNames[chainId]);
-  }, [chainId]);
-
   ////////////////////////////////Pools
 
   //log addresses and ids
@@ -224,7 +215,7 @@ export default function Trade() {
     if (address) {
       const chainConstants = chainProperties[networkName]
         ? chainProperties[networkName]
-        : chainProperties["arbitrumGoerli"];
+        : chainProperties["arbitrum"];
       setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
       getUserLimitPositionData();
       setNeedsRefetch(false);
@@ -309,6 +300,13 @@ export default function Trade() {
     watch: needsBalanceIn,
     chainId: chainId,
     onSuccess(data) {
+      console.log(
+        "token address",
+        tokenIn.native ? undefined : tokenIn.address
+      );
+      console.log("chainId", chainId);
+      console.log("token in", tokenIn);
+      console.log("Success balance in", data);
       if (needsBalanceIn) {
         setNeedsBalanceIn(false);
       }
@@ -323,6 +321,7 @@ export default function Trade() {
     watch: needsBalanceOut,
     chainId: chainId,
     onSuccess(data) {
+      console.log("Success balance out", data);
       if (needsBalanceOut) {
         setNeedsBalanceOut(false);
       }

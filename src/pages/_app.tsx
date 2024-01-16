@@ -2,49 +2,36 @@ import "../styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createClient, useProvider, WagmiConfig } from "wagmi";
-import { arbitrum, arbitrumGoerli } from "wagmi/chains";
+import { arbitrum } from "wagmi/chains";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
-import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import Head from "next/head";
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
-import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import { isMobile } from "react-device-detect";
-import { Analytics } from "@vercel/analytics/react";
+// import { Analytics } from "@vercel/analytics/react";
 import { useConfigStore } from "../hooks/useConfigStore";
 import {
   chainIdsToNames,
   chainProperties,
   supportedNetworkNames,
+  arbitrumSepolia,
+  chainIdToRpc,
 } from "../utils/chains";
 import axios from "axios";
 import { coinsList } from "../utils/types";
 import { useRouter } from "next/router";
 import TermsOfService from "../components/Modals/ToS";
-import Loader from "../components/Icons/Loader";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Alchemy, Network } from "alchemy-sdk";
-import { ZERO_ADDRESS } from "../utils/math/constants";
-import { getChainName } from "@usedapp/core";
 
 const { chains, provider } = configureChains(
-  [
-    arbitrum,
-    // arbitrumGoerli,
-  ], //TODO: arbitrumOne values
-
+  [arbitrum, arbitrumSepolia],
   [
     jsonRpcProvider({
       rpc: (chain) => ({
-        http: `https://patient-distinguished-pallet.arbitrum-mainnet.quiknode.pro/4cbe7cbdb55ec4b33fdc1a4239e1169b167ae351/`, // arbitrum
+        http: chainIdToRpc[chain.id],
       }),
     }),
-    // jsonRpcProvider({
-    //   rpc: (chain) => ({
-    //     http: `https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/`, // arbitrumGoerli
-    //   }),
-    // }),
-    //TODO: arbitrumOne values
   ]
 );
 
@@ -129,18 +116,34 @@ function MyApp({ Component, pageProps }) {
   } = useProvider();
 
   useEffect(() => {
+    console.log("chainId: ", chainId);
+    console.log("name: ", name);
+    setChainId(chainId);
+  }, [chainId]);
+
+  useEffect(() => {
     const config = {
       apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
-      network: Network.ARB_MAINNET,
+      network:
+        chainId == Number("42161") ? Network.ARB_MAINNET : Network.ARB_SEPOLIA,
     };
+
     const tokenAddresses = [];
+
     const fetchTokenBalances = async () => {
       const alchemy = new Alchemy(config);
       const data = await alchemy.core.getTokenBalances(address, tokenAddresses);
-      for (let i = 0; i < data.tokenBalances.length; i++) {
-        search_tokens[i].balance = data.tokenBalances[i].tokenBalance;
+      if (data.tokenBalances.length != 0) {
+        for (let i = 0; i < data.tokenBalances.length; i++) {
+          if (search_tokens[i]?.balance) {
+            search_tokens[i].balance = data.tokenBalances[i].tokenBalance;
+          }
+        }
+        setSearchTokenList(search_tokens);
       }
-      setSearchTokenList(search_tokens);
+      setTimeout(() => {
+        fetchTokenBalances();
+      }, 2500);
     };
     const fetchTokenMetadata = async () => {
       const chainName = chainIdsToNames[chainId];
@@ -151,7 +154,6 @@ function MyApp({ Component, pageProps }) {
             `/blockchains/${chainName ?? "arbitrum-one"}/tokenlist.json`
         )
         .then(function (response) {
-          console.log(response.data);
           for (let i = 0; i < response.data.search_tokens.length; i++) {
             tokenAddresses.push(response.data.search_tokens[i].id);
           }
@@ -190,7 +192,7 @@ function MyApp({ Component, pageProps }) {
     const networkName = supportedNetworkNames[name] ?? "unknownNetwork";
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
-      : chainProperties["arbitrumGoerli"];
+      : chainProperties["arbitrum"];
     setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
     setCoverSubgraph(chainConstants["coverSubgraphUrl"]);
     setCoverFactoryAddress(chainConstants["coverPoolFactory"]);
@@ -245,8 +247,8 @@ function MyApp({ Component, pageProps }) {
             )}
           </>
           <SpeedInsights />
-          <Analytics />
-          {/* </ApolloProvider> */}
+
+          {/* <Analytics /> </ApolloProvider> */}
         </RainbowKitProvider>
       </WagmiConfig>
     </>
