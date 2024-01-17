@@ -262,9 +262,8 @@ export default function SelectToken(props) {
                               coin.name
                                 .toLowerCase()
                                 .includes(customInput.toLowerCase()) ||
-                              coin.address
-                                .toLowerCase()
-                                .includes(customInput.toLowerCase())
+                              coin.address.toLowerCase() ==
+                                customInput.toLowerCase()
                             ) {
                               return (
                                 <CoinListItem
@@ -287,9 +286,8 @@ export default function SelectToken(props) {
                               coin.name
                                 .toLowerCase()
                                 .includes(customInput.toLowerCase()) ||
-                              coin.address
-                                .toLowerCase()
-                                .includes(customInput.toLowerCase())
+                              coin.address.toLowerCase() ==
+                                customInput.toLowerCase()
                             ) {
                               return (
                                 <CoinListItem
