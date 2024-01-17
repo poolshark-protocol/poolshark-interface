@@ -28,24 +28,18 @@ export const defaultNetwork = "arbitrum-one";
 
 export const chainIdsToNames = {
   1: "ethereum",
-  5: "goerli",
-  421613: "arbitrum-goerli",
   421614: "arbitrum-sepolia",
   42161: "arbitrum-one",
 };
 
 export const decToHex = {
   1: "0x1",
-  5: "0x5",
-  421613: "0x66EED",
   421614: "0x66EEE",
   42161: "0xA4B1",
 };
 
 export const supportedChainIds = {
   1: "mainnet",
-  5: "goerli",
-  421613: "arbitrumGoerli",
   421614: "arbitrumSepolia",
   42161: "arbitrum",
 };
@@ -75,19 +69,6 @@ export const chainProperties = {
       decimals: 18,
     },
     chainId: "0x1",
-    routerAddress: ZERO_ADDRESS as `0x${string}`,
-  },
-  goerli: {
-    chainName: "Goerli Test Network",
-    logo: "https://assets.trustwalletapp.com/blockchains/polygon/assets/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/logo.png",
-    rpcUrls: ["https://goerli.infura.io/v3/"],
-    blockExplorerUrls: ["https://goerli.etherscan.io/"],
-    nativeCurrency: {
-      name: "ETH",
-      symbol: "ETH",
-      decimals: 18,
-    },
-    chainId: "0x5",
     routerAddress: ZERO_ADDRESS as `0x${string}`,
   },
   "arbitrum-sepolia": {
