@@ -132,7 +132,6 @@ export default function Trade() {
   ]);
 
   //false order history is selected, true when active orders is selected
-  //BOTH
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
 
   ////////////////////////////////Pools
@@ -147,7 +146,6 @@ export default function Trade() {
   const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
   const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
 
-  //BOTH
   useEffect(() => {
     if (
       tokenIn.address != ZERO_ADDRESS &&
@@ -161,7 +159,6 @@ export default function Trade() {
     }
   }, [tokenIn.address, tokenOut.address, tokenIn.native]);
 
-  //BOTH
   useEffect(() => {
     if (
       tokenOut.address != ZERO_ADDRESS &&
@@ -176,7 +173,6 @@ export default function Trade() {
   }, [tokenIn.address, tokenOut.address, tokenIn.native]);
 
   ////////////////////////////////Filled Amount
-  //BOTH
   const { data: filledAmountList } = useContractRead({
     address: chainProperties[networkName]["routerAddress"],
     abi: poolsharkRouterABI,
@@ -196,7 +192,6 @@ export default function Trade() {
     },
   });
 
-  //BOTH
   useEffect(() => {
     if (filledAmountList) {
       setLimitFilledAmountList(filledAmountList[0]);
@@ -206,11 +201,9 @@ export default function Trade() {
 
   //////////////////////Position Data
 
-  //BOTH
   const [allLimitPositions, setAllLimitPositions] = useState([]);
   const [allHistoricalOrders, setAllHistoricalOrders] = useState([]);
 
-  //BOTH
   useEffect(() => {
     if (address) {
       const chainConstants = chainProperties[networkName]
@@ -222,14 +215,12 @@ export default function Trade() {
     }
   }, [needsRefetch, needsPosRefetch, address, networkName]);
 
-  //BOTH
   useEffect(() => {
     if (allLimitPositions.length > 0) {
       mapUserLimitSnapshotList();
     }
   }, [allLimitPositions]);
 
-  //BOTH
   async function getUserLimitPositionData() {
     try {
       const data = await fetchLimitPositions(
@@ -249,7 +240,6 @@ export default function Trade() {
     }
   }
 
-  //BOTH
   async function mapUserLimitSnapshotList() {
     try {
       let mappedLimitPoolAddresses = [];
@@ -292,7 +282,6 @@ export default function Trade() {
 
   ////////////////////////////////Balances
 
-  //BOTH
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.native ? undefined : tokenIn.address,
@@ -313,7 +302,6 @@ export default function Trade() {
     },
   });
 
-  //BOTH
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.native ? undefined : tokenOut.address,
@@ -328,7 +316,6 @@ export default function Trade() {
     },
   });
 
-  //BOTH
   useEffect(() => {
     if (isConnected) {
       setTokenInBalance(
@@ -348,7 +335,6 @@ export default function Trade() {
 
   ////////////////////////////////Allowances
 
-  //BOTH
   const { data: allowanceInRouter } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -366,7 +352,6 @@ export default function Trade() {
     },
   });
 
-  //BOTH
   useEffect(() => {
     if (allowanceInRouter) {
       setTokenInTradeAllowance(allowanceInRouter);
