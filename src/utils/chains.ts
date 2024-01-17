@@ -96,7 +96,7 @@ export const chainProperties = {
     rpcUrls: [
       "https://arbitrum-sepolia.core.chainstack.com/a0fd1794b40136e3d035e89ecbeca764",
     ],
-    explorerUrl: "https://sepolia.arbiscan.io/",
+    explorerUrl: "https://sepolia.arbiscan.io",
     nativeCurrency: {
       name: "ETH",
       symbol: "ETH",
@@ -107,7 +107,7 @@ export const chainProperties = {
     daiAddress: "0x9f479560cd8a531e6c0fe04521cb246264fe6b71" as `0x${string}`,
     finAddress: "0xcd453b942f35adf0364d89c05a892518825c1c3b",
     routerAddress:
-      "0x33df95efe07a3b3e69ba31438ae511d360d89b32" as `0x${string}`,
+      "0x73ac9a2e665925719d9c272a3df60b97dbc3e50d" as `0x${string}`,
     rangeStakerAddress:
       "0x62e0671022af1b2e705f08b282767c57d29c7c4c" as `0x${string}`,
     coverPoolFactory:
