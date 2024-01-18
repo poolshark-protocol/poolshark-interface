@@ -26,13 +26,14 @@ import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 
 export default function MarketSwap() {
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap, swingSDK] =
     useConfigStore((state) => [
       state.chainId,
       state.networkName,
       state.limitSubgraph,
       state.setLimitSubgraph,
       state.logoMap,
+      state.swingSDK
     ]);
 
   //CONFIG STORE
