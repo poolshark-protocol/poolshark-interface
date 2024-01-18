@@ -33,7 +33,7 @@ export default function MarketSwap() {
       state.limitSubgraph,
       state.setLimitSubgraph,
       state.logoMap,
-      state.swingSDK,
+      state.swingSDK
     ]);
 
   //CONFIG STORE
