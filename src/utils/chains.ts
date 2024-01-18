@@ -123,7 +123,7 @@ export const chainProperties = {
     rpcUrls: [
       "https://patient-distinguished-pallet.arbitrum-mainnet.quiknode.pro/4cbe7cbdb55ec4b33fdc1a4239e1169b167ae351/",
     ],
-    explorerUrl: "https://arbiscan.io/",
+    explorerUrl: "https://arbiscan.io",
     nativeCurrency: {
       name: "ETH",
       symbol: "ETH",

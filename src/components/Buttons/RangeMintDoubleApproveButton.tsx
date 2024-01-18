@@ -40,17 +40,12 @@ export default function RangeMintDoubleApproveButton({
     state.setNeedsAllowanceOut
   ])
 
-  const gasLimit = BigNumber.from(100000)
-
   const { config: t0 } = usePrepareContractWrite({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'approve',
     args: [routerAddress, amount0],
     chainId: chainId,
-    overrides: {
-      gasLimit: gasLimit
-    },
   })
 
   const { config: t1 } = usePrepareContractWrite({
@@ -59,9 +54,6 @@ export default function RangeMintDoubleApproveButton({
     functionName: 'approve',
     args: [routerAddress, amount1],
     chainId: chainId,
-    overrides: {
-      gasLimit: gasLimit
-    },
   })
 
   const {
