@@ -1,7 +1,13 @@
-import useTokenBalance from '../hooks/useTokenBalance'
+import { useConfigStore } from "../hooks/useConfigStore";
+import useTokenBalance from "../hooks/useTokenBalance";
+import { chainProperties, supportedNetworkNames } from "../utils/chains";
 
 function CoinListItem({ chooseToken, coin }) {
-  const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(coin?.native ? undefined : coin?.address)
+  const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(
+    coin?.native ? undefined : coin?.address
+  );
+
+  const [chainId] = useConfigStore((state) => [state.chainId]);
 
   return (
     <div
@@ -12,7 +18,7 @@ function CoinListItem({ chooseToken, coin }) {
       data-symbol={coin.symbol}
       key={coin.address}
       data-decimals={coin.decimals}
-      data-address={coin.id+coin.symbol}
+      data-address={coin.id + coin.symbol}
     >
       <button
         onClick={() => chooseToken(coin)}
@@ -26,7 +32,9 @@ function CoinListItem({ chooseToken, coin }) {
           </div>
         </div>
         <span>
-          {!Number.isNaN(tokenBalanceBox().props.children[1])
+          {chainProperties[supportedNetworkNames[chainId]].sdkSupport.alchemy
+            ? coin.balance
+            : !Number.isNaN(tokenBalanceBox().props.children[1])
             ? Number(tokenBalanceBox().props.children[1]) >= 1000000
               ? Number(tokenBalanceBox().props.children[1])
                   .toExponential(5)

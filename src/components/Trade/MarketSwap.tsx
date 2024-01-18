@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
-import { useAccount, useContractRead, useSigner } from "wagmi";
+import { useAccount, useContractRead, useProvider, useSigner } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
@@ -26,13 +26,14 @@ import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 
 export default function MarketSwap() {
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap, swingSDK] =
     useConfigStore((state) => [
       state.chainId,
       state.networkName,
       state.limitSubgraph,
       state.setLimitSubgraph,
       state.logoMap,
+      state.swingSDK,
     ]);
 
   //CONFIG STORE
@@ -118,6 +119,7 @@ export default function MarketSwap() {
   const { address, isDisconnected, isConnected } = useAccount();
 
   const { data: signer } = useSigner();
+  const provider = useProvider();
 
   const router = useRouter();
 
@@ -236,6 +238,23 @@ export default function MarketSwap() {
       }
     }
   };
+
+  /////////////////////Swing SDK
+
+  useEffect(() => {
+    connectWalletToSwingSdk()
+   }, [signer]);
+
+  const connectWalletToSwingSdk = async () => {
+    if (!signer) return
+    await swingSDK.init()
+    await swingSDK.wallet.connect(
+      signer,
+      chainId,
+    );
+  };
+
+  // enable swing quotes if pair does not include FIN
 
   /////////////////////Double Input Boxes
 

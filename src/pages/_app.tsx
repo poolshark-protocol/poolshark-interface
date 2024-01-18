@@ -37,21 +37,18 @@ const { chains, provider } = configureChains(
   ]
 );
 
+// Rainbow Kit
 const { connectors } = getDefaultWallets({
   appName: "Poolshark UI",
   chains,
 });
 
+// Wagmi
 const wagmiClient = createClient({
   connectors,
   provider,
   autoConnect: true,
 });
-
-// const apolloClient = new ApolloClient({
-//   cache: new InMemoryCache(),
-//   uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
-// })
 
 const whitelist = [
   "0x65f5B282E024e3d6CaAD112e848dEc3317dB0902",
@@ -93,6 +90,7 @@ function MyApp({ Component, pageProps }) {
 
   const [
     listed_tokens,
+    networkName,
     search_tokens,
     setChainId,
     setNetworkName,
@@ -104,6 +102,7 @@ function MyApp({ Component, pageProps }) {
     setDisplayTokenList,
   ] = useConfigStore((state) => [
     state.listedtokenList,
+    state.networkName,
     state.searchtokenList,
     state.setChainId,
     state.setNetworkName,
@@ -126,7 +125,8 @@ function MyApp({ Component, pageProps }) {
   useEffect(() => {
     const config = {
       apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
-      network: alchemyNetworks[chainId],
+      network:
+        alchemyNetworks[chainId] ?? Network.ARB_MAINNET,
     };
     const fetchTokenBalances = async () => {
       const alchemy = new Alchemy(config);

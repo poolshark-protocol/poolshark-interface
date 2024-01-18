@@ -1,6 +1,6 @@
 import { ZERO_ADDRESS } from "./math/constants";
 import { Chain } from "wagmi";
-import { Alchemy, Network } from "alchemy-sdk";
+import { Network } from "alchemy-sdk";
 
 export const arbitrumSepolia: Chain = {
   id: 421614,
@@ -28,24 +28,16 @@ export const arbitrumSepolia: Chain = {
 export const defaultNetwork = "arbitrum-one";
 
 export const chainIdsToNames = {
-  1: "ethereum",
   421614: "arbitrum-sepolia",
   42161: "arbitrum-one",
 };
 
-export const alchemyNetworks = {
-  42161: Network.ARB_MAINNET,
-  421614: Network.ARB_SEPOLIA,
-};
-
 export const decToHex = {
-  1: "0x1",
   421614: "0x66EEE",
   42161: "0xA4B1",
 };
 
 export const supportedChainIds = {
-  1: "mainnet",
   421614: "arbitrumSepolia",
   42161: "arbitrum",
 };
@@ -63,27 +55,19 @@ export const chainIdToRpc = {
     "https://arbitrum-sepolia.core.chainstack.com/a0fd1794b40136e3d035e89ecbeca764",
 };
 
+export const alchemyNetworks = {
+	42161: Network.ARB_MAINNET,
+	421614: Network.ARB_SEPOLIA
+}
+
 export const chainProperties = {
-  mainnet: {
-    chainName: "Ethereum Mainnet",
-    logo: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/logo.png",
-    rpcUrls: ["https://eth-mainnet.public.blastapi.io"],
-    blockExplorerUrls: ["https://etherscan.io/"],
-    nativeCurrency: {
-      name: "ETH",
-      symbol: "ETH",
-      decimals: 18,
-    },
-    chainId: "0x1",
-    routerAddress: ZERO_ADDRESS as `0x${string}`,
-  },
   "arbitrum-sepolia": {
     chainName: "Arbitrum Sepolia Test Network",
-    logo: "https://assets.trustwalletapp.com/blockchains/polygon/assets/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/logo.png",
-    rpcUrls: [
-      "https://arbitrum-sepolia.core.chainstack.com/a0fd1794b40136e3d035e89ecbeca764",
-    ],
-    explorerUrl: "https://sepolia.arbiscan.io/",
+		sdkSupport: {
+			alchemy: false,
+			swing: false
+    },
+    explorerUrl: "https://sepolia.arbiscan.io",
     nativeCurrency: {
       name: "ETH",
       symbol: "ETH",
@@ -94,7 +78,7 @@ export const chainProperties = {
     daiAddress: "0x9f479560cd8a531e6c0fe04521cb246264fe6b71" as `0x${string}`,
     finAddress: "0xcd453b942f35adf0364d89c05a892518825c1c3b",
     routerAddress:
-      "0x33df95efe07a3b3e69ba31438ae511d360d89b32" as `0x${string}`,
+      "0x73ac9a2e665925719d9c272a3df60b97dbc3e50d" as `0x${string}`,
     rangeStakerAddress:
       "0x62e0671022af1b2e705f08b282767c57d29c7c4c" as `0x${string}`,
     coverPoolFactory:
@@ -105,12 +89,12 @@ export const chainProperties = {
       "https://arbitrum-goerli.graph-eu.p2pify.com/871e9ed9089def9ec3ed8b54d340e36e/limit-arbitrum-sepolia",
   },
   "arbitrum-one": {
+    sdkSupport: {
+			alchemy: true,
+			swing: true
+    },
     chainName: "Arbitrum One",
-    logo: "https://raw.githubusercontent.com/poolshark-protocol/token-metadata/master/blockchains/arbitrum-one/logo.png",
-    rpcUrls: [
-      "https://patient-distinguished-pallet.arbitrum-mainnet.quiknode.pro/4cbe7cbdb55ec4b33fdc1a4239e1169b167ae351/",
-    ],
-    explorerUrl: "https://arbiscan.io/",
+    explorerUrl: "https://arbiscan.io",
     nativeCurrency: {
       name: "ETH",
       symbol: "ETH",
