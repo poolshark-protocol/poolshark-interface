@@ -241,7 +241,7 @@ export default function MarketSwap() {
 
   /////////////////////Swing SDK
 
-  useEffect(() => {
+  /* useEffect(() => {
     connectWalletToSwingSdk()
    }, [signer]);
 
@@ -252,7 +252,7 @@ export default function MarketSwap() {
       signer,
       chainId,
     );
-  };
+  }; */
 
   // enable swing quotes if pair does not include FIN
 
