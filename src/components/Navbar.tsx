@@ -7,6 +7,7 @@ import Trade from "./Icons/TradeIcon";
 import Range from "./Icons/RangeIcon";
 import Cover from "./Icons/CoverIcon";
 import { useConfigStore } from "../hooks/useConfigStore";
+import Earn from "./Icons/Earn";
 
 interface NavOptions {
   create?: boolean;
@@ -100,6 +101,18 @@ export default function Navbar({ create, setCreate }: NavOptions) {
               ) : (
                 <></>
               )}
+              <Link href="/earn">
+                <div
+                  className={
+                    router.pathname.includes("/earn")
+                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
+                      : "text-grey1 border border-transparent transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]"
+                  }
+                >
+                  <Earn />
+                  EARN
+                </div>
+              </Link>
             </div>
           </div>
           <div className="w-full flex justify-end items-center gap-x-4">
