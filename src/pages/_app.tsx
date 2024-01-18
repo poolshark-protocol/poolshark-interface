@@ -116,16 +116,13 @@ function MyApp({ Component, pageProps }) {
   } = useProvider();
 
   useEffect(() => {
-    console.log("chainId: ", chainId);
-    console.log("name: ", name);
     setChainId(chainId);
   }, [chainId]);
 
   useEffect(() => {
     const config = {
       apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
-      network:
-        chainId == Number("42161") ? Network.ARB_MAINNET : Network.ARB_SEPOLIA,
+      network: chainId == 42161 ? Network.ARB_MAINNET : Network.ARB_SEPOLIA,
     };
 
     const tokenAddresses = [];
@@ -133,6 +130,7 @@ function MyApp({ Component, pageProps }) {
     const fetchTokenBalances = async () => {
       const alchemy = new Alchemy(config);
       const data = await alchemy.core.getTokenBalances(address, tokenAddresses);
+      console.log("data", data);
       if (data.tokenBalances.length != 0) {
         for (let i = 0; i < data.tokenBalances.length; i++) {
           if (search_tokens[i]?.balance) {
