@@ -40,22 +40,6 @@ export default function MarketSwap() {
   //CONFIG STORE
   const [stateChainName, setStateChainName] = useState();
 
-  const transferParams: TransferParams = {
-    fromChain: 'arbitrum', // Source chain
-    fromToken: 'USDC', // Source token
-    fromUserAddress: '0xBd5db4c7D55C086107f4e9D17c4c34395D1B1E1E', // Source chain wallet address
-   
-    amount: '100', // Amount to transfer in token decimals
-   
-    toChain: 'arbitrum', // Destination chain
-    toToken: 'WETH', // Destination token
-    toUserAddress: '0xBd5db4c7D55C086107f4e9D17c4c34395D1B1E1E', // Ending chain wallet address
-  };
-
-
-
-  // const quote = await swingSDK.getQuote(transferParams);
-
   //PRICE AND LIQUIDITY FETCHED EVERY 5 SECONDS
   const quoteRefetchDelay = 5000;
 
