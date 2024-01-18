@@ -1,7 +1,7 @@
 import "../styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { configureChains, createClient, useProvider, WagmiConfig } from "wagmi";
+import { configureChains, createClient, useProvider, useSigner, WagmiConfig } from "wagmi";
 import { arbitrum } from "wagmi/chains";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import Head from "next/head";
@@ -24,6 +24,7 @@ import { useRouter } from "next/router";
 import TermsOfService from "../components/Modals/ToS";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Alchemy, Network } from "alchemy-sdk";
+import { SwingSDK } from '@swing.xyz/sdk';
 
 const { chains, provider } = configureChains(
   [arbitrum, arbitrumSepolia],
@@ -36,21 +37,18 @@ const { chains, provider } = configureChains(
   ]
 );
 
+// Rainbow Kit
 const { connectors } = getDefaultWallets({
   appName: "Poolshark UI",
   chains,
 });
 
+// Wagmi
 const wagmiClient = createClient({
   connectors,
   provider,
   autoConnect: true,
 });
-
-// const apolloClient = new ApolloClient({
-//   cache: new InMemoryCache(),
-//   uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
-// })
 
 const whitelist = [
   "0x65f5B282E024e3d6CaAD112e848dEc3317dB0902",
@@ -91,6 +89,7 @@ function MyApp({ Component, pageProps }) {
   };
 
   const [
+    networkName,
     search_tokens,
     setChainId,
     setNetworkName,
@@ -101,6 +100,7 @@ function MyApp({ Component, pageProps }) {
     setSearchTokenList,
     setDisplayTokenList,
   ] = useConfigStore((state) => [
+    state.networkName,
     state.searchtokenList,
     state.setChainId,
     state.setNetworkName,
@@ -117,8 +117,6 @@ function MyApp({ Component, pageProps }) {
   } = useProvider();
 
   useEffect(() => {
-    console.log("chainId: ", chainId);
-    console.log("name: ", name);
     setChainId(chainId);
   }, [chainId]);
 

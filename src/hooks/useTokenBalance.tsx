@@ -28,7 +28,6 @@ export default function useTokenBalance(tokenAddress: string) {
     token: queryToken,
     chainId: chainId,
     watch: true,
-
     onSuccess(data) {
       setTokenBalanceInfo(data);
     },

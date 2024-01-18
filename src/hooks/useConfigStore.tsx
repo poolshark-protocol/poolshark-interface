@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { CoverSubgraph, LimitSubgraph } from "../utils/types";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { logoMapKey } from "../utils/tokens";
+import SwingSDK from "@swing.xyz/sdk";
 
 type ConfigState = {
   chainId: number;
@@ -9,6 +10,7 @@ type ConfigState = {
   limitSubgraph: LimitSubgraph;
   coverSubgraph: CoverSubgraph;
   coverFactoryAddress: string;
+  swingSDK: SwingSDK;
   listedtokenList: any;
   searchtokenList: any;
   displayTokenList: any;
@@ -34,6 +36,9 @@ const initialConfigState: ConfigState = {
   limitSubgraph: undefined,
   coverSubgraph: undefined,
   coverFactoryAddress: undefined,
+  swingSDK: new SwingSDK({
+    projectId: "poolshark"
+  }),
   listedtokenList: undefined,
   searchtokenList: undefined,
   displayTokenList: undefined,
@@ -47,6 +52,7 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
   limitSubgraph: initialConfigState.limitSubgraph,
   coverSubgraph: initialConfigState.coverSubgraph,
   coverFactoryAddress: initialConfigState.coverFactoryAddress,
+  swingSDK: initialConfigState.swingSDK,
   listedtokenList: initialConfigState.listedtokenList,
   searchtokenList: initialConfigState.searchtokenList,
   displayTokenList: initialConfigState.displayTokenList,

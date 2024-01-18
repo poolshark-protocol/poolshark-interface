@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
-import { useAccount, useContractRead, useSigner } from "wagmi";
+import { useAccount, useClient, useConnect, useContractRead, useProvider, useSigner } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
@@ -24,19 +24,37 @@ import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
+import type { TransferParams } from '@swing.xyz/sdk';
 
 export default function MarketSwap() {
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap, swingSDK] =
     useConfigStore((state) => [
       state.chainId,
       state.networkName,
       state.limitSubgraph,
       state.setLimitSubgraph,
       state.logoMap,
+      state.swingSDK,
     ]);
 
   //CONFIG STORE
   const [stateChainName, setStateChainName] = useState();
+
+  const transferParams: TransferParams = {
+    fromChain: 'arbitrum', // Source chain
+    fromToken: 'USDC', // Source token
+    fromUserAddress: '0xBd5db4c7D55C086107f4e9D17c4c34395D1B1E1E', // Source chain wallet address
+   
+    amount: '100', // Amount to transfer in token decimals
+   
+    toChain: 'arbitrum', // Destination chain
+    toToken: 'WETH', // Destination token
+    toUserAddress: '0xBd5db4c7D55C086107f4e9D17c4c34395D1B1E1E', // Ending chain wallet address
+  };
+
+
+
+  // const quote = await swingSDK.getQuote(transferParams);
 
   //PRICE AND LIQUIDITY FETCHED EVERY 5 SECONDS
   const quoteRefetchDelay = 5000;
@@ -118,6 +136,7 @@ export default function MarketSwap() {
   const { address, isDisconnected, isConnected } = useAccount();
 
   const { data: signer } = useSigner();
+  const provider = useProvider();
 
   const router = useRouter();
 
@@ -236,6 +255,23 @@ export default function MarketSwap() {
       }
     }
   };
+
+  /////////////////////Swing SDK
+
+  useEffect(() => {
+    connectWalletToSwingSdk()
+   }, [signer]);
+
+  const connectWalletToSwingSdk = async () => {
+    if (!signer) return
+    await swingSDK.init()
+    await swingSDK.wallet.connect(
+      signer,
+      chainId,
+    );
+  };
+
+  // enable swing quotes if pair does not include FIN
 
   /////////////////////Double Input Boxes
 
