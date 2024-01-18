@@ -304,9 +304,6 @@ export default function Trade() {
         "token address",
         tokenIn.native ? undefined : tokenIn.address
       );
-      console.log("chainId", chainId);
-      console.log("token in", tokenIn);
-      console.log("Success balance in", data);
       if (needsBalanceIn) {
         setNeedsBalanceIn(false);
       }

@@ -1,5 +1,6 @@
 import { ZERO_ADDRESS } from "./math/constants";
 import { Chain } from "wagmi";
+import { Alchemy, Network } from "alchemy-sdk";
 
 export const arbitrumSepolia: Chain = {
   id: 421614,
@@ -30,6 +31,11 @@ export const chainIdsToNames = {
   1: "ethereum",
   421614: "arbitrum-sepolia",
   42161: "arbitrum-one",
+};
+
+export const alchemyNetworks = {
+  42161: Network.ARB_MAINNET,
+  421614: Network.ARB_SEPOLIA,
 };
 
 export const decToHex = {
