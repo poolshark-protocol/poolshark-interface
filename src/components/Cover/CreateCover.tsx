@@ -226,7 +226,7 @@ export default function CreateCover(props: any) {
     watch: needsLatestTick,
     onSuccess(data) {
       setNeedsLatestTick(false);
-      // console.log('Success syncLatestTick', newLatestTick, tokenIn.address, tokenOut.address, coverPoolData.volatilityTier)
+      //console.log('Success syncLatestTick', newLatestTick, tokenIn.address, tokenOut.address, coverPoolData.volatilityTier)
     },
     onError(error) {
       console.log("Error syncLatestTick", tokenIn.address, tokenOut.address, coverPoolData.volatilityTier.feeAmount, coverPoolData.volatilityTier.tickSpread, coverPoolData.volatilityTier.twapLength, error);
