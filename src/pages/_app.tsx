@@ -16,6 +16,7 @@ import {
   supportedNetworkNames,
   arbitrumSepolia,
   chainIdToRpc,
+  alchemyNetworks,
 } from "../utils/chains";
 import axios from "axios";
 import { coinsList } from "../utils/types";
@@ -125,7 +126,7 @@ function MyApp({ Component, pageProps }) {
     const config = {
       apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
       network:
-        chainId == Number("42161") ? Network.ARB_MAINNET : Network.ARB_SEPOLIA,
+        alchemyNetworks[chainId] ?? Network.ARB_SEPOLIA,
     };
 
     const tokenAddresses = [];
