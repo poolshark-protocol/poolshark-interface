@@ -43,7 +43,6 @@ const initialConfigState: ConfigState = {
 };
 
 export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
-  //trade pool
   chainId: initialConfigState.chainId,
   networkName: initialConfigState.networkName,
   limitSubgraph: initialConfigState.limitSubgraph,
