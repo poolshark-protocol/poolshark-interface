@@ -10,6 +10,8 @@ function CoinListItem({ chooseToken, coin }) {
   const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(
     coin?.native ? undefined : coin?.address
   );
+
+  
   const [chainId] = useConfigStore((state) => [state.chainId]);
 
   return (

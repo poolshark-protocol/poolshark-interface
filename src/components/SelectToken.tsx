@@ -88,7 +88,6 @@ export default function SelectToken(props) {
   useEffect(() => {
     const fetch = async () => {
       // validate address
-
       if (isAddress(customInput)) {
         // if not in listed tokens or search tokens we need to fetch data from the chain
         refetchTokenInfo();

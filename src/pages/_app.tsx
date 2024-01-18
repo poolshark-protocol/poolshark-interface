@@ -125,36 +125,89 @@ function MyApp({ Component, pageProps }) {
   useEffect(() => {
     const config = {
       apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
-      network:
-        alchemyNetworks[chainId] ?? Network.ARB_MAINNET,
+      network: alchemyNetworks[chainId] ?? Network.ARB_MAINNET,
     };
-    const fetchTokenBalances = async () => {
+    const fetchListedTokenBalances = async () => {
       const alchemy = new Alchemy(config);
       const ethBalance = await alchemy.core.getBalance(address);
-      listed_tokens[0].balance = ethers.utils.formatEther(ethBalance);
-      const tokenList = listed_tokens.slice(1);
       const tokenBalances = await alchemy.core.getTokenBalances(address);
       if (tokenBalances.tokenBalances.length != 0) {
         tokenBalances.tokenBalances.forEach((token) => {
-          const index = tokenList.findIndex(
+          const listedIndex = listed_tokens.findIndex(
             (x) =>
               String(x.id).toLowerCase() ===
               String(token.contractAddress).toLowerCase()
           );
-          if (index != -1) {
-            listed_tokens[index + 1].balance = Number(token.tokenBalance);
+          const searchIndex = listed_tokens.findIndex(
+            (x) =>
+              String(x.id).toLowerCase() ===
+              String(token.contractAddress).toLowerCase()
+          );
+          if (listedIndex != -1 && listed_tokens[listedIndex].symbol != "ETH") {
+            listed_tokens[listedIndex].balance = Number(token.tokenBalance);
+          } else if (
+            listedIndex != -1 &&
+            listed_tokens[listedIndex].symbol === "ETH"
+          ) {
+            listed_tokens[listedIndex].balance =
+              ethers.utils.formatEther(ethBalance);
+            search_tokens.push({
+              id: listed_tokens[listedIndex].id,
+              symbol: listed_tokens[listedIndex].symbol,
+              name: listed_tokens[listedIndex].name,
+              address: listed_tokens[listedIndex].address,
+              balance: ethers.utils.formatEther(ethBalance),
+              decimals: listed_tokens[listedIndex].decimals,
+              logoURI: listed_tokens[listedIndex].logoURI,
+            });
+          }
+          if (searchIndex != -1 && search_tokens[searchIndex].symbol != "ETH") {
+            search_tokens[searchIndex].balance = Number(token.tokenBalance);
           }
         });
       }
       console.log(listed_tokens);
       /* setTimeout(() => {
-        fetchTokenBalances();
+        fetchListedTokenBalances();
       }, 2500); */
     };
     if (listed_tokens) {
-      fetchTokenBalances();
+      fetchListedTokenBalances();
     }
   }, [listed_tokens]);
+
+  /* useEffect(() => {
+    const config = {
+      apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
+      network: alchemyNetworks[chainId] ?? Network.ARB_MAINNET,
+    };
+    const fetchSearchTokenBalances = async () => {
+      const alchemy = new Alchemy(config);
+      const ethBalance = await alchemy.core.getBalance(address);
+      const tokenBalances = await alchemy.core.getTokenBalances(address);
+      if (tokenBalances.tokenBalances.length != 0) {
+        tokenBalances.tokenBalances.forEach((token) => {
+          const index = search_tokens.findIndex(
+            (x) =>
+              String(x.id).toLowerCase() ===
+              String(token.contractAddress).toLowerCase()
+          );
+          if (index != -1 && search_tokens[index].symbol != "ETH") {
+            search_tokens[index].balance = Number(token.tokenBalance);
+          } else if (index != -1 && search_tokens[index].symbol === "ETH") {
+            search_tokens[index].balance = ethers.utils.formatEther(ethBalance);
+          }
+        });
+      }
+      console.log(search_tokens);
+     setTimeout(() => {
+        fetchSearchTokenBalances();
+      }, 2500); 
+    };
+    if (search_tokens) {
+      fetchSearchTokenBalances();
+    }
+  }, [search_tokens]); */
 
   useEffect(() => {
     const fetchTokenMetadata = async () => {
