@@ -1876,7 +1876,7 @@
   resolved "https://registry.npmjs.org/@swing.xyz/platform-api/-/platform-api-0.0.12.tgz"
   integrity sha512-yRjtp7JeAXsgUHx7K/5fWHVy6nDg6Rt3g6grUcYI40ztbTe53/Gxgtk3WzBkLKd0/NpGnv0ITicXLkK4RaeT5Q==
 
-"@swing.xyz/sdk@^0.47.6":
+"@swing.xyz/sdk@0.47.6":
   version "0.47.6"
   resolved "https://registry.npmjs.org/@swing.xyz/sdk/-/sdk-0.47.6.tgz"
   integrity sha512-YDFXg8e3kwjZKVWb/G4eTVZFuT5yoLtpWZihOUCrEl8SWDqHmT5PS+cev7BCP39f+lBD2/bwyyUJu3pSWNOf2A==
