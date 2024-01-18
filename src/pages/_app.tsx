@@ -123,7 +123,7 @@ function MyApp({ Component, pageProps }) {
     const config = {
       apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
       network:
-        alchemyNetworks[chainId] ?? Network.ARB_SEPOLIA,
+        alchemyNetworks[chainId] ?? Network.ARB_MAINNET,
     };
 
     const tokenAddresses = [];
