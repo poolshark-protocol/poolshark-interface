@@ -185,6 +185,18 @@ export default function Navbar({ create, setCreate }: NavOptions) {
             ) : (
               <></>
             )}
+            <Link href="/earn">
+                <div
+                  className={
+                    router.pathname.includes("/earn")
+                    ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-3 text-sm flex items-center cursor-pointer gap-x-0.5 text-[11px]"
+                    : "text-grey1 border border-transparent transition-all py-1.5 px-3 text-sm flex items-center cursor-pointer gap-x-0.5 text-[11px]"
+                  }
+                >
+                  <Earn />
+                  EARN
+                </div>
+              </Link>
           </div>
         </div>
       </div>
