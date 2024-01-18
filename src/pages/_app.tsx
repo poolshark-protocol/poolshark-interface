@@ -1,7 +1,7 @@
 import "../styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { configureChains, createClient, useProvider, useSigner, WagmiConfig } from "wagmi";
+import { configureChains, createClient, useProvider, WagmiConfig } from "wagmi";
 import { arbitrum } from "wagmi/chains";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import Head from "next/head";
@@ -24,7 +24,6 @@ import { useRouter } from "next/router";
 import TermsOfService from "../components/Modals/ToS";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Alchemy, Network } from "alchemy-sdk";
-import { SwingSDK } from '@swing.xyz/sdk';
 
 const { chains, provider } = configureChains(
   [arbitrum, arbitrumSepolia],

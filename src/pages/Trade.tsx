@@ -7,9 +7,9 @@ import {
   useBalance,
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
-import { chainIdsToNames, chainProperties } from "../utils/chains";
+import { chainProperties } from "../utils/chains";
 import { ZERO_ADDRESS } from "../utils/math/constants";
-import { getLimitTokenUsdPrice, getLogoURI } from "../utils/tokens";
+import { getLimitTokenUsdPrice } from "../utils/tokens";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { fetchLimitPositions } from "../utils/queries";
@@ -27,8 +27,6 @@ import LimitSwap from "../components/Trade/LimitSwap";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import inputFilter from "../utils/inputFilter";
-import { SwingSDK } from '@swing.xyz/sdk';
-import type { ChainSlug, TokenSymbol } from '@swing.xyz/sdk';
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
