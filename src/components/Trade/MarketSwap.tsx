@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
-import { useAccount, useClient, useConnect, useContractRead, useProvider, useSigner } from "wagmi";
+import { useAccount, useContractRead, useProvider, useSigner } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
@@ -24,7 +24,6 @@ import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import type { TransferParams } from '@swing.xyz/sdk';
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap, swingSDK] =
