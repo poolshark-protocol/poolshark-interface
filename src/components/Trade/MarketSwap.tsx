@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
-import { useAccount, useContractRead, useSigner } from "wagmi";
+import { useAccount, useContractRead, useProvider, useSigner } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
@@ -16,7 +16,7 @@ import Range from "../Icons/RangeIcon";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
 import SwapRouterButton from "../Buttons/SwapRouterButton";
-import { chainProperties } from "../../utils/chains";
+import { chainIdToRpc, chainProperties } from "../../utils/chains";
 import { gasEstimateSwap, gasEstimateWethCall } from "../../utils/gas";
 import JSBI from "jsbi";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
@@ -24,7 +24,9 @@ import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-// import { swingSDK } from "../../pages/_app";
+import { connectors, provider, swingSDK } from "../../pages/_app";
+import { createPublicClient, http } from 'viem';
+import { TransferParams } from "@swing.xyz/sdk";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -237,6 +239,41 @@ export default function MarketSwap() {
       }
     }
   };
+
+    /////////////////////Swing SDK
+
+    const transport = http(chainIdToRpc[42161])
+
+    useEffect(() => {
+      connectWalletToSwingSdk()
+      }, [signer]);
+  
+    const connectWalletToSwingSdk = async () => {
+      if (!signer) return
+      await swingSDK.init()
+      await swingSDK.wallet.connect(signer.provider, chainId);
+      const transferParams: TransferParams = {
+        fromChain: 'arbitrum', // Source chain
+        fromToken: 'DAI', // Source token
+        fromUserAddress: address, // Source chain wallet address
+       
+        amount: '100', // Amount to transfer in token decimals
+       
+        toChain: 'arbitrum', // Destination chain
+        toToken: 'ETH', // Destination token
+        toUserAddress: address, // Ending chain wallet address
+       
+        maxSlippage: 0.01, //An optional percentage value passed as a decimal between 0 and 1. (i.e 0.02 = 2%). Otherwise, slippage defaults to 3%.
+      };
+      const quote = await swingSDK.getQuote(transferParams);
+      const transferRoute = quote.routes[0];
+      console.log('quote check', transferRoute)
+      setAmountOut(parseUnits('100', 18))
+      setDisplayOut('100')
+      // set USD out value
+      // set USD in value as amountUsd + bridgeFee
+      // for exact out we quote backwards and set the input to that
+    };
 
   /////////////////////Double Input Boxes
 
