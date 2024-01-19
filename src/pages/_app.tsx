@@ -41,9 +41,9 @@ const { connectors } = getDefaultWallets({
   chains,
 });
 
-export const swingSDK = new SwingSDK({
-  projectId: "poolshark"
-});
+// export const swingSDK = new SwingSDK({
+//   projectId: "poolshark"
+// });
 
 const wagmiClient = createClient({
   connectors,
