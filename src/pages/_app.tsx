@@ -177,7 +177,6 @@ function MyApp({ Component, pageProps }) {
               listed_tokens[listedIndex].decimals
             );
           }
-
           if (searchIndex != -1 && search_tokens[searchIndex].symbol != "ETH") {
             search_tokens[searchIndex].balance = ethers.utils.formatUnits(
               token.tokenBalance,

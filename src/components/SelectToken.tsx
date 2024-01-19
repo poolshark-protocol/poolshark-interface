@@ -9,7 +9,7 @@ import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
 import { useAccount, useToken } from "wagmi";
 import { useConfigStore } from "../hooks/useConfigStore";
-import { defaultTokenLogo, getLogoURI, nativeString } from "../utils/tokens";
+import { defaultTokenLogo, getLogoURI, logoMapKey, nativeString } from "../utils/tokens";
 import { Alchemy, Network } from "alchemy-sdk";
 
 export default function SelectToken(props) {
@@ -320,8 +320,8 @@ export default function SelectToken(props) {
               className="md:w-6 w-6"
               src={
                 props.type == "in"
-                  ? logoMap[props.tokenIn.address]
-                  : logoMap[props.tokenOut.address]
+                  ? logoMap[logoMapKey(props.tokenIn)]
+                  : logoMap[logoMapKey(props.tokenOut)]
               }
             />
           ) : (
