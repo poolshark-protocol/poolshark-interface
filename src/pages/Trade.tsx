@@ -27,6 +27,7 @@ import LimitSwap from "../components/Trade/LimitSwap";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import inputFilter from "../utils/inputFilter";
+import SwingSDK from "@swing.xyz/sdk";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -130,6 +131,10 @@ export default function Trade() {
     s.setStartPrice,
     s.setLimitTabSelected,
   ]);
+
+  const swingSDK = new SwingSDK({
+    // projectId: "poolshark"
+  });
 
   //false order history is selected, true when active orders is selected
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
