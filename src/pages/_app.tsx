@@ -143,14 +143,20 @@ function MyApp({ Component, pageProps }) {
       const listedIndex = listed_tokens.findIndex(
         (x) => String(x.symbol).toLowerCase() === String("ETH").toLowerCase()
       );
+      const searchIndex = search_tokens.findIndex(
+        (x) => String(x.symbol).toLowerCase() === String("ETH").toLowerCase()
+      );
       if (listedIndex != -1) {
-        listed_tokens[listedIndex].balance =
-          ethers.utils.formatEther(ethBalance);
-        if (search_tokens[0].symbol != "ETH") {
-          search_tokens.unshift(listed_tokens[listedIndex]);
-        } else {
-          search_tokens[0].balance = ethers.utils.formatEther(ethBalance);
-        }
+        listed_tokens[listedIndex].balance = ethers.utils.formatUnits(
+          ethBalance,
+          listed_tokens[listedIndex].decimals
+        );
+      }
+      if (searchIndex != -1) {
+        search_tokens[searchIndex].balance = ethers.utils.formatUnits(
+          ethBalance,
+          search_tokens[searchIndex].decimals
+        );
       }
       const tokenBalances = await alchemy.core.getTokenBalances(address);
       if (tokenBalances.tokenBalances.length != 0) {
@@ -185,7 +191,7 @@ function MyApp({ Component, pageProps }) {
       }, 5000);
     };
     if (listed_tokens) {
-      fetchListedTokenBalances();
+      fetchListedTokenBalances().then();
     }
   }, [listed_tokens]);
 
