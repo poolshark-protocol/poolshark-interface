@@ -26,14 +26,13 @@ import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 
 export default function MarketSwap() {
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap, swingSDK] =
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
     useConfigStore((state) => [
       state.chainId,
       state.networkName,
       state.limitSubgraph,
       state.setLimitSubgraph,
-      state.logoMap,
-      state.swingSDK
+      state.logoMap
     ]);
 
   //CONFIG STORE
@@ -238,23 +237,6 @@ export default function MarketSwap() {
       }
     }
   };
-
-  /////////////////////Swing SDK
-
-  /* useEffect(() => {
-    connectWalletToSwingSdk()
-   }, [signer]);
-
-  const connectWalletToSwingSdk = async () => {
-    if (!signer) return
-    await swingSDK.init()
-    await swingSDK.wallet.connect(
-      signer,
-      chainId,
-    );
-  }; */
-
-  // enable swing quotes if pair does not include FIN
 
   /////////////////////Double Input Boxes
 
