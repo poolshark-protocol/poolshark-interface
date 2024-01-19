@@ -8,10 +8,10 @@ import {
 
 function CoinListItem({ chooseToken, coin }) {
   const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(
+    
     coin?.native ? undefined : coin?.address
   );
 
-  
   const [chainId] = useConfigStore((state) => [state.chainId]);
 
   return (
@@ -39,7 +39,7 @@ function CoinListItem({ chooseToken, coin }) {
         <span>
           {chainProperties[supportedNetworkNames[supportedChainIds[chainId]]]
             .sdkSupport.alchemy
-            ? coin.balance
+            ? coin.balance ?? "0"
             : !Number.isNaN(tokenBalanceBox().props.children[1])
             ? Number(tokenBalanceBox().props.children[1]) >= 1000000
               ? Number(tokenBalanceBox().props.children[1])
