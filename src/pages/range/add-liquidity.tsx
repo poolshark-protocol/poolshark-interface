@@ -137,7 +137,7 @@ export default function AddLiquidity({}) {
     } else {
       setPairSelected(false);
     }
-  }, [tokenIn.address, tokenOut.address, chainId]);
+  }, [tokenIn.address, tokenOut.address]);
 
   useEffect(() => {
     if (
@@ -149,10 +149,22 @@ export default function AddLiquidity({}) {
     }
   }, [router.query.feeTier, chainId]);
 
+  useEffect(() => {
+    const originalTokenIn = {
+      ...tokenIn,
+      logoURI: logoMap[tokenIn.address.toLowerCase()],
+    };
+    const originalTokenOut = {
+      ...tokenOut,
+      logoURI: logoMap[tokenOut.address.toLowerCase()],
+    };
+    setTokenIn(originalTokenOut, originalTokenIn, "0", true);
+    setTokenOut(originalTokenIn, originalTokenOut, "0", false);
+  }, [logoMap]);
+
   async function updatePools(feeAmount: number) {
     /// @notice - this should filter by the poolId in the actual query
     const data = await fetchRangePools(limitSubgraph);
-    console.log("pools data", data);
     if (data["data"]) {
       const pools = data["data"].limitPools;
       //try to get the pool from routing params
@@ -165,7 +177,6 @@ export default function AddLiquidity({}) {
         const originalTokenIn = {
           name: pool.token0.symbol,
           address: pool.token0.id,
-          logoURI: logoMap[pool.token0.id.toLowerCase()],
           symbol: pool.token0.symbol,
           decimals: pool.token0.decimals,
           userBalance: pool.token0.balance,
@@ -174,7 +185,6 @@ export default function AddLiquidity({}) {
         const originalTokenOut = {
           name: pool.token1.symbol,
           address: pool.token1.id,
-          logoURI: logoMap[pool.token1.id.toLowerCase()],
           symbol: pool.token1.symbol,
           decimals: pool.token1.decimals,
           userBalance: pool.token1.balance,
@@ -668,8 +678,14 @@ export default function AddLiquidity({}) {
           <div>
             <div className="flex  items-center gap-x-2 bg-dark border border-grey py-2 px-5 rounded-[4px]">
               <div className="flex items-center">
-                <img className="md:w-6 w-6" src={tokenIn.logoURI} />
-                <img className="md:w-6 w-6 -ml-2" src={tokenOut.logoURI} />
+                <img
+                  className="md:w-6 w-6"
+                  src={logoMap[tokenIn.address.toLowerCase()]}
+                />
+                <img
+                  className="md:w-6 w-6 -ml-2"
+                  src={logoMap[tokenOut.address.toLowerCase()]}
+                />
               </div>
               <span className="text-white text-xs">
                 {tokenIn.callId == 0 ? tokenIn.symbol : tokenOut.symbol} -{" "}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
-import { useAccount, useContractRead, useSigner } from "wagmi";
+import { useAccount, useContractRead, useProvider, useSigner } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
@@ -32,7 +32,7 @@ export default function MarketSwap() {
       state.networkName,
       state.limitSubgraph,
       state.setLimitSubgraph,
-      state.logoMap,
+      state.logoMap
     ]);
 
   //CONFIG STORE
@@ -118,6 +118,7 @@ export default function MarketSwap() {
   const { address, isDisconnected, isConnected } = useAccount();
 
   const { data: signer } = useSigner();
+  const provider = useProvider();
 
   const router = useRouter();
 

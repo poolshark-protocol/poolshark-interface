@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
 import { useBalance, useAccount } from "wagmi";
 import { useConfigStore } from "./useConfigStore";
+import {
+  chainProperties,
+  supportedChainIds,
+  supportedNetworkNames,
+} from "../utils/chains";
 
 export default function useTokenBalance(tokenAddress: string) {
   const { address } = useAccount();
   const [tokenBalanceInfo, setTokenBalanceInfo] = useState({} as any);
   const [queryToken, setQueryToken] = useState(tokenAddress as any);
 
-  const [
-    chainId,
-    networkName
-  ] = useConfigStore((state) => [
+  const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
   ]);
 
   const tokenBalanceSetting = () => {
@@ -27,8 +29,10 @@ export default function useTokenBalance(tokenAddress: string) {
     address: address,
     token: queryToken,
     chainId: chainId,
+    enabled:
+      chainProperties[supportedNetworkNames[supportedChainIds[chainId]]]
+        .sdkSupport.alchemy === false,
     watch: true,
-
     onSuccess(data) {
       setTokenBalanceInfo(data);
     },
@@ -37,7 +41,10 @@ export default function useTokenBalance(tokenAddress: string) {
   const tokenBalanceBox = () => {
     return (
       <div className="md:text-xs text-[10px] whitespace-nowrap text-[#4C4C4C]">
-        Balance: {!isNaN(Number(tokenBalanceInfo?.formatted)) ? Number(tokenBalanceInfo?.formatted).toFixed(3) : '0.00'}
+        Balance:{" "}
+        {!isNaN(Number(tokenBalanceInfo?.formatted))
+          ? Number(tokenBalanceInfo?.formatted).toFixed(3)
+          : "0.00"}
       </div>
     );
   };

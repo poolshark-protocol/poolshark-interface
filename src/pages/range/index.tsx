@@ -140,7 +140,7 @@ export default function Range() {
             <button
               disabled={allRangePools.length == 0}
               onClick={() => {
-                resetRangeLimitParams();
+                resetRangeLimitParams(chainId);
                 if (allRangePools?.length > 0) {
                   console.log(allRangePools[0]);
                   const tokenIn = {

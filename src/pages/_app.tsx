@@ -16,6 +16,7 @@ import {
   supportedNetworkNames,
   arbitrumSepolia,
   chainIdToRpc,
+  alchemyNetworks,
 } from "../utils/chains";
 import axios from "axios";
 import { coinsList } from "../utils/types";
@@ -23,6 +24,9 @@ import { useRouter } from "next/router";
 import TermsOfService from "../components/Modals/ToS";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Alchemy, Network } from "alchemy-sdk";
+import { ethers } from "ethers";
+import { useTradeStore } from "../hooks/useTradeStore";
+import { useRangeLimitStore } from "../hooks/useRangeLimitStore";
 
 const { chains, provider } = configureChains(
   [arbitrum, arbitrumSepolia],
@@ -35,21 +39,18 @@ const { chains, provider } = configureChains(
   ]
 );
 
+// Rainbow Kit
 const { connectors } = getDefaultWallets({
   appName: "Poolshark UI",
   chains,
 });
 
+// Wagmi
 const wagmiClient = createClient({
   connectors,
   provider,
   autoConnect: true,
 });
-
-// const apolloClient = new ApolloClient({
-//   cache: new InMemoryCache(),
-//   uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
-// })
 
 const whitelist = [
   "0x65f5B282E024e3d6CaAD112e848dEc3317dB0902",
@@ -90,6 +91,8 @@ function MyApp({ Component, pageProps }) {
   };
 
   const [
+    listed_tokens,
+    networkName,
     search_tokens,
     setChainId,
     setNetworkName,
@@ -100,6 +103,8 @@ function MyApp({ Component, pageProps }) {
     setSearchTokenList,
     setDisplayTokenList,
   ] = useConfigStore((state) => [
+    state.listedtokenList,
+    state.networkName,
     state.searchtokenList,
     state.setChainId,
     state.setNetworkName,
@@ -111,40 +116,87 @@ function MyApp({ Component, pageProps }) {
     state.setDisplayTokenList,
   ]);
 
+  const [resetTradeLimitParams] = useTradeStore((state) => [
+    state.resetTradeLimitParams,
+  ]);
+
+  const [resetLimitStore] = useRangeLimitStore((state) => [
+    state.resetRangeLimitParams,
+  ]);
+
   const {
     network: { chainId, name },
   } = useProvider();
 
   useEffect(() => {
-    console.log("chainId: ", chainId);
-    console.log("name: ", name);
     setChainId(chainId);
   }, [chainId]);
 
   useEffect(() => {
     const config = {
       apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
-      network:
-        chainId == Number("42161") ? Network.ARB_MAINNET : Network.ARB_SEPOLIA,
+      network: alchemyNetworks[chainId] ?? Network.ARB_MAINNET,
     };
-
-    const tokenAddresses = [];
-
-    const fetchTokenBalances = async () => {
+    const fetchListedTokenBalances = async () => {
       const alchemy = new Alchemy(config);
-      const data = await alchemy.core.getTokenBalances(address, tokenAddresses);
-      if (data.tokenBalances.length != 0) {
-        for (let i = 0; i < data.tokenBalances.length; i++) {
-          if (search_tokens[i]?.balance) {
-            search_tokens[i].balance = data.tokenBalances[i].tokenBalance;
+      const ethBalance = await alchemy.core.getBalance(address);
+      const listedIndex = listed_tokens.findIndex(
+        (x) => String(x.symbol).toLowerCase() === String("ETH").toLowerCase()
+      );
+      const searchIndex = search_tokens.findIndex(
+        (x) => String(x.symbol).toLowerCase() === String("ETH").toLowerCase()
+      );
+      if (listedIndex != -1) {
+        listed_tokens[listedIndex].balance = ethers.utils.formatUnits(
+          ethBalance,
+          listed_tokens[listedIndex].decimals
+        );
+      }
+      if (searchIndex != -1) {
+        search_tokens[searchIndex].balance = ethers.utils.formatUnits(
+          ethBalance,
+          search_tokens[searchIndex].decimals
+        );
+      }
+      const tokenBalances = await alchemy.core.getTokenBalances(address);
+      if (tokenBalances.tokenBalances.length != 0) {
+        tokenBalances.tokenBalances.forEach((token) => {
+          const listedIndex = listed_tokens.findIndex(
+            (x) =>
+              String(x.id).toLowerCase() ===
+              String(token.contractAddress).toLowerCase()
+          );
+          const searchIndex = search_tokens.findIndex(
+            (x) =>
+              String(x.id).toLowerCase() ===
+              String(token.contractAddress).toLowerCase()
+          );
+          if (listedIndex != -1 && listed_tokens[listedIndex].symbol != "ETH") {
+            listed_tokens[listedIndex].balance = ethers.utils.formatUnits(
+              token.tokenBalance,
+              listed_tokens[listedIndex].decimals
+            );
           }
-        }
-        setSearchTokenList(search_tokens);
+          if (searchIndex != -1 && search_tokens[searchIndex].symbol != "ETH") {
+            search_tokens[searchIndex].balance = ethers.utils.formatUnits(
+              token.tokenBalance,
+              search_tokens[searchIndex].decimals
+            );
+          }
+        });
       }
       setTimeout(() => {
-        fetchTokenBalances();
-      }, 2500);
+        fetchListedTokenBalances();
+      }, 5000);
     };
+    if (listed_tokens) {
+      fetchListedTokenBalances().then();
+    }
+  }, [listed_tokens]);
+
+  useEffect(() => {
+    resetTradeLimitParams(chainId);
+    resetLimitStore(chainId);
     const fetchTokenMetadata = async () => {
       const chainName = chainIdsToNames[chainId];
       axios
@@ -154,9 +206,6 @@ function MyApp({ Component, pageProps }) {
             `/blockchains/${chainName ?? "arbitrum-one"}/tokenlist.json`
         )
         .then(function (response) {
-          for (let i = 0; i < response.data.search_tokens.length; i++) {
-            tokenAddresses.push(response.data.search_tokens[i].id);
-          }
           const coins = {
             listed_tokens: response.data.listed_tokens,
             search_tokens: response.data.search_tokens,
@@ -168,6 +217,7 @@ function MyApp({ Component, pageProps }) {
             setListedTokenList(coins.listed_tokens);
             setDisplayTokenList(coins.listed_tokens);
           }
+          //search tokens
           for (let i = 0; i < coins.search_tokens?.length; i++) {
             coins.search_tokens[i].address = coins.search_tokens[i].id;
           }
@@ -178,11 +228,6 @@ function MyApp({ Component, pageProps }) {
         })
         .catch(function (error) {
           console.log(error);
-        })
-        .then(() => {
-          if (!!search_tokens) {
-            fetchTokenBalances();
-          }
         });
     };
     fetchTokenMetadata();

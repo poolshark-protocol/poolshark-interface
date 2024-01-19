@@ -7,9 +7,9 @@ import {
   useBalance,
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
-import { chainIdsToNames, chainProperties } from "../utils/chains";
+import { chainProperties } from "../utils/chains";
 import { ZERO_ADDRESS } from "../utils/math/constants";
-import { getLimitTokenUsdPrice, getLogoURI } from "../utils/tokens";
+import { getLimitTokenUsdPrice } from "../utils/tokens";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { fetchLimitPositions } from "../utils/queries";
@@ -293,9 +293,6 @@ export default function Trade() {
         "token address",
         tokenIn.native ? undefined : tokenIn.address
       );
-      console.log("chainId", chainId);
-      console.log("token in", tokenIn);
-      console.log("Success balance in", data);
       if (needsBalanceIn) {
         setNeedsBalanceIn(false);
       }
