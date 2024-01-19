@@ -25,6 +25,8 @@ import TermsOfService from "../components/Modals/ToS";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Alchemy, Network } from "alchemy-sdk";
 import { ethers } from "ethers";
+import { useTradeStore } from "../hooks/useTradeStore";
+import { useRangeLimitStore } from "../hooks/useRangeLimitStore";
 
 const { chains, provider } = configureChains(
   [arbitrum, arbitrumSepolia],
@@ -114,6 +116,14 @@ function MyApp({ Component, pageProps }) {
     state.setDisplayTokenList,
   ]);
 
+  const [resetTradeLimitParams] = useTradeStore((state) => [
+    state.resetTradeLimitParams,
+  ]);
+
+  const [resetLimitStore] = useRangeLimitStore((state) => [
+    state.resetRangeLimitParams,
+  ]);
+
   const {
     network: { chainId, name },
   } = useProvider();
@@ -180,6 +190,8 @@ function MyApp({ Component, pageProps }) {
   }, [listed_tokens]);
 
   useEffect(() => {
+    resetTradeLimitParams(chainId);
+    resetLimitStore(chainId);
     const fetchTokenMetadata = async () => {
       const chainName = chainIdsToNames[chainId];
       axios

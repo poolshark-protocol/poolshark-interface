@@ -8,7 +8,7 @@ import {
   getTradeButtonDisabled,
   getTradeButtonMessage,
 } from "../utils/buttons";
-import { chainProperties, defaultNetwork } from "../utils/chains";
+import { chainIdsToNames, chainProperties, defaultNetwork } from "../utils/chains";
 
 type TradeState = {
   //tradePoolData contains all the info about the pool
@@ -107,7 +107,7 @@ type TradeLimitAction = {
     volatility: any,
     client: LimitSubgraph
   ) => void;
-  resetTradeLimitParams: () => void;
+  resetTradeLimitParams: (chainId) => void;
   //
   setLimitPriceString: (limitPrice: string) => void;
   //
@@ -672,7 +672,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       console.log(error);
     }
   },
-  resetTradeLimitParams: () => {
+  resetTradeLimitParams: (chainId) => {
     set({
       //trade pool & pair
       tradePoolData: initialTradeState.tradePoolData,
@@ -681,7 +681,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       //trade position data
       tradePositionData: initialTradeState.tradePositionData,
       //tokenIn
-      tokenIn: initialTradeState.tokenIn,
+      tokenIn: {
+        ...initialTradeState.tokenIn,
+        address: chainProperties[chainIdsToNames[chainId]]["wethAddress"],
+      },
       //tokenOut
       tokenOut: initialTradeState.tokenOut,
       //selected pair
