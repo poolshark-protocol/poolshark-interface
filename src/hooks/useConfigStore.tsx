@@ -9,7 +9,6 @@ type ConfigState = {
   limitSubgraph: LimitSubgraph;
   coverSubgraph: CoverSubgraph;
   coverFactoryAddress: string;
-  swingSDK: any;
   listedtokenList: any;
   searchtokenList: any;
   displayTokenList: any;
@@ -35,7 +34,6 @@ const initialConfigState: ConfigState = {
   limitSubgraph: undefined,
   coverSubgraph: undefined,
   coverFactoryAddress: undefined,
-  swingSDK: undefined,
   listedtokenList: undefined,
   searchtokenList: undefined,
   displayTokenList: undefined,
@@ -48,7 +46,6 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
   limitSubgraph: initialConfigState.limitSubgraph,
   coverSubgraph: initialConfigState.coverSubgraph,
   coverFactoryAddress: initialConfigState.coverFactoryAddress,
-  swingSDK: initialConfigState.swingSDK,
   listedtokenList: initialConfigState.listedtokenList,
   searchtokenList: initialConfigState.searchtokenList,
   displayTokenList: initialConfigState.displayTokenList,
