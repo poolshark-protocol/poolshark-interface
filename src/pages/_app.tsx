@@ -23,6 +23,7 @@ import { useRouter } from "next/router";
 import TermsOfService from "../components/Modals/ToS";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Alchemy, Network } from "alchemy-sdk";
+import { SwingSDK } from '@swing.xyz/sdk';
 
 const { chains, provider } = configureChains(
   [arbitrum, arbitrumSepolia],
@@ -38,6 +39,10 @@ const { chains, provider } = configureChains(
 const { connectors } = getDefaultWallets({
   appName: "Poolshark UI",
   chains,
+});
+
+export const swingSDK = new SwingSDK({
+  projectId: "poolshark"
 });
 
 const wagmiClient = createClient({

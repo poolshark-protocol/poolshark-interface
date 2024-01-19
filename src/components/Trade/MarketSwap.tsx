@@ -24,16 +24,16 @@ import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
+import { swingSDK } from "../../pages/_app";
 
 export default function MarketSwap() {
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap, swingSDK] =
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
     useConfigStore((state) => [
       state.chainId,
       state.networkName,
       state.limitSubgraph,
       state.setLimitSubgraph,
       state.logoMap,
-      state.swingSDK
     ]);
 
   //CONFIG STORE
