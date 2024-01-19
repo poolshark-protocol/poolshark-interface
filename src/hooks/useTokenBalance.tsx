@@ -31,7 +31,8 @@ export default function useTokenBalance(tokenAddress: string) {
     chainId: chainId,
     enabled:
       chainProperties[supportedNetworkNames[supportedChainIds[chainId]]]
-        .sdkSupport.alchemy == false,
+        .sdkSupport.alchemy === false,
+    watch: true,
     onSuccess(data) {
       setTokenBalanceInfo(data);
     },

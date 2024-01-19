@@ -8,7 +8,6 @@ import {
 
 function CoinListItem({ chooseToken, coin }) {
   const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(
-    
     coin?.native ? undefined : coin?.address
   );
 
@@ -40,12 +39,8 @@ function CoinListItem({ chooseToken, coin }) {
           {chainProperties[supportedNetworkNames[supportedChainIds[chainId]]]
             .sdkSupport.alchemy
             ? coin.balance ?? "0"
-            : !Number.isNaN(tokenBalanceBox().props.children[1])
-            ? Number(tokenBalanceBox().props.children[1]) >= 1000000
-              ? Number(tokenBalanceBox().props.children[1])
-                  .toExponential(5)
-                  .toString()
-              : Number(tokenBalanceBox().props.children[1]).toString()
+            : !isNaN(Number(tokenBalanceInfo?.formatted))
+            ? Number(tokenBalanceInfo?.formatted)
             : "0"}
         </span>
       </button>
