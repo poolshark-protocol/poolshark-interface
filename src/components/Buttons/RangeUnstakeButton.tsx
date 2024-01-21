@@ -13,6 +13,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import { ErrorToast } from "../Toasts/Error";
 import { SuccessToast } from "../Toasts/Success";
 import { gasEstimateRangeUnstake } from "../../utils/gas";
+import { getRangeStakerAddress } from "../../utils/config";
   
   // unstake position
   // add liquidity while staked
@@ -74,7 +75,7 @@ const [
     }
 
     const { config } = usePrepareContractWrite({
-        address: chainProperties[networkName]["rangeStakerAddress"],
+        address: getRangeStakerAddress(networkName),
         abi: rangeStakerABI,
         functionName: "unstakeRange",
         args: [

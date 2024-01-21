@@ -25,6 +25,7 @@ import { tokenRangeLimit } from "../../utils/types";
 import RangeStakeButton from "../../components/Buttons/RangeStakeButton";
 import RangeUnstakeButton from "../../components/Buttons/RangeUnstakeButton";
 import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
+import { getRangeStakerAddress } from "../../utils/config";
 
 export default function ViewRange() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -395,7 +396,7 @@ export default function ViewRange() {
     address: rangePoolData.poolToken,
     abi: positionERC1155ABI,
     functionName: "isApprovedForAll",
-    args: [address, chainProperties[networkName]["rangeStakerAddress"]],
+    args: [address, getRangeStakerAddress(networkName)],
     chainId: chainId,
     watch: true,
     enabled: rangePositionData.staked != undefined && !rangePositionData.staked,

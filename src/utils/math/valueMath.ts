@@ -6,6 +6,10 @@ import { token } from "../types"
 export const numFormat = (num, precision: number) =>
   `${1 * num.toPrecision(precision)}`;
 
+export const numStringFormat = (numString: string, precision: number) =>
+  `${1 * parseFloat(parseFloat(numString).toPrecision(precision))}`;
+
+
 export function formatUsdValue(usdValueString: string): string {
     const usdValue = parseFloat(usdValueString)
     if (usdValue >= 1e12) {

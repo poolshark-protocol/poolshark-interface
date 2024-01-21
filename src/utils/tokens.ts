@@ -1,8 +1,13 @@
 //eventually this functions should merge into one
 
+import { Alchemy, Network } from "alchemy-sdk";
+import { alchemyNetworks, chainIdsToNames } from "./chains";
 import { ZERO_ADDRESS } from "./math/constants";
 import { fetchTokenPrice } from "./queries";
-import { LimitSubgraph } from "./types";
+import { LimitSubgraph, coinsList } from "./types";
+import { BigNumber, ethers } from "ethers";
+import axios from "axios";
+import { numFormat, numStringFormat } from "./math/valueMath";
 
 export const defaultTokenLogo =
 
@@ -76,3 +81,122 @@ export const nativeString = (token: any) => {
   }
   return ''
 }
+
+export const fetchListedTokenBalances = async (
+  chainId: number,
+  address: string,
+  listed_tokens: any,
+  search_tokens: any
+) => {
+  // check if alchemy supported
+  const config = {
+    apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
+    network: alchemyNetworks[chainId] ?? Network.ARB_MAINNET,
+  };
+  const alchemy = new Alchemy(config);
+  let ethBalance: BigNumber;
+  try {
+    ethBalance = await alchemy.core.getBalance(address);
+  } catch (e) {
+    console.log('Alchemy SDK Error:', e)
+    // early return - update balances on next fetch
+    return
+  }
+  const listedIndex = listed_tokens.findIndex(
+    (x) => String(x.symbol).toLowerCase() === String("ETH").toLowerCase()
+  );
+  const searchIndex = search_tokens.findIndex(
+    (x) => String(x.symbol).toLowerCase() === String("ETH").toLowerCase()
+  );
+  if (listedIndex != -1) {
+    listed_tokens[listedIndex].balance = numStringFormat(ethers.utils.formatUnits(
+      ethBalance,
+      listed_tokens[listedIndex].decimals
+    ), 5);
+  }
+  if (searchIndex != -1) {
+    search_tokens[searchIndex].balance = numStringFormat(ethers.utils.formatUnits(
+      ethBalance,
+      search_tokens[searchIndex].decimals
+    ), 5);
+  }
+  let tokenBalances;
+  try {
+    tokenBalances = await alchemy.core.getTokenBalances(address);
+  } catch (e) {
+    console.log('Alchemy SDK Error:', e)
+    // early return - update balances on next fetch
+    return
+  }
+  if (tokenBalances.tokenBalances.length != 0) {
+    tokenBalances.tokenBalances.forEach((token) => {
+      const listedIndex = listed_tokens.findIndex(
+        (x) =>
+          String(x.id).toLowerCase() ===
+          String(token.contractAddress).toLowerCase()
+      );
+      const searchIndex = search_tokens.findIndex(
+        (x) =>
+          String(x.id).toLowerCase() ===
+          String(token.contractAddress).toLowerCase()
+      );
+      if (listedIndex != -1 && listed_tokens[listedIndex].symbol != "ETH") {
+        listed_tokens[listedIndex].balance = numStringFormat(ethers.utils.formatUnits(
+          token.tokenBalance,
+          listed_tokens[listedIndex].decimals
+        ), 5);
+      }
+      if (searchIndex != -1 && search_tokens[searchIndex].symbol != "ETH") {
+        search_tokens[searchIndex].balance = numStringFormat(ethers.utils.formatUnits(
+          token.tokenBalance,
+          search_tokens[searchIndex].decimals
+        ), 5);
+      }
+    });
+  }
+  setTimeout(() => {
+    fetchListedTokenBalances(chainId, address, listed_tokens, search_tokens);
+  }, 5000);
+};
+
+const tokenMetadataBranch = "master";
+
+export const fetchTokenMetadata = async (
+  chainId: number,
+  setListedTokenList: any,
+  setDisplayTokenList: any,
+  setSearchTokenList: any,
+  setIsLoading: any
+) => {
+  const chainName = chainIdsToNames[chainId];
+  axios
+    .get(
+      `https://raw.githubusercontent.com/poolshark-protocol/token-metadata/` +
+        tokenMetadataBranch +
+        `/blockchains/${chainName ?? "arbitrum-one"}/tokenlist.json`
+    )
+    .then(function (response) {
+      const coins = {
+        listed_tokens: response.data.listed_tokens,
+        search_tokens: response.data.search_tokens,
+      } as coinsList;
+      for (let i = 0; i < coins.listed_tokens?.length; i++) {
+        coins.listed_tokens[i].address = coins.listed_tokens[i].id;
+      }
+      if (coins.listed_tokens != undefined) {
+        setListedTokenList(coins.listed_tokens);
+        setDisplayTokenList(coins.listed_tokens);
+      }
+      //search tokens
+      for (let i = 0; i < coins.search_tokens?.length; i++) {
+        coins.search_tokens[i].address = coins.search_tokens[i].id;
+      }
+      if (coins.search_tokens != undefined) {
+        setSearchTokenList(coins.search_tokens);
+      }
+      setIsLoading(false);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+};

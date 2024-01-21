@@ -25,6 +25,7 @@ import { feeTierMap, feeTiers } from "../../utils/pools";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { fetchRangePools } from "../../utils/queries";
 import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButton";
+import { getRouterAddress } from "../../utils/config";
 
 export default function AddLiquidity({}) {
   const [chainId, networkName, limitSubgraph, coverSubgraph, logoMap] =
@@ -297,7 +298,7 @@ export default function AddLiquidity({}) {
       address: tokenIn.address,
       abi: erc20ABI,
       functionName: "allowance",
-      args: [address, chainProperties[networkName]["routerAddress"]],
+      args: [address, getRouterAddress(networkName)],
       chainId: chainId,
       watch: true,
       enabled: tokenIn.address != undefined,
@@ -315,7 +316,7 @@ export default function AddLiquidity({}) {
       address: tokenOut.address,
       abi: erc20ABI,
       functionName: "allowance",
-      args: [address, chainProperties[networkName]["routerAddress"]],
+      args: [address, getRouterAddress(networkName)],
       chainId: chainId,
       watch: true,
       onSuccess(data) {

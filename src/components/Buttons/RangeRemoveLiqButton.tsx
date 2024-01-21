@@ -14,6 +14,7 @@ import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 import { rangeStakerABI } from "../../abis/evm/rangeStaker";
+import { getRangeStakerAddress } from "../../utils/config";
 
 export default function RangeRemoveLiqButton({
   poolAddress,
@@ -69,7 +70,7 @@ export default function RangeRemoveLiqButton({
   });
 
   const { config: burnStakeConfig } = usePrepareContractWrite({
-    address: chainProperties[networkName]["rangeStakerAddress"],
+    address: getRangeStakerAddress(networkName),
     abi: rangeStakerABI,
     functionName: "burnRangeStake",
     args: [

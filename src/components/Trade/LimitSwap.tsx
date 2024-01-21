@@ -37,6 +37,7 @@ import {
 import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import JSBI from "jsbi";
+import { getRouterAddress } from "../../utils/config";
 
 export default function LimitSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -1083,7 +1084,7 @@ export default function LimitSwap() {
           !tokenIn.native &&
           pairSelected ? (
             <SwapRouterApproveButton
-              routerAddress={chainProperties[networkName]["routerAddress"]}
+              routerAddress={getRouterAddress(networkName)}
               approveToken={tokenIn.address}
               tokenSymbol={tokenIn.symbol}
               amount={amountIn}
@@ -1092,7 +1093,7 @@ export default function LimitSwap() {
             tokenOut.address == ZERO_ADDRESS ||
             tradePoolData?.id != ZERO_ADDRESS ? (
               <LimitSwapButton
-                routerAddress={chainProperties[networkName]["routerAddress"]}
+                routerAddress={getRouterAddress(networkName)}
                 disabled={mintGasLimit.lt(BigNumber.from('100000')) || tradeButton.disabled}
                 poolAddress={tradePoolData?.id}
                 to={address}
@@ -1109,8 +1110,7 @@ export default function LimitSwap() {
               <LimitCreateAndMintButton
                 disabled={mintGasLimit.eq(BN_ZERO) || tradeButton.disabled}
                 routerAddress={
-                  
-                  chainProperties[networkName]["routerAddress"]
+                  getRouterAddress(networkName)
                 }
                 poolTypeId={limitPoolTypeIds["constant-product"]}
                 tokenIn={tokenIn}
@@ -1129,7 +1129,7 @@ export default function LimitSwap() {
           ) : tokenIn.native ? (
             <SwapWrapNativeButton
               disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
-              routerAddress={chainProperties[networkName]["routerAddress"]}
+              routerAddress={getRouterAddress(networkName)}
               wethAddress={chainProperties[networkName]["wethAddress"]}
               tokenInSymbol={tokenIn.symbol}
               amountIn={amountIn}
@@ -1139,7 +1139,7 @@ export default function LimitSwap() {
           ) : (
             <SwapUnwrapNativeButton
               disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
-              routerAddress={chainProperties[networkName]["routerAddress"]}
+              routerAddress={getRouterAddress(networkName)}
               wethAddress={chainProperties[networkName]["wethAddress"]}
               tokenInSymbol={tokenIn.symbol}
               amountIn={amountIn}

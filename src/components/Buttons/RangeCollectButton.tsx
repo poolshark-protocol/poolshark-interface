@@ -13,6 +13,7 @@ import { useRangeLimitStore } from '../../hooks/useRangeLimitStore';
 import { useConfigStore } from '../../hooks/useConfigStore';
 import { rangeStakerABI } from '../../abis/evm/rangeStaker';
 import { chainProperties } from '../../utils/chains';
+import { getRangeStakerAddress } from '../../utils/config';
 
 export default function RangeCollectButton({ poolAddress, address, positionId, staked }) {
 
@@ -52,7 +53,7 @@ export default function RangeCollectButton({ poolAddress, address, positionId, s
   });
 
   const { config: burnStakeConfig } = usePrepareContractWrite({
-    address: chainProperties[networkName]["rangeStakerAddress"],
+    address: getRangeStakerAddress(networkName),
     abi: rangeStakerABI,
     functionName: "burnRangeStake",
     args: [

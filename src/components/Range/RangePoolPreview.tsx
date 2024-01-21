@@ -26,6 +26,7 @@ import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import JSBI from "jsbi";
 import { getLogoURI, nativeString } from "../../utils/tokens";
+import { getRouterAddress } from "../../utils/config";
 
 export default function RangePoolPreview() {
   const [chainId, logoMap, networkName] = useConfigStore((state) => [
@@ -391,7 +392,7 @@ export default function RangePoolPreview() {
                         !tokenOut.native ? (
                           <RangeMintDoubleApproveButton
                             routerAddress={
-                              chainProperties[networkName]["routerAddress"]
+                              getRouterAddress(networkName)
                             }
                             tokenIn={tokenIn}
                             tokenOut={tokenOut}
@@ -403,7 +404,7 @@ export default function RangePoolPreview() {
                           ) && !tokenIn.native ? (
                           <RangeMintApproveButton
                             routerAddress={
-                              chainProperties[networkName]["routerAddress"]
+                              getRouterAddress(networkName)
                             }
                             approveToken={tokenIn}
                             amount={rangeMintParams.tokenInAmount}
@@ -413,7 +414,7 @@ export default function RangePoolPreview() {
                           ) && !tokenOut.native ? (
                           <RangeMintApproveButton
                             routerAddress={
-                              chainProperties[networkName]["routerAddress"]
+                              getRouterAddress(networkName)
                             }
                             approveToken={tokenOut}
                             amount={rangeMintParams.tokenOutAmount}
@@ -421,7 +422,7 @@ export default function RangePoolPreview() {
                         ) : rangePoolAddress != ZERO_ADDRESS ? (
                           <RangeMintButton
                             routerAddress={
-                              chainProperties[networkName]["routerAddress"]
+                              getRouterAddress(networkName)
                             }
                             to={address}
                             poolAddress={rangePoolAddress}
@@ -481,7 +482,7 @@ export default function RangePoolPreview() {
                         ) : (
                           <RangeCreateAndMintButton
                             routerAddress={
-                              chainProperties[networkName]["routerAddress"]
+                              getRouterAddress(networkName)
                             }
                             poolTypeId={limitPoolTypeIds["constant-product"]}
                             token0={tokenIn}

@@ -14,6 +14,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { SuccessToast } from "../Toasts/Success";
 import { gasEstimateRangeStake } from "../../utils/gas";
 import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
+import { getRangeStakerAddress } from "../../utils/config";
 
 // unstake position
 // add liquidity while staked
@@ -78,7 +79,7 @@ const [
   }
 
   const { config: stakeConfig } = usePrepareContractWrite({
-      address: chainProperties[networkName]["rangeStakerAddress"],
+      address: getRangeStakerAddress(networkName),
       abi: rangeStakerABI,
       functionName: "stakeRange",
       args: [
@@ -106,7 +107,7 @@ const [
     abi: positionERC1155ABI,
     functionName: "setApprovalForAll",
     args: [
-        chainProperties[networkName]["rangeStakerAddress"],
+        getRangeStakerAddress(networkName),
         true
     ],
     chainId: chainId,

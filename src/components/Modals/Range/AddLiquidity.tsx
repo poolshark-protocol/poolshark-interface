@@ -132,7 +132,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties[networkName]["routerAddress"]],
+    args: [address, getRouterAddress(networkName)],
     chainId: chainId,
     watch: router.isReady,
     enabled: isConnected,
@@ -149,7 +149,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties[networkName]["routerAddress"]],
+    args: [address, getRouterAddress(networkName)],
     chainId: chainId,
     watch: router.isReady,
     enabled: isConnected,
@@ -599,7 +599,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                       tokenOutAllowance?.gte(rangeMintParams.tokenOutAmount) ? (
                         <RangeAddLiqButton
                           routerAddress={
-                            chainProperties[networkName]["routerAddress"]
+                            getRouterAddress(networkName)
                           }
                           poolAddress={rangePoolAddress}
                           address={address}
@@ -619,7 +619,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         doubleApprove ? (
                         <RangeMintDoubleApproveButton
                           routerAddress={
-                            chainProperties[networkName]["routerAddress"]
+                            getRouterAddress(networkName)
                           }
                           tokenIn={tokenIn}
                           tokenOut={tokenOut}
@@ -630,7 +630,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         tokenInAllowance.lt(rangeMintParams.tokenInAmount) ? (
                         <RangeMintApproveButton
                           routerAddress={
-                            chainProperties[networkName]["routerAddress"]
+                            getRouterAddress(networkName)
                           }
                           approveToken={tokenIn}
                           amount={rangeMintParams.tokenInAmount}
@@ -639,7 +639,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         tokenOutAllowance.lt(rangeMintParams.tokenOutAmount) ? (
                         <RangeMintApproveButton
                           routerAddress={
-                            chainProperties[networkName]["routerAddress"]
+                            getRouterAddress(networkName)
                           }
                           approveToken={tokenOut}
                           amount={rangeMintParams.tokenOutAmount}

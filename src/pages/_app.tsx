@@ -11,25 +11,20 @@ import { isMobile } from "react-device-detect";
 // import { Analytics } from "@vercel/analytics/react";
 import { useConfigStore } from "../hooks/useConfigStore";
 import {
-  chainIdsToNames,
   chainProperties,
   supportedNetworkNames,
   arbitrumSepolia,
   chainIdToRpc,
-  alchemyNetworks,
+  scroll,
 } from "../utils/chains";
-import axios from "axios";
-import { coinsList } from "../utils/types";
-import { useRouter } from "next/router";
 import TermsOfService from "../components/Modals/ToS";
 import { SpeedInsights } from "@vercel/speed-insights/react";
-import { Alchemy, Network } from "alchemy-sdk";
-import { ethers } from "ethers";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { useRangeLimitStore } from "../hooks/useRangeLimitStore";
+import { fetchListedTokenBalances, fetchTokenMetadata } from "../utils/tokens";
 
 const { chains, provider } = configureChains(
-  [arbitrum, arbitrumSepolia],
+  [arbitrum, arbitrumSepolia, scroll],
   [
     jsonRpcProvider({
       rpc: (chain) => ({
@@ -52,28 +47,15 @@ const wagmiClient = createClient({
   autoConnect: true,
 });
 
-const whitelist = [
-  "0x65f5B282E024e3d6CaAD112e848dEc3317dB0902",
-  "0x1DcF623EDf118E4B21b4C5Dc263bb735E170F9B8",
-  "0x9dA9409D17DeA285B078af06206941C049F692Dc",
-  "0xBd5db4c7D55C086107f4e9D17c4c34395D1B1E1E",
-  "0x73CE13ac285569738bc499ec711bDAa899725d37", // olamide
-  "0xE48870dBBdC4abde7Ed8682254b9fb53270F79d2", // mrmasa
-];
-
 function MyApp({ Component, pageProps }) {
   const [isLoading, setIsLoading] = useState(true);
-  const { address, isDisconnected, isConnected } = useAccount();
+  const { address, isConnected } = useAccount();
 
   const [_isConnected, _setIsConnected] = useState(false);
   const [_isMobile, _setIsMobile] = useState(false);
 
   const [walletConnected, setWalletConnected] = useState(false);
   const [tosAccepted, setTosAccepted] = useState(false);
-
-  const router = useRouter();
-
-  const tokenMetadataBranch = "master";
 
   useEffect(() => {
     // Check if terms of service is accepted
@@ -133,104 +115,26 @@ function MyApp({ Component, pageProps }) {
   }, [chainId]);
 
   useEffect(() => {
-    const config = {
-      apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
-      network: alchemyNetworks[chainId] ?? Network.ARB_MAINNET,
-    };
-    const fetchListedTokenBalances = async () => {
-      const alchemy = new Alchemy(config);
-      const ethBalance = await alchemy.core.getBalance(address);
-      const listedIndex = listed_tokens.findIndex(
-        (x) => String(x.symbol).toLowerCase() === String("ETH").toLowerCase()
-      );
-      const searchIndex = search_tokens.findIndex(
-        (x) => String(x.symbol).toLowerCase() === String("ETH").toLowerCase()
-      );
-      if (listedIndex != -1) {
-        listed_tokens[listedIndex].balance = ethers.utils.formatUnits(
-          ethBalance,
-          listed_tokens[listedIndex].decimals
-        );
-      }
-      if (searchIndex != -1) {
-        search_tokens[searchIndex].balance = ethers.utils.formatUnits(
-          ethBalance,
-          search_tokens[searchIndex].decimals
-        );
-      }
-      const tokenBalances = await alchemy.core.getTokenBalances(address);
-      if (tokenBalances.tokenBalances.length != 0) {
-        tokenBalances.tokenBalances.forEach((token) => {
-          const listedIndex = listed_tokens.findIndex(
-            (x) =>
-              String(x.id).toLowerCase() ===
-              String(token.contractAddress).toLowerCase()
-          );
-          const searchIndex = search_tokens.findIndex(
-            (x) =>
-              String(x.id).toLowerCase() ===
-              String(token.contractAddress).toLowerCase()
-          );
-          if (listedIndex != -1 && listed_tokens[listedIndex].symbol != "ETH") {
-            listed_tokens[listedIndex].balance = ethers.utils.formatUnits(
-              token.tokenBalance,
-              listed_tokens[listedIndex].decimals
-            );
-          }
-          if (searchIndex != -1 && search_tokens[searchIndex].symbol != "ETH") {
-            search_tokens[searchIndex].balance = ethers.utils.formatUnits(
-              token.tokenBalance,
-              search_tokens[searchIndex].decimals
-            );
-          }
-        });
-      }
-      setTimeout(() => {
-        fetchListedTokenBalances();
-      }, 5000);
-    };
-    if (listed_tokens) {
-      fetchListedTokenBalances().then();
+    if (listed_tokens && address) {
+      fetchListedTokenBalances(
+        chainId,
+        address,
+        listed_tokens,
+        search_tokens
+      ).then();
     }
-  }, [listed_tokens]);
+  }, [listed_tokens, address]);
 
   useEffect(() => {
     resetTradeLimitParams(chainId);
     resetLimitStore(chainId);
-    const fetchTokenMetadata = async () => {
-      const chainName = chainIdsToNames[chainId];
-      axios
-        .get(
-          `https://raw.githubusercontent.com/poolshark-protocol/token-metadata/` +
-            tokenMetadataBranch +
-            `/blockchains/${chainName ?? "arbitrum-one"}/tokenlist.json`
-        )
-        .then(function (response) {
-          const coins = {
-            listed_tokens: response.data.listed_tokens,
-            search_tokens: response.data.search_tokens,
-          } as coinsList;
-          for (let i = 0; i < coins.listed_tokens?.length; i++) {
-            coins.listed_tokens[i].address = coins.listed_tokens[i].id;
-          }
-          if (coins.listed_tokens != undefined) {
-            setListedTokenList(coins.listed_tokens);
-            setDisplayTokenList(coins.listed_tokens);
-          }
-          //search tokens
-          for (let i = 0; i < coins.search_tokens?.length; i++) {
-            coins.search_tokens[i].address = coins.search_tokens[i].id;
-          }
-          if (coins.search_tokens != undefined) {
-            setSearchTokenList(coins.search_tokens);
-          }
-          setIsLoading(false);
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    };
-    fetchTokenMetadata();
+    fetchTokenMetadata(
+      chainId,
+      setListedTokenList,
+      setDisplayTokenList,
+      setSearchTokenList,
+      setIsLoading
+    );
   }, [chainId]);
 
   useEffect(() => {

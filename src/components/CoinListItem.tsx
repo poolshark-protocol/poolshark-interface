@@ -1,10 +1,6 @@
 import { useConfigStore } from "../hooks/useConfigStore";
 import useTokenBalance from "../hooks/useTokenBalance";
-import {
-  chainProperties,
-  supportedChainIds,
-  supportedNetworkNames,
-} from "../utils/chains";
+import { getTokenBalance } from "../utils/config";
 
 function CoinListItem({ chooseToken, coin }) {
   const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(
@@ -16,7 +12,6 @@ function CoinListItem({ chooseToken, coin }) {
   return (
     <div
       className="bg-dark text-white"
-      // onClick={chooseToken(coin)}
       data-name={coin.name}
       data-logouri={coin.logoURI}
       data-symbol={coin.symbol}
@@ -36,12 +31,7 @@ function CoinListItem({ chooseToken, coin }) {
           </div>
         </div>
         <span>
-          {chainProperties[supportedNetworkNames[supportedChainIds[chainId]]]
-            .sdkSupport.alchemy
-            ? coin.balance ?? "0"
-            : !isNaN(Number(tokenBalanceInfo?.formatted))
-            ? Number(tokenBalanceInfo?.formatted)
-            : "0"}
+          {getTokenBalance(chainId, coin, tokenBalanceInfo)}
         </span>
       </button>
     </div>

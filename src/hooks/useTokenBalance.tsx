@@ -7,36 +7,30 @@ import {
   supportedNetworkNames,
 } from "../utils/chains";
 
-export default function useTokenBalance(tokenAddress: string) {
+export default function useTokenBalance(tokenAddress: `0x${string}`) {
   const { address } = useAccount();
   const [tokenBalanceInfo, setTokenBalanceInfo] = useState({} as any);
-  const [queryToken, setQueryToken] = useState(tokenAddress as any);
 
   const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
   ]);
 
-  const tokenBalanceSetting = () => {
-    setQueryToken(tokenAddress);
-  };
-
-  useEffect(() => {
-    tokenBalanceSetting();
-  }, [tokenAddress]);
-
   const { data } = useBalance({
     address: address,
-    token: queryToken,
+    token: tokenAddress,
     chainId: chainId,
     enabled:
       chainProperties[supportedNetworkNames[supportedChainIds[chainId]]]
         .sdkSupport.alchemy === false,
     watch: true,
     onSuccess(data) {
+      console.log('token balance:', data)
       setTokenBalanceInfo(data);
     },
   });
+  if (!tokenAddress)
+    console.log("token check", tokenAddress)
 
   const tokenBalanceBox = () => {
     return (

@@ -27,6 +27,7 @@ import LimitSwap from "../components/Trade/LimitSwap";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import inputFilter from "../utils/inputFilter";
+import { getRouterAddress } from "../utils/config";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -174,13 +175,17 @@ export default function Trade() {
 
   ////////////////////////////////Filled Amount
   const { data: filledAmountList } = useContractRead({
-    address: chainProperties[networkName]["routerAddress"],
+    address: getRouterAddress(networkName),
     abi: poolsharkRouterABI,
     functionName: "multiSnapshotLimit",
     args: [limitPoolAddressList, limitPositionSnapshotList],
     chainId: chainId,
     watch: needsSnapshot,
-    enabled: isConnected && limitPoolAddressList.length > 0 && needsSnapshot,
+    enabled: 
+      isConnected &&
+      limitPoolAddressList.length > 0 &&
+      needsSnapshot &&
+      getRouterAddress(networkName),
     onSuccess(data) {
       // console.log("Success price filled amount", data);
       // console.log("snapshot address list", limitPoolAddressList);
@@ -188,6 +193,7 @@ export default function Trade() {
       setNeedsSnapshot(false);
     },
     onError(error) {
+      console.log('network check', networkName)
       console.log("Error price Limit", error);
     },
   });
@@ -336,7 +342,7 @@ export default function Trade() {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties[networkName]["routerAddress"]],
+    args: [address, getRouterAddress(networkName)],
     chainId: chainId,
     watch: needsAllowanceIn,
     enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,

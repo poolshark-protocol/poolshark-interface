@@ -12,6 +12,7 @@ import { BN_ONE, BN_ZERO, ZERO_ADDRESS } from '../../utils/math/constants';
 import { useConfigStore } from '../../hooks/useConfigStore';
 import { rangeStakerABI } from '../../abis/evm/rangeStaker';
 import { chainProperties } from '../../utils/chains';
+import { getRangeStakerAddress } from '../../utils/config';
 
 export default function RangeCompoundButton({ poolAddress, address, positionId, staked }) {
 
@@ -43,7 +44,7 @@ export default function RangeCompoundButton({ poolAddress, address, positionId, 
 });
 
 const { config: burnStakeConfig } = usePrepareContractWrite({
-  address: chainProperties[networkName]["rangeStakerAddress"],
+  address: getRangeStakerAddress(networkName),
   abi: rangeStakerABI,
   functionName: "burnRangeStake",
   args: [
