@@ -35,6 +35,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
+import { getRouterAddress } from "../../utils/config";
 export default function CoverExistingPool({ goBack }) {
   const [
     chainId,

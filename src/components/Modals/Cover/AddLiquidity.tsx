@@ -21,6 +21,7 @@ import { gasEstimateCoverMint } from "../../../utils/gas";
 import { useCoverStore } from "../../../hooks/useCoverStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getLogoURI } from "../../../utils/tokens";
+import { getRouterAddress } from "../../../utils/config";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
