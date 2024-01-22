@@ -343,6 +343,9 @@ export default function AddLiquidity({}) {
     chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceIn(false);
+      setTimeout(() => {
+        setNeedsBalanceIn(true);
+      }, 5000);
     },
   });
 
@@ -354,6 +357,9 @@ export default function AddLiquidity({}) {
     chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceOut(false);
+      setTimeout(() => {
+        setNeedsBalanceOut(true);
+      }, 5000);
     },
     onError(err) {
       console.log("token out error", err);
