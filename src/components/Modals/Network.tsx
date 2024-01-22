@@ -109,7 +109,11 @@ export default function Network({
                     } flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}
                   >
                     <div className="flex gap-x-2 items-center">
-                      <img src="https://scroll-tech.github.io/token-list/scroll.png" width="28" height="28"/>
+                      <img
+                        src="https://scroll-tech.github.io/token-list/scroll.png"
+                        width="28"
+                        height="28"
+                      />
                       Scroll Mainnet
                     </div>
                     <div
@@ -130,7 +134,7 @@ export default function Network({
                         switchNetwork(421614);
                       }}
                       className={`${
-                        chainId === 42161
+                        chainId === 421614
                           ? " bg-background"
                           : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
                       } flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}
@@ -144,7 +148,7 @@ export default function Network({
                       </div>
                       <div
                         className={`${
-                          chainId === 42161
+                          chainId === 421614
                             ? " flex gap-x-2 items-center text-main text-xs"
                             : "hidden"
                         }`}
