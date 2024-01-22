@@ -25,6 +25,7 @@ import { useRouter } from "next/router";
 import { inputHandler } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getLogoURI } from "../../../utils/tokens";
+import { getRouterAddress } from "../../../utils/config";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [chainId, networkName, logoMap] = useConfigStore((state) => [
