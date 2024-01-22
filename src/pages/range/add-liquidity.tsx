@@ -148,7 +148,7 @@ export default function AddLiquidity({}) {
     ) {
       updatePools(parseInt(router.query.feeTier.toString()));
     }
-  }, [router.query.feeTier, chainId]);
+  }, [router.query.feeTier]);
 
   useEffect(() => {
     const originalTokenIn = {
@@ -163,18 +163,11 @@ export default function AddLiquidity({}) {
     setTokenOut(originalTokenIn, originalTokenOut, "0", false);
   }, [logoMap]);
 
-  async function updatePools(feeAmount: number) {
-    /// @notice - this should filter by the poolId in the actual query
-    const data = await fetchRangePools(limitSubgraph);
-    if (data["data"]) {
-      const pools = data["data"].limitPools;
-      //try to get the pool from routing params
-      var pool = pools.find(
-        (pool) =>
-          pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
-      );
-      if (pool == undefined || router.query.poolId == pool.id) {
-        pool = data["data"].limitPools[0];
+  useEffect(() => {
+    const fetchPool = async () => {
+      const data = await fetchRangePools(limitSubgraph);
+      if (data["data"]) {
+        const pool = data["data"].limitPools[0];
         const originalTokenIn = {
           name: pool.token0.symbol,
           address: pool.token0.id,
@@ -196,14 +189,30 @@ export default function AddLiquidity({}) {
         setRangePoolFromFeeTier(
           originalTokenIn,
           originalTokenOut,
-          feeAmount,
+          parseInt(pool.feeTier.feeAmount),
           limitSubgraph
         );
-      } else if (
+      }
+    };
+    fetchPool();
+  }, [chainId]);
+
+  async function updatePools(feeAmount: number) {
+    /// @notice - this should filter by the poolId in the actual query
+    const data = await fetchRangePools(limitSubgraph);
+    if (data["data"]) {
+      const pools = data["data"].limitPools;
+      //try to get the pool from routing params
+      var pool = pools.find(
+        (pool) =>
+          pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
+      );
+      if (
         router.query.feeTier &&
         !isNaN(parseInt(router.query.feeTier.toString())) &&
         rangePoolData.feeTier == undefined &&
-        router.query.poolId != ZERO_ADDRESS
+        router.query.poolId != ZERO_ADDRESS &&
+        pool != undefined
       ) {
         const originalTokenIn = {
           name: pool.token0.symbol,
@@ -343,6 +352,9 @@ export default function AddLiquidity({}) {
     chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceIn(false);
+      setTimeout(() => {
+        setNeedsBalanceIn(true);
+      }, 5000);
     },
   });
 
@@ -354,6 +366,9 @@ export default function AddLiquidity({}) {
     chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceOut(false);
+      setTimeout(() => {
+        setNeedsBalanceOut(true);
+      }, 5000);
     },
     onError(err) {
       console.log("token out error", err);

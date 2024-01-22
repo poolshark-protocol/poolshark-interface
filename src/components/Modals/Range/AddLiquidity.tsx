@@ -178,6 +178,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceIn(false);
+      setTimeout(() => {
+        setNeedsBalanceIn(true);
+      }, 5000);
     },
   });
 
@@ -189,6 +192,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceOut(false);
+      setTimeout(() => {
+        setNeedsBalanceOut(true);
+      }, 5000);
     },
   });
 
