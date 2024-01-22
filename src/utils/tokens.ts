@@ -103,10 +103,10 @@ export const fetchListedTokenBalances = async (
     return
   }
   const listedIndex = listed_tokens.findIndex(
-    (x) => String(x.symbol).toLowerCase() === String("ETH").toLowerCase()
+    (x) => x.native == true
   );
   const searchIndex = search_tokens.findIndex(
-    (x) => String(x.symbol).toLowerCase() === String("ETH").toLowerCase()
+    (x) => x.native == true
   );
   if (listedIndex != -1) {
     listed_tokens[listedIndex].balance = numStringFormat(ethers.utils.formatUnits(
@@ -130,23 +130,26 @@ export const fetchListedTokenBalances = async (
   }
   if (tokenBalances.tokenBalances.length != 0) {
     tokenBalances.tokenBalances.forEach((token) => {
+      // @dev - the zero index will ALWAYS be the native token
       const listedIndex = listed_tokens.findIndex(
         (x) =>
           String(x.id).toLowerCase() ===
-          String(token.contractAddress).toLowerCase()
+          String(token.contractAddress).toLowerCase() &&
+          x.native != true
       );
       const searchIndex = search_tokens.findIndex(
         (x) =>
           String(x.id).toLowerCase() ===
-          String(token.contractAddress).toLowerCase()
+          String(token.contractAddress).toLowerCase() &&
+          x.native != true
       );
-      if (listedIndex != -1 && listed_tokens[listedIndex].symbol != "ETH") {
+      if (listedIndex != -1) {
         listed_tokens[listedIndex].balance = numStringFormat(ethers.utils.formatUnits(
           token.tokenBalance,
           listed_tokens[listedIndex].decimals
         ), 5);
       }
-      if (searchIndex != -1 && search_tokens[searchIndex].symbol != "ETH") {
+      if (searchIndex != -1) {
         search_tokens[searchIndex].balance = numStringFormat(ethers.utils.formatUnits(
           token.tokenBalance,
           search_tokens[searchIndex].decimals
@@ -155,7 +158,6 @@ export const fetchListedTokenBalances = async (
     });
   }
   setTimeout(() => {
-    console.log('fetching token balances again')
     fetchListedTokenBalances(chainId, address, listed_tokens, search_tokens);
   }, 5000);
 };

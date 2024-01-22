@@ -9,8 +9,7 @@ import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
 import { useAccount, useToken } from "wagmi";
 import { useConfigStore } from "../hooks/useConfigStore";
-import { defaultTokenLogo, getLogoURI, logoMapKey, nativeString } from "../utils/tokens";
-import { Alchemy, Network } from "alchemy-sdk";
+import { defaultTokenLogo, logoMapKey } from "../utils/tokens";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
@@ -106,7 +105,6 @@ export default function SelectToken(props) {
   }, [isOpen]);
 
   const chooseToken = (coin) => {
-    console.log('token balance set', coin)
     coin = {
       name: coin?.name,
       address: coin?.id,
@@ -114,10 +112,11 @@ export default function SelectToken(props) {
       logoURI: coin?.logoURI,
       decimals: coin?.decimals,
       native: coin?.native ?? false,
+      userBalance: coin?.balance ?? (coin.userBalance ?? 0),
     };
+
     if (props.amount != undefined && props.isAmountIn != undefined) {
       if (props.type === "in") {
-
         props.setTokenIn(
           props.tokenOut,
           {
@@ -127,7 +126,7 @@ export default function SelectToken(props) {
             logoURI: coin?.logoURI,
             decimals: coin?.decimals,
             native: coin?.native ?? false,
-            userBalance: coin?.balance ?? 0,
+            userBalance: coin?.userBalance ?? 0,
           },
           props.amount,
           props.isAmountIn
@@ -142,6 +141,7 @@ export default function SelectToken(props) {
             logoURI: coin?.logoURI,
             decimals: coin?.decimals,
             native: coin?.native ?? false,
+            userBalance: coin?.userBalance ?? 0,
           },
           props.amount,
           props.isAmountIn
@@ -149,23 +149,31 @@ export default function SelectToken(props) {
       }
     } else {
       if (props.type === "in") {
-        props.setTokenIn(props.tokenOut, {
-          name: coin?.name,
-          address: coin?.address,
-          symbol: coin?.symbol,
-          logoURI: coin?.logoURI,
-          decimals: coin?.decimals,
-          native: coin?.native ?? false,
-        });
+        props.setTokenIn(
+          props.tokenOut,
+          {
+            name: coin?.name,
+            address: coin?.address,
+            symbol: coin?.symbol,
+            logoURI: coin?.logoURI,
+            decimals: coin?.decimals,
+            native: coin?.native ?? false,
+            userBalance: coin?.userBalance ?? 0,
+          }
+        );
       } else {
-        props.setTokenOut(props.tokenIn, {
-          name: coin?.name,
-          address: coin?.address,
-          symbol: coin?.symbol,
-          logoURI: coin?.logoURI,
-          decimals: coin?.decimals,
-          native: coin?.native ?? false,
-        });
+        props.setTokenOut(
+          props.tokenIn,
+          {
+            name: coin?.name,
+            address: coin?.address,
+            symbol: coin?.symbol,
+            logoURI: coin?.logoURI,
+            decimals: coin?.decimals,
+            native: coin?.native ?? false,
+            userBalance: coin?.userBalance ?? 0,
+          }
+        );
       }
     }
     closeModal();

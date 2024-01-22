@@ -308,7 +308,7 @@ export default function MarketSwap() {
                 poolQuotes[0].amountOut.toString(),
                 tokenOut.decimals
               )
-            ), 6)
+            ), 5)
           );
         } else {
           setAmountIn(poolQuotes[0].amountIn);
@@ -318,7 +318,7 @@ export default function MarketSwap() {
                 poolQuotes[0].amountIn.toString(),
                 tokenIn.decimals
               )
-            ), 6)
+            ), 5)
           );
         }
         updateSwapParams(poolQuotes);
@@ -516,7 +516,7 @@ export default function MarketSwap() {
                       amountOut ?? BN_ZERO,
                       tokenOut.decimals
                     )
-                  ), 6)
+                  ), 5)
                 : "Select Token"}
             </div>
           </div>
@@ -545,7 +545,7 @@ export default function MarketSwap() {
                 ) *
                   (100 - parseFloat(tradeSlippage))) /
                 100
-                , 6)}
+                , 5)}
             </div>
           </div>
 
@@ -581,7 +581,7 @@ export default function MarketSwap() {
               : (0).toFixed(2)}
           </span>
           <span>{tokenIn?.address != ZERO_ADDRESS ? ("Balance: " +
-              (!isNaN(tokenIn?.userBalance) && tokenIn.userBalance > 0 ? numFormat(tokenIn.userBalance, 6) : "0.00")
+              (!isNaN(tokenIn?.userBalance) && tokenIn.userBalance > 0 ? numFormat(tokenIn.userBalance, 5) : "0.00")
             ) : (
               <></>
             )}</span>
@@ -660,7 +660,7 @@ export default function MarketSwap() {
           <span>
             {tokenOut?.address != ZERO_ADDRESS ? (
               "Balance: " +
-              (!isNaN(tokenOut?.userBalance) && tokenOut.userBalance > 0 ? numFormat(tokenOut.userBalance, 6) : "0.00")
+              (!isNaN(tokenOut?.userBalance) && tokenOut.userBalance > 0 ? numFormat(tokenOut.userBalance, 5) : "0.00")
             ) : (
               <></>
             )}

@@ -303,6 +303,7 @@ export default function Trade() {
     },
   });
 
+
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.native ? undefined : tokenOut.address,
@@ -318,14 +319,14 @@ export default function Trade() {
   });
 
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && tokenInBal) {
       setTokenInBalance(
         !isNaN(parseFloat(tokenInBal?.formatted.toString()))
           ? tokenInBal?.formatted.toString()
           : "0.00"
       );
     }
-    if (tokenOutBal) {
+    if (isConnected && tokenOutBal) {
       setTokenOutBalance(
         !isNaN(parseFloat(tokenOutBal?.formatted.toString()))
           ? tokenOutBal?.formatted.toString()

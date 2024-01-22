@@ -303,7 +303,7 @@ export default function LimitSwap() {
           ),
           limitPriceOrder
         )
-      ), 6);
+      ), 5);
       setLimitPriceString(newPrice);
     } else {
       setLimitPriceString('0.00')
@@ -510,7 +510,7 @@ export default function LimitSwap() {
               tokenOutAmount.toString(),
               tokenOut.decimals
             )
-          ), 6);
+          ), 5);
           if (tokenOutAmount.gt(BN_ZERO)) {
             setDisplayOut(tokenOutAmountDisplay);
             setAmountOut(tokenOutAmount);
@@ -538,7 +538,7 @@ export default function LimitSwap() {
           );
           const tokenInAmountDisplay = numFormat(parseFloat(
             ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
-          ), 6);
+          ), 5);
           setDisplayIn(tokenInAmountDisplay);
           setAmountIn(tokenInAmount);
         }
@@ -567,7 +567,7 @@ export default function LimitSwap() {
               tokenOutAmount.toString(),
               tokenOut.decimals
             )
-          ), 6);
+          ), 5);
           setDisplayOut(tokenOutAmountDisplay);
           setAmountOut(tokenOutAmount);
         }
@@ -589,7 +589,7 @@ export default function LimitSwap() {
           );
           const tokenInAmountDisplay = numFormat(parseFloat(
             ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
-          ), 6);
+          ), 5);
           setDisplayIn(tokenInAmountDisplay);
           setAmountIn(tokenInAmount);
         }
@@ -747,7 +747,7 @@ export default function LimitSwap() {
                       amountOut ?? BN_ZERO,
                       tokenOut.decimals
                     )
-                  ), 6)
+                  ), 5)
                 : "Select Token"}
             </div>
           </div>
@@ -762,7 +762,7 @@ export default function LimitSwap() {
                 ) *
                   (100 - parseFloat(tradeSlippage))) /
                 100
-              , 6)}
+              , 5)}
             </div>
           </div>
         </div>
