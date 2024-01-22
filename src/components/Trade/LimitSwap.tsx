@@ -38,6 +38,7 @@ import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import JSBI from "jsbi";
 import { getRouterAddress } from "../../utils/config";
+import BalanceDisplay from "../Display/BalanceDisplay";
 
 export default function LimitSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -786,7 +787,7 @@ export default function LimitSwap() {
                 ).toFixed(2)
               : (0).toFixed(2)}
           </span>
-          <span>BALANCE: {tokenIn.userBalance}</span>
+          <BalanceDisplay token={tokenIn}></BalanceDisplay>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3">
           {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox)}

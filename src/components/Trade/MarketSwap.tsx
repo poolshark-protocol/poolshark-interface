@@ -25,6 +25,7 @@ import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { getRouterAddress } from "../../utils/config";
+import BalanceDisplay from "../Display/BalanceDisplay";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -580,11 +581,7 @@ export default function MarketSwap() {
                 ).toFixed(2)
               : (0).toFixed(2)}
           </span>
-          <span>{tokenIn?.address != ZERO_ADDRESS ? ("Balance: " +
-              (!isNaN(tokenIn?.userBalance) && tokenIn.userBalance > 0 ? numFormat(tokenIn.userBalance, 5) : "0.00")
-            ) : (
-              <></>
-            )}</span>
+          <BalanceDisplay token={tokenIn}></BalanceDisplay>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3">
           {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox)}

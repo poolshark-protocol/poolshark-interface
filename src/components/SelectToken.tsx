@@ -99,7 +99,7 @@ export default function SelectToken(props) {
 
   useEffect(() => {
     if (isOpen) {
-      setCustomInput("");
+      setCustomInput(""); 
       setDisplayTokenList(listedTokenList);
     }
   }, [isOpen]);
