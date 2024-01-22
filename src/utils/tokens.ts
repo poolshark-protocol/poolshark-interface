@@ -155,6 +155,7 @@ export const fetchListedTokenBalances = async (
     });
   }
   setTimeout(() => {
+    console.log('fetching token balances again')
     fetchListedTokenBalances(chainId, address, listed_tokens, search_tokens);
   }, 5000);
 };

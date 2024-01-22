@@ -33,3 +33,24 @@ export const getTokenBalance = (chainId: number, coin: any, tokenBalanceInfo: an
 	}
 	return "0"
 }
+
+export const isAlchemySDKSupported = (chainId: number) => {
+	// check chain id support
+	const supportedChainId = supportedChainIds[chainId]
+	if (supportedChainId) {
+		// check network name support
+		const supportedNetworkName = supportedNetworkNames[supportedChainId]
+		if (supportedNetworkName) {
+			// check chain config exists
+			const chainConfig = chainProperties[supportedNetworkName]
+			if (chainConfig) {
+				// check alchemy sdk support
+				if (chainConfig?.sdkSupport?.alchemy) {
+					return true
+				}
+			}
+		}
+	}
+	// default not supported
+	return false
+}

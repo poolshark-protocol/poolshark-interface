@@ -106,6 +106,7 @@ export default function SelectToken(props) {
   }, [isOpen]);
 
   const chooseToken = (coin) => {
+    console.log('token balance set', coin)
     coin = {
       name: coin?.name,
       address: coin?.id,
@@ -116,7 +117,7 @@ export default function SelectToken(props) {
     };
     if (props.amount != undefined && props.isAmountIn != undefined) {
       if (props.type === "in") {
-        console.log('token balance', coin.balance.formatted)
+
         props.setTokenIn(
           props.tokenOut,
           {
