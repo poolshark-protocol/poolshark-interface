@@ -181,7 +181,7 @@ export default function Trade() {
     args: [limitPoolAddressList, limitPositionSnapshotList],
     chainId: chainId,
     watch: needsSnapshot,
-    enabled: 
+    enabled:
       isConnected &&
       limitPoolAddressList.length > 0 &&
       needsSnapshot &&
@@ -193,7 +193,7 @@ export default function Trade() {
       setNeedsSnapshot(false);
     },
     onError(error) {
-      console.log('network check', networkName)
+      console.log("network check", networkName);
       console.log("Error price Limit", error);
     },
   });
@@ -295,13 +295,10 @@ export default function Trade() {
     watch: needsBalanceIn,
     chainId: chainId,
     onSuccess(data) {
-      console.log(
-        "token address",
-        tokenIn.native ? undefined : tokenIn.address
-      );
-      if (needsBalanceIn) {
-        setNeedsBalanceIn(false);
-      }
+      setNeedsBalanceIn(false);
+      setTimeout(() => {
+        setNeedsBalanceIn(true);
+      }, 5000);
     },
   });
 
@@ -312,10 +309,10 @@ export default function Trade() {
     watch: needsBalanceOut,
     chainId: chainId,
     onSuccess(data) {
-      console.log("Success balance out", data);
-      if (needsBalanceOut) {
-        setNeedsBalanceOut(false);
-      }
+      setNeedsBalanceOut(false);
+      setTimeout(() => {
+        setNeedsBalanceOut(true);
+      }, 5000);
     },
   });
 
