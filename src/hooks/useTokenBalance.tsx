@@ -29,8 +29,6 @@ export default function useTokenBalance(tokenAddress: `0x${string}`) {
       setTokenBalanceInfo(data);
     },
   });
-  if (!tokenAddress)
-    console.log("token check", tokenAddress)
 
   const tokenBalanceBox = () => {
     return (

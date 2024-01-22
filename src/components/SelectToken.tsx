@@ -116,6 +116,7 @@ export default function SelectToken(props) {
     };
     if (props.amount != undefined && props.isAmountIn != undefined) {
       if (props.type === "in") {
+        console.log('token balance', coin.balance.formatted)
         props.setTokenIn(
           props.tokenOut,
           {
@@ -125,6 +126,7 @@ export default function SelectToken(props) {
             logoURI: coin?.logoURI,
             decimals: coin?.decimals,
             native: coin?.native ?? false,
+            userBalance: coin?.balance ?? 0,
           },
           props.amount,
           props.isAmountIn
