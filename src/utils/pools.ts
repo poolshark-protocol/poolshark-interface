@@ -66,7 +66,7 @@ export const getLimitPoolForFeeTier = async (
   client: LimitSubgraph,
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
-  feeTier: number,
+  feeTier: number
 ) => {
   try {
     const limitPools = await getLimitPoolFromFactory(
@@ -83,13 +83,11 @@ export const getLimitPoolForFeeTier = async (
       if (selectedPool != undefined) {
         return selectedPool;
       } else {
-        console.log("no pool found1");
         return {
           id: ZERO_ADDRESS,
         };
       }
     } else {
-      console.log("no pool found2");
       return {
         id: ZERO_ADDRESS,
       };
