@@ -133,9 +133,9 @@ export default function Trade() {
     s.setLimitTabSelected,
   ]);
 
-  // const swingSDK = new SwingSDK({
-  //   // projectId: "poolshark"
-  // });
+  const swingSDK = new SwingSDK({
+    // projectId: "poolshark"
+  });
 
   //false order history is selected, true when active orders is selected
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
