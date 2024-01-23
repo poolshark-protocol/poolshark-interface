@@ -203,7 +203,10 @@ export default function LimitSwap() {
   }, [exactIn ? amountIn : amountOut, tradePoolData?.id]);
 
   useEffect(() => {
-    if (!needsPairUpdate || feeTierManual) return;
+    if (!needsPairUpdate) return;
+    else {
+      setFeeTierManual(false);
+    }
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
       if (!wethCall)
