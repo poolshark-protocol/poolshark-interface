@@ -1166,7 +1166,7 @@ export default function LimitSwap() {
         >
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
             {"1 " + tokenIn.symbol} ={" "}
-            {tradePoolData?.id == ZERO_ADDRESS
+            {tradePoolData?.id != ZERO_ADDRESS
               ? displayPoolPrice(
                   wethCall,
                   pairSelected,
@@ -1176,7 +1176,7 @@ export default function LimitSwap() {
                 ) +
                 " " +
                 tokenOut.symbol
-              : "0"}
+              : "?"}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>
