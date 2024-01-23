@@ -22,6 +22,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { useRangeLimitStore } from "../hooks/useRangeLimitStore";
 import { fetchListedTokenBalances, fetchTokenMetadata } from "../utils/tokens";
+import { Toaster } from "sonner";
 
 const { chains, provider } = configureChains(
   [arbitrum, arbitrumSepolia, scroll],
@@ -160,6 +161,7 @@ function MyApp({ Component, pageProps }) {
       <Head>
         <title>Poolshark</title>
       </Head>
+      <Toaster richColors theme="dark"  />
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider chains={chains} initialChain={arbitrum}>
           {/* <ApolloProvider client={apolloClient}> */}
@@ -196,7 +198,6 @@ function MyApp({ Component, pageProps }) {
             )}
           </>
           <SpeedInsights />
-
           {/* <Analytics /> </ApolloProvider> */}
         </RainbowKitProvider>
       </WagmiConfig>

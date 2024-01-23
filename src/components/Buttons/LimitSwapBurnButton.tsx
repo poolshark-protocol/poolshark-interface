@@ -5,9 +5,6 @@ import {
   useWaitForTransaction,
   useSigner,
 } from "wagmi";
-import { SuccessToast } from "../Toasts/Success";
-import { ErrorToast } from "../Toasts/Error";
-import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useEffect, useState } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
 import { useTradeStore } from "../../hooks/useTradeStore";
@@ -17,6 +14,8 @@ import { BN_ZERO } from "../../utils/math/constants";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { parseUnits } from "../../utils/math/valueMath";
 import { useRouter } from "next/router";
+import { toast } from "sonner";
+import { chainProperties } from "../../utils/chains";
 
 export default function LimitSwapBurnButton({
   poolAddress,
@@ -93,8 +92,7 @@ export default function LimitSwapBurnButton({
     }
   }, [claimTick, signer]);
 
-  const [errorDisplay, setErrorDisplay] = useState(false);
-  const [successDisplay, setSuccessDisplay] = useState(false);
+  const [toastId, setToastId] = useState(null);
 
   const { config } = usePrepareContractWrite({
     address: poolAddress,
@@ -120,7 +118,13 @@ export default function LimitSwapBurnButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true);
+      toast.success("Your transaction was successful",{
+        id: toastId,
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
       setNeedsSnapshot(true);
       setNeedsBalanceIn(true);
       setNeedsBalanceOut(true);
@@ -130,9 +134,28 @@ export default function LimitSwapBurnButton({
       }
     },
     onError() {
-      setErrorDisplay(true);
+      toast.error("Your transaction failed",{
+        id: toastId,
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
     },
   });
+
+  useEffect(() => {
+    if(isLoading) {
+      const newToastId = toast.loading("Your transaction is being confirmed...",{
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
+      newToastId
+      setToastId(newToastId);
+    }
+  }, [isLoading]);
 
   return (
     <>
@@ -147,23 +170,6 @@ export default function LimitSwapBurnButton({
       >
         <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
       </svg>
-      <div className="fixed bottom-4 right-4 flex flex-col space-y-2">
-        {errorDisplay && (
-          <ErrorToast
-            hash={data?.hash}
-            errorDisplay={errorDisplay}
-            setErrorDisplay={setErrorDisplay}
-          />
-        )}
-        {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-        {successDisplay && (
-          <SuccessToast
-            hash={data?.hash}
-            successDisplay={successDisplay}
-            setSuccessDisplay={setSuccessDisplay}
-          />
-        )}
-      </div>
     </>
   );
 }

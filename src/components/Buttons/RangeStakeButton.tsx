@@ -9,12 +9,10 @@ import { chainProperties } from "../../utils/chains";
 import { rangeStakerABI } from "../../abis/evm/rangeStaker";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { ConfirmingToast } from "../Toasts/Confirming";
-import { ErrorToast } from "../Toasts/Error";
-import { SuccessToast } from "../Toasts/Success";
 import { gasEstimateRangeStake } from "../../utils/gas";
 import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
 import { getRangeStakerAddress } from "../../utils/config";
+import { toast } from "sonner";
 
 // unstake position
 // add liquidity while staked
@@ -54,8 +52,7 @@ const [
     state.setNeedsPosRefetch,
   ]);
 
-  const [errorDisplay, setErrorDisplay] = useState(false);
-  const [successDisplay, setSuccessDisplay] = useState(false);
+  const [toastId, setToastId] = useState(null);
   const [stakeGasLimit, setUnstakeGasLimit] = useState(BN_ZERO)
 
   useEffect(() => {
@@ -126,7 +123,13 @@ const [
   const { isLoading } = useWaitForTransaction({
       hash: data?.hash,
       onSuccess() {
-        setSuccessDisplay(true);
+        toast.success("Your transaction was successful",{
+          id: toastId,
+          action: {
+            label: "View",
+            onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          },
+        });
         setNeedsAllowanceIn(true);
         setNeedsBalanceIn(true);
         setTimeout(() => {
@@ -135,11 +138,30 @@ const [
         }, 2500);
       },
       onError() {
-        setErrorDisplay(true);
+        toast.error("Your transaction failed",{
+          id: toastId,
+          action: {
+            label: "View",
+            onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          },
+        });
         setNeedsRefetch(false);
         setNeedsPosRefetch(false);
       },
   });
+
+  useEffect(() => {
+    if(isLoading) {
+      const newToastId = toast.loading("Your transaction is being confirmed...",{
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
+      newToastId
+      setToastId(newToastId);
+    }
+  }, [isLoading]);
 
   return (
       <>
@@ -150,27 +172,6 @@ const [
       >
           {stakeApproved ? "Stake Position" : "Approve Stake"}
       </button>
-      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
-        {
-          errorDisplay && (
-            <ErrorToast
-                hash={data?.hash}
-                errorDisplay={errorDisplay}
-                setErrorDisplay={setErrorDisplay}
-            />
-          )
-        }
-        {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-        {
-          successDisplay && (
-            <SuccessToast
-                hash={data?.hash}
-                successDisplay={successDisplay}
-                setSuccessDisplay={setSuccessDisplay}
-            />
-          )
-        }
-    </div>
       </>
   );
 }

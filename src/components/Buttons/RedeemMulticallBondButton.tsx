@@ -1,10 +1,9 @@
 import { useAccount, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { bondTellerABI } from "../../abis/evm/bondTeller";
-import { useState } from "react";
-import { ErrorToast } from "../Toasts/Error";
-import { ConfirmingToast } from "../Toasts/Confirming";
-import { SuccessToast } from "../Toasts/Success";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { chainProperties } from "../../utils/chains";
 
 export default function RedeemMulticallBondButton({
   tellerAddress,
@@ -13,13 +12,14 @@ export default function RedeemMulticallBondButton({
   setNeedsBondTokenData,
 }) {
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
-  const [errorDisplay, setErrorDisplay] = useState(false);
-  const [successDisplay, setSuccessDisplay] = useState(false);
+  const [toastId, setToastId] = useState(null);
 
   const { address } = useAccount();
   
@@ -42,13 +42,38 @@ export default function RedeemMulticallBondButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true);
+      toast.success("Your transaction was successful",{
+        id: toastId,
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
       setNeedsBondTokenData(true);
     },
     onError() {
-      setErrorDisplay(true);
+      toast.error("Your transaction failed",{
+        id: toastId,
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
     },
   });
+
+  useEffect(() => {
+    if(isLoading) {
+      const newToastId = toast.loading("Your transaction is being confirmed...",{
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
+      newToastId
+      setToastId(newToastId);
+    }
+  }, [isLoading]);
 
     return (
       <>
@@ -58,23 +83,6 @@ export default function RedeemMulticallBondButton({
         >
           REDEEM BONDS
         </button>
-        <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
-          {errorDisplay && (
-            <ErrorToast
-              hash={data?.hash}
-              errorDisplay={errorDisplay}
-              setErrorDisplay={setErrorDisplay}
-            />
-          )}
-          {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-          {successDisplay && (
-            <SuccessToast
-              hash={data?.hash}
-              successDisplay={successDisplay}
-              setSuccessDisplay={setSuccessDisplay}
-            />
-          )}
-        </div>
       </>
     );
   }
