@@ -4,9 +4,6 @@ import {
     useWaitForTransaction,
 } from 'wagmi';
 import { rangePoolABI } from "../../abis/evm/rangePool";
-import { SuccessToast } from "../Toasts/Success";
-import { ErrorToast } from "../Toasts/Error";
-import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BN_ONE, BN_ZERO, ZERO_ADDRESS } from '../../utils/math/constants';
 import { useConfigStore } from '../../hooks/useConfigStore';
@@ -87,23 +84,6 @@ const write = !staked ? burnWrite : burnStakeWrite
               >
               Compound position
       </button>
-      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
-    {errorDisplay && (
-      <ErrorToast
-        hash={data?.hash}
-        errorDisplay={errorDisplay}
-        setErrorDisplay={setErrorDisplay}
-      />
-    )}
-    {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-    {successDisplay && (
-      <SuccessToast
-        hash={data?.hash}
-        successDisplay={successDisplay}
-        setSuccessDisplay={setSuccessDisplay}
-      />
-    )}
-    </div>
       </>
   );
 }

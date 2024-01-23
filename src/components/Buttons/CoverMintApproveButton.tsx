@@ -4,9 +4,6 @@ import {
   useContractWrite,
 } from 'wagmi'
 import { erc20ABI } from 'wagmi'
-import { SuccessToast } from '../Toasts/Success'
-import { ErrorToast } from '../Toasts/Error'
-import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useState } from 'react'
 import { useCoverStore } from '../../hooks/useCoverStore'
 import { useConfigStore } from '../../hooks/useConfigStore'
@@ -61,23 +58,6 @@ export default function CoverMintApproveButton({
         onClick={(address) => (address ? write?.() : null)}
       >
       <> Approve {tokenSymbol}</>
-      </div>
-      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
-        {errorDisplay && (
-          <ErrorToast
-            hash={data?.hash}
-            errorDisplay={errorDisplay}
-            setErrorDisplay={setErrorDisplay}
-          />
-        )}
-        {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-        {successDisplay && (
-          <SuccessToast
-            hash={data?.hash}
-            successDisplay={successDisplay}
-            setSuccessDisplay={setSuccessDisplay}
-          />
-        )}
       </div>
     </>
   )

@@ -4,9 +4,6 @@ import {
   useContractWrite,
 } from "wagmi";
 import { erc20ABI } from "wagmi";
-import { SuccessToast } from "../Toasts/Success";
-import { ErrorToast } from "../Toasts/Error";
-import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { useEffect } from "react";
 import {
@@ -83,6 +80,7 @@ export default function SwapRouterApproveButton({
     },
     
   });
+
     useEffect(() => {
     if(isLoading) {
       const newToastId = toast.loading("Your transaction is being confirmed...",{

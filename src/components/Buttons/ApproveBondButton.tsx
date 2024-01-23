@@ -1,9 +1,6 @@
 import { erc20ABI, useAccount, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useState } from "react";
-import { ErrorToast } from "../Toasts/Error";
-import { ConfirmingToast } from "../Toasts/Confirming";
-import { SuccessToast } from "../Toasts/Success";
 import { BN_ZERO } from "../../utils/math/constants";
   
   export default function ApproveBondButton({
@@ -59,23 +56,6 @@ import { BN_ZERO } from "../../utils/math/constants";
         >
           APPROVE WETH
         </button>
-        <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
-          {errorDisplay && (
-            <ErrorToast
-              hash={data?.hash}
-              errorDisplay={errorDisplay}
-              setErrorDisplay={setErrorDisplay}
-            />
-          )}
-          {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-          {successDisplay && (
-            <SuccessToast
-              hash={data?.hash}
-              successDisplay={successDisplay}
-              setSuccessDisplay={setSuccessDisplay}
-            />
-          )}
-        </div>
       </>
     );
   }

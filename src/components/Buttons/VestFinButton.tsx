@@ -2,9 +2,7 @@ import { useAccount, useContractRead, useContractWrite, usePrepareContractWrite,
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { bondTellerABI } from "../../abis/evm/bondTeller";
 import { useEffect, useState } from "react";
-import { ErrorToast } from "../Toasts/Error";
-import { ConfirmingToast } from "../Toasts/Confirming";
-import { SuccessToast } from "../Toasts/Success";
+
 import { BigNumber } from "ethers";
 import { BN_ZERO } from "../../utils/math/constants";
 import { vFinABI } from "../../abis/evm/vFin";
@@ -26,6 +24,8 @@ import { chainProperties } from "../../utils/chains";
       state.chainId,
       state.networkName
     ]);
+
+    const [toastId, setToastId] = useState(null);
 
     const [bondBalance, setBondBalance] = useState(BN_ZERO);
     const [bondApproved, setBondApproved] = useState(false);
@@ -120,12 +120,13 @@ import { chainProperties } from "../../utils/chains";
     const { isLoading } = useWaitForTransaction({
       hash: data?.hash,
       onSuccess() {
-        toast.success("Your transaction was successful",{
-          action: {
-            label: "View",
-            onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
-          },
-        });
+      toast.success("Your transaction was successful",{
+        id: toastId,
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
         if (bondApproved) {
           setTimeout(() => {
             setNeedsVestingPosition(true)
@@ -136,6 +137,7 @@ import { chainProperties } from "../../utils/chains";
       },
       onError() {
         toast.error("Your transaction failed",{
+          id: toastId,
           action: {
             label: "View",
             onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
@@ -146,12 +148,14 @@ import { chainProperties } from "../../utils/chains";
 
     useEffect(() => {
       if(isLoading) {
-        toast.loading("Your transaction is being confirmed...",{
+        const newToastId = toast.loading("Your transaction is being confirmed...",{
           action: {
             label: "View",
             onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
           },
         });
+        newToastId
+        setToastId(newToastId);
       }
     }, [isLoading]);
 

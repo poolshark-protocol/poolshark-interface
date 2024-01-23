@@ -9,9 +9,6 @@ import { chainProperties } from "../../utils/chains";
 import { rangeStakerABI } from "../../abis/evm/rangeStaker";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { ConfirmingToast } from "../Toasts/Confirming";
-import { ErrorToast } from "../Toasts/Error";
-import { SuccessToast } from "../Toasts/Success";
 import { gasEstimateRangeStake } from "../../utils/gas";
 import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
 
@@ -149,27 +146,6 @@ const [
       >
           {stakeApproved ? "Stake Position" : "Approve Stake"}
       </button>
-      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
-        {
-          errorDisplay && (
-            <ErrorToast
-                hash={data?.hash}
-                errorDisplay={errorDisplay}
-                setErrorDisplay={setErrorDisplay}
-            />
-          )
-        }
-        {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-        {
-          successDisplay && (
-            <SuccessToast
-                hash={data?.hash}
-                successDisplay={successDisplay}
-                setSuccessDisplay={setSuccessDisplay}
-            />
-          )
-        }
-    </div>
       </>
   );
 }

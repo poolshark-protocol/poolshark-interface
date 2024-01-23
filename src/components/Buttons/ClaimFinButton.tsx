@@ -1,9 +1,6 @@
 import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useState } from "react";
-import { ErrorToast } from "../Toasts/Error";
-import { ConfirmingToast } from "../Toasts/Confirming";
-import { SuccessToast } from "../Toasts/Success";
 import { vFinABI } from "../../abis/evm/vFin";
   
   export default function ClaimFinButton({
@@ -57,23 +54,6 @@ import { vFinABI } from "../../abis/evm/vFin";
         >
           {disabled ? "NOTHING TO CLAIM" : "CLAIM VESTED FIN"}
         </button>
-        <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
-          {errorDisplay && (
-            <ErrorToast
-              hash={data?.hash}
-              errorDisplay={errorDisplay}
-              setErrorDisplay={setErrorDisplay}
-            />
-          )}
-          {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-          {successDisplay && (
-            <SuccessToast
-              hash={data?.hash}
-              successDisplay={successDisplay}
-              setSuccessDisplay={setSuccessDisplay}
-            />
-          )}
-        </div>
       </>
     );
   }

@@ -4,9 +4,6 @@ import {
   useContractWrite,
 } from "wagmi";
 import { erc20ABI } from "wagmi";
-import { SuccessToast } from "../Toasts/Success";
-import { ErrorToast } from "../Toasts/Error";
-import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
 import { useConfigStore } from "../../hooks/useConfigStore";
@@ -66,21 +63,6 @@ export default function RangeMintApproveButton({
         onClick={() => writeT0?.()}
       >
         Approve {approveToken.symbol}
-      </div>
-      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
-        <ErrorToast
-          key={dataT0?.hash + "error"}
-          hash={dataT0?.hash}
-          errorDisplay={errorDisplay}
-          setErrorDisplay={setErrorDisplay}
-        />
-        {isLoadingT0 ? <ConfirmingToast hash={dataT0?.hash} /> : <></>}
-        <SuccessToast
-          key={dataT0?.hash + "success"}
-          hash={dataT0?.hash}
-          successDisplay={successDisplay}
-          setSuccessDisplay={setSuccessDisplay}
-        />
       </div>
     </>
   );

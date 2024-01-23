@@ -4,9 +4,6 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import { limitPoolABI } from "../../abis/evm/limitPool";
-import { SuccessToast } from "../Toasts/Success";
-import { ErrorToast } from "../Toasts/Error";
-import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BigNumber } from "ethers";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
@@ -93,23 +90,6 @@ export default function LimitCollectButton({
       >
         {gasLimit.lte(BN_ZERO) && !disabled ? <Loader /> : disabled ? "Nothing to collect" : "Collect position"}
       </button>
-      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
-        {errorDisplay && (
-          <ErrorToast
-            hash={data?.hash}
-            errorDisplay={errorDisplay}
-            setErrorDisplay={setErrorDisplay}
-          />
-        )}
-        {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-        {successDisplay && (
-          <SuccessToast
-            hash={data?.hash}
-            successDisplay={successDisplay}
-            setSuccessDisplay={setSuccessDisplay}
-          />
-        )}
-      </div>
     </>
   );
 }

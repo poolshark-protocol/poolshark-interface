@@ -4,9 +4,6 @@ import {
   useWaitForTransaction,
   useSigner,
 } from "wagmi";
-import { SuccessToast } from "../Toasts/Success";
-import { ErrorToast } from "../Toasts/Error";
-import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
@@ -124,23 +121,6 @@ export default function RangeAddLiqButton({
       >
         {gasLimit?.lte(BN_ZERO) && (amount0?.gt(BN_ZERO) || amount1?.gt(BN_ZERO)) ? <Loader/> : "Add liquidity"}
       </button>
-      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
-        {errorDisplay && (
-          <ErrorToast
-            hash={data?.hash}
-            errorDisplay={errorDisplay}
-            setErrorDisplay={setErrorDisplay}
-          />
-        )}
-        {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-        {successDisplay && (
-          <SuccessToast
-            hash={data?.hash}
-            successDisplay={successDisplay}
-            setSuccessDisplay={setSuccessDisplay}
-          />
-        )}
-      </div>
     </>
   );
 }

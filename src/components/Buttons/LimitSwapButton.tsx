@@ -3,9 +3,6 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { SuccessToast } from "../Toasts/Success";
-import { ErrorToast } from "../Toasts/Error";
-import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
@@ -118,23 +115,6 @@ export default function LimitSwapButton({
       >
         LIMIT SWAP
       </button>
-      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
-        {errorDisplay && (
-          <ErrorToast
-            hash={data?.hash}
-            errorDisplay={errorDisplay}
-            setErrorDisplay={setErrorDisplay}
-          />
-        )}
-        {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-        {successDisplay && (
-          <SuccessToast
-            hash={data?.hash}
-            successDisplay={successDisplay}
-            setSuccessDisplay={setSuccessDisplay}
-          />
-        )}
-      </div>
     </>
   );
 }
