@@ -171,6 +171,6 @@ export const chainProperties = {
     coverSubgraphUrl:
       "",
     limitSubgraphUrl:
-      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-scroll/0.1.1/gn",
+      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-scroll/0.1.2/gn",
   },
 };
