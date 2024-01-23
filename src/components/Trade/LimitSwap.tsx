@@ -958,49 +958,51 @@ export default function LimitSwap() {
           </div>
         </div>
       </div>
-      <div className="flex gap-y-4 w-full items-center mt-5 justify-between bg-dark border-grey/80 p-2 border rounded-[4px]">
-        <div className="bg-dark text-sm uppercase pl-2 rounded-[4px] flex items-center gap-x-2">
-          <span className="md:block hidden">SELECT A</span> Fee tier:
+      {pairSelected ? (
+        <div className="flex gap-y-4 w-full items-center mt-5 justify-between bg-dark border-grey/80 p-2 border rounded-[4px]">
+          <div className="bg-dark text-sm uppercase pl-2 rounded-[4px] flex items-center gap-x-2">
+            <span className="md:block hidden">SELECT A</span> Fee tier:
+          </div>
+          <div className="grid grid-cols-3 gap-x-3">
+            <div
+              className={
+                selectedFeeTier == "1000"
+                  ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+                  : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+              }
+              onClick={() => {
+                handleManualFeeTierChange(1000);
+              }}
+            >
+              0.01%
+            </div>
+            <div
+              className={
+                selectedFeeTier == "3000"
+                  ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+                  : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+              }
+              onClick={() => {
+                handleManualFeeTierChange(3000);
+              }}
+            >
+              0.03%
+            </div>
+            <div
+              className={
+                selectedFeeTier == "10000"
+                  ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+                  : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+              }
+              onClick={() => {
+                handleManualFeeTierChange(10000);
+              }}
+            >
+              0.1%
+            </div>
+          </div>
         </div>
-        <div className="grid grid-cols-3 gap-x-3">
-          <div
-            className={
-              selectedFeeTier == "1000"
-                ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-                : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-            }
-            onClick={() => {
-              handleManualFeeTierChange(1000);
-            }}
-          >
-            0.01%
-          </div>
-          <div
-            className={
-              selectedFeeTier == "3000"
-                ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-                : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-            }
-            onClick={() => {
-              handleManualFeeTierChange(3000);
-            }}
-          >
-            0.03%
-          </div>
-          <div
-            className={
-              selectedFeeTier == "10000"
-                ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-                : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-            }
-            onClick={() => {
-              handleManualFeeTierChange(10000);
-            }}
-          >
-            0.1%
-          </div>
-        </div>
-      </div>
+      ) : null}
       <div className="mt-5">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-x-3 text-sm">
