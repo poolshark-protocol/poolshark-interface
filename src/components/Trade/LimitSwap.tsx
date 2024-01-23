@@ -206,6 +206,7 @@ export default function LimitSwap() {
     if (!needsPairUpdate) return;
     else {
       setFeeTierManual(false);
+      setDisplayOut("");
     }
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
@@ -941,7 +942,9 @@ export default function LimitSwap() {
           {
             <div>
               <div>
-                {inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)}
+                {tradePoolData?.id != ZERO_ADDRESS
+                  ? inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)
+                  : "0"}
               </div>
             </div>
           }
