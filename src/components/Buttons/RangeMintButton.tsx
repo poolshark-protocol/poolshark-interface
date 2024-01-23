@@ -13,6 +13,7 @@ import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { getRangeMintButtonMsgValue, getRangeMintInputData } from "../../utils/buttons";
 import { chainProperties } from "../../utils/chains";
+import { getRangeStakerAddress } from "../../utils/config";
 
 export default function RangeMintButton({
   disabled,
@@ -78,7 +79,7 @@ export default function RangeMintButton({
           positionId: positionId,
           amount0: amount0,
           amount1: amount1,
-          callbackData: getRangeMintInputData(rangeMintParams.stakeFlag, chainProperties[networkName]["rangeStakerAddress"]),
+          callbackData: getRangeMintInputData(rangeMintParams.stakeFlag, getRangeStakerAddress(networkName)),
         },
       ],
     ],

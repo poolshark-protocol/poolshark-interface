@@ -3,6 +3,7 @@ import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import Network from "../Modals/Network";
 import { useState, useEffect } from "react";
 import React from "react";
+import ChainImage from "./ChainImage";
 
 interface Props {
   xl?: boolean;
@@ -111,17 +112,9 @@ export const ConnectWalletButton = ({ xl = false, center = false }: Props) => {
                           </div>
                         )}
                         */}
-                        {chain.id === 42161 || chain.id === 421614 ? (
-                          <img
-                            style={{ width: 17, height: 17 }}
-                            src="/static/images/arb_icon.svg"
-                            className={`aspect-square ${
-                              chain.id === 421614 && "saturate-0"
-                            }`}
-                          />
-                        ) : (
-                          ""
-                        )}
+                        {<ChainImage
+                          chainId={chain?.id}
+                        />}
                       </button>
                       <button
                         onClick={openAccountModal}

@@ -10,6 +10,7 @@ import { rangeStakerABI } from "../../abis/evm/rangeStaker";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { gasEstimateRangeUnstake } from "../../utils/gas";
+import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
   
   // unstake position
@@ -71,7 +72,7 @@ const [
     }
 
     const { config } = usePrepareContractWrite({
-        address: chainProperties[networkName]["rangeStakerAddress"],
+        address: getRangeStakerAddress(networkName),
         abi: rangeStakerABI,
         functionName: "unstakeRange",
         args: [

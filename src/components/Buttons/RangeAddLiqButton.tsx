@@ -13,6 +13,7 @@ import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { getRangeMintInputData } from "../../utils/buttons";
 import { chainProperties } from "../../utils/chains";
+import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
 
 export default function RangeAddLiqButton({
@@ -71,7 +72,7 @@ export default function RangeAddLiqButton({
           positionId: positionId,
           amount0: amount0,
           amount1: amount1,
-          callbackData: getRangeMintInputData(rangePositionData.staked, chainProperties[networkName]["rangeStakerAddress"]),
+          callbackData: getRangeMintInputData(rangePositionData.staked, getRangeStakerAddress(networkName)),
         },
       ],
     ],

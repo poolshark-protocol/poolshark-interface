@@ -25,6 +25,8 @@ import { feeTierMap, feeTiers } from "../../utils/pools";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { fetchRangePools } from "../../utils/queries";
 import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButton";
+import { getRouterAddress } from "../../utils/config";
+import BalanceDisplay from "../../components/Display/BalanceDisplay";
 
 export default function AddLiquidity({}) {
   const [chainId, networkName, limitSubgraph, coverSubgraph, logoMap] =
@@ -147,7 +149,7 @@ export default function AddLiquidity({}) {
     ) {
       updatePools(parseInt(router.query.feeTier.toString()));
     }
-  }, [router.query.feeTier, chainId]);
+  }, [router.query.feeTier]);
 
   useEffect(() => {
     const originalTokenIn = {
@@ -162,18 +164,11 @@ export default function AddLiquidity({}) {
     setTokenOut(originalTokenIn, originalTokenOut, "0", false);
   }, [logoMap]);
 
-  async function updatePools(feeAmount: number) {
-    /// @notice - this should filter by the poolId in the actual query
-    const data = await fetchRangePools(limitSubgraph);
-    if (data["data"]) {
-      const pools = data["data"].limitPools;
-      //try to get the pool from routing params
-      var pool = pools.find(
-        (pool) =>
-          pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
-      );
-      if (pool == undefined || router.query.poolId == pool.id) {
-        pool = data["data"].limitPools[0];
+  useEffect(() => {
+    const fetchPool = async () => {
+      const data = await fetchRangePools(limitSubgraph);
+      if (data["data"]) {
+        const pool = data["data"].limitPools[0];
         const originalTokenIn = {
           name: pool.token0.symbol,
           address: pool.token0.id,
@@ -195,14 +190,30 @@ export default function AddLiquidity({}) {
         setRangePoolFromFeeTier(
           originalTokenIn,
           originalTokenOut,
-          feeAmount,
+          parseInt(pool.feeTier.feeAmount),
           limitSubgraph
         );
-      } else if (
+      }
+    };
+    fetchPool();
+  }, [chainId]);
+
+  async function updatePools(feeAmount: number) {
+    /// @notice - this should filter by the poolId in the actual query
+    const data = await fetchRangePools(limitSubgraph);
+    if (data["data"]) {
+      const pools = data["data"].limitPools;
+      //try to get the pool from routing params
+      var pool = pools.find(
+        (pool) =>
+          pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
+      );
+      if (
         router.query.feeTier &&
         !isNaN(parseInt(router.query.feeTier.toString())) &&
         rangePoolData.feeTier == undefined &&
-        router.query.poolId != ZERO_ADDRESS
+        router.query.poolId != ZERO_ADDRESS &&
+        pool != undefined
       ) {
         const originalTokenIn = {
           name: pool.token0.symbol,
@@ -297,7 +308,7 @@ export default function AddLiquidity({}) {
       address: tokenIn.address,
       abi: erc20ABI,
       functionName: "allowance",
-      args: [address, chainProperties[networkName]["routerAddress"]],
+      args: [address, getRouterAddress(networkName)],
       chainId: chainId,
       watch: true,
       enabled: tokenIn.address != undefined,
@@ -315,7 +326,7 @@ export default function AddLiquidity({}) {
       address: tokenOut.address,
       abi: erc20ABI,
       functionName: "allowance",
-      args: [address, chainProperties[networkName]["routerAddress"]],
+      args: [address, getRouterAddress(networkName)],
       chainId: chainId,
       watch: true,
       onSuccess(data) {
@@ -342,6 +353,9 @@ export default function AddLiquidity({}) {
     chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceIn(false);
+      setTimeout(() => {
+        setNeedsBalanceIn(true);
+      }, 5000);
     },
   });
 
@@ -353,6 +367,9 @@ export default function AddLiquidity({}) {
     chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceOut(false);
+      setTimeout(() => {
+        setNeedsBalanceOut(true);
+      }, 5000);
     },
     onError(err) {
       console.log("token out error", err);
@@ -360,9 +377,9 @@ export default function AddLiquidity({}) {
   });
 
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && tokenInBal) {
       setTokenInBalance(tokenInBal?.formatted.toString());
-      if (pairSelected) {
+      if (pairSelected && tokenOutBal) {
         setTokenOutBalance(tokenOutBal?.formatted.toString());
       }
     }
@@ -669,6 +686,8 @@ export default function AddLiquidity({}) {
 
   ////////////////////////////////
 
+  console.log('token in user balance', tokenIn.userBalance)
+
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
@@ -720,7 +739,7 @@ export default function AddLiquidity({}) {
                     ).toFixed(2)
                   : "?.??"}
               </span>
-              <span>BALANCE: {tokenIn.userBalance?.toPrecision(6) ?? 0}</span>
+              <BalanceDisplay token={tokenIn}></BalanceDisplay>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
               {inputBoxIn(
@@ -772,7 +791,7 @@ export default function AddLiquidity({}) {
                     ).toFixed(2)
                   : "?.??"}
               </span>
-              <span>BALANCE: {tokenOut.userBalance?.toPrecision(6) ?? 0}</span>
+              <BalanceDisplay token={tokenOut}></BalanceDisplay>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
               {inputBoxOut(

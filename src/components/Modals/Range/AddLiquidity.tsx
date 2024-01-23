@@ -24,7 +24,9 @@ import { gasEstimateRangeMint } from "../../../utils/gas";
 import { useRouter } from "next/router";
 import { inputHandler } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
-import { getLogoURI } from "../../../utils/tokens";
+import { getLogoURI, logoMapKey } from "../../../utils/tokens";
+import { getRouterAddress } from "../../../utils/config";
+import BalanceDisplay from "../../Display/BalanceDisplay";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [chainId, networkName, logoMap] = useConfigStore((state) => [
@@ -132,7 +134,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties[networkName]["routerAddress"]],
+    args: [address, getRouterAddress(networkName)],
     chainId: chainId,
     watch: router.isReady,
     enabled: isConnected,
@@ -149,7 +151,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties[networkName]["routerAddress"]],
+    args: [address, getRouterAddress(networkName)],
     chainId: chainId,
     watch: router.isReady,
     enabled: isConnected,
@@ -177,6 +179,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceIn(false);
+      setTimeout(() => {
+        setNeedsBalanceIn(true);
+      }, 5000);
     },
   });
 
@@ -188,6 +193,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceOut(false);
+      setTimeout(() => {
+        setNeedsBalanceOut(true);
+      }, 5000);
     },
   });
 
@@ -276,16 +284,17 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   }, [lowerSqrtPrice, upperSqrtPrice]);
 
   const handleInput1 = (e) => {
-    if (e.target.name === "tokenIn") {
-      const [value, bnValue] = inputHandler(e, tokenIn);
+    if (e.target.name.startsWith("tokenIn")) {
+      const [value, bnValue] = inputHandler(e, tokenIn, e.target.name.endsWith("Max"));
+
       setDisplay(value);
       if (!amountOutDisabled) setAmounts(true, bnValue);
       else {
         setTokenInAmount(bnValue);
         setDisplay2("");
       }
-    } else if (e.target.name === "tokenOut") {
-      const [value, bnValue] = inputHandler(e, tokenOut);
+    } else if (e.target.name.startsWith("tokenOut")) {
+      const [value, bnValue] = inputHandler(e, tokenOut, e.target.name.endsWith("Max"));
       setDisplay2(value);
       if (!amountInDisabled) setAmounts(false, bnValue);
       else {
@@ -487,9 +496,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                             )
                         ).toFixed(2)}
                       </span>
-                      <span>
-                        BALANCE: {tokenIn.userBalance ? tokenIn.userBalance : 0}
-                      </span>
+                      <BalanceDisplay token={tokenIn}></BalanceDisplay>
                     </div>
                     <div className="flex items-end justify-between mt-2 mb-3">
                       {inputBox(
@@ -506,7 +513,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                               handleInput1({
                                 target: {
                                   value: tokenIn.userBalance.toString(),
-                                  name: "tokenIn",
+                                  name: "tokenInMax",
                                 },
                               });
                             }}
@@ -517,7 +524,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                           </button>
                         ) : null}
                         <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                          <img height="28" width="25" src={tokenIn.logoURI} />
+                          <img height="28" width="25" src={logoMap[logoMapKey(tokenIn)]} />
                           {tokenIn.symbol}
                         </div>
                       </div>
@@ -537,10 +544,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                           )
                         ).toFixed(2)}
                       </span>
-                      <span>
-                        BALANCE:{" "}
-                        {tokenOut.userBalance ? tokenOut.userBalance : 0}
-                      </span>
+                      <BalanceDisplay token={tokenOut}></BalanceDisplay>
                     </div>
                     <div className="flex items-end justify-between mt-2 mb-3">
                       <span className="text-3xl">
@@ -559,7 +563,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                               handleInput1({
                                 target: {
                                   value: tokenOut.userBalance.toString(),
-                                  name: "tokenOut",
+                                  name: "tokenOutMax",
                                 },
                               });
                             }}
@@ -570,7 +574,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                           </button>
                         ) : null}
                         <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                          <img height="28" width="25" src={tokenOut.logoURI} />
+                          <img height="28" width="25" src={logoMap[logoMapKey(tokenOut)]} />
                           {tokenOut.symbol}
                         </div>
                       </div>
@@ -599,7 +603,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                       tokenOutAllowance?.gte(rangeMintParams.tokenOutAmount) ? (
                         <RangeAddLiqButton
                           routerAddress={
-                            chainProperties[networkName]["routerAddress"]
+                            getRouterAddress(networkName)
                           }
                           poolAddress={rangePoolAddress}
                           address={address}
@@ -619,7 +623,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         doubleApprove ? (
                         <RangeMintDoubleApproveButton
                           routerAddress={
-                            chainProperties[networkName]["routerAddress"]
+                            getRouterAddress(networkName)
                           }
                           tokenIn={tokenIn}
                           tokenOut={tokenOut}
@@ -630,7 +634,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         tokenInAllowance.lt(rangeMintParams.tokenInAmount) ? (
                         <RangeMintApproveButton
                           routerAddress={
-                            chainProperties[networkName]["routerAddress"]
+                            getRouterAddress(networkName)
                           }
                           approveToken={tokenIn}
                           amount={rangeMintParams.tokenInAmount}
@@ -639,7 +643,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         tokenOutAllowance.lt(rangeMintParams.tokenOutAmount) ? (
                         <RangeMintApproveButton
                           routerAddress={
-                            chainProperties[networkName]["routerAddress"]
+                            getRouterAddress(networkName)
                           }
                           approveToken={tokenOut}
                           amount={rangeMintParams.tokenOutAmount}
