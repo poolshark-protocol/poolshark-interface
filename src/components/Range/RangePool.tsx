@@ -2,6 +2,13 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { useRouter } from "next/router";
 import { formatUsdValue } from "../../utils/math/valueMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { SparklesIcon, InformationCircleIcon } from "@heroicons/react/20/solid";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip"
 
 export default function RangePool({ rangePool, href }) {
   const [limitSubgraph, logoMap] = useConfigStore((state) => [
@@ -76,7 +83,7 @@ export default function RangePool({ rangePool, href }) {
               {Number(rangePool.feeTier / 10000).toFixed(2)}%
             </span>
           </div>
-          <div className="md:grid hidden grid-cols-3 w-full justify-end text-right items-center">
+          <div className="md:grid hidden grid-cols-4 w-full justify-end text-right items-center">
             <div className="text-white text-right text-xs">
               ${formatUsdValue(rangePool.volumeUsd)}
             </div>
@@ -86,6 +93,40 @@ export default function RangePool({ rangePool, href }) {
             <div className="text-right text-white text-xs">
               <span>${formatUsdValue(rangePool.feesUsd)} </span>
             </div>
+            <div className="text-right text-white text-xs">
+            <TooltipProvider>
+  <Tooltip delayDuration={100}>
+    <TooltipTrigger>
+      <div>{/*<span>5.4% </span> */}
+            <span className="text-main2 flex items-center justify-end gap-x-3">
+            <InformationCircleIcon className="w-4 text-grey"/>
+              <div className="flex items-center gap-x-1.5">
+              <SparklesIcon className="w-3"/>
+              5.4% 
+              </div>
+              </span>
+              </div>
+            </TooltipTrigger>
+    <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3">
+      <div className="flex items-center flex-col gap-y-1 w-full">
+        <div className="flex justify-between items-center w-full">
+        <span className="text-grey2">Base APY</span>
+        <span className="text-right">2.4%</span>
+        </div>
+        <div className="flex justify-between items-center w-full">
+        <span className="text-grey2 flex items-center gap-x-1">Incentives <SparklesIcon className="w-3"/> </span>
+        <span className="text-right text-white "> 3%</span>
+        </div>
+        <div className="bg-grey w-full h-[1px]"/>
+        <div className="flex justify-between items-center w-full">
+        <span className="text-grey1">Total</span>
+        <span className="text-right text-main2">5.4%</span>
+        </div>
+      </div>
+    </TooltipContent>
+  </Tooltip>
+</TooltipProvider>
+</div>
           </div>
         </div>
       </div>
