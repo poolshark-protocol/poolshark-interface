@@ -31,7 +31,6 @@ export const getSwapPools = async (
           ? prev
           : current
       );
-      console.log("selectedPool", selectedPool);
       if (swapPoolData?.id != selectedPool.id) {
         setSwapPoolData(selectedPool);
       } else {
@@ -57,6 +56,43 @@ export const getSwapPools = async (
           tickSpacing: 30,
         },
       });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getLimitPoolForFeeTier = async (
+  client: LimitSubgraph,
+  tokenIn: tokenSwap,
+  tokenOut: tokenSwap,
+  feeTier: number,
+) => {
+  try {
+    const limitPools = await getLimitPoolFromFactory(
+      client,
+      tokenIn.address,
+      tokenOut.address
+    );
+    const data = limitPools["data"];
+    if (data && data["limitPools"]?.length > 0) {
+      const allPools = data["limitPools"];
+      const selectedPool = allPools.find(
+        (pool) => pool.feeTier.feeAmount == feeTier
+      );
+      if (selectedPool != undefined) {
+        return selectedPool;
+      } else {
+        console.log("no pool found1");
+        return {
+          id: ZERO_ADDRESS,
+        };
+      }
+    } else {
+      console.log("no pool found2");
+      return {
+        id: ZERO_ADDRESS,
+      };
     }
   } catch (error) {
     console.log(error);
