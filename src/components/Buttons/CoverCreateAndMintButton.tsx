@@ -3,9 +3,6 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { SuccessToast } from "../Toasts/Success";
-import { ErrorToast } from "../Toasts/Error";
-import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { roundTick } from "../../utils/math/tickMath";
 import { BigNumber, ethers } from "ethers";
