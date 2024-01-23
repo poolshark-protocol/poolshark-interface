@@ -26,6 +26,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { fetchRangePools } from "../../utils/queries";
 import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButton";
 import { getRouterAddress } from "../../utils/config";
+import BalanceDisplay from "../../components/Display/BalanceDisplay";
 
 export default function AddLiquidity({}) {
   const [chainId, networkName, limitSubgraph, coverSubgraph, logoMap] =
@@ -376,9 +377,9 @@ export default function AddLiquidity({}) {
   });
 
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && tokenInBal) {
       setTokenInBalance(tokenInBal?.formatted.toString());
-      if (pairSelected) {
+      if (pairSelected && tokenOutBal) {
         setTokenOutBalance(tokenOutBal?.formatted.toString());
       }
     }
@@ -685,6 +686,8 @@ export default function AddLiquidity({}) {
 
   ////////////////////////////////
 
+  console.log('token in user balance', tokenIn.userBalance)
+
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
@@ -736,7 +739,7 @@ export default function AddLiquidity({}) {
                     ).toFixed(2)
                   : "?.??"}
               </span>
-              <span>BALANCE: {tokenIn.userBalance?.toPrecision(6) ?? 0}</span>
+              <BalanceDisplay token={tokenIn}></BalanceDisplay>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
               {inputBoxIn(
@@ -788,7 +791,7 @@ export default function AddLiquidity({}) {
                     ).toFixed(2)
                   : "?.??"}
               </span>
-              <span>BALANCE: {tokenOut.userBalance?.toPrecision(6) ?? 0}</span>
+              <BalanceDisplay token={tokenOut}></BalanceDisplay>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
               {inputBoxOut(

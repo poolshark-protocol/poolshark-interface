@@ -25,7 +25,7 @@ import { limitPoolTypeIds } from "../../utils/pools";
 import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import JSBI from "jsbi";
-import { getLogoURI, nativeString } from "../../utils/tokens";
+import { getLogoURI, logoMapKey, nativeString } from "../../utils/tokens";
 import { getRouterAddress } from "../../utils/config";
 
 export default function RangePoolPreview() {
@@ -201,13 +201,13 @@ export default function RangePoolPreview() {
                         </div>
                         <div className="flex flex-col md:flex-row items-center gap-x-5 gap-y-3 mt-3 w-full">
                           <button className="flex w-full items-center gap-x-3 bg-dark border border-grey px-4 py-1.5 rounded-[4px]">
-                            <img className="w-7" src={tokenIn.logoURI} />
+                            <img className="w-7" src={logoMap[logoMapKey(tokenIn)]} />
                             {tokenIn.symbol}
                           </button>
                           <button className="flex w-full items-center gap-x-3 bg-dark border border-grey px-4 py-1.5 rounded-[4px]">
                             <img
                               className="w-7 w-full"
-                              src={tokenOut.logoURI}
+                              src={logoMap[logoMapKey(tokenOut)]}
                             />
                             {tokenOut.symbol}
                           </button>

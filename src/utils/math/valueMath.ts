@@ -24,8 +24,8 @@ export function formatUsdValue(usdValueString: string): string {
     return usdValue.toFixed(2)
 }
 
-export function inputHandler(e, token: token): [string, BigNumber] {
-    const result = inputFilter(e.target.value);
+export function inputHandler(e, token: token, skipFilter?: boolean): [string, BigNumber] {
+    const result = skipFilter ? e.target.value : inputFilter(e.target.value);
 
     if (result == '') {
         // handle empty value
