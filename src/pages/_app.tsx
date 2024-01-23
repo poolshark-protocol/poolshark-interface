@@ -27,6 +27,7 @@ import { Alchemy, Network } from "alchemy-sdk";
 import { ethers } from "ethers";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { useRangeLimitStore } from "../hooks/useRangeLimitStore";
+import { Toaster } from "sonner";
 
 const { chains, provider } = configureChains(
   [arbitrum, arbitrumSepolia],
@@ -256,6 +257,7 @@ function MyApp({ Component, pageProps }) {
       <Head>
         <title>Poolshark</title>
       </Head>
+      <Toaster richColors theme="dark"  />
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider chains={chains} initialChain={arbitrum}>
           {/* <ApolloProvider client={apolloClient}> */}
@@ -292,7 +294,6 @@ function MyApp({ Component, pageProps }) {
             )}
           </>
           <SpeedInsights />
-
           {/* <Analytics /> </ApolloProvider> */}
         </RainbowKitProvider>
       </WagmiConfig>

@@ -9,6 +9,8 @@ import { BigNumber } from "ethers";
 import { BN_ZERO } from "../../utils/math/constants";
 import { vFinABI } from "../../abis/evm/vFin";
 import { parseUnits } from "../../utils/math/valueMath";
+import { toast } from "sonner";
+import { chainProperties } from "../../utils/chains";
   
   export default function VestFinButton({
     vFinAddress,
@@ -18,16 +20,15 @@ import { parseUnits } from "../../utils/math/valueMath";
     setNeedsVestingPosition,
   }) {
     const [
-      chainId
+      chainId,
+      networkName
     ] = useConfigStore((state) => [
       state.chainId,
+      state.networkName
     ]);
 
     const [bondBalance, setBondBalance] = useState(BN_ZERO);
     const [bondApproved, setBondApproved] = useState(false);
-
-    const [errorDisplay, setErrorDisplay] = useState(false);
-    const [successDisplay, setSuccessDisplay] = useState(false);
 
     const { address } = useAccount();
 
@@ -119,6 +120,12 @@ import { parseUnits } from "../../utils/math/valueMath";
     const { isLoading } = useWaitForTransaction({
       hash: data?.hash,
       onSuccess() {
+        toast.success("Your transaction was successful",{
+          action: {
+            label: "View",
+            onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          },
+        });
         if (bondApproved) {
           setTimeout(() => {
             setNeedsVestingPosition(true)
@@ -128,9 +135,25 @@ import { parseUnits } from "../../utils/math/valueMath";
         }
       },
       onError() {
-        setErrorDisplay(true);
+        toast.error("Your transaction failed",{
+          action: {
+            label: "View",
+            onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          },
+        });
       },
     });
+
+    useEffect(() => {
+      if(isLoading) {
+        toast.loading("Your transaction is being confirmed...",{
+          action: {
+            label: "View",
+            onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          },
+        });
+      }
+    }, [isLoading]);
 
     return (
       <>
@@ -143,23 +166,6 @@ import { parseUnits } from "../../utils/math/valueMath";
             "BOND BALANCE EMPTY"
             : (!bondApproved ? "APPROVE VEST" : "VEST MY FIN")}
         </button>
-        <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
-          {errorDisplay && (
-            <ErrorToast
-              hash={data?.hash}
-              errorDisplay={errorDisplay}
-              setErrorDisplay={setErrorDisplay}
-            />
-          )}
-          {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-          {successDisplay && (
-            <SuccessToast
-              hash={data?.hash}
-              successDisplay={successDisplay}
-              setSuccessDisplay={setSuccessDisplay}
-            />
-          )}
-        </div>
       </>
     );
   }
