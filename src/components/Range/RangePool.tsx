@@ -8,7 +8,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "../ui/tooltip"
+} from "../ui/tooltip";
 
 export default function RangePool({ rangePool, href }) {
   const [limitSubgraph, logoMap] = useConfigStore((state) => [
@@ -64,8 +64,8 @@ export default function RangePool({ rangePool, href }) {
   return (
     <>
       <div className="group relative cursor-pointer" onClick={chooseRangePool}>
-        <div className="grid md:grid-cols-2 items-center bg-black hover:bg-main1/40 transition-all px-4 py-3 rounded-[4px] border-grey/50 border">
-          <div className="flex items-center md:gap-x-6 gap-x-3">
+        <div className="md:grid flex flex-col gap-y-4 grid-cols-2 md:items-start bg-black hover:bg-main1/40 transition-all px-4 py-3 rounded-[4px] border-grey/50 border">
+          <div className="flex items-center w-full md:gap-x-6 gap-x-3">
             <div className="flex items-center">
               <img
                 className="w-[25px] h-[25px]"
@@ -83,50 +83,53 @@ export default function RangePool({ rangePool, href }) {
               {Number(rangePool.feeTier / 10000).toFixed(2)}%
             </span>
           </div>
-          <div className="md:grid hidden grid-cols-4 w-full justify-end text-right items-center">
-            <div className="text-white text-right text-xs">
+          <div className="grid grid-cols-1 md:grid-cols-4 w-min md:w-full justify-end text-right items-center">
+            <div className="text-white md:block hidden text-right text-xs">
               ${formatUsdValue(rangePool.volumeUsd)}
             </div>
-            <div className="text-right text-white text-xs">
+            <div className="text-right md:block hidden text-white text-xs">
               ${formatUsdValue(rangePool.tvlUsd)}
             </div>
-            <div className="text-right text-white text-xs">
+            <div className="text-right md:block hidden text-white text-xs">
               <span>${formatUsdValue(rangePool.feesUsd)} </span>
             </div>
             <div className="text-right text-white text-xs">
-            <TooltipProvider>
-  <Tooltip delayDuration={100}>
-    <TooltipTrigger>
-      <div>{/*<span>5.4% </span> */}
-            <span className="text-main2 flex items-center justify-end gap-x-3">
-            <InformationCircleIcon className="w-4 text-grey"/>
-              <div className="flex items-center gap-x-1.5">
-              <SparklesIcon className="w-3"/>
-              5.4% 
-              </div>
-              </span>
-              </div>
-            </TooltipTrigger>
-    <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3">
-      <div className="flex items-center flex-col gap-y-1 w-full">
-        <div className="flex justify-between items-center w-full">
-        <span className="text-grey2">Base APY</span>
-        <span className="text-right">2.4%</span>
-        </div>
-        <div className="flex justify-between items-center w-full">
-        <span className="text-grey2 flex items-center gap-x-1">Incentives <SparklesIcon className="w-3"/> </span>
-        <span className="text-right text-white "> 3%</span>
-        </div>
-        <div className="bg-grey w-full h-[1px]"/>
-        <div className="flex justify-between items-center w-full">
-        <span className="text-grey1">Total</span>
-        <span className="text-right text-main2">5.4%</span>
-        </div>
-      </div>
-    </TooltipContent>
-  </Tooltip>
-</TooltipProvider>
-</div>
+              <TooltipProvider>
+                <Tooltip delayDuration={100}>
+                  <TooltipTrigger>
+                    <div>
+                      {/*<span>5.4% </span> */}
+                      <span className="text-main2 flex items-center justify-end gap-x-3">
+                        <InformationCircleIcon className="w-4 text-grey" />
+                        <div className="flex items-center gap-x-1.5">
+                          <SparklesIcon className="w-3" />
+                          5.4%
+                        </div>
+                      </span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3">
+                    <div className="flex items-center flex-col gap-y-1 w-full">
+                      <div className="flex justify-between items-center w-full">
+                        <span className="text-grey2">Base APY</span>
+                        <span className="text-right">2.4%</span>
+                      </div>
+                      <div className="flex justify-between items-center w-full">
+                        <span className="text-grey2 flex items-center gap-x-1">
+                          Incentives <SparklesIcon className="w-3" />{" "}
+                        </span>
+                        <span className="text-right text-white "> 3%</span>
+                      </div>
+                      <div className="bg-grey w-full h-[1px]" />
+                      <div className="flex justify-between items-center w-full">
+                        <span className="text-grey1">Total</span>
+                        <span className="text-right text-main2">5.4%</span>
+                      </div>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
         </div>
       </div>
