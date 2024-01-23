@@ -4,17 +4,18 @@ import {
   useContractWrite,
 } from "wagmi";
 import { erc20ABI } from "wagmi";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { chainProperties } from "../../utils/chains";
+import { toast } from "sonner";
 
 export default function RangeMintApproveButton({
   routerAddress,
   approveToken,
   amount,
 }) {
-  const [errorDisplay, setErrorDisplay] = useState(false);
-  const [successDisplay, setSuccessDisplay] = useState(false);
+  const [toastId, setToastId] = useState(null);
 
   const [
     chainId,
@@ -48,13 +49,38 @@ export default function RangeMintApproveButton({
   const { isLoading: isLoadingT0 } = useWaitForTransaction({
     hash: dataT0?.hash,
     onSuccess() {
-      setSuccessDisplay(true);
+      toast.success("Your transaction was successful",{
+        id: toastId,
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${dataT0?.hash}`, '_blank'),
+        },
+      });
       setNeedsAllowanceIn(true);
     },
     onError() {
-      setErrorDisplay(true);
+      toast.error("Your transaction failed",{
+        id: toastId,
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${dataT0?.hash}`, '_blank'),
+        },
+      });
     },
   });
+
+  useEffect(() => {
+    if(isLoadingT0) {
+      const newToastId = toast.loading("Your transaction is being confirmed...",{
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${dataT0?.hash}`, '_blank'),
+        },
+      });
+      newToastId
+      setToastId(newToastId);
+    }
+  }, [isLoadingT0]);
 
   return (
     <>

@@ -1,7 +1,9 @@
 import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { vFinABI } from "../../abis/evm/vFin";
+import { toast } from "sonner";
+import { chainProperties } from "../../utils/chains";
   
   export default function ClaimFinButton({
     vFinAddress,
@@ -9,13 +11,14 @@ import { vFinABI } from "../../abis/evm/vFin";
     claimAmount,
   }) {
     const [
-      chainId
+      chainId,
+      networkName
     ] = useConfigStore((state) => [
       state.chainId,
+      state.networkName
     ]);
 
-    const [errorDisplay, setErrorDisplay] = useState(false);
-    const [successDisplay, setSuccessDisplay] = useState(false);
+    const [toastId, setToastId] = useState(null);
 
     const { config } = usePrepareContractWrite({
       address: vFinAddress,
@@ -38,12 +41,37 @@ import { vFinABI } from "../../abis/evm/vFin";
     const { isLoading } = useWaitForTransaction({
       hash: data?.hash,
       onSuccess() {
-        // we could refetch viewClaim
+        toast.success("Your transaction was successful",{
+          id: toastId,
+          action: {
+            label: "View",
+            onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          },
+        });
       },
       onError() {
-        setErrorDisplay(true);
+        toast.error("Your transaction failed",{
+          id: toastId,
+          action: {
+            label: "View",
+            onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          },
+        });
       },
     });
+
+    useEffect(() => {
+      if(isLoading) {
+        const newToastId = toast.loading("Your transaction is being confirmed...",{
+          action: {
+            label: "View",
+            onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          },
+        });
+        newToastId
+        setToastId(newToastId);
+      }
+    }, [isLoading]);
 
     return (
       <>

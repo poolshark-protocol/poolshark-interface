@@ -4,9 +4,11 @@ import {
   useContractWrite,
 } from 'wagmi'
 import { erc20ABI } from 'wagmi'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useCoverStore } from '../../hooks/useCoverStore'
 import { useConfigStore } from '../../hooks/useConfigStore'
+import { toast } from "sonner";
+import { chainProperties } from "../../utils/chains";
 
 export default function CoverMintApproveButton({
   routerAddress,
@@ -14,8 +16,7 @@ export default function CoverMintApproveButton({
   amount,
   tokenSymbol
 }) {
-  const [errorDisplay, setErrorDisplay] = useState(false)
-  const [successDisplay, setSuccessDisplay] = useState(false)
+  const [toastId, setToastId] = useState(null);
 
   const [
     chainId,
@@ -43,13 +44,38 @@ export default function CoverMintApproveButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true)
+      toast.success("Your transaction was successful",{
+        id: toastId,
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
       setNeedsAllowance(true)
     },
     onError() {
-      setErrorDisplay(true)
+      toast.error("Your transaction failed",{
+        id: toastId,
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
     },
   })
+
+  useEffect(() => {
+    if(isLoading) {
+      const newToastId = toast.loading("Your transaction is being confirmed...",{
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
+      newToastId
+      setToastId(newToastId);
+    }
+  }, [isLoading]);
 
   return (
     <>

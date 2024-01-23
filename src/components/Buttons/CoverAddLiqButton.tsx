@@ -4,13 +4,15 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import { coverPoolABI } from "../../abis/evm/coverPool";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BN_ZERO } from "../../utils/math/constants";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { ethers } from "ethers";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { toast } from "sonner";
+import { chainProperties } from "../../utils/chains";
 
 export default function CoverAddLiqButton({
   poolAddress,
@@ -48,8 +50,7 @@ export default function CoverAddLiqButton({
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
   ]);
-  const [errorDisplay, setErrorDisplay] = useState(false);
-  const [successDisplay, setSuccessDisplay] = useState(false);
+  const [toastId, setToastId] = useState(null);
 
   const { config } = usePrepareContractWrite({
     address: routerAddress,
@@ -81,7 +82,13 @@ export default function CoverAddLiqButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true);
+      toast.success("Your transaction was successful",{
+        id: toastId,
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
       setNeedsAllowance(true);
       setNeedsBalance(true);
       setIsOpen(false);
@@ -93,9 +100,28 @@ export default function CoverAddLiqButton({
       }, 1000);
     },
     onError() {
-      setErrorDisplay(true);
+      toast.error("Your transaction failed",{
+        id: toastId,
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
     },
   });
+
+  useEffect(() => {
+    if(isLoading) {
+      const newToastId = toast.loading("Your transaction is being confirmed...",{
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
+      newToastId
+      setToastId(newToastId);
+    }
+  }, [isLoading]);
 
   return (
     <>

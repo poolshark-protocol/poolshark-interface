@@ -14,6 +14,8 @@ import { BN_ZERO } from "../../utils/math/constants";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { parseUnits } from "../../utils/math/valueMath";
 import { useRouter } from "next/router";
+import { toast } from "sonner";
+import { chainProperties } from "../../utils/chains";
 
 export default function LimitSwapBurnButton({
   poolAddress,
@@ -90,8 +92,7 @@ export default function LimitSwapBurnButton({
     }
   }, [claimTick, signer]);
 
-  const [errorDisplay, setErrorDisplay] = useState(false);
-  const [successDisplay, setSuccessDisplay] = useState(false);
+  const [toastId, setToastId] = useState(null);
 
   const { config } = usePrepareContractWrite({
     address: poolAddress,
@@ -117,7 +118,13 @@ export default function LimitSwapBurnButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true);
+      toast.success("Your transaction was successful",{
+        id: toastId,
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
       setNeedsSnapshot(true);
       setNeedsBalanceIn(true);
       setNeedsBalanceOut(true);
@@ -127,9 +134,28 @@ export default function LimitSwapBurnButton({
       }
     },
     onError() {
-      setErrorDisplay(true);
+      toast.error("Your transaction failed",{
+        id: toastId,
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
     },
   });
+
+  useEffect(() => {
+    if(isLoading) {
+      const newToastId = toast.loading("Your transaction is being confirmed...",{
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
+      newToastId
+      setToastId(newToastId);
+    }
+  }, [isLoading]);
 
   return (
     <>

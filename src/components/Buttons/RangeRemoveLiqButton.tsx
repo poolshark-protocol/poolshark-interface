@@ -3,7 +3,7 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
@@ -11,6 +11,7 @@ import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 import { rangeStakerABI } from "../../abis/evm/rangeStaker";
+import { toast } from "sonner";
 
 export default function RangeRemoveLiqButton({
   poolAddress,
@@ -43,8 +44,7 @@ export default function RangeRemoveLiqButton({
     state.setNeedsPosRefetch,
   ]);
 
-  const [errorDisplay, setErrorDisplay] = useState(false);
-  const [successDisplay, setSuccessDisplay] = useState(false);
+  const [toastId, setToastId] = useState(null);
 
   const { config: burnConfig } = usePrepareContractWrite({
     address: poolAddress,
@@ -96,7 +96,13 @@ export default function RangeRemoveLiqButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true);
+      toast.success("Your transaction was successful",{
+        id: toastId,
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
       setNeedsBalanceIn(true);
       setTimeout(() => {
         setNeedsRefetch(true);
@@ -106,9 +112,28 @@ export default function RangeRemoveLiqButton({
       }, 2000);
     },
     onError() {
-      setErrorDisplay(true);
+      toast.error("Your transaction failed",{
+        id: toastId,
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
     },
   });
+
+  useEffect(() => {
+    if(isLoading) {
+      const newToastId = toast.loading("Your transaction is being confirmed...",{
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
+      newToastId
+      setToastId(newToastId);
+    }
+  }, [isLoading]);
 
   return (
     <>

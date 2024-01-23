@@ -11,6 +11,8 @@ import { useCoverStore } from "../../hooks/useCoverStore";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { gasEstimateCoverBurn } from "../../utils/gas";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { toast } from "sonner";
+import { chainProperties } from "../../utils/chains";
 
 export default function CoverCollectButton({
   poolAddress,
@@ -22,9 +24,14 @@ export default function CoverCollectButton({
   signer,
   snapshotAmount,
 }) {
-  const [chainId] = useConfigStore((state) => [state.chainId]);
-  const [errorDisplay, setErrorDisplay] = useState(false);
-  const [successDisplay, setSuccessDisplay] = useState(false);
+  const [
+    chainId,
+    networkName
+  ] = useConfigStore((state) => [
+    state.chainId,
+    state.networkName
+  ]);
+  const [toastId, setToastId] = useState(null);
 
   const [setNeedsBalance, setNeedsRefetch, setNeedsPosRefetch] = useCoverStore(
     (state) => [
@@ -78,15 +85,40 @@ export default function CoverCollectButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true);
+      toast.success("Your transaction was successful",{
+        id: toastId,
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
       setNeedsBalance(true);
       setNeedsRefetch(true);
       setNeedsPosRefetch(true);
     },
     onError() {
-      setErrorDisplay(true);
+      toast.error("Your transaction failed",{
+        id: toastId,
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
     },
   });
+
+  useEffect(() => {
+    if(isLoading) {
+      const newToastId = toast.loading("Your transaction is being confirmed...",{
+        action: {
+          label: "View",
+          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+        },
+      });
+      newToastId
+      setToastId(newToastId);
+    }
+  }, [isLoading]);
 
   return (
     <>

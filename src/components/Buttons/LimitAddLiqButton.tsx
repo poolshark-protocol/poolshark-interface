@@ -8,6 +8,8 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { ethers } from "ethers";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { toast } from "sonner";
+import { chainProperties } from "../../utils/chains";
   
   export default function LimitAddLiqButton({
     disabled,
@@ -25,10 +27,9 @@ import { useConfigStore } from "../../hooks/useConfigStore";
     buttonState,
     tokenSymbol,
   }) {
-    const [
-      chainId
-    ] = useConfigStore((state) => [
+    const [chainId, networkName] = useConfigStore((state) => [
       state.chainId,
+      state.networkName,
     ]);
 
     const [
@@ -42,8 +43,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
       state.setNeedsBalanceIn,
       state.setNeedsSnapshot,
     ]);
-    const [errorDisplay, setErrorDisplay] = useState(false);
-    const [successDisplay, setSuccessDisplay] = useState(false);
+    const [toastId, setToastId] = useState(null);
   
     useEffect(() => {}, [disabled]);
   
@@ -69,10 +69,6 @@ import { useConfigStore } from "../../hooks/useConfigStore";
       overrides: {
         gasLimit: gasLimit,
       },
-      onSuccess() {},
-      onError() {
-        setErrorDisplay(true);
-      },
     });
   
     const { data, write } = useContractWrite(config);
@@ -80,7 +76,13 @@ import { useConfigStore } from "../../hooks/useConfigStore";
     const { isLoading } = useWaitForTransaction({
       hash: data?.hash,
       onSuccess() {
-        setSuccessDisplay(true);
+        toast.success("Your transaction was successful",{
+          id: toastId,
+          action: {
+            label: "View",
+            onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          },
+        });
         setNeedsSnapshot(true);
         setNeedsAllowanceIn(true);
         setNeedsBalanceIn(true);
@@ -90,9 +92,28 @@ import { useConfigStore } from "../../hooks/useConfigStore";
         }, 2000);
       },
       onError() {
-        setErrorDisplay(true);
+        toast.error("Your transaction failed",{
+          id: toastId,
+          action: {
+            label: "View",
+            onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          },
+        });
       },
     });
+
+    useEffect(() => {
+      if(isLoading) {
+        const newToastId = toast.loading("Your transaction is being confirmed...",{
+          action: {
+            label: "View",
+            onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          },
+        });
+        newToastId
+        setToastId(newToastId);
+      }
+    }, [isLoading]);
   
     return (
       <>
