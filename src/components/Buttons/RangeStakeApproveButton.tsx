@@ -4,9 +4,6 @@ import {
     useWaitForTransaction,
     useSigner,
   } from "wagmi";
-  import { SuccessToast } from "../Toasts/Success";
-  import { ErrorToast } from "../Toasts/Error";
-  import { ConfirmingToast } from "../Toasts/Confirming";
   import React, { useState } from "react";
   import { BN_ZERO } from "../../utils/math/constants";
   import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";

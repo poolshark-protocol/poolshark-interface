@@ -25,6 +25,8 @@ import { tokenRangeLimit } from "../../utils/types";
 import RangeStakeButton from "../../components/Buttons/RangeStakeButton";
 import RangeUnstakeButton from "../../components/Buttons/RangeUnstakeButton";
 import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
+import { getRangeStakerAddress } from "../../utils/config";
+import { numFormat } from "../../utils/math/valueMath";
 
 export default function ViewRange() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -395,7 +397,7 @@ export default function ViewRange() {
     address: rangePoolData.poolToken,
     abi: positionERC1155ABI,
     functionName: "isApprovedForAll",
-    args: [address, chainProperties[networkName]["rangeStakerAddress"]],
+    args: [address, getRangeStakerAddress(networkName)],
     chainId: chainId,
     watch: true,
     enabled: rangePositionData.staked != undefined && !rangePositionData.staked,
@@ -544,7 +546,7 @@ export default function ViewRange() {
                   {isLoading ? (
                     <div className="h-8 w-40 bg-grey/60 animate-pulse rounded-[4px]" />
                   ) : (
-                    amount0.toFixed(2)
+                    numFormat(amount0, 5)
                   )}
 
                   <div className="flex items-center gap-x-2">
@@ -575,7 +577,7 @@ export default function ViewRange() {
                   {isLoading ? (
                     <div className="h-8 w-40 bg-grey/60 animate-pulse rounded-[4px]" />
                   ) : (
-                    amount1.toFixed(2)
+                    numFormat(amount1, 5)
                   )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
@@ -706,7 +708,7 @@ export default function ViewRange() {
                   {isLoading ? (
                     <div className="h-8 w-40 bg-grey/60 animate-pulse rounded-[4px]" />
                   ) : (
-                    amount0Fees.toFixed(2)
+                    numFormat(amount0Fees, 5)
                   )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
@@ -736,7 +738,7 @@ export default function ViewRange() {
                   {isLoading ? (
                     <div className="h-8 w-40 bg-grey/60 animate-pulse rounded-[4px]" />
                   ) : (
-                    amount1Fees.toFixed(2)
+                    numFormat(amount1Fees, 5)
                   )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">

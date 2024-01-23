@@ -16,7 +16,7 @@ import Range from "../Icons/RangeIcon";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
 import SwapRouterButton from "../Buttons/SwapRouterButton";
-import { chainIdToRpc, chainProperties } from "../../utils/chains";
+import { chainProperties } from "../../utils/chains";
 import { gasEstimateSwap, gasEstimateWethCall } from "../../utils/gas";
 import JSBI from "jsbi";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
@@ -24,9 +24,8 @@ import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-// import { connectors, provider, swingSDK } from "../../pages/_app";
-import { createPublicClient, http } from 'viem';
-import { TransferParams } from "@swing.xyz/sdk";
+import { getRouterAddress } from "../../utils/config";
+import BalanceDisplay from "../Display/BalanceDisplay";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -121,6 +120,7 @@ export default function MarketSwap() {
   const { address, isDisconnected, isConnected } = useAccount();
 
   const { data: signer } = useSigner();
+  const provider = useProvider();
 
   const router = useRouter();
 
@@ -242,8 +242,6 @@ export default function MarketSwap() {
 
     /////////////////////Swing SDK
 
-    const transport = http(chainIdToRpc[42161])
-
     useEffect(() => {
       connectWalletToSwingSdk()
       }, [signer]);
@@ -326,7 +324,7 @@ export default function MarketSwap() {
   const [swapParams, setSwapParams] = useState<any[]>([]);
 
   const { data: poolQuotes } = useContractRead({
-    address: chainProperties[networkName]["routerAddress"], //contract address,
+    address: getRouterAddress(networkName), //contract address,
     abi: poolsharkRouterABI, // contract abi,
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
@@ -350,7 +348,7 @@ export default function MarketSwap() {
                 poolQuotes[0].amountOut.toString(),
                 tokenOut.decimals
               )
-            ), 6)
+            ), 5)
           );
         } else {
           setAmountIn(poolQuotes[0].amountIn);
@@ -360,7 +358,7 @@ export default function MarketSwap() {
                 poolQuotes[0].amountIn.toString(),
                 tokenIn.decimals
               )
-            ), 6)
+            ), 5)
           );
         }
         updateSwapParams(poolQuotes);
@@ -494,7 +492,7 @@ export default function MarketSwap() {
       !wethCall
     ) {
       await gasEstimateSwap(
-        chainProperties[networkName]["routerAddress"],
+        getRouterAddress(networkName),
         swapPoolAddresses,
         swapParams,
         tokenIn,
@@ -558,7 +556,7 @@ export default function MarketSwap() {
                       amountOut ?? BN_ZERO,
                       tokenOut.decimals
                     )
-                  ), 6)
+                  ), 5)
                 : "Select Token"}
             </div>
           </div>
@@ -587,7 +585,7 @@ export default function MarketSwap() {
                 ) *
                   (100 - parseFloat(tradeSlippage))) /
                 100
-                , 6)}
+                , 5)}
             </div>
           </div>
 
@@ -612,7 +610,7 @@ export default function MarketSwap() {
         <div className="flex items-end justify-between text-[11px] text-grey1">
           <span>
             {" "}
-            ~$
+            $
             {!isNaN(parseInt(amountIn.toString())) &&
             !isNaN(tokenIn.decimals) &&
             !isNaN(tokenIn.USDPrice)
@@ -622,11 +620,7 @@ export default function MarketSwap() {
                 ).toFixed(2)
               : (0).toFixed(2)}
           </span>
-          <span>{tokenIn?.address != ZERO_ADDRESS ? ("Balance: " +
-              (!isNaN(tokenIn?.userBalance) && tokenIn.userBalance > 0 ? numFormat(tokenIn.userBalance, 6) : "0.00")
-            ) : (
-              <></>
-            )}</span>
+          <BalanceDisplay token={tokenIn}></BalanceDisplay>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3">
           {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox)}
@@ -688,7 +682,7 @@ export default function MarketSwap() {
       <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
         <div className="flex items-end justify-between text-[11px] text-grey1">
           <span>
-            ~$
+            $
             {!isNaN(tokenOut.decimals) &&
             !isNaN(tokenOut.USDPrice) ? (
               (
@@ -702,7 +696,7 @@ export default function MarketSwap() {
           <span>
             {tokenOut?.address != ZERO_ADDRESS ? (
               "Balance: " +
-              (!isNaN(tokenOut?.userBalance) && tokenOut.userBalance > 0 ? numFormat(tokenOut.userBalance, 6) : "0.00")
+              (!isNaN(tokenOut?.userBalance) && tokenOut.userBalance > 0 ? numFormat(tokenOut.userBalance, 5) : "0.00")
             ) : (
               <></>
             )}
@@ -825,7 +819,7 @@ export default function MarketSwap() {
             amountOut.gt(BN_ZERO) ? (
               <div>
                 <SwapRouterApproveButton
-                  routerAddress={chainProperties[networkName]["routerAddress"]}
+                  routerAddress={getRouterAddress(networkName)}
                   approveToken={tokenIn.address}
                   tokenSymbol={tokenIn.symbol}
                   amount={amountIn}
@@ -838,7 +832,7 @@ export default function MarketSwap() {
                   (needsAllowanceIn && !tokenIn.native) ||
                   swapGasLimit.lt(BigNumber.from('100000'))
                 }
-                routerAddress={chainProperties[networkName]["routerAddress"]}
+                routerAddress={getRouterAddress(networkName)}
                 amountIn={amountIn}
                 tokenInNative={tokenIn.native ?? false}
                 tokenOutNative={tokenOut.native ?? false}
@@ -850,7 +844,7 @@ export default function MarketSwap() {
             ) : tokenIn.native ? (
               <SwapWrapNativeButton
                 disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
-                routerAddress={chainProperties[networkName]["routerAddress"]}
+                routerAddress={getRouterAddress(networkName)}
                 wethAddress={chainProperties[networkName]["wethAddress"]}
                 tokenInSymbol={tokenIn.symbol}
                 amountIn={amountIn}
@@ -860,7 +854,7 @@ export default function MarketSwap() {
             ) : (
               <SwapUnwrapNativeButton
                 disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
-                routerAddress={chainProperties[networkName]["routerAddress"]}
+                routerAddress={getRouterAddress(networkName)}
                 wethAddress={chainProperties[networkName]["wethAddress"]}
                 tokenInSymbol={tokenIn.symbol}
                 amountIn={amountIn}

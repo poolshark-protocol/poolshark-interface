@@ -7,9 +7,9 @@ import {
   useBalance,
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
-import { chainIdsToNames, chainProperties } from "../utils/chains";
+import { chainProperties } from "../utils/chains";
 import { ZERO_ADDRESS } from "../utils/math/constants";
-import { getLimitTokenUsdPrice, getLogoURI } from "../utils/tokens";
+import { getLimitTokenUsdPrice } from "../utils/tokens";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { fetchLimitPositions } from "../utils/queries";
@@ -28,6 +28,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import inputFilter from "../utils/inputFilter";
 import SwingSDK from "@swing.xyz/sdk";
+import { getRouterAddress } from "../utils/config";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -132,9 +133,9 @@ export default function Trade() {
     s.setLimitTabSelected,
   ]);
 
-  const swingSDK = new SwingSDK({
-    // projectId: "poolshark"
-  });
+  // const swingSDK = new SwingSDK({
+  //   // projectId: "poolshark"
+  // });
 
   //false order history is selected, true when active orders is selected
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
@@ -179,13 +180,17 @@ export default function Trade() {
 
   ////////////////////////////////Filled Amount
   const { data: filledAmountList } = useContractRead({
-    address: chainProperties[networkName]["routerAddress"],
+    address: getRouterAddress(networkName),
     abi: poolsharkRouterABI,
     functionName: "multiSnapshotLimit",
     args: [limitPoolAddressList, limitPositionSnapshotList],
     chainId: chainId,
     watch: needsSnapshot,
-    enabled: isConnected && limitPoolAddressList.length > 0 && needsSnapshot,
+    enabled:
+      isConnected &&
+      limitPoolAddressList.length > 0 &&
+      needsSnapshot &&
+      getRouterAddress(networkName),
     onSuccess(data) {
       // console.log("Success price filled amount", data);
       // console.log("snapshot address list", limitPoolAddressList);
@@ -193,6 +198,7 @@ export default function Trade() {
       setNeedsSnapshot(false);
     },
     onError(error) {
+      console.log("network check", networkName);
       console.log("Error price Limit", error);
     },
   });
@@ -287,6 +293,7 @@ export default function Trade() {
 
   ////////////////////////////////Balances
 
+
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.native ? undefined : tokenIn.address,
@@ -294,18 +301,13 @@ export default function Trade() {
     watch: needsBalanceIn,
     chainId: chainId,
     onSuccess(data) {
-      console.log(
-        "token address",
-        tokenIn.native ? undefined : tokenIn.address
-      );
-      console.log("chainId", chainId);
-      console.log("token in", tokenIn);
-      console.log("Success balance in", data);
-      if (needsBalanceIn) {
-        setNeedsBalanceIn(false);
-      }
+      setNeedsBalanceIn(false);
+      setTimeout(() => {
+        setNeedsBalanceIn(true);
+      }, 5000);
     },
   });
+
 
   const { data: tokenOutBal } = useBalance({
     address: address,
@@ -314,22 +316,22 @@ export default function Trade() {
     watch: needsBalanceOut,
     chainId: chainId,
     onSuccess(data) {
-      console.log("Success balance out", data);
-      if (needsBalanceOut) {
-        setNeedsBalanceOut(false);
-      }
+      setNeedsBalanceOut(false);
+      setTimeout(() => {
+        setNeedsBalanceOut(true);
+      }, 5000);
     },
   });
 
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && tokenInBal) {
       setTokenInBalance(
         !isNaN(parseFloat(tokenInBal?.formatted.toString()))
           ? tokenInBal?.formatted.toString()
           : "0.00"
       );
     }
-    if (tokenOutBal) {
+    if (isConnected && tokenOutBal) {
       setTokenOutBalance(
         !isNaN(parseFloat(tokenOutBal?.formatted.toString()))
           ? tokenOutBal?.formatted.toString()
@@ -344,7 +346,7 @@ export default function Trade() {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties[networkName]["routerAddress"]],
+    args: [address, getRouterAddress(networkName)],
     chainId: chainId,
     watch: needsAllowanceIn,
     enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,

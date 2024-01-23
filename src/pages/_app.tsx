@@ -11,22 +11,21 @@ import { isMobile } from "react-device-detect";
 // import { Analytics } from "@vercel/analytics/react";
 import { useConfigStore } from "../hooks/useConfigStore";
 import {
-  chainIdsToNames,
   chainProperties,
   supportedNetworkNames,
   arbitrumSepolia,
   chainIdToRpc,
+  scroll,
 } from "../utils/chains";
-import axios from "axios";
-import { coinsList } from "../utils/types";
-import { useRouter } from "next/router";
 import TermsOfService from "../components/Modals/ToS";
 import { SpeedInsights } from "@vercel/speed-insights/react";
-import { Alchemy, Network } from "alchemy-sdk";
-import { SwingSDK } from '@swing.xyz/sdk';
+import { useTradeStore } from "../hooks/useTradeStore";
+import { useRangeLimitStore } from "../hooks/useRangeLimitStore";
+import { fetchListedTokenBalances, fetchTokenMetadata } from "../utils/tokens";
+import { Toaster } from "sonner";
 
-export const { chains, provider } = configureChains(
-  [arbitrum, arbitrumSepolia],
+const { chains, provider } = configureChains(
+  [arbitrum, arbitrumSepolia, scroll],
   [
     jsonRpcProvider({
       rpc: (chain) => ({
@@ -36,46 +35,28 @@ export const { chains, provider } = configureChains(
   ]
 );
 
-export const { connectors } = getDefaultWallets({
+// Rainbow Kit
+const { connectors } = getDefaultWallets({
   appName: "Poolshark UI",
   chains,
 });
 
-
-
+// Wagmi
 const wagmiClient = createClient({
   connectors,
   provider,
   autoConnect: true,
 });
 
-// const apolloClient = new ApolloClient({
-//   cache: new InMemoryCache(),
-//   uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
-// })
-
-const whitelist = [
-  "0x65f5B282E024e3d6CaAD112e848dEc3317dB0902",
-  "0x1DcF623EDf118E4B21b4C5Dc263bb735E170F9B8",
-  "0x9dA9409D17DeA285B078af06206941C049F692Dc",
-  "0xBd5db4c7D55C086107f4e9D17c4c34395D1B1E1E",
-  "0x73CE13ac285569738bc499ec711bDAa899725d37", // olamide
-  "0xE48870dBBdC4abde7Ed8682254b9fb53270F79d2", // mrmasa
-];
-
 function MyApp({ Component, pageProps }) {
   const [isLoading, setIsLoading] = useState(true);
-  const { address, isDisconnected, isConnected } = useAccount();
+  const { address, isConnected } = useAccount();
 
   const [_isConnected, _setIsConnected] = useState(false);
   const [_isMobile, _setIsMobile] = useState(false);
 
   const [walletConnected, setWalletConnected] = useState(false);
   const [tosAccepted, setTosAccepted] = useState(false);
-
-  const router = useRouter();
-
-  const tokenMetadataBranch = "master";
 
   useEffect(() => {
     // Check if terms of service is accepted
@@ -93,6 +74,8 @@ function MyApp({ Component, pageProps }) {
   };
 
   const [
+    listed_tokens,
+    networkName,
     search_tokens,
     setChainId,
     setNetworkName,
@@ -103,6 +86,8 @@ function MyApp({ Component, pageProps }) {
     setSearchTokenList,
     setDisplayTokenList,
   ] = useConfigStore((state) => [
+    state.listedtokenList,
+    state.networkName,
     state.searchtokenList,
     state.setChainId,
     state.setNetworkName,
@@ -114,81 +99,43 @@ function MyApp({ Component, pageProps }) {
     state.setDisplayTokenList,
   ]);
 
+  const [resetTradeLimitParams] = useTradeStore((state) => [
+    state.resetTradeLimitParams,
+  ]);
+
+  const [resetLimitStore] = useRangeLimitStore((state) => [
+    state.resetRangeLimitParams,
+  ]);
+
   const {
     network: { chainId, name },
   } = useProvider();
 
   useEffect(() => {
-    console.log("chainId: ", chainId);
-    console.log("name: ", name);
     setChainId(chainId);
   }, [chainId]);
 
   useEffect(() => {
-    const config = {
-      apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
-      network:
-        chainId == Number("42161") ? Network.ARB_MAINNET : Network.ARB_SEPOLIA,
-    };
+    if (listed_tokens && address) {
+      fetchListedTokenBalances(
+        chainId,
+        address,
+        listed_tokens,
+        search_tokens
+      ).then();
+    }
+  }, [listed_tokens, address]);
 
-    const tokenAddresses = [];
-
-    const fetchTokenBalances = async () => {
-      const alchemy = new Alchemy(config);
-      const data = await alchemy.core.getTokenBalances(address, tokenAddresses);
-      if (data.tokenBalances.length != 0) {
-        for (let i = 0; i < data.tokenBalances.length; i++) {
-          if (search_tokens[i]?.balance) {
-            search_tokens[i].balance = data.tokenBalances[i].tokenBalance;
-          }
-        }
-        setSearchTokenList(search_tokens);
-      }
-      setTimeout(() => {
-        fetchTokenBalances();
-      }, 2500);
-    };
-    const fetchTokenMetadata = async () => {
-      const chainName = chainIdsToNames[chainId];
-      axios
-        .get(
-          `https://raw.githubusercontent.com/poolshark-protocol/token-metadata/` +
-            tokenMetadataBranch +
-            `/blockchains/${chainName ?? "arbitrum-one"}/tokenlist.json`
-        )
-        .then(function (response) {
-          for (let i = 0; i < response.data.search_tokens.length; i++) {
-            tokenAddresses.push(response.data.search_tokens[i].id);
-          }
-          const coins = {
-            listed_tokens: response.data.listed_tokens,
-            search_tokens: response.data.search_tokens,
-          } as coinsList;
-          for (let i = 0; i < coins.listed_tokens?.length; i++) {
-            coins.listed_tokens[i].address = coins.listed_tokens[i].id;
-          }
-          if (coins.listed_tokens != undefined) {
-            setListedTokenList(coins.listed_tokens);
-            setDisplayTokenList(coins.listed_tokens);
-          }
-          for (let i = 0; i < coins.search_tokens?.length; i++) {
-            coins.search_tokens[i].address = coins.search_tokens[i].id;
-          }
-          if (coins.search_tokens != undefined) {
-            setSearchTokenList(coins.search_tokens);
-          }
-          setIsLoading(false);
-        })
-        .catch(function (error) {
-          console.log(error);
-        })
-        .then(() => {
-          if (!!search_tokens) {
-            fetchTokenBalances();
-          }
-        });
-    };
-    fetchTokenMetadata();
+  useEffect(() => {
+    resetTradeLimitParams(chainId);
+    resetLimitStore(chainId);
+    fetchTokenMetadata(
+      chainId,
+      setListedTokenList,
+      setDisplayTokenList,
+      setSearchTokenList,
+      setIsLoading
+    );
   }, [chainId]);
 
   useEffect(() => {
@@ -214,6 +161,7 @@ function MyApp({ Component, pageProps }) {
       <Head>
         <title>Poolshark</title>
       </Head>
+      <Toaster richColors theme="dark"  />
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider chains={chains} initialChain={arbitrum}>
           {/* <ApolloProvider client={apolloClient}> */}
@@ -250,7 +198,6 @@ function MyApp({ Component, pageProps }) {
             )}
           </>
           <SpeedInsights />
-
           {/* <Analytics /> </ApolloProvider> */}
         </RainbowKitProvider>
       </WagmiConfig>
