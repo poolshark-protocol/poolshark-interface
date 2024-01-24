@@ -8,10 +8,6 @@
     "start": "next start",
     "lint": "next lint"
   },
-  "engines" : { 
-    "npm" : "9.4.0",
-    "node" : "v19.6.0"
-  },
   "dependencies": {
     "@apollo/client": "^3.7.3",
     "@headlessui/react": "^1.7.3",
