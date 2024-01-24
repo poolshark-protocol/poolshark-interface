@@ -18,7 +18,6 @@ import {
   scroll,
 } from "../utils/chains";
 import TermsOfService from "../components/Modals/ToS";
-import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { useRangeLimitStore } from "../hooks/useRangeLimitStore";
 import { fetchListedTokenBalances, fetchTokenMetadata } from "../utils/tokens";
@@ -197,7 +196,7 @@ function MyApp({ Component, pageProps }) {
               </div>
             )}
           </>
-          <SpeedInsights />
+          {/* <SpeedInsights /> */}
           {/* <Analytics /> </ApolloProvider> */}
         </RainbowKitProvider>
       </WagmiConfig>
