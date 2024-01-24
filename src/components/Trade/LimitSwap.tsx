@@ -291,6 +291,7 @@ export default function LimitSwap() {
       fetchRangeTokenUSDPrice(pool, tokenIn, setTokenInTradeUSDPrice);
       fetchRangeTokenUSDPrice(pool, tokenOut, setTokenOutTradeUSDPrice);
     }
+    setNeedsAllowanceIn(true);
   };
 
   /////////////////////Double Input Boxes
@@ -944,9 +945,7 @@ export default function LimitSwap() {
           {
             <div>
               <div>
-                {tradePoolData?.id != ZERO_ADDRESS
-                  ? inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)
-                  : "0"}
+                {inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)}
               </div>
             </div>
           }
