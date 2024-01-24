@@ -352,7 +352,7 @@ export default function LimitSwap() {
             limitPriceOrder
           )
         ),
-        6
+        5
       );
       setLimitPriceString(newPrice);
     } else {
@@ -451,7 +451,7 @@ export default function LimitSwap() {
       ) {
         const limitPriceTolerance =
           (parseFloat(priceString) *
-            parseFloat((parseFloat(tradeSlippage) * 100).toFixed(6))) /
+            parseFloat((parseFloat(tradeSlippage) * 100).toFixed(5))) /
           10000;
         if (tokenIn.callId == 0) {
           const endPrice = parseFloat(priceString) - -limitPriceTolerance;
@@ -562,7 +562,7 @@ export default function LimitSwap() {
                 tokenOut.decimals
               )
             ),
-            6
+            5
           );
           if (tokenOutAmount.gt(BN_ZERO)) {
             setDisplayOut(tokenOutAmountDisplay);
@@ -595,7 +595,7 @@ export default function LimitSwap() {
                 tokenIn.decimals
               )
             ),
-            6
+            5
           );
           setDisplayIn(tokenInAmountDisplay);
           setAmountIn(tokenInAmount);
@@ -627,7 +627,7 @@ export default function LimitSwap() {
                 tokenOut.decimals
               )
             ),
-            6
+            5
           );
           setDisplayOut(tokenOutAmountDisplay);
           setAmountOut(tokenOutAmount);
@@ -655,7 +655,7 @@ export default function LimitSwap() {
                 tokenIn.decimals
               )
             ),
-            6
+            5
           );
           setDisplayIn(tokenInAmountDisplay);
           setAmountIn(tokenInAmount);
@@ -816,7 +816,7 @@ export default function LimitSwap() {
                         tokenOut.decimals
                       )
                     ),
-                    6
+                    5
                   )
                 : "Select Token"}
             </div>
@@ -832,7 +832,7 @@ export default function LimitSwap() {
                 ) *
                   (100 - parseFloat(tradeSlippage))) /
                   100,
-                6
+                5
               )}
             </div>
           </div>
@@ -911,7 +911,7 @@ export default function LimitSwap() {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
+            d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L15.5 21m0 0L12 15.5m4.5 4.5V7.5"
           />
         </svg>
       </div>
@@ -1061,7 +1061,7 @@ export default function LimitSwap() {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
+                d="M7.5 21L3 15.5m0 0L7.5 12M3 15.5h13.5m0-13.5L21 7.5m0 0L15.5 12M21 7.5H7.5"
               />
             </svg>
           </span>
@@ -1075,7 +1075,7 @@ export default function LimitSwap() {
                 </span>
                 <input
                   autoComplete="off"
-                  className="outline-none bg-transparent text-3xl w-1/2 md:w-56 text-center mb-2"
+                  className="outline-none bg-transparent text-3xl w-1/2 md:w-55 text-center mb-2"
                   value={
                     !isNaN(parseFloat(lowerPriceString)) ? lowerPriceString : 0
                   }
@@ -1091,7 +1091,7 @@ export default function LimitSwap() {
                 </span>
                 <input
                   autoComplete="off"
-                  className="outline-none bg-transparent text-3xl w-1/2 md:w-56 text-center mb-2"
+                  className="outline-none bg-transparent text-3xl w-1/2 md:w-55 text-center mb-2"
                   value={
                     !isNaN(parseFloat(upperPriceString)) ? upperPriceString : 0
                   }
@@ -1119,7 +1119,7 @@ export default function LimitSwap() {
             </div>
             <input
               autoComplete="off"
-              className="bg-dark outline-none text-3xl my-3 w-60 md:w-auto"
+              className="bg-dark outline-none text-3xl my-3 w-50 md:w-auto"
               placeholder="0"
               value={limitPriceString}
               type="text"
@@ -1210,7 +1210,7 @@ export default function LimitSwap() {
             tokenOut.address == ZERO_ADDRESS ||
             tradePoolData?.id != ZERO_ADDRESS ? (
               <LimitSwapButton
-                routerAddress={chainProperties[networkName]["routerAddress"]}
+                routerAddress={getRouterAddress(networkName)}
                 disabled={
                   mintGasLimit.lt(BigNumber.from("100000")) ||
                   tradeButton.disabled
@@ -1229,7 +1229,7 @@ export default function LimitSwap() {
             ) : (
               <LimitCreateAndMintButton
                 disabled={mintGasLimit.eq(BN_ZERO) || tradeButton.disabled}
-                routerAddress={chainProperties[networkName]["routerAddress"]}
+                routerAddress={getRouterAddress(networkName)}
                 poolTypeId={limitPoolTypeIds["constant-product"]}
                 tokenIn={tokenIn}
                 tokenOut={tokenOut}
