@@ -9,8 +9,17 @@ import LimitSwapButton from "../Buttons/LimitSwapButton";
 import SelectToken from "../SelectToken";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { BigNumber, ethers } from "ethers";
-import { inputHandler, numFormat, parseUnits } from "../../utils/math/valueMath";
-import { getSwapPools, limitPoolTypeIds } from "../../utils/pools";
+import {
+  inputHandler,
+  numFormat,
+  parseUnits,
+} from "../../utils/math/valueMath";
+import {
+  feeTierMap,
+  getLimitPoolForFeeTier,
+  getSwapPools,
+  limitPoolTypeIds,
+} from "../../utils/pools";
 import { QuoteParams } from "../../utils/types";
 
 import {
@@ -37,8 +46,9 @@ import {
 import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import JSBI from "jsbi";
-import { getRouterAddress } from "../../utils/config";
+import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import BalanceDisplay from "../Display/BalanceDisplay";
+import { getRouterAddress } from "../../utils/config";
 
 export default function LimitSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -92,7 +102,7 @@ export default function LimitSwap() {
     setStartPrice,
     setLimitPriceOrder,
     setNeedsPairUpdate,
-    setNeedsSetAmounts
+    setNeedsSetAmounts,
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
@@ -154,41 +164,51 @@ export default function LimitSwap() {
   /////////////////////////////Fetch Pools
   const [availablePools, setAvailablePools] = useState(undefined);
   const [quoteParams, setQuoteParams] = useState(undefined);
+  const [availableFeeTiers, setAvailableFeeTiers] = useState([]);
+  const [selectedFeeTier, setSelectedFeeTier] = useState(undefined);
 
   useEffect(() => {
-    if(!limitTabSelected) return
+    if (!limitTabSelected) return;
     if (exactIn) {
-      setDisplayIn('')
-      setAmountIn(BN_ZERO)
+      setDisplayIn("");
+      setAmountIn(BN_ZERO);
     } else {
-      setDisplayOut('')
-      setAmountOut(BN_ZERO)
+      setDisplayOut("");
+      setAmountOut(BN_ZERO);
     }
   }, [limitTabSelected]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Code to run every 5 seconds
-      if (exactIn ? amountIn.gt(BN_ZERO) : amountOut.gt(BN_ZERO)) {
-        getSwapPools(
-          limitSubgraph,
-          tokenIn,
-          tokenOut,
-          tradePoolData,
-          setTradePoolData,
-          setTokenInTradeUSDPrice,
-          setTokenOutTradeUSDPrice,
-          setTradePoolPrice,
-          setTradePoolLiquidity,
-        );
-      }
-    }, quoteRefetchDelay);
-    // Clear the interval when the component unmounts
-    return () => clearInterval(interval);
-   }, [exactIn ? amountIn : amountOut, tradePoolData?.id]);
+  const [feeTierManual, setFeeTierManual] = useState(false);
 
   useEffect(() => {
-    if (!needsPairUpdate) return
+    if (!feeTierManual) {
+      const interval = setInterval(() => {
+        // Code to run every 5 seconds
+        if (exactIn ? amountIn.gt(BN_ZERO) : amountOut.gt(BN_ZERO)) {
+          getSwapPools(
+            limitSubgraph,
+            tokenIn,
+            tokenOut,
+            tradePoolData,
+            setTradePoolData,
+            setTokenInTradeUSDPrice,
+            setTokenOutTradeUSDPrice,
+            setTradePoolPrice,
+            setTradePoolLiquidity
+          );
+        }
+      }, quoteRefetchDelay);
+      // Clear the interval when the component unmounts
+      return () => clearInterval(interval);
+    }
+  }, [exactIn ? amountIn : amountOut, tradePoolData?.id]);
+
+  useEffect(() => {
+    if (!needsPairUpdate) return;
+    else {
+      setFeeTierManual(false);
+      setDisplayOut("");
+    }
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
       if (!wethCall)
@@ -200,7 +220,7 @@ export default function LimitSwap() {
   }, [needsPairUpdate]);
 
   useEffect(() => {
-    if (!needsSetAmounts) return
+    if (!needsSetAmounts) return;
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       if (exactIn) {
         if (!isNaN(parseFloat(displayIn))) {
@@ -231,6 +251,7 @@ export default function LimitSwap() {
       setTokenInTradeUSDPrice,
       setTokenOutTradeUSDPrice
     );
+
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
     if (pools) {
@@ -243,11 +264,32 @@ export default function LimitSwap() {
         };
         quoteList[i] = params;
         poolAdresses[i] = pools[i].id;
+        availableFeeTiers[i] = pools[i].feeTier.id;
       }
+    }
+    if (pools?.length == 1) {
+      setSelectedFeeTier(pools[0].feeTier.id);
     }
     setAvailablePools(poolAdresses);
     setQuoteParams(quoteList);
   }
+
+  const handleManualFeeTierChange = async (feeAmount: number) => {
+    setFeeTierManual(true);
+    const pool = await getLimitPoolForFeeTier(
+      limitSubgraph,
+      tokenIn,
+      tokenOut,
+      feeAmount
+    );
+    setSelectedFeeTier(feeAmount);
+    setTradePoolData(pool);
+    if (pool.id != ZERO_ADDRESS) {
+      fetchRangeTokenUSDPrice(pool, tokenIn, setTokenInTradeUSDPrice);
+      fetchRangeTokenUSDPrice(pool, tokenOut, setTokenOutTradeUSDPrice);
+    }
+    setNeedsAllowanceIn(true);
+  };
 
   /////////////////////Double Input Boxes
 
@@ -294,20 +336,27 @@ export default function LimitSwap() {
   const [upperPriceString, setUpperPriceString] = useState("0");
 
   useEffect(() => {
-    if (needsPairUpdate) return
-    if (tradePoolData.poolPrice != undefined) {
-      var newPrice = numFormat(parseFloat(
-        invertPrice(
-          TickMath.getPriceStringAtSqrtPrice(
-            JSBI.BigInt(tradePoolData.poolPrice),
-            tokenIn, tokenOut
-          ),
-          limitPriceOrder
-        )
-      ), 5);
+    if (needsPairUpdate) return;
+    if (
+      tradePoolData != ZERO_ADDRESS &&
+      tradePoolData?.poolPrice != undefined
+    ) {
+      var newPrice = numFormat(
+        parseFloat(
+          invertPrice(
+            TickMath.getPriceStringAtSqrtPrice(
+              JSBI.BigInt(tradePoolData.poolPrice),
+              tokenIn,
+              tokenOut
+            ),
+            limitPriceOrder
+          )
+        ),
+        5
+      );
       setLimitPriceString(newPrice);
     } else {
-      setLimitPriceString('0.00')
+      setLimitPriceString("0.00");
     }
   }, [tradePoolData?.id, needsPairUpdate]);
 
@@ -389,7 +438,7 @@ export default function LimitSwap() {
     limitPriceString,
     tradeSlippage,
     priceRangeSelected,
-    tradePoolData.feeTier?.tickSpacing,
+    tradePoolData?.feeTier?.tickSpacing,
   ]);
 
   function updateLimitTicks() {
@@ -402,7 +451,7 @@ export default function LimitSwap() {
       ) {
         const limitPriceTolerance =
           (parseFloat(priceString) *
-            parseFloat((parseFloat(tradeSlippage) * 100).toFixed(6))) /
+            parseFloat((parseFloat(tradeSlippage) * 100).toFixed(5))) /
           10000;
         if (tokenIn.callId == 0) {
           const endPrice = parseFloat(priceString) - -limitPriceTolerance;
@@ -506,20 +555,22 @@ export default function LimitSwap() {
             tokenIn.callId == 0,
             amountIn
           );
-          const tokenOutAmountDisplay = numFormat(parseFloat(
-            ethers.utils.formatUnits(
-              tokenOutAmount.toString(),
-              tokenOut.decimals
-            )
-          ), 5);
+          const tokenOutAmountDisplay = numFormat(
+            parseFloat(
+              ethers.utils.formatUnits(
+                tokenOutAmount.toString(),
+                tokenOut.decimals
+              )
+            ),
+            5
+          );
           if (tokenOutAmount.gt(BN_ZERO)) {
             setDisplayOut(tokenOutAmountDisplay);
             setAmountOut(tokenOutAmount);
           } else {
-            setDisplayOut('')
-            setAmountOut(BN_ZERO)
+            setDisplayOut("");
+            setAmountOut(BN_ZERO);
           }
-
         }
       } else {
         setDisplayOut("");
@@ -537,9 +588,15 @@ export default function LimitSwap() {
             tokenIn.callId == 0,
             amountOut
           );
-          const tokenInAmountDisplay = numFormat(parseFloat(
-            ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
-          ), 5);
+          const tokenInAmountDisplay = numFormat(
+            parseFloat(
+              ethers.utils.formatUnits(
+                tokenInAmount.toString(),
+                tokenIn.decimals
+              )
+            ),
+            5
+          );
           setDisplayIn(tokenInAmountDisplay);
           setAmountIn(tokenInAmount);
         }
@@ -563,12 +620,15 @@ export default function LimitSwap() {
             tokenIn.callId == 0,
             bnValue
           );
-          const tokenOutAmountDisplay = numFormat(parseFloat(
-            ethers.utils.formatUnits(
-              tokenOutAmount.toString(),
-              tokenOut.decimals
-            )
-          ), 5);
+          const tokenOutAmountDisplay = numFormat(
+            parseFloat(
+              ethers.utils.formatUnits(
+                tokenOutAmount.toString(),
+                tokenOut.decimals
+              )
+            ),
+            5
+          );
           setDisplayOut(tokenOutAmountDisplay);
           setAmountOut(tokenOutAmount);
         }
@@ -588,9 +648,15 @@ export default function LimitSwap() {
             tokenIn.callId == 0,
             bnValue
           );
-          const tokenInAmountDisplay = numFormat(parseFloat(
-            ethers.utils.formatUnits(tokenInAmount.toString(), tokenIn.decimals)
-          ), 5);
+          const tokenInAmountDisplay = numFormat(
+            parseFloat(
+              ethers.utils.formatUnits(
+                tokenInAmount.toString(),
+                tokenIn.decimals
+              )
+            ),
+            5
+          );
           setDisplayIn(tokenInAmountDisplay);
           setAmountIn(tokenInAmount);
         }
@@ -743,12 +809,15 @@ export default function LimitSwap() {
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
             <div className="ml-auto text-xs">
               {pairSelected
-                ? numFormat(parseFloat(
-                    ethers.utils.formatUnits(
-                      amountOut ?? BN_ZERO,
-                      tokenOut.decimals
-                    )
-                  ), 5)
+                ? numFormat(
+                    parseFloat(
+                      ethers.utils.formatUnits(
+                        amountOut ?? BN_ZERO,
+                        tokenOut.decimals
+                      )
+                    ),
+                    5
+                  )
                 : "Select Token"}
             </div>
           </div>
@@ -762,8 +831,9 @@ export default function LimitSwap() {
                   ethers.utils.formatUnits(amountOut, tokenOut.decimals)
                 ) *
                   (100 - parseFloat(tradeSlippage))) /
-                100
-              , 5)}
+                  100,
+                5
+              )}
             </div>
           </div>
         </div>
@@ -850,8 +920,7 @@ export default function LimitSwap() {
         <div className="flex items-end justify-between text-[11px] text-grey1">
           <span>
             ~$
-            {!isNaN(tokenOut.decimals) &&
-            !isNaN(tokenOut.USDPrice) ? (
+            {!isNaN(tokenOut.decimals) && !isNaN(tokenOut.USDPrice) ? (
               (
                 (!isNaN(parseFloat(displayOut)) ? parseFloat(displayOut) : 0) *
                 (tokenOut.USDPrice ?? 0)
@@ -893,6 +962,51 @@ export default function LimitSwap() {
           </div>
         </div>
       </div>
+      {pairSelected ? (
+        <div className="flex gap-y-4 w-full items-center mt-5 justify-between bg-dark border-grey/80 p-2 border rounded-[4px]">
+          <div className="bg-dark text-sm uppercase pl-2 rounded-[4px] flex items-center gap-x-2">
+            <span className="md:block hidden">SELECT A</span> Fee tier:
+          </div>
+          <div className="grid grid-cols-3 gap-x-3">
+            <div
+              className={
+                selectedFeeTier == "1000"
+                  ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+                  : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+              }
+              onClick={() => {
+                handleManualFeeTierChange(1000);
+              }}
+            >
+              0.01%
+            </div>
+            <div
+              className={
+                selectedFeeTier == "3000"
+                  ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+                  : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+              }
+              onClick={() => {
+                handleManualFeeTierChange(3000);
+              }}
+            >
+              0.03%
+            </div>
+            <div
+              className={
+                selectedFeeTier == "10000"
+                  ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+                  : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
+              }
+              onClick={() => {
+                handleManualFeeTierChange(10000);
+              }}
+            >
+              0.1%
+            </div>
+          </div>
+        </div>
+      ) : null}
       <div className="mt-5">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-x-3 text-sm">
@@ -1056,15 +1170,17 @@ export default function LimitSwap() {
         >
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
             {"1 " + tokenIn.symbol} ={" "}
-            {displayPoolPrice(
-              wethCall,
-              pairSelected,
-              tradePoolData?.poolPrice,
-              tokenIn,
-              tokenOut
-            ) +
-              " " +
-              tokenOut.symbol}
+            {tradePoolData?.id != ZERO_ADDRESS
+              ? displayPoolPrice(
+                  wethCall,
+                  pairSelected,
+                  tradePoolData?.poolPrice,
+                  tokenIn,
+                  tokenOut
+                ) +
+                " " +
+                tokenOut.symbol
+              : "?"}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>
@@ -1095,7 +1211,10 @@ export default function LimitSwap() {
             tradePoolData?.id != ZERO_ADDRESS ? (
               <LimitSwapButton
                 routerAddress={getRouterAddress(networkName)}
-                disabled={mintGasLimit.lt(BigNumber.from('100000')) || tradeButton.disabled}
+                disabled={
+                  mintGasLimit.lt(BigNumber.from("100000")) ||
+                  tradeButton.disabled
+                }
                 poolAddress={tradePoolData?.id}
                 to={address}
                 amount={amountIn}
@@ -1110,9 +1229,7 @@ export default function LimitSwap() {
             ) : (
               <LimitCreateAndMintButton
                 disabled={mintGasLimit.eq(BN_ZERO) || tradeButton.disabled}
-                routerAddress={
-                  getRouterAddress(networkName)
-                }
+                routerAddress={getRouterAddress(networkName)}
                 poolTypeId={limitPoolTypeIds["constant-product"]}
                 tokenIn={tokenIn}
                 tokenOut={tokenOut}
