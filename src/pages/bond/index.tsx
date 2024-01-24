@@ -159,8 +159,7 @@ export default function Bond() {
           limitSubgraph,
           address,
         );
-        const chainConstants = chainProperties[networkName] ? chainProperties[networkName]
-                                                            : chainProperties['arbitrumGoerli'];
+        const chainConstants = chainProperties[networkName] 
         setLimitSubgraph(chainConstants['limitSubgraphUrl'])
         if (data["data"] && data["data"]["vfinPositions"]?.length == 1) {
           setVestingPositionId(data["data"]["vfinPositions"][0].positionId);

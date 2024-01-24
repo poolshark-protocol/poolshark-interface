@@ -14,6 +14,7 @@ import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { parseUnits } from "../../../utils/math/valueMath";
 import { getLogoURI } from "../../../utils/tokens";
+import { getRouterAddress } from "../../../utils/config";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   const [chainId, logoMap, networkName] = useConfigStore((state) => [
@@ -58,7 +59,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties[networkName]["routerAddress"]],
+    args: [address, getRouterAddress(networkName)],
     chainId: chainId,
     watch: needsAllowance,
     enabled: isConnected && tokenIn.address != undefined && needsAllowance,
@@ -239,7 +240,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                   allowanceIn.lt(bnInput) ? (
                     <SwapRouterApproveButton
                       routerAddress={
-                        chainProperties[networkName]["routerAddress"]
+                        getRouterAddress(networkName)
                       }
                       approveToken={tokenIn.address}
                       amount={bnInput}
@@ -251,7 +252,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                       to={address}
                       poolAddress={limitPoolAddress}
                       routerAddress={
-                        chainProperties[networkName]["routerAddress"]
+                        getRouterAddress(networkName)
                       }
                       lower={Number(limitPositionData.min)}
                       upper={Number(limitPositionData.max)}

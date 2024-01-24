@@ -35,6 +35,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
+import { getRouterAddress } from "../../utils/config";
 export default function CoverExistingPool({ goBack }) {
   const [
     chainId,
@@ -155,7 +156,7 @@ export default function CoverExistingPool({ goBack }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties[networkName]["routerAddress"]],
+    args: [address, getRouterAddress(networkName)],
     chainId: chainId,
     watch: needsAllowance && !tokenIn.native,
     enabled: tokenIn.address != ZERO_ADDRESS,
@@ -881,14 +882,14 @@ export default function CoverExistingPool({ goBack }) {
       {allowanceInCover ? (
         allowanceInCover.lt(coverMintParams.tokenInAmount) && !tokenIn.native ? (
           <CoverMintApproveButton
-            routerAddress={chainProperties[networkName]["routerAddress"]}
+            routerAddress={getRouterAddress(networkName)}
             approveToken={tokenIn.address}
             amount={String(coverMintParams.tokenInAmount)}
             tokenSymbol={tokenIn.symbol}
           />
         ) : coverPoolAddress != ZERO_ADDRESS ? (
           <CoverMintButton
-            routerAddress={chainProperties[networkName]["routerAddress"]}
+            routerAddress={getRouterAddress(networkName)}
             poolAddress={coverPoolAddress}
             disabled={coverMintParams.disabled}
             buttonMessage={coverMintParams.buttonMessage}
@@ -932,7 +933,7 @@ export default function CoverExistingPool({ goBack }) {
           />
         ) : (
           <CoverCreateAndMintButton
-            routerAddress={chainProperties[networkName]["routerAddress"]}
+            routerAddress={getRouterAddress(networkName)}
             poolType={"PSHARK-CPROD"}
             tokenIn={tokenIn}
             tokenOut={tokenOut}

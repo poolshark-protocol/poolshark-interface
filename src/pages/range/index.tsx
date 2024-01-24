@@ -61,7 +61,7 @@ export default function Range() {
   //////////////////////Get Pools Data
   useEffect(() => {
     getRangePoolData();
-  }, []);
+  }, [chainId]);
 
   async function getRangePoolData() {
     setIsPoolsLoading(true);
@@ -77,18 +77,18 @@ export default function Range() {
     if (address) {
       const chainConstants = chainProperties[networkName]
         ? chainProperties[networkName]
-        : chainProperties["arbitrumGoerli"];
+        : chainProperties["arbitrum"];
       setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
       getUserRangePositionData();
     }
   }, []);
 
   useEffect(() => {
-    if (address && needsRefetch) {
+    if (address) {
       getUserRangePositionData();
       setNeedsRefetch(false);
     }
-  }, [address, needsRefetch]);
+  }, [address, needsRefetch, chainId]);
 
   async function getUserRangePositionData() {
     try {
@@ -140,7 +140,7 @@ export default function Range() {
             <button
               disabled={allRangePools.length == 0}
               onClick={() => {
-                resetRangeLimitParams();
+                resetRangeLimitParams(chainId);
                 if (allRangePools?.length > 0) {
                   console.log(allRangePools[0]);
                   const tokenIn = {

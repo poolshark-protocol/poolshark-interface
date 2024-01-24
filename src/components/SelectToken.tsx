@@ -9,8 +9,7 @@ import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
 import { useAccount, useToken } from "wagmi";
 import { useConfigStore } from "../hooks/useConfigStore";
-import { defaultTokenLogo, getLogoURI, nativeString } from "../utils/tokens";
-import { Alchemy, Network } from "alchemy-sdk";
+import { defaultTokenLogo, logoMapKey } from "../utils/tokens";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
@@ -88,7 +87,6 @@ export default function SelectToken(props) {
   useEffect(() => {
     const fetch = async () => {
       // validate address
-
       if (isAddress(customInput)) {
         // if not in listed tokens or search tokens we need to fetch data from the chain
         refetchTokenInfo();
@@ -101,7 +99,7 @@ export default function SelectToken(props) {
 
   useEffect(() => {
     if (isOpen) {
-      setCustomInput("");
+      setCustomInput(""); 
       setDisplayTokenList(listedTokenList);
     }
   }, [isOpen]);
@@ -114,7 +112,9 @@ export default function SelectToken(props) {
       logoURI: coin?.logoURI,
       decimals: coin?.decimals,
       native: coin?.native ?? false,
+      userBalance: coin?.balance ?? (coin.userBalance ?? 0),
     };
+
     if (props.amount != undefined && props.isAmountIn != undefined) {
       if (props.type === "in") {
         props.setTokenIn(
@@ -126,6 +126,7 @@ export default function SelectToken(props) {
             logoURI: coin?.logoURI,
             decimals: coin?.decimals,
             native: coin?.native ?? false,
+            userBalance: coin?.userBalance ?? 0,
           },
           props.amount,
           props.isAmountIn
@@ -140,6 +141,7 @@ export default function SelectToken(props) {
             logoURI: coin?.logoURI,
             decimals: coin?.decimals,
             native: coin?.native ?? false,
+            userBalance: coin?.userBalance ?? 0,
           },
           props.amount,
           props.isAmountIn
@@ -147,23 +149,31 @@ export default function SelectToken(props) {
       }
     } else {
       if (props.type === "in") {
-        props.setTokenIn(props.tokenOut, {
-          name: coin?.name,
-          address: coin?.address,
-          symbol: coin?.symbol,
-          logoURI: coin?.logoURI,
-          decimals: coin?.decimals,
-          native: coin?.native ?? false,
-        });
+        props.setTokenIn(
+          props.tokenOut,
+          {
+            name: coin?.name,
+            address: coin?.address,
+            symbol: coin?.symbol,
+            logoURI: coin?.logoURI,
+            decimals: coin?.decimals,
+            native: coin?.native ?? false,
+            userBalance: coin?.userBalance ?? 0,
+          }
+        );
       } else {
-        props.setTokenOut(props.tokenIn, {
-          name: coin?.name,
-          address: coin?.address,
-          symbol: coin?.symbol,
-          logoURI: coin?.logoURI,
-          decimals: coin?.decimals,
-          native: coin?.native ?? false,
-        });
+        props.setTokenOut(
+          props.tokenIn,
+          {
+            name: coin?.name,
+            address: coin?.address,
+            symbol: coin?.symbol,
+            logoURI: coin?.logoURI,
+            decimals: coin?.decimals,
+            native: coin?.native ?? false,
+            userBalance: coin?.userBalance ?? 0,
+          }
+        );
       }
     }
     closeModal();
@@ -175,28 +185,7 @@ export default function SelectToken(props) {
 
   function openModal() {
     setIsOpen(true);
-    fetchTokenBalances();
   }
-
-  const fetchTokenBalances = async () => {
-    console.log("fetching token balances");
-    const config = {
-      apiKey: "73s_R3kr7BizJjj4bYslsKBR9JH58cWI",
-      network: Network.ARB_MAINNET,
-    };
-    const alchemy = new Alchemy(config);
-    const data = await alchemy.core.getTokenBalances(
-      address,
-      listedTokenList.map((token) => token.address)
-    );
-    for (let i = 0; i < data.tokenBalances.length; i++) {
-      listedTokenList[i].balance = data.tokenBalances[i].tokenBalance;
-    }
-    setListedTokenList(listedTokenList);
-    setTimeout(() => {
-      fetchTokenBalances();
-    }, 2500);
-  };
 
   return (
     <div className="w-full">
@@ -283,9 +272,8 @@ export default function SelectToken(props) {
                               coin.name
                                 .toLowerCase()
                                 .includes(customInput.toLowerCase()) ||
-                              coin.address
-                                .toLowerCase()
-                                .includes(customInput.toLowerCase())
+                              coin.address.toLowerCase() ==
+                                customInput.toLowerCase()
                             ) {
                               return (
                                 <CoinListItem
@@ -308,9 +296,8 @@ export default function SelectToken(props) {
                               coin.name
                                 .toLowerCase()
                                 .includes(customInput.toLowerCase()) ||
-                              coin.address
-                                .toLowerCase()
-                                .includes(customInput.toLowerCase())
+                              coin.address.toLowerCase() ==
+                                customInput.toLowerCase()
                             ) {
                               return (
                                 <CoinListItem
@@ -340,7 +327,14 @@ export default function SelectToken(props) {
         <div className="flex items-center gap-x-2 w-full">
           {(props.tokenIn.symbol != "Select Token" && props.type == "in") ||
           (props.tokenOut.symbol != "Select Token" && props.type == "out") ? (
-            <img className="md:w-6 w-6" src={props.displayToken?.logoURI} />
+            <img
+              className="md:w-6 w-6"
+              src={
+                props.type == "in"
+                  ? logoMap[logoMapKey(props.tokenIn)]
+                  : logoMap[logoMapKey(props.tokenOut)]
+              }
+            />
           ) : (
             <></>
           )}

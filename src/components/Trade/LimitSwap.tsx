@@ -47,6 +47,8 @@ import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import JSBI from "jsbi";
 import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
+import BalanceDisplay from "../Display/BalanceDisplay";
+import { getRouterAddress } from "../../utils/config";
 
 export default function LimitSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -857,7 +859,7 @@ export default function LimitSwap() {
                 ).toFixed(2)
               : (0).toFixed(2)}
           </span>
-          <span>BALANCE: {tokenIn.userBalance}</span>
+          <BalanceDisplay token={tokenIn}></BalanceDisplay>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3">
           {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox)}
@@ -1203,7 +1205,7 @@ export default function LimitSwap() {
           !tokenIn.native &&
           pairSelected ? (
             <SwapRouterApproveButton
-              routerAddress={chainProperties[networkName]["routerAddress"]}
+              routerAddress={getRouterAddress(networkName)}
               approveToken={tokenIn.address}
               tokenSymbol={tokenIn.symbol}
               amount={amountIn}
@@ -1249,7 +1251,7 @@ export default function LimitSwap() {
           ) : tokenIn.native ? (
             <SwapWrapNativeButton
               disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
-              routerAddress={chainProperties[networkName]["routerAddress"]}
+              routerAddress={getRouterAddress(networkName)}
               wethAddress={chainProperties[networkName]["wethAddress"]}
               tokenInSymbol={tokenIn.symbol}
               amountIn={amountIn}
@@ -1259,7 +1261,7 @@ export default function LimitSwap() {
           ) : (
             <SwapUnwrapNativeButton
               disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
-              routerAddress={chainProperties[networkName]["routerAddress"]}
+              routerAddress={getRouterAddress(networkName)}
               wethAddress={chainProperties[networkName]["wethAddress"]}
               tokenInSymbol={tokenIn.symbol}
               amountIn={amountIn}
