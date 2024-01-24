@@ -182,7 +182,6 @@ export default function LimitSwap() {
 
   useEffect(() => {
     if (!feeTierManual) {
-      console.log("entrou");
       const interval = setInterval(() => {
         // Code to run every 5 seconds
         if (exactIn ? amountIn.gt(BN_ZERO) : amountOut.gt(BN_ZERO)) {
@@ -243,7 +242,6 @@ export default function LimitSwap() {
 
   //can go to utils
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
-    console.log("updatePools");
     const pools = await getSwapPools(
       limitSubgraph,
       tokenIn,
@@ -285,7 +283,6 @@ export default function LimitSwap() {
       feeAmount
     );
     setSelectedFeeTier(feeAmount);
-    console.log("pool", pool);
     setTradePoolData(pool);
     if (pool.id != ZERO_ADDRESS) {
       fetchRangeTokenUSDPrice(pool, tokenIn, setTokenInTradeUSDPrice);
