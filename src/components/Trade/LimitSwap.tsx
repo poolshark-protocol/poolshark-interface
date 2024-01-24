@@ -911,7 +911,7 @@ export default function LimitSwap() {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L15.5 21m0 0L12 15.5m4.5 4.5V7.5"
+            d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 15.5m4.5 4.5V7.5"
           />
         </svg>
       </div>
@@ -1061,7 +1061,7 @@ export default function LimitSwap() {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d="M7.5 21L3 15.5m0 0L7.5 12M3 15.5h13.5m0-13.5L21 7.5m0 0L15.5 12M21 7.5H7.5"
+                d="M7.5 21L3 15.5m0 0L7.5 12M3 15.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
               />
             </svg>
           </span>
@@ -1075,7 +1075,7 @@ export default function LimitSwap() {
                 </span>
                 <input
                   autoComplete="off"
-                  className="outline-none bg-transparent text-3xl w-1/2 md:w-55 text-center mb-2"
+                  className="outline-none bg-transparent text-3xl w-1/2 md:w-56 text-center mb-2"
                   value={
                     !isNaN(parseFloat(lowerPriceString)) ? lowerPriceString : 0
                   }
@@ -1091,7 +1091,7 @@ export default function LimitSwap() {
                 </span>
                 <input
                   autoComplete="off"
-                  className="outline-none bg-transparent text-3xl w-1/2 md:w-55 text-center mb-2"
+                  className="outline-none bg-transparent text-3xl w-1/2 md:w-56 text-center mb-2"
                   value={
                     !isNaN(parseFloat(upperPriceString)) ? upperPriceString : 0
                   }
