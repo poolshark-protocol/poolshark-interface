@@ -342,7 +342,7 @@ export default function Trade() {
 
   ////////////////////////////////Allowances
 
-  const { data: allowanceInRouter } = useContractRead({
+  const { data: allowanceInRouter, refetch: allowanceInRefetch } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
