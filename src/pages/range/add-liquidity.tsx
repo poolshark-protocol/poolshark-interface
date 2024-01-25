@@ -215,14 +215,14 @@ export default function AddLiquidity({}) {
         (pool) =>
           pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
       );
+
       if (
-        router.query.feeTier &&
-        !isNaN(parseInt(router.query.feeTier.toString())) &&
-        rangePoolData.feeTier == undefined &&
-        router.query.poolId != ZERO_ADDRESS &&
-        pool != undefined
+        (pool != undefined &&
+          tokenIn.address == pool.token0.id &&
+          tokenOut.address == pool.token1.id) ||
+        (tokenIn.address == pool.token1.id &&
+          tokenOut.address == pool.token0.id)
       ) {
-        console.log("pool", pool);
         const originalTokenIn = {
           name: pool.token0.symbol,
           address: pool.token0.id,
@@ -241,7 +241,6 @@ export default function AddLiquidity({}) {
           userBalance: pool.token1.balance,
           callId: 1,
         };
-        console.log("passou1");
         setTokenIn(originalTokenOut, originalTokenIn, "0", true);
         setTokenOut(originalTokenIn, originalTokenOut, "0", false);
         setRangePoolFromFeeTier(
@@ -251,14 +250,38 @@ export default function AddLiquidity({}) {
           limitSubgraph
         );
       } else {
-        setRangePoolData({
-          ...rangePoolData,
-          feeTier: {
-            ...rangePoolData.feeTier,
-            feeAmount: feeAmount,
-            tickSpacing: feeTierMap[feeAmount].tickSpacing,
-          },
-        });
+        const pool = data["data"].limitPools[0];
+        const originalTokenIn = {
+          name: pool.token0.symbol,
+          address: pool.token0.id,
+          symbol: pool.token0.symbol,
+          decimals: pool.token0.decimals,
+          userBalance: pool.token0.balance,
+          callId: 0,
+        };
+        const originalTokenOut = {
+          name: pool.token1.symbol,
+          address: pool.token1.id,
+          symbol: pool.token1.symbol,
+          decimals: pool.token1.decimals,
+          userBalance: pool.token1.balance,
+          callId: 1,
+        };
+        if (
+          originalTokenIn.symbol == tokenIn.symbol &&
+          originalTokenOut.symbol == tokenOut.symbol
+        ) {
+          setTokenIn(originalTokenOut, originalTokenIn, "0", true);
+          setTokenOut(originalTokenIn, originalTokenOut, "0", false);
+          setRangePoolFromFeeTier(
+            originalTokenIn,
+            originalTokenOut,
+            parseInt(pool.feeTier.feeAmount),
+            limitSubgraph
+          );
+        } else {
+          setRangePoolFromFeeTier(tokenIn, tokenOut, "3000", limitSubgraph);
+        }
       }
     }
   }
