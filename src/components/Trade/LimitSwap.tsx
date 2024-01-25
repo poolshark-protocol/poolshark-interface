@@ -165,7 +165,7 @@ export default function LimitSwap() {
   const [availablePools, setAvailablePools] = useState(undefined);
   const [quoteParams, setQuoteParams] = useState(undefined);
   const [availableFeeTiers, setAvailableFeeTiers] = useState([]);
-  const [selectedFeeTier, setSelectedFeeTier] = useState(undefined);
+  const [selectedFeeTier, setSelectedFeeTier] = useState("3000");
 
   useEffect(() => {
     if (!limitTabSelected) return;
@@ -182,10 +182,10 @@ export default function LimitSwap() {
 
   useEffect(() => {
     if (!feeTierManual) {
-      const interval = setInterval(() => {
+      const interval = setInterval(async () => {
         // Code to run every 5 seconds
         if (exactIn ? amountIn.gt(BN_ZERO) : amountOut.gt(BN_ZERO)) {
-          getSwapPools(
+          await getSwapPools(
             limitSubgraph,
             tokenIn,
             tokenOut,
@@ -196,6 +196,7 @@ export default function LimitSwap() {
             setTradePoolPrice,
             setTradePoolLiquidity
           );
+          setSelectedFeeTier(tradePoolData?.feeTier?.id);
         }
       }, quoteRefetchDelay);
       // Clear the interval when the component unmounts
@@ -282,7 +283,7 @@ export default function LimitSwap() {
       tokenOut,
       feeAmount
     );
-    setSelectedFeeTier(feeAmount);
+    setSelectedFeeTier(feeAmount.toString());
     setTradePoolData(pool);
     if (pool.id != ZERO_ADDRESS) {
       fetchRangeTokenUSDPrice(pool, tokenIn, setTokenInTradeUSDPrice);
