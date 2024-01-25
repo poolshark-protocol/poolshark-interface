@@ -185,14 +185,21 @@ export default function AddLiquidity({}) {
           userBalance: pool.token1.balance,
           callId: 1,
         };
-        setTokenIn(originalTokenOut, originalTokenIn, "0", true);
-        setTokenOut(originalTokenIn, originalTokenOut, "0", false);
-        setRangePoolFromFeeTier(
-          originalTokenIn,
-          originalTokenOut,
-          parseInt(pool.feeTier.feeAmount),
-          limitSubgraph
-        );
+        if (
+          originalTokenIn.symbol == tokenIn.symbol &&
+          originalTokenOut.symbol == tokenOut.symbol
+        ) {
+          setTokenIn(originalTokenOut, originalTokenIn, "0", true);
+          setTokenOut(originalTokenIn, originalTokenOut, "0", false);
+          setRangePoolFromFeeTier(
+            originalTokenIn,
+            originalTokenOut,
+            parseInt(pool.feeTier.feeAmount),
+            limitSubgraph
+          );
+        } else {
+          setRangePoolFromFeeTier(tokenIn, tokenOut, "3000", limitSubgraph);
+        }
       }
     };
     fetchPool();
@@ -215,6 +222,7 @@ export default function AddLiquidity({}) {
         router.query.poolId != ZERO_ADDRESS &&
         pool != undefined
       ) {
+        console.log("pool", pool);
         const originalTokenIn = {
           name: pool.token0.symbol,
           address: pool.token0.id,
@@ -233,6 +241,7 @@ export default function AddLiquidity({}) {
           userBalance: pool.token1.balance,
           callId: 1,
         };
+        console.log("passou1");
         setTokenIn(originalTokenOut, originalTokenIn, "0", true);
         setTokenOut(originalTokenIn, originalTokenOut, "0", false);
         setRangePoolFromFeeTier(
@@ -242,7 +251,14 @@ export default function AddLiquidity({}) {
           limitSubgraph
         );
       } else {
-        setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
+        setRangePoolData({
+          ...rangePoolData,
+          feeTier: {
+            ...rangePoolData.feeTier,
+            feeAmount: feeAmount,
+            tickSpacing: feeTierMap[feeAmount].tickSpacing,
+          },
+        });
       }
     }
   }
@@ -313,7 +329,7 @@ export default function AddLiquidity({}) {
       watch: true,
       enabled: tokenIn.address != undefined,
       onSuccess(data) {
-        console.log("allowance in fetched", allowanceInRange?.toString());
+        //console.log("allowance in fetched", allowanceInRange?.toString());
         //setNeedsAllowanceIn(false);
       },
       onError(error) {
@@ -330,7 +346,7 @@ export default function AddLiquidity({}) {
       chainId: chainId,
       watch: true,
       onSuccess(data) {
-        console.log("allowance out fetched", allowanceOutRange?.toString());
+        //console.log("allowance out fetched", allowanceOutRange?.toString());
         //setNeedsAllowanceOut(false);
       },
       onError(error) {
@@ -685,8 +701,6 @@ export default function AddLiquidity({}) {
   }, [lowerPrice, rangePrice, upperPrice]);
 
   ////////////////////////////////
-
-  console.log('token in user balance', tokenIn.userBalance)
 
   return (
     <div className="bg-black min-h-screen  ">
