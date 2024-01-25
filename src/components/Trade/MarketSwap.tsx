@@ -26,6 +26,7 @@ import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { getRouterAddress } from "../../utils/config";
 import BalanceDisplay from "../Display/BalanceDisplay";
+import SwingSDK, { TransferParams } from "@swing.xyz/sdk";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -36,6 +37,10 @@ export default function MarketSwap() {
       state.setLimitSubgraph,
       state.logoMap,
     ]);
+
+  const swingSDK = new SwingSDK({
+    // projectId: "poolshark"
+  });
 
   //CONFIG STORE
   const [stateChainName, setStateChainName] = useState();
@@ -247,32 +252,42 @@ export default function MarketSwap() {
       }, [signer]);
   
     const connectWalletToSwingSdk = async () => {
+      // allow input and output
+      // input - quote amount
+      // output - reverse quote and set amountIn
+      // when user clicks swap button
+      // 0. skip approve if non-FIN pair and use SwingSDK
+      // - useSwingSDK zustand flag
+      // - always use amountIn for amount
+      // 1. disable while swingSDK.transfer is in progress
+      // 2. reenable once transfer completes
+  
       if (!signer) return
-      // await swingSDK.init()
-      // await swingSDK.wallet.connect(signer.provider, chainId);
-      // const transferParams: TransferParams = {
-      //   fromChain: 'arbitrum', // Source chain
-      //   fromToken: 'ETH', // Source token
-      //   fromUserAddress: address, // Source chain wallet address
+      await swingSDK.init()
+      await swingSDK.wallet.connect(signer.provider, chainId);
+      const transferParams: TransferParams = {
+        fromChain: 'arbitrum', // Source chain
+        fromToken: 'WETH', // Source token
+        fromUserAddress: address, // Source chain wallet address
        
-      //   amount: '0.0001', // Amount to transfer in token decimals
+        amount: '0.01', // Amount to transfer in token decimals
        
-      //   toChain: 'arbitrum', // Destination chain
-      //   toToken: 'DAI', // Destination token
-      //   toUserAddress: address, // Ending chain wallet address
+        toChain: 'arbitrum', // Destination chain
+        toToken: 'DAI', // Destination token
+        toUserAddress: address, // Ending chain wallet address
        
-      //   maxSlippage: 0.01, //An optional percentage value passed as a decimal between 0 and 1. (i.e 0.02 = 2%). Otherwise, slippage defaults to 3%.
-      // };
-      // const quote = await swingSDK.getQuote(transferParams);
-      // const transferRoute = quote.routes[0];
-      // console.log('quote check', transferRoute)
+        maxSlippage: 0.01, //An optional percentage value passed as a decimal between 0 and 1. (i.e 0.02 = 2%). Otherwise, slippage defaults to 3%.
+      };
+      const quote = await swingSDK.getQuote(transferParams);
+      const transferRoute = quote.routes[0];
+      console.log('quote check', transferRoute)
       // setAmountOut(parseUnits('100', 18))
       // setDisplayOut('100')
-      // try  {
-      //   // await swingSDK.transfer(transferRoute, transferParams);
-      // } catch(e) {
-      //   console.log('swing sdk error', e)
-      // }
+      try  {
+        await swingSDK.transfer(transferRoute, transferParams);
+      } catch(e) {
+        console.log('swing sdk error', e)
+      }
 
       // set USD out value
       // set USD in value as amountUsd + bridgeFee

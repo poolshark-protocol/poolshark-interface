@@ -54,6 +54,8 @@ type TradeState = {
   //Start price for pool creation
   startPrice: string;
   limitPriceOrder: boolean;
+  //Swing SDK enabled
+  swingSDKEnabled: boolean;
 };
 
 type TradeLimitAction = {
@@ -187,6 +189,7 @@ const initialTradeState: TradeState = {
   needsSetAmounts: false,
   startPrice: "",
   limitPriceOrder: true,
+  swingSDKEnabled: false,
 };
 
 export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
@@ -227,6 +230,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   needsSetAmounts: initialTradeState.needsSetAmounts,
   startPrice: initialTradeState.startPrice,
   limitPriceOrder: initialTradeState.limitPriceOrder,
+  swingSDKEnabled: initialTradeState.swingSDKEnabled,
   //actions
   setPairSelected: (pairSelected: boolean) => {
     set(() => ({
