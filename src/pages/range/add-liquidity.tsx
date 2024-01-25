@@ -877,6 +877,11 @@ export default function AddLiquidity({}) {
               <DoubleArrowIcon />
             </div>
           </div>
+          <div className="flex justify-between items-center w-full md:gap-x-4 gap-x-2">
+              <button className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all">Narrow</button>
+              <button className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all">COMMON</button>
+              <button className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all">WIDE</button>
+            </div>
           <div className="flex flex-col gap-y-4">
             <div className="flex md:flex-row flex-col items-center gap-5 mt-3">
               <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
@@ -935,6 +940,7 @@ export default function AddLiquidity({}) {
                   </div>
                 </div>
               )}
+            
             <div className="mb-2 mt-3 flex-col flex gap-y-8">
               <div className="flex items-center justify-between w-full text-xs  text-[#C9C9C9]">
                 <div className="text-xs text-[#4C4C4C]">Market Price</div>
