@@ -374,42 +374,44 @@ export default function Range() {
                           className="h-[50px] w-full bg-grey/30 animate-pulse rounded-[4px]"
                         ></div>
                       ))
-                    : allRangePools.map((allRangePool) => {
-                        if (
-                          allRangePool.tokenZero.name.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          allRangePool.tokenZero.name
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()) ||
-                          allRangePool.tokenOne.name.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          allRangePool.tokenOne.name
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()) ||
-                          allRangePool.tokenZero.symbol.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          allRangePool.tokenZero.symbol
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()) ||
-                          allRangePool.tokenOne.symbol.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          allRangePool.tokenOne.symbol
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()) ||
-                          allRangePool.tokenZero.id.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          allRangePool.tokenOne.id.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          searchTerm === ""
-                        )
-                          return (
-                            <RangePool
-                              key={allRangePool.poolId + "rangePool"}
-                              rangePool={allRangePool}
-                              href="/range/add-liquidity"
-                            />
-                          );
-                      })}
+                    : allRangePools
+                        .filter(allRangePool => lowTVLHidden ? allRangePool.tvlUsd > "1.00" : true)
+                        .map((allRangePool) => {
+                          if (
+                            allRangePool.tokenZero.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenZero.name
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
+                            allRangePool.tokenOne.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenOne.name
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
+                            allRangePool.tokenZero.symbol.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenZero.symbol
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
+                            allRangePool.tokenOne.symbol.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenOne.symbol
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
+                            allRangePool.tokenZero.id.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenOne.id.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            searchTerm === ""
+                          )
+                            return (
+                              <RangePool
+                                key={allRangePool.poolId + "rangePool"}
+                                rangePool={allRangePool}
+                                href="/range/add-liquidity"
+                              />
+                            );
+                        })}
                 </div>
               </div>
             </div>
