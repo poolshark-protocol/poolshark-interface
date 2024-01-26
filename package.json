@@ -14,7 +14,7 @@
     "@heroicons/react": "^2.0.12",
     "@radix-ui/react-toast": "^1.1.5",
     "@rainbow-me/rainbowkit": "^0.8.1",
-    "@swing.xyz/sdk": "0.0.12-next.1",
+    "@swing.xyz/sdk": "0.47.12",
     "@usedapp/core": "^1.2.2",
     "@vercel/analytics": "^1.0.1",
     "@vercel/speed-insights": "^1.0.1",

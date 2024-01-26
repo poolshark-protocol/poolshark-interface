@@ -1,6 +1,10 @@
 import { chainProperties, supportedChainIds, supportedNetworkNames } from "./chains"
 import { numStringFormat } from "./math/valueMath"
 
+export const addressMatches = (addressA: string, addressB: string): boolean => {
+	return addressA.toLowerCase() == addressB.toLowerCase()
+}
+
 export const getRouterAddress = (networkName: string) => {
 	if(chainProperties[networkName]) {
 			if (chainProperties[networkName]["routerAddress"]) {
@@ -17,6 +21,30 @@ export const getRangeStakerAddress = (networkName: string) => {
 			}
 	}
 	return chainProperties["arbitrum-one"]["rangeStakerAddress"]
+}
+
+export const getSwingSDKEnabled = (networkName: string, tokenA: string, tokenB: string) => {
+	// arbitrum
+	console.log('swing check', networkName, tokenB, chainProperties[networkName]["finAddress"], tokenA == chainProperties[networkName]["finAddress"], tokenB == chainProperties[networkName]["finAddress"])
+	if (networkName == "arbitrum-one") {
+		if(chainProperties[networkName]) {
+			if (addressMatches(tokenA, chainProperties[networkName]["finAddress"])) {
+				// false if tokenA is FIN
+				return false
+			} else if (addressMatches(tokenB, chainProperties[networkName]["finAddress"])) {
+				// false if tokenB is FIN
+				return false
+			} else {
+				// true otherwise
+				console.log('swing sdk enabled')
+				return true
+			}
+		}
+		// true by default
+		return true
+	}
+	// false for other networks
+	return false
 }
 
 export const getTokenBalance = (chainId: number, coin: any, tokenBalanceInfo: any) => {

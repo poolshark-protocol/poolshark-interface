@@ -7,7 +7,7 @@ import useInputBox from "../../hooks/useInputBox";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import SelectToken from "../SelectToken";
 import { inputHandler, numFormat, parseUnits } from "../../utils/math/valueMath";
-import { getSwapPools } from "../../utils/pools";
+import { getSwapPools, getSwingQuote } from "../../utils/pools";
 import { QuoteParams, SwapParams } from "../../utils/types";
 import { TickMath, maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
 import { displayPoolPrice } from "../../utils/math/priceMath";
@@ -39,7 +39,7 @@ export default function MarketSwap() {
     ]);
 
   const swingSDK = new SwingSDK({
-    // projectId: "poolshark"
+    projectId: "poolshark"
   });
 
   //CONFIG STORE
@@ -76,6 +76,7 @@ export default function MarketSwap() {
     setNeedsAllowanceIn,
     switchDirection,
     setTradeButtonState,
+    swing,
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
@@ -104,6 +105,7 @@ export default function MarketSwap() {
     s.setNeedsAllowanceIn,
     s.switchDirection,
     s.setTradeButtonState,
+    s.swing,
   ]);
 
   const [setRangeTokenIn, setRangeTokenOut] = useRangeLimitStore((state) => [
@@ -137,6 +139,10 @@ export default function MarketSwap() {
     setAmountOut(BN_ZERO)
   }, [limitTabSelected]);
 
+  useEffect(() => {
+    console.log("swing enabled:", swing.enabled)
+  }, [swing.enabled]);
+
   /////////////////////////////Fetch Pools
   const [availablePools, setAvailablePools] = useState(undefined);
   const [quoteParams, setQuoteParams] = useState(undefined);
@@ -144,9 +150,25 @@ export default function MarketSwap() {
   useEffect(() => {
     const interval = setInterval(() => {
       // Code to run every 5 seconds
-      if (exactIn ? amountIn.gt(BN_ZERO) : amountOut.gt(BN_ZERO)) {
-        getSwapPools(
-          limitSubgraph,
+      if (!swing.enabled) {
+        if (exactIn ? amountIn.gt(BN_ZERO) 
+                    : amountOut.gt(BN_ZERO)
+        ) {
+          getSwapPools(
+            limitSubgraph,
+            tokenIn,
+            tokenOut,
+            tradePoolData,
+            setTradePoolData,
+            setTokenInTradeUSDPrice,
+            setTokenOutTradeUSDPrice,
+            setTradePoolPrice,
+            setTradePoolLiquidity,
+          );
+        }
+      } else {
+        // fetch new quote from swingSDK
+        getSwingQuote(
           tokenIn,
           tokenOut,
           tradePoolData,
@@ -155,7 +177,7 @@ export default function MarketSwap() {
           setTokenOutTradeUSDPrice,
           setTradePoolPrice,
           setTradePoolLiquidity,
-        );
+        )
       }
     }, quoteRefetchDelay);
    
@@ -197,8 +219,8 @@ export default function MarketSwap() {
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
-      if (!wethCall)
-        // only update pools if !wethCall
+      if (!wethCall && !swing.enabled)
+        // only update pools if !wethCall && !swingSDKEnabled
         updatePools(exactIn ? amountIn : amountOut, exactIn);
       if (exactIn) {
         if (!isNaN(parseFloat(displayIn))) {
@@ -223,6 +245,8 @@ export default function MarketSwap() {
         if (wethCall) {
           setDisplayOut(ethers.utils.formatUnits(bnValue, tokenIn.decimals));
           setAmountOut(bnValue);
+        } else if (swing.enabled) {
+          // fetch swing price and liquidity
         } else {
           updatePools(bnValue, true);
         }
@@ -235,6 +259,8 @@ export default function MarketSwap() {
         if (wethCall) {
           setDisplayIn(ethers.utils.formatUnits(bnValue, tokenOut.decimals));
           setAmountIn(bnValue);
+        } else if (swing.enabled) {
+          // fetch swing price and liquidity
         } else {
           updatePools(bnValue, false);
         }
@@ -249,7 +275,7 @@ export default function MarketSwap() {
 
     useEffect(() => {
       connectWalletToSwingSdk()
-      }, [signer]);
+    }, [signer]);
   
     const connectWalletToSwingSdk = async () => {
       // allow input and output
@@ -264,30 +290,30 @@ export default function MarketSwap() {
   
       if (!signer) return
       await swingSDK.init()
-      await swingSDK.wallet.connect(signer.provider);
-      const transferParams: TransferParams = {
-        fromChain: 'arbitrum', // Source chain
-        fromToken: 'WETH', // Source token
-        fromUserAddress: address, // Source chain wallet address
+      await swingSDK.wallet.connect(signer.provider, chainId);
+      // const transferParams: TransferParams = {
+      //   fromChain: 'arbitrum', // Source chain
+      //   fromToken: 'WETH', // Source token
+      //   fromUserAddress: address, // Source chain wallet address
        
-        amount: '0.01', // Amount to transfer in token decimals
+      //   amount: '0.01', // Amount to transfer in token decimals
        
-        toChain: 'arbitrum', // Destination chain
-        toToken: 'DAI', // Destination token
-        toUserAddress: address, // Ending chain wallet address
+      //   toChain: 'arbitrum', // Destination chain
+      //   toToken: 'DAI', // Destination token
+      //   toUserAddress: address, // Ending chain wallet address
        
-        //maxSlippage: 0.01, //An optional percentage value passed as a decimal between 0 and 1. (i.e 0.02 = 2%). Otherwise, slippage defaults to 3%.
-      };
-      const quote = await swingSDK.getQuote(transferParams);
-      const transferRoute = quote.routes[0].route;
-      console.log('quote check', transferRoute)
-      // setAmountOut(parseUnits('100', 18))
-      // setDisplayOut('100')
-      try  {
-        await swingSDK.transfer(transferRoute, transferParams);
-      } catch(e) {
-        console.log('swing sdk error', e)
-      }
+      //   maxSlippage: 0.01, //An optional percentage value passed as a decimal between 0 and 1. (i.e 0.02 = 2%). Otherwise, slippage defaults to 3%.
+      // };
+      // const quote = await swingSDK.getQuote(transferParams);
+      // const transferRoute = quote.routes[0];
+      // console.log('quote check', transferRoute)
+      // // setAmountOut(parseUnits('100', 18))
+      // // setDisplayOut('100')
+      // try  {
+      //   // await swingSDK.transfer(transferRoute, transferParams);
+      // } catch(e) {
+      //   console.log('swing sdk error', e)
+      // }
 
       // set USD out value
       // set USD in value as amountUsd + bridgeFee
@@ -345,14 +371,20 @@ export default function MarketSwap() {
     args: [availablePools, quoteParams, true],
     chainId: chainId,
     enabled:
-      availablePools != undefined && quoteParams != undefined && !wethCall,
+      availablePools != undefined && 
+      quoteParams != undefined &&
+      !wethCall &&
+      !swing.enabled,
     onError(error) {
       console.log("Error multiquote", error);
     },
-    onSuccess(data) {},
+    onSuccess(data) {
+      console.log('multiquote')
+    },
   });
 
   useEffect(() => {
+    //TODO: use swing quote
     if (poolQuotes && poolQuotes[0]) {
       if (poolQuotes[0].amountIn?.gt(BN_ZERO) && poolQuotes[0].amountOut?.gt(BN_ZERO)) {
         if (exactIn) {
@@ -398,63 +430,67 @@ export default function MarketSwap() {
   }, [poolQuotes, quoteParams, tradeSlippage]);
 
   function updateSwapParams(poolQuotes: any) {
-    const poolAddresses: string[] = [];
-    const paramsList: SwapParams[] = [];
-    for (let i = 0; i < poolQuotes.length; i++) {
-      if (poolQuotes[i].pool != ZERO_ADDRESS) {
-        // push pool address for swap
-        poolAddresses.push(poolQuotes[i].pool);
-        // set base price from quote
-        const basePrice: number = parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(
-            poolQuotes[0].priceAfter,
-            tokenIn,
-            tokenOut
-          )
-        );
-        // set price impact
-        if (
-          poolQuotes[i].pool?.toLowerCase() == tradePoolData.id?.toLowerCase()
-        ) {
-          const currentPrice: number = parseFloat(
+    if (!swing.enabled) {
+      const poolAddresses: string[] = [];
+      const paramsList: SwapParams[] = [];
+      for (let i = 0; i < poolQuotes.length; i++) {
+        if (poolQuotes[i].pool != ZERO_ADDRESS) {
+          // push pool address for swap
+          poolAddresses.push(poolQuotes[i].pool);
+          // set base price from quote
+          const basePrice: number = parseFloat(
             TickMath.getPriceStringAtSqrtPrice(
-              tradePoolData.poolPrice,
+              poolQuotes[0].priceAfter,
               tokenIn,
               tokenOut
             )
           );
-          let priceDiff = Math.abs(
-                              basePrice - currentPrice
-                          ) * 100 / currentPrice
-          if (priceDiff < 0 || priceDiff > 100) priceDiff = 100
-          setPriceImpact(
-            (priceDiff).toFixed(
-              2
-            )
+          // set price impact
+          if (
+            poolQuotes[i].pool?.toLowerCase() == tradePoolData.id?.toLowerCase()
+          ) {
+            const currentPrice: number = parseFloat(
+              TickMath.getPriceStringAtSqrtPrice(
+                tradePoolData.poolPrice,
+                tokenIn,
+                tokenOut
+              )
+            );
+            let priceDiff = Math.abs(
+                                basePrice - currentPrice
+                            ) * 100 / currentPrice
+            if (priceDiff < 0 || priceDiff > 100) priceDiff = 100
+            setPriceImpact(
+              (priceDiff).toFixed(
+                2
+              )
+            );
+          }
+          const priceDiff = basePrice * (parseFloat(tradeSlippage) / 100);
+          const limitPrice =
+            tokenIn.callId == 0 ? basePrice - priceDiff : basePrice + priceDiff;
+          const limitPriceJsbi: JSBI = TickMath.getSqrtPriceAtPriceString(
+            limitPrice.toString(),
+            tokenIn,
+            tokenOut
           );
+          const priceLimitBn = BigNumber.from(String(limitPriceJsbi));
+          const params: SwapParams = {
+            to: address,
+            priceLimit: priceLimitBn,
+            amount: exactIn ? amountIn : amountOut,
+            exactIn: exactIn,
+            zeroForOne: tokenIn.callId == 0,
+            callbackData: ethers.utils.formatBytes32String(""),
+          };
+          paramsList.push(params);
         }
-        const priceDiff = basePrice * (parseFloat(tradeSlippage) / 100);
-        const limitPrice =
-          tokenIn.callId == 0 ? basePrice - priceDiff : basePrice + priceDiff;
-        const limitPriceJsbi: JSBI = TickMath.getSqrtPriceAtPriceString(
-          limitPrice.toString(),
-          tokenIn,
-          tokenOut
-        );
-        const priceLimitBn = BigNumber.from(String(limitPriceJsbi));
-        const params: SwapParams = {
-          to: address,
-          priceLimit: priceLimitBn,
-          amount: exactIn ? amountIn : amountOut,
-          exactIn: exactIn,
-          zeroForOne: tokenIn.callId == 0,
-          callbackData: ethers.utils.formatBytes32String(""),
-        };
-        paramsList.push(params);
       }
+      setSwapPoolAddresses(poolAddresses);
+      setSwapParams(paramsList);
+    } else {
+
     }
-    setSwapPoolAddresses(poolAddresses);
-    setSwapParams(paramsList);
   }
 
   const resetAfterSwap = () => {
@@ -463,7 +499,8 @@ export default function MarketSwap() {
     setAmountIn(BN_ZERO);
     setAmountOut(BN_ZERO);
     setTimeout(() => {
-      updatePools(BigNumber.from("0"), true);
+      if (!swing.enabled)
+        updatePools(BigNumber.from("0"), true);
     }, 2000);
   };
 
@@ -476,6 +513,7 @@ export default function MarketSwap() {
 
   useEffect(() => {
     if (
+      !swing.enabled &&
       !amountIn.eq(BN_ZERO) &&
       (!needsAllowanceIn || tokenIn.native) &&
       tradePoolData != undefined &&
@@ -666,6 +704,7 @@ export default function MarketSwap() {
               displayToken={tokenIn}
               amount={exactIn ? displayIn : displayOut}
               isAmountIn={exactIn}
+              from="MarketSwap"
             />
           </div>
         </div>
@@ -735,6 +774,7 @@ export default function MarketSwap() {
               displayToken={tokenOut}
               amount={exactIn ? displayIn : displayOut}
               isAmountIn={exactIn}
+              from="MarketSwap"
             />
           </div>
         </div>
@@ -770,7 +810,7 @@ export default function MarketSwap() {
       tokenOut.address != ZERO_ADDRESS &&
       tradePoolData?.id == ZERO_ADDRESS &&
       tradePoolData?.feeTier != undefined &&
-      !wethCall ? (
+      !wethCall && !swing.enabled ? (
         <div className="flex gap-x-5 rounded-[4px] items-center text-xs p-2 border bg-dark border-grey mb-5">
           <Range className="text-main2" />{" "}
           <span className="text-grey3 flex flex-col gap-y-[-2px]">

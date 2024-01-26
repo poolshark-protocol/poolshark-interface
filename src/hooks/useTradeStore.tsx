@@ -54,8 +54,11 @@ type TradeState = {
   //Start price for pool creation
   startPrice: string;
   limitPriceOrder: boolean;
-  //Swing SDK enabled
-  swingSDKEnabled: boolean;
+  //Swing SDK
+  swing: {
+    enabled: boolean;
+    transferInProgress: boolean;
+  }
 };
 
 type TradeLimitAction = {
@@ -76,7 +79,8 @@ type TradeLimitAction = {
     tokenOut: any,
     newToken: any,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
+    swingSDKEnabled: boolean,
   ) => void;
   setTokenInTradeUSDPrice: (price: number) => void;
   setTokenInTradeAllowance: (allowance: BigNumber) => void;
@@ -86,7 +90,8 @@ type TradeLimitAction = {
     tokenIn: any,
     newToken: any,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
+    swingSDKEnabled: boolean,
   ) => void;
   setTokenOutTradeUSDPrice: (price: number) => void;
   setTokenOutTradeAllowance: (allowance: BigNumber) => void;
@@ -126,6 +131,7 @@ type TradeLimitAction = {
   setNeedsSetAmounts: (needsSetAmounts: boolean) => void;
   setStartPrice: (startPrice: string) => void;
   setLimitPriceOrder: (limitPriceOrder: boolean) => void;
+  setSwingEnabled: (swingEnabled: boolean) => void;
 };
 
 const initialTradeState: TradeState = {
@@ -189,7 +195,10 @@ const initialTradeState: TradeState = {
   needsSetAmounts: false,
   startPrice: "",
   limitPriceOrder: true,
-  swingSDKEnabled: false,
+  swing: {
+    enabled: false,
+    transferInProgress: false
+  },
 };
 
 export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
@@ -230,7 +239,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   needsSetAmounts: initialTradeState.needsSetAmounts,
   startPrice: initialTradeState.startPrice,
   limitPriceOrder: initialTradeState.limitPriceOrder,
-  swingSDKEnabled: initialTradeState.swingSDKEnabled,
+  swing: initialTradeState.swing,
   //actions
   setPairSelected: (pairSelected: boolean) => {
     set(() => ({
@@ -253,11 +262,12 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     tokenOut,
     newTokenIn: tokenSwap,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
+    swingSDKEnabled: boolean,
   ) => {
     //if tokenOut is selected
     if (tokenOut.address != initialTradeState.tokenOut.address) {
-      //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to initialState
+      // flip tokens check
       if (
         newTokenIn.address?.toLowerCase() == tokenOut.address?.toLowerCase() &&
         newTokenIn.native == tokenOut.native
@@ -326,6 +336,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase(),
           limitPriceOrder:
             newTokenIn.address.localeCompare(tokenOut.address) < 0,
+          swing: {
+            ...state.swing,
+            enabled: swingSDKEnabled
+          },
         }));
       }
     } else {
@@ -345,6 +359,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           : state.amountIn,
         pairSelected: false,
         wethCall: false,
+        swing: {
+          ...state.swing,
+          enabled: false
+        },
         needsAllowanceIn: !newTokenIn.native,
       }));
     }
@@ -373,12 +391,12 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     tokenIn,
     newTokenOut: tokenSwap,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
+    swingSDKEnabled: boolean,
   ) => {
-    //if tokenIn exists
+    //if tokenIn is selected
     if (tokenIn.address != initialTradeState.tokenOut.address) {
-      //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
-      // NATIVE: only flip tokens if 'isNative' also matches
+      // flip token check
       if (
         newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase() &&
         newTokenOut.native == tokenIn.native
@@ -421,7 +439,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             state.tokenOut.address.toLowerCase(),
         }));
       } else {
-        //if tokens are different
+        // token is selected
         set((state) => ({
           tokenIn: {
             ...tokenIn,
@@ -445,6 +463,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           needsPairUpdate: true,
           limitPriceOrder:
             tokenIn.address.localeCompare(newTokenOut.address) < 0,
+          swing: {
+            ...state.swing,
+            enabled: swingSDKEnabled,
+          }
         }));
       }
     } else {
@@ -606,6 +628,14 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     set({
       limitPriceOrder: limitPriceOrder,
     });
+  },
+  setSwingEnabled: (swingEnabled: boolean) => {
+    set((state) => ({
+      swing: {
+        ...state.swing,
+        enabled: swingEnabled
+      },
+    }));
   },
   switchDirection: (isAmountIn: boolean, amount: string) => {
     set((state) => ({
