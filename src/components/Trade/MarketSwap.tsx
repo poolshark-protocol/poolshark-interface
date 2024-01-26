@@ -264,7 +264,7 @@ export default function MarketSwap() {
   
       if (!signer) return
       await swingSDK.init()
-      await swingSDK.wallet.connect(signer.provider, chainId);
+      await swingSDK.wallet.connect(signer.provider);
       const transferParams: TransferParams = {
         fromChain: 'arbitrum', // Source chain
         fromToken: 'WETH', // Source token
@@ -276,10 +276,10 @@ export default function MarketSwap() {
         toToken: 'DAI', // Destination token
         toUserAddress: address, // Ending chain wallet address
        
-        maxSlippage: 0.01, //An optional percentage value passed as a decimal between 0 and 1. (i.e 0.02 = 2%). Otherwise, slippage defaults to 3%.
+        //maxSlippage: 0.01, //An optional percentage value passed as a decimal between 0 and 1. (i.e 0.02 = 2%). Otherwise, slippage defaults to 3%.
       };
       const quote = await swingSDK.getQuote(transferParams);
-      const transferRoute = quote.routes[0];
+      const transferRoute = quote.routes[0].route;
       console.log('quote check', transferRoute)
       // setAmountOut(parseUnits('100', 18))
       // setDisplayOut('100')
