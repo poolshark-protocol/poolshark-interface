@@ -27,6 +27,12 @@ import { fetchRangePools } from "../../utils/queries";
 import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButton";
 import { getRouterAddress } from "../../utils/config";
 import BalanceDisplay from "../../components/Display/BalanceDisplay";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../components/ui/tooltip";
 
 export default function AddLiquidity({}) {
   const [chainId, networkName, limitSubgraph, coverSubgraph, logoMap] =
@@ -878,7 +884,8 @@ export default function AddLiquidity({}) {
             </div>
           </div>
           <div className="flex justify-between items-center w-full md:gap-x-4 gap-x-2">
-              <button className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all">Narrow</button>
+              <button
+               className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all">Narrow</button>
               <button className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all">COMMON</button>
               <button className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all">WIDE</button>
             </div>
@@ -944,7 +951,10 @@ export default function AddLiquidity({}) {
             <div className="mb-2 mt-3 flex-col flex gap-y-8">
               <div className="flex items-center justify-between w-full text-xs  text-[#C9C9C9]">
                 <div className="text-xs text-[#4C4C4C]">Market Price</div>
-                <div className="uppercase">
+                <TooltipProvider>
+                <Tooltip delayDuration={100}>
+                  <TooltipTrigger>
+                  <div className="uppercase">
                   1{" "}
                   {
                     (priceOrder == (tokenIn.callId == 0) ? tokenIn : tokenOut)
@@ -960,6 +970,41 @@ export default function AddLiquidity({}) {
                         .symbol
                     : "?" + " " + tokenOut.symbol}
                 </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3">
+                    <div className="flex items-center flex-col gap-y-1 w-full">
+                      <div className="flex justify-between items-center w-full">
+                        <span className="text-grey2 flex items-center gap-x-1">
+                        <img
+                  className="md:w-4"
+                  src={logoMap[tokenIn.address.toLowerCase()]}
+                />
+                          {tokenIn.symbol}</span>
+                        <span className="text-right">${!isNaN(tokenIn.USDPrice)
+                  ? (
+                      tokenIn.USDPrice *
+                      1
+                    ).toFixed(2)
+                  : "?.??"}</span>
+                      </div>
+                      <div className="bg-grey w-full h-[1px]" />
+                      <div className="flex justify-between items-center w-full">
+                        <span className="text-grey2 flex items-center gap-x-1">
+                        <img
+                  className=" w-4"
+                  src={logoMap[tokenOut.address.toLowerCase()]}
+                />{tokenOut.symbol}</span>
+                        <span className="text-right">${!isNaN(tokenOut.USDPrice)
+                  ? (
+                      tokenOut.USDPrice *
+                      1
+                    ).toFixed(2)
+                  : "?.??"}</span>
+                      </div>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               </div>
               {rangeWarning && (
                 <div className=" text-yellow-600 bg-yellow-900/30 text-[10px] md:text-[11px] flex items-center md:gap-x-5 gap-x-3 p-2 rounded-[8px]">
