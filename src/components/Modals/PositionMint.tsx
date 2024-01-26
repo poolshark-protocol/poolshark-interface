@@ -153,7 +153,7 @@ export default function PositionMintModal({
                     isLoading && "opacity-20 cursor-not-allowed"
                   }`}
                 >
-                  <Link href={type === "range" ? "/range" : "/cover"}>
+                  <a href={type === "range" ? "/range" : "/cover"}>
                   <button
                   disabled={buttonWait}
                     className="disabled:opacity-50 whitespace-nowrap text-xs flex items-center gap-x-2 text-grey1 hover:text-white hover:underline transition-all"
@@ -175,7 +175,7 @@ export default function PositionMintModal({
                     Go back</>}
                     
                   </button>
-                  </Link>
+                  </a>
                   <a
                     target="_blank"
                     rel="noreferrer"
