@@ -27,6 +27,8 @@ import { fetchRangePools } from "../../utils/queries";
 import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButton";
 import { getRouterAddress } from "../../utils/config";
 import BalanceDisplay from "../../components/Display/BalanceDisplay";
+import { Checkbox } from "../../components/ui/checkbox"
+
 
 export default function AddLiquidity({}) {
   const [chainId, networkName, limitSubgraph, coverSubgraph, logoMap] =
