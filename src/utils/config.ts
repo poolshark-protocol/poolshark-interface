@@ -5,10 +5,18 @@ export const addressMatches = (addressA: string, addressB: string): boolean => {
 	return addressA.toLowerCase() == addressB.toLowerCase()
 }
 
-export const getRouterAddress = (networkName: string) => {
+export const openoceanNativeAddress = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' as `0x${string}`;
+
+export const getRouterAddress = (networkName: string, tradeSdkEnabled?: boolean) => {
 	if(chainProperties[networkName]) {
+			// if (tradeSdkEnabled) {
+			// 	if (chainProperties[networkName]["openocean"] && 
+			// 			chainProperties[networkName]["openocean"]["routerAddress"]) {
+			// 		return chainProperties[networkName]["openocean"]["routerAddress"]
+			// 	}
+			// }
 			if (chainProperties[networkName]["routerAddress"]) {
-					return chainProperties[networkName]["routerAddress"]
+				return chainProperties[networkName]["routerAddress"]
 			}
 	}
 	return chainProperties["arbitrum-one"]["routerAddress"]
@@ -23,9 +31,9 @@ export const getRangeStakerAddress = (networkName: string) => {
 	return chainProperties["arbitrum-one"]["rangeStakerAddress"]
 }
 
-export const getSwingSDKEnabled = (networkName: string, tokenA: string, tokenB: string) => {
+export const getTradeSDKEnabled = (networkName: string, tokenA: string, tokenB: string) => {
 	// arbitrum
-	console.log('swing check', networkName, tokenB, chainProperties[networkName]["finAddress"], tokenA == chainProperties[networkName]["finAddress"], tokenB == chainProperties[networkName]["finAddress"])
+	console.log('tradeSdk check', networkName, tokenB, chainProperties[networkName]["finAddress"], tokenA == chainProperties[networkName]["finAddress"], tokenB == chainProperties[networkName]["finAddress"])
 	if (networkName == "arbitrum-one") {
 		if(chainProperties[networkName]) {
 			if (addressMatches(tokenA, chainProperties[networkName]["finAddress"])) {
@@ -36,7 +44,7 @@ export const getSwingSDKEnabled = (networkName: string, tokenA: string, tokenB: 
 				return false
 			} else {
 				// true otherwise
-				console.log('swing sdk enabled')
+				console.log('tradeSdk sdk enabled')
 				return true
 			}
 		}

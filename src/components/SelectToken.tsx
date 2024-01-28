@@ -10,7 +10,7 @@ import CoinListItem from "./CoinListItem";
 import { useAccount, useToken } from "wagmi";
 import { useConfigStore } from "../hooks/useConfigStore";
 import { defaultTokenLogo, logoMapKey } from "../utils/tokens";
-import { getSwingSDKEnabled } from "../utils/config";
+import { getTradeSDKEnabled } from "../utils/config";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
@@ -132,7 +132,7 @@ export default function SelectToken(props) {
             },
             props.amount,
             props.isAmountIn,
-            getSwingSDKEnabled(networkName, props.tokenOut?.address, coin?.address)
+            getTradeSDKEnabled(networkName, props.tokenOut?.address, coin?.address)
           );
         } else {
           props.setTokenIn(
@@ -166,7 +166,7 @@ export default function SelectToken(props) {
             },
             props.amount,
             props.isAmountIn,
-            getSwingSDKEnabled(networkName, props.tokenIn?.address, coin?.address)
+            getTradeSDKEnabled(networkName, props.tokenIn?.address, coin?.address)
           );
         } else {
           props.setTokenOut(

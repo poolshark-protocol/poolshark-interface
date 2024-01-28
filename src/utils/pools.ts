@@ -1,6 +1,6 @@
 import { formatBytes32String } from "ethers/lib/utils.js";
 import { getLimitPoolFromFactory } from "./queries";
-import { LimitSubgraph, token, tokenSwap } from "./types";
+import { LimitSubgraph, TradeSdkStatus, token, tokenSwap } from "./types";
 import { ZERO, ZERO_ADDRESS } from "./math/constants";
 import { fetchRangeTokenUSDPrice } from "./tokens";
 
@@ -8,16 +8,21 @@ export const getSwapPools = async (
   client: LimitSubgraph,
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
-  swingEnabled: boolean,
+  tradeSdk: TradeSdkStatus,
   swapPoolData,
   setSwapPoolData,
-  setSwingEnabled,
+  setTradeSdkQuotes: any,
+  setTradeSdkEnabled: any,
   setTokenInTradeUSDPrice,
   setTokenOutTradeUSDPrice,
   setSwapPoolPrice?,
   setSwapPoolLiquidity?
 ) => {
   try {
+    if (tradeSdk?.enabled) {
+      // const quotes = await tradeSdkSDK.getQuote(tradeSdk.transfer.params)
+      // setTradeSdkQuotes()
+    }
     const limitPools = await getLimitPoolFromFactory(
       client,
       tokenIn.address,
@@ -98,19 +103,6 @@ export const getLimitPoolForFeeTier = async (
     console.log(error);
   }
 };
-
-export const getSwingQuote = async (
-    tokenIn: tokenSwap,
-    tokenOut: tokenSwap,
-    swapPoolData,
-    setSwapPoolData,
-    setTokenInTradeUSDPrice,
-    setTokenOutTradeUSDPrice,
-    setSwapPoolPrice?,
-    setSwapPoolLiquidity?
-) => {
-
-}
 
 export const feeTiers = [
   {

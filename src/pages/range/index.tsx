@@ -186,7 +186,7 @@ export default function Range() {
               <p className="text-sm text-grey3 font-light">
                 Range Pools use a dynamic fee system to increase fee revenue.
                 <br />
-                LPs earn more fees on large price swings to reduce loss to
+                LPs earn more fees on large price tradeSdks to reduce loss to
                 arbitrageurs.
                 <br />
                 <br />

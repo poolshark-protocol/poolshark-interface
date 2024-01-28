@@ -16,6 +16,27 @@ export type coinRaw = {
   balance: number;
 };
 
+export type QuoteOptions = {
+  chain: string;
+  fromAddress: `0x${string}`;
+  amount: number;
+  gasPrice: number;
+  slippage: number;
+}
+
+export type TradeSdkStatus = {
+  quotes: Quote[];
+  enabled: boolean;
+  transfer: {
+    params: QuoteOptions;
+  }
+}
+
+export type Quote = {
+  amountIn: BigNumber;
+  amountOut: BigNumber;
+}
+
 export type QuoteParams = {
   priceLimit: BigNumber;
   amount: BigNumber;

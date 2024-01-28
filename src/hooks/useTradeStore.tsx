@@ -1,5 +1,5 @@
-import { BigNumber, ethers } from "ethers";
-import { LimitSubgraph, tokenSwap } from "../utils/types";
+import { BigNumber } from "ethers";
+import { LimitSubgraph, TradeSdkStatus, tokenSwap } from "../utils/types";
 import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import { create } from "zustand";
 import { getLimitPoolFromFactory } from "../utils/queries";
@@ -55,10 +55,7 @@ type TradeState = {
   startPrice: string;
   limitPriceOrder: boolean;
   //Swing SDK
-  swing: {
-    enabled: boolean;
-    transferInProgress: boolean;
-  }
+  tradeSdk: TradeSdkStatus;
 };
 
 type TradeLimitAction = {
@@ -80,7 +77,7 @@ type TradeLimitAction = {
     newToken: any,
     amount: string,
     isAmountIn: boolean,
-    swingSDKEnabled: boolean,
+    tradeSdkSDKEnabled: boolean,
   ) => void;
   setTokenInTradeUSDPrice: (price: number) => void;
   setTokenInTradeAllowance: (allowance: BigNumber) => void;
@@ -91,13 +88,13 @@ type TradeLimitAction = {
     newToken: any,
     amount: string,
     isAmountIn: boolean,
-    swingSDKEnabled: boolean,
+    tradeSdkSDKEnabled: boolean,
   ) => void;
   setTokenOutTradeUSDPrice: (price: number) => void;
   setTokenOutTradeAllowance: (allowance: BigNumber) => void;
   setTokenOutBalance: (balance: string) => void;
   //
-  setAmountIn: (amountIn: BigNumber) => void;
+  setAmountIn: (amountIn: BigNumber, displayIn: string) => void;
   setAmountOut: (amountOut: BigNumber) => void;
   //
   setMinInput: (newMinTick: string) => void;
@@ -131,7 +128,9 @@ type TradeLimitAction = {
   setNeedsSetAmounts: (needsSetAmounts: boolean) => void;
   setStartPrice: (startPrice: string) => void;
   setLimitPriceOrder: (limitPriceOrder: boolean) => void;
-  setSwingEnabled: (swingEnabled: boolean) => void;
+  setTradeSdkStatus: (tradeSdkStatus: TradeSdkStatus) => void;
+  setTradeSdkEnabled: (tradeSdkEnabled: boolean) => void;
+  setTradeSdkQuotes: (tradeSdkQuotes: any[]) => void;
 };
 
 const initialTradeState: TradeState = {
@@ -195,9 +194,23 @@ const initialTradeState: TradeState = {
   needsSetAmounts: false,
   startPrice: "",
   limitPriceOrder: true,
-  swing: {
+  tradeSdk: {
+    quotes: [
+      {
+        amountIn: BN_ZERO,
+        amountOut: BN_ZERO,
+      }
+    ],
     enabled: false,
-    transferInProgress: false
+    transfer: {
+      params: {
+        chain: 'arbitrum',
+        fromAddress: ZERO_ADDRESS,
+        amount: 0,
+        gasPrice: 0,
+        slippage: 0.5, // 0.5% slippage
+      },
+    }
   },
 };
 
@@ -239,7 +252,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   needsSetAmounts: initialTradeState.needsSetAmounts,
   startPrice: initialTradeState.startPrice,
   limitPriceOrder: initialTradeState.limitPriceOrder,
-  swing: initialTradeState.swing,
+  tradeSdk: initialTradeState.tradeSdk,
   //actions
   setPairSelected: (pairSelected: boolean) => {
     set(() => ({
@@ -263,7 +276,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     newTokenIn: tokenSwap,
     amount: string,
     isAmountIn: boolean,
-    swingSDKEnabled: boolean,
+    tradeSdkSDKEnabled: boolean,
   ) => {
     //if tokenOut is selected
     if (tokenOut.address != initialTradeState.tokenOut.address) {
@@ -336,9 +349,19 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase(),
           limitPriceOrder:
             newTokenIn.address.localeCompare(tokenOut.address) < 0,
-          swing: {
-            ...state.swing,
-            enabled: swingSDKEnabled
+          tradeSdk: {
+            ...state.tradeSdk,
+            enabled: tradeSdkSDKEnabled,
+            transfer: {
+              ...state.tradeSdk.transfer,
+              params: {
+                ...state.tradeSdk.transfer.params,
+                inTokenAddress: newTokenIn.address,
+                outTokenAddress: tokenOut.address,
+                amount: isAmountIn ? parseFloat(amount) 
+                                   : state.tradeSdk.transfer.params.amount
+              }
+            }
           },
         }));
       }
@@ -359,8 +382,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           : state.amountIn,
         pairSelected: false,
         wethCall: false,
-        swing: {
-          ...state.swing,
+        tradeSdk: {
+          ...state.tradeSdk,
           enabled: false
         },
         needsAllowanceIn: !newTokenIn.native,
@@ -392,7 +415,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     newTokenOut: tokenSwap,
     amount: string,
     isAmountIn: boolean,
-    swingSDKEnabled: boolean,
+    tradeSdkSDKEnabled: boolean,
   ) => {
     //if tokenIn is selected
     if (tokenIn.address != initialTradeState.tokenOut.address) {
@@ -463,9 +486,17 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           needsPairUpdate: true,
           limitPriceOrder:
             tokenIn.address.localeCompare(newTokenOut.address) < 0,
-          swing: {
-            ...state.swing,
-            enabled: swingSDKEnabled,
+          tradeSdk: {
+            ...state.tradeSdk,
+            enabled: tradeSdkSDKEnabled,
+            transfer: {
+              ...state.tradeSdk.transfer,
+              params: {
+                ...state.tradeSdk.transfer.params,
+                fromToken: tokenIn.symbol,
+                toToken: newTokenOut.symbol
+              }
+            }
           }
         }));
       }
@@ -500,9 +531,16 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       tokenOut: { ...state.tokenOut, userRouterAllowance: newAllowance },
     }));
   },
-  setAmountIn: (amountIn: BigNumber) => {
+  setAmountIn: (amountIn: BigNumber, displayIn: string) => {
     set((state) => ({
       amountIn: amountIn,
+      tradeSdk:{
+        ...state.tradeSdk,
+        transfer: {
+          ...state.tradeSdk.transfer,
+          amount: displayIn,
+        }
+      }
     }));
   },
   setAmountOut: (amountOut: BigNumber) => {
@@ -547,8 +585,15 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     }));
   },
   setTradeSlippage: (tradeSlippage: string) => {
-    set(() => ({
+    set((state) => ({
       tradeSlippage: tradeSlippage,
+      tradeSdk: {
+        ...state.tradeSdk,
+        transfer:{
+          ...state.tradeSdk.transfer,
+          maxSlippage: Number(tradeSlippage) / 100
+        }
+      }
     }));
   },
   setTradePositionData: (tradePositionData: any) => {
@@ -629,12 +674,25 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       limitPriceOrder: limitPriceOrder,
     });
   },
-  setSwingEnabled: (swingEnabled: boolean) => {
+  setTradeSdkStatus: (tradeSdkStatus: TradeSdkStatus) => {
     set((state) => ({
-      swing: {
-        ...state.swing,
-        enabled: swingEnabled
-      },
+      tradeSdk: tradeSdkStatus,
+    }));
+  },
+  setTradeSdkEnabled: (tradeSdkEnabled: boolean) => {
+    set((state) => ({
+      tradeSdk: {
+        ...state.tradeSdk,
+        enabled: tradeSdkEnabled,
+      }
+    }));
+  },
+  setTradeSdkQuotes: (tradeSdkQuotes: any[]) => {
+    set((state) => ({
+      tradeSdk: {
+        ...state.tradeSdk,
+        quotes: tradeSdkQuotes
+      }
     }));
   },
   switchDirection: (isAmountIn: boolean, amount: string) => {

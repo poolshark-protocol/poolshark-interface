@@ -7,7 +7,7 @@ import useInputBox from "../../hooks/useInputBox";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import SelectToken from "../SelectToken";
 import { inputHandler, numFormat, parseUnits } from "../../utils/math/valueMath";
-import { getSwapPools, getSwingQuote } from "../../utils/pools";
+import { getSwapPools } from "../../utils/pools";
 import { QuoteParams, SwapParams } from "../../utils/types";
 import { TickMath, maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
 import { displayPoolPrice } from "../../utils/math/priceMath";
@@ -16,7 +16,7 @@ import Range from "../Icons/RangeIcon";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
 import SwapRouterButton from "../Buttons/SwapRouterButton";
-import { chainProperties } from "../../utils/chains";
+import { chainProperties, supportedChainIds } from "../../utils/chains";
 import { gasEstimateSwap, gasEstimateWethCall } from "../../utils/gas";
 import JSBI from "jsbi";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
@@ -24,9 +24,10 @@ import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { getRouterAddress } from "../../utils/config";
+import { getRouterAddress, getTradeSDKEnabled as getTradeSdkEnabled } from "../../utils/config";
 import BalanceDisplay from "../Display/BalanceDisplay";
-import SwingSDK, { TransferParams } from "@swing.xyz/sdk";
+import { formatBytes32String, formatUnits } from "ethers/lib/utils.js";
+import axios from 'axios';
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -37,10 +38,6 @@ export default function MarketSwap() {
       state.setLimitSubgraph,
       state.logoMap,
     ]);
-
-  const swingSDK = new SwingSDK({
-    projectId: "poolshark"
-  });
 
   //CONFIG STORE
   const [stateChainName, setStateChainName] = useState();
@@ -76,7 +73,10 @@ export default function MarketSwap() {
     setNeedsAllowanceIn,
     switchDirection,
     setTradeButtonState,
-    swing,
+    setTradeSdkStatus,
+    tradeSdk,
+    setTradeSdkQuotes,
+    setTradeSdkEnabled,
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
@@ -105,7 +105,10 @@ export default function MarketSwap() {
     s.setNeedsAllowanceIn,
     s.switchDirection,
     s.setTradeButtonState,
-    s.swing,
+    s.setTradeSdkStatus,
+    s.tradeSdk,
+    s.setTradeSdkQuotes,
+    s.setTradeSdkEnabled,
   ]);
 
   const [setRangeTokenIn, setRangeTokenOut] = useRangeLimitStore((state) => [
@@ -134,14 +137,14 @@ export default function MarketSwap() {
   useEffect(() => {
     if(limitTabSelected) return
     setDisplayIn('')
-    setAmountIn(BN_ZERO)
+    setAmountIn(BN_ZERO, '0')
     setDisplayOut('')
     setAmountOut(BN_ZERO)
   }, [limitTabSelected]);
 
   useEffect(() => {
-    console.log("swing enabled:", swing.enabled)
-  }, [swing.enabled]);
+    console.log("tradeSdk enabled:", tradeSdk.enabled)
+  }, [tradeSdk.enabled]);
 
   /////////////////////////////Fetch Pools
   const [availablePools, setAvailablePools] = useState(undefined);
@@ -150,34 +153,23 @@ export default function MarketSwap() {
   useEffect(() => {
     const interval = setInterval(() => {
       // Code to run every 5 seconds
-      if (!swing.enabled) {
-        if (exactIn ? amountIn.gt(BN_ZERO) 
-                    : amountOut.gt(BN_ZERO)
-        ) {
-          getSwapPools(
-            limitSubgraph,
-            tokenIn,
-            tokenOut,
-            tradePoolData,
-            setTradePoolData,
-            setTokenInTradeUSDPrice,
-            setTokenOutTradeUSDPrice,
-            setTradePoolPrice,
-            setTradePoolLiquidity,
-          );
-        }
-      } else {
-        // fetch new quote from swingSDK
-        getSwingQuote(
+      if (exactIn ? amountIn.gt(BN_ZERO) 
+                  : amountOut.gt(BN_ZERO)
+      ) {
+        getSwapPools(
+          limitSubgraph,
           tokenIn,
           tokenOut,
+          tradeSdk,
           tradePoolData,
           setTradePoolData,
+          setTradeSdkQuotes,
+          setTradeSdkEnabled,
           setTokenInTradeUSDPrice,
           setTokenOutTradeUSDPrice,
           setTradePoolPrice,
           setTradePoolLiquidity,
-        )
+        );
       }
     }, quoteRefetchDelay);
    
@@ -191,10 +183,15 @@ export default function MarketSwap() {
       limitSubgraph,
       tokenIn,
       tokenOut,
+      tradeSdk,
       tradePoolData,
       setTradePoolData,
+      setTradeSdkQuotes,
+      setTradeSdkEnabled,
       setTokenInTradeUSDPrice,
-      setTokenOutTradeUSDPrice
+      setTokenOutTradeUSDPrice,
+      setTradePoolPrice,
+      setTradePoolLiquidity,
     );
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
@@ -219,13 +216,13 @@ export default function MarketSwap() {
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
-      if (!wethCall && !swing.enabled)
-        // only update pools if !wethCall && !swingSDKEnabled
+      if (!wethCall && !tradeSdk.enabled)
+        // only update pools if !wethCall && !tradeSdkSDKEnabled
         updatePools(exactIn ? amountIn : amountOut, exactIn);
       if (exactIn) {
         if (!isNaN(parseFloat(displayIn))) {
           const bnValue = parseUnits(displayIn, tokenIn.decimals);
-          setAmountIn(bnValue);
+          setAmountIn(bnValue, displayIn);
           setAmounts(bnValue, true);
         }
       } else {
@@ -243,10 +240,10 @@ export default function MarketSwap() {
     if (isAmountIn) {
       if (bnValue.gt(BN_ZERO)) {
         if (wethCall) {
-          setDisplayOut(ethers.utils.formatUnits(bnValue, tokenIn.decimals));
+          setDisplayOut(formatUnits(bnValue, tokenIn.decimals));
           setAmountOut(bnValue);
-        } else if (swing.enabled) {
-          // fetch swing price and liquidity
+        } else if (tradeSdk.enabled) {
+          // fetch tradeSdk price and liquidity
         } else {
           updatePools(bnValue, true);
         }
@@ -257,27 +254,28 @@ export default function MarketSwap() {
     } else {
       if (bnValue.gt(BN_ZERO)) {
         if (wethCall) {
-          setDisplayIn(ethers.utils.formatUnits(bnValue, tokenOut.decimals));
-          setAmountIn(bnValue);
-        } else if (swing.enabled) {
-          // fetch swing price and liquidity
+          const value = formatUnits(bnValue, tokenOut.decimals)
+          setDisplayIn(value);
+          setAmountIn(bnValue, value);
+        } else if (tradeSdk.enabled) {
+          // fetch tradeSdk price and liquidity
         } else {
           updatePools(bnValue, false);
         }
       } else {
         setDisplayIn("");
-        setAmountIn(BN_ZERO);
+        setAmountIn(BN_ZERO, '0');
       }
     }
   };
 
-    /////////////////////Swing SDK
+    /////////////////////Trade SDK
 
-    useEffect(() => {
-      connectWalletToSwingSdk()
-    }, [signer]);
+    // useEffect(() => {
+    //   initTradeSdk()
+    // }, [signer]);
   
-    const connectWalletToSwingSdk = async () => {
+    const initTradeSdk = async () => {
       // allow input and output
       // input - quote amount
       // output - reverse quote and set amountIn
@@ -285,35 +283,48 @@ export default function MarketSwap() {
       // 0. skip approve if non-FIN pair and use SwingSDK
       // - useSwingSDK zustand flag
       // - always use amountIn for amount
-      // 1. disable while swingSDK.transfer is in progress
+      // 1. disable while tradeSdkSDK.transfer is in progress
       // 2. reenable once transfer completes
-  
-      if (!signer) return
-      await swingSDK.init()
-      await swingSDK.wallet.connect(signer.provider, chainId);
-      // const transferParams: TransferParams = {
-      //   fromChain: 'arbitrum', // Source chain
-      //   fromToken: 'WETH', // Source token
-      //   fromUserAddress: address, // Source chain wallet address
-       
-      //   amount: '0.01', // Amount to transfer in token decimals
-       
-      //   toChain: 'arbitrum', // Destination chain
-      //   toToken: 'DAI', // Destination token
-      //   toUserAddress: address, // Ending chain wallet address
-       
-      //   maxSlippage: 0.01, //An optional percentage value passed as a decimal between 0 and 1. (i.e 0.02 = 2%). Otherwise, slippage defaults to 3%.
-      // };
-      // const quote = await swingSDK.getQuote(transferParams);
-      // const transferRoute = quote.routes[0];
-      // console.log('quote check', transferRoute)
-      // // setAmountOut(parseUnits('100', 18))
-      // // setDisplayOut('100')
-      // try  {
-      //   // await swingSDK.transfer(transferRoute, transferParams);
-      // } catch(e) {
-      //   console.log('swing sdk error', e)
-      // }
+      // console.log('signer check', signer)
+      // if (!signer) return
+      // // if having async network switching issues
+      // // set connected false here
+      // setTradeSdkStatus({
+      //   ...tradeSdk,
+      //   enabled: getTradeSdkEnabled(networkName, tokenIn.address, tokenOut.address),
+      //   transfer: {
+      //     ...tradeSdk.transfer,
+      //     params: {
+      //       ...tradeSdk.transfer.params,
+      //       chain: supportedChainIds[chainId],
+      //       fromAddress: address,
+      //     }
+      //   }
+      // })
+
+      // let data=await axios.get(`https://open-api.openocean.finance/v3/arbitrum/tokenList`)
+      // console.log('gas price check', data)
+      // const res = await axios.get( "https://open-api.openocean.finance/v3/arbitrum/quote", {params:{
+      //     chain: 'arbitrum',
+      //     inTokenAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+      //     outTokenAddress: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
+      //     amount: 10,
+      //     gasPrice: 5,
+      //     slippage: 1,
+      // }}).then((res) => {
+      //     const result = res.data
+      //     console.log('ocean quote:', result.data)
+      // }).catch((err) => {
+      //     throw new Error(err)
+      // })
+
+      // setAmountOut(parseUnits('100', 18))
+      // setDisplayOut('100')
+      try  {
+        // await tradeSdkSDK.transfer(transferRoute, transferParams);
+      } catch(e) {
+        console.log('tradeSdk sdk error', e)
+      }
 
       // set USD out value
       // set USD in value as amountUsd + bridgeFee
@@ -328,10 +339,10 @@ export default function MarketSwap() {
       if (!pairSelected) {
         setDisplayIn(value);
         setDisplayOut("");
-        setAmountIn(bnValue);
+        setAmountIn(bnValue, value);
       } else if (!bnValue.eq(amountIn)) {
         setDisplayIn(value);
-        setAmountIn(bnValue);
+        setAmountIn(bnValue, value);
         setAmounts(bnValue, true);
       } else {
         setDisplayIn(value);
@@ -365,7 +376,7 @@ export default function MarketSwap() {
   const [swapParams, setSwapParams] = useState<any[]>([]);
 
   const { data: poolQuotes } = useContractRead({
-    address: getRouterAddress(networkName), //contract address,
+    address: getRouterAddress(networkName, tradeSdk.enabled), //contract address,
     abi: poolsharkRouterABI, // contract abi,
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
@@ -374,7 +385,7 @@ export default function MarketSwap() {
       availablePools != undefined && 
       quoteParams != undefined &&
       !wethCall &&
-      !swing.enabled,
+      !tradeSdk.enabled,
     onError(error) {
       console.log("Error multiquote", error);
     },
@@ -384,24 +395,31 @@ export default function MarketSwap() {
   });
 
   useEffect(() => {
-    //TODO: use swing quote
+    let quotes; 
+    if (tradeSdk.enabled) {
+      quotes = tradeSdk.quotes
+    } else {
+      quotes = poolQuotes
+    }
     if (poolQuotes && poolQuotes[0]) {
       if (poolQuotes[0].amountIn?.gt(BN_ZERO) && poolQuotes[0].amountOut?.gt(BN_ZERO)) {
         if (exactIn) {
+          const value = formatUnits(poolQuotes[0].amountOut, tokenOut.decimals)
           setAmountOut(poolQuotes[0].amountOut);
           setDisplayOut(
             numFormat(parseFloat(
-              ethers.utils.formatUnits(
+              formatUnits(
                 poolQuotes[0].amountOut.toString(),
                 tokenOut.decimals
               )
             ), 5)
           );
         } else {
-          setAmountIn(poolQuotes[0].amountIn);
+          const value = formatUnits(poolQuotes[0].amountIn, tokenIn.decimals)
+          setAmountIn(poolQuotes[0].amountIn, value);
           setDisplayIn(
             numFormat(parseFloat(
-              ethers.utils.formatUnits(
+              formatUnits(
                 poolQuotes[0].amountIn.toString(),
                 tokenIn.decimals
               )
@@ -414,7 +432,7 @@ export default function MarketSwap() {
           setAmountOut(BN_ZERO);
           setDisplayOut('');
         } else {
-          setAmountIn(BN_ZERO);
+          setAmountIn(BN_ZERO, '0');
           setDisplayIn('');
         }
       }  
@@ -423,14 +441,14 @@ export default function MarketSwap() {
         setAmountOut(BN_ZERO);
         setDisplayOut('');
       } else {
-        setAmountIn(BN_ZERO);
+        setAmountIn(BN_ZERO, '0');
         setDisplayIn('');
       }
     }
-  }, [poolQuotes, quoteParams, tradeSlippage]);
+  }, [poolQuotes, quoteParams, tradeSlippage,]);
 
   function updateSwapParams(poolQuotes: any) {
-    if (!swing.enabled) {
+    if (!tradeSdk.enabled) {
       const poolAddresses: string[] = [];
       const paramsList: SwapParams[] = [];
       for (let i = 0; i < poolQuotes.length; i++) {
@@ -481,7 +499,7 @@ export default function MarketSwap() {
             amount: exactIn ? amountIn : amountOut,
             exactIn: exactIn,
             zeroForOne: tokenIn.callId == 0,
-            callbackData: ethers.utils.formatBytes32String(""),
+            callbackData: formatBytes32String(""),
           };
           paramsList.push(params);
         }
@@ -489,17 +507,17 @@ export default function MarketSwap() {
       setSwapPoolAddresses(poolAddresses);
       setSwapParams(paramsList);
     } else {
-
+      // slippage managed by quote
     }
   }
 
   const resetAfterSwap = () => {
     setDisplayIn("");
     setDisplayOut("");
-    setAmountIn(BN_ZERO);
+    setAmountIn(BN_ZERO, '0');
     setAmountOut(BN_ZERO);
     setTimeout(() => {
-      if (!swing.enabled)
+      if (!tradeSdk.enabled)
         updatePools(BigNumber.from("0"), true);
     }, 2000);
   };
@@ -513,7 +531,7 @@ export default function MarketSwap() {
 
   useEffect(() => {
     if (
-      !swing.enabled &&
+      !tradeSdk.enabled &&
       !amountIn.eq(BN_ZERO) &&
       (!needsAllowanceIn || tokenIn.native) &&
       tradePoolData != undefined &&
@@ -545,7 +563,7 @@ export default function MarketSwap() {
       !wethCall
     ) {
       await gasEstimateSwap(
-        getRouterAddress(networkName),
+        getRouterAddress(networkName, tradeSdk.enabled),
         swapPoolAddresses,
         swapParams,
         tokenIn,
@@ -605,7 +623,7 @@ export default function MarketSwap() {
             >
               {pairSelected
                 ? numFormat(parseFloat(
-                    ethers.utils.formatUnits(
+                    formatUnits(
                       amountOut ?? BN_ZERO,
                       tokenOut.decimals
                     )
@@ -634,7 +652,7 @@ export default function MarketSwap() {
             <div className="ml-auto text-xs">
               {numFormat(
                 (parseFloat(
-                  ethers.utils.formatUnits(amountOut, tokenOut.decimals)
+                  formatUnits(amountOut, tokenOut.decimals)
                 ) *
                   (100 - parseFloat(tradeSlippage))) /
                 100
@@ -810,7 +828,7 @@ export default function MarketSwap() {
       tokenOut.address != ZERO_ADDRESS &&
       tradePoolData?.id == ZERO_ADDRESS &&
       tradePoolData?.feeTier != undefined &&
-      !wethCall && !swing.enabled ? (
+      !wethCall && !tradeSdk.enabled ? (
         <div className="flex gap-x-5 rounded-[4px] items-center text-xs p-2 border bg-dark border-grey mb-5">
           <Range className="text-main2" />{" "}
           <span className="text-grey3 flex flex-col gap-y-[-2px]">
@@ -874,7 +892,7 @@ export default function MarketSwap() {
             amountOut.gt(BN_ZERO) ? (
               <div>
                 <SwapRouterApproveButton
-                  routerAddress={getRouterAddress(networkName)}
+                  routerAddress={getRouterAddress(networkName, tradeSdk.enabled)}
                   approveToken={tokenIn.address}
                   tokenSymbol={tokenIn.symbol}
                   amount={amountIn}
@@ -887,7 +905,7 @@ export default function MarketSwap() {
                   (needsAllowanceIn && !tokenIn.native) ||
                   swapGasLimit.lt(BigNumber.from('100000'))
                 }
-                routerAddress={getRouterAddress(networkName)}
+                routerAddress={getRouterAddress(networkName, tradeSdk.enabled)}
                 amountIn={amountIn}
                 tokenInNative={tokenIn.native ?? false}
                 tokenOutNative={tokenOut.native ?? false}
@@ -899,7 +917,7 @@ export default function MarketSwap() {
             ) : tokenIn.native ? (
               <SwapWrapNativeButton
                 disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
-                routerAddress={getRouterAddress(networkName)}
+                routerAddress={getRouterAddress(networkName, tradeSdk.enabled)}
                 wethAddress={chainProperties[networkName]["wethAddress"]}
                 tokenInSymbol={tokenIn.symbol}
                 amountIn={amountIn}
@@ -909,7 +927,7 @@ export default function MarketSwap() {
             ) : (
               <SwapUnwrapNativeButton
                 disabled={swapGasLimit.eq(BN_ZERO) || tradeButton.disabled}
-                routerAddress={getRouterAddress(networkName)}
+                routerAddress={getRouterAddress(networkName, tradeSdk.enabled)}
                 wethAddress={chainProperties[networkName]["wethAddress"]}
                 tokenInSymbol={tokenIn.symbol}
                 amountIn={amountIn}

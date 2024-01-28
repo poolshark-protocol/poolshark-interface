@@ -24,7 +24,7 @@ import { useRangeLimitStore } from "../hooks/useRangeLimitStore";
 import { fetchListedTokenBalances, fetchTokenMetadata } from "../utils/tokens";
 import { Toaster } from "sonner";
 
-const { chains, provider } = configureChains(
+export const { chains, provider } = configureChains(
   [arbitrum, arbitrumSepolia, scroll],
   [
     jsonRpcProvider({
@@ -36,7 +36,7 @@ const { chains, provider } = configureChains(
 );
 
 // Rainbow Kit
-const { connectors } = getDefaultWallets({
+const { connectors, wallets } = getDefaultWallets({
   appName: "Poolshark UI",
   chains,
 });
