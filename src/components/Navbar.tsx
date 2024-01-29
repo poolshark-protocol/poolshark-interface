@@ -2,10 +2,11 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link";
 import { ConnectWalletButton } from "./Buttons/ConnectWalletButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Trade from "./Icons/TradeIcon";
 import Range from "./Icons/RangeIcon";
 import Cover from "./Icons/CoverIcon";
+import { useConfigStore } from "../hooks/useConfigStore";
 
 interface NavOptions {
   create?: boolean;
@@ -14,6 +15,8 @@ interface NavOptions {
 
 export default function Navbar({ create, setCreate }: NavOptions) {
   const router = useRouter();
+
+  const [chainId] = useConfigStore((state) => [state.chainId]);
 
   return (
     <div className="py-2 mx-auto w-full border-b border-grey">
@@ -71,28 +74,32 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                 COVER
               </div>
                </Link> */}
-              <Link href="/bond">
-                <div
-                  className={
-                    router.pathname.includes("/bond")
-                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
-                      : "text-grey1 border border-transparent transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
-                  }
-                >
-                  <svg
-                    stroke="currentColor"
-                    fill="currentColor"
-                    strokeWidth="0"
-                    viewBox="0 0 16 16"
-                    className="w-5 h-5"
-                    xmlns="http://www.w3.org/2000/svg"
+              {chainId === 42161 ? (
+                <Link href="/bond">
+                  <div
+                    className={
+                      router.pathname.includes("/bond")
+                        ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
+                        : "text-grey1 border border-transparent transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
+                    }
                   >
-                    <path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1H1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"></path>
-                    <path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V5zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2H3z"></path>
-                  </svg>
-                  BOND
-                </div>
-              </Link>
+                    <svg
+                      stroke="currentColor"
+                      fill="currentColor"
+                      strokeWidth="0"
+                      viewBox="0 0 16 16"
+                      className="w-5 h-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1H1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"></path>
+                      <path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V5zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2H3z"></path>
+                    </svg>
+                    BOND
+                  </div>
+                </Link>
+              ) : (
+                <></>
+              )}
             </div>
           </div>
           <div className="w-full flex justify-end items-center gap-x-4">
@@ -139,28 +146,32 @@ export default function Navbar({ create, setCreate }: NavOptions) {
               COVER
             </div>
             </Link> */}
-            <Link href="/bond">
-              <div
-                className={
-                  router.pathname.includes("/bond")
-                    ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-3 text-sm flex items-center cursor-pointer gap-x-1 text-[11px]"
-                    : "text-grey1 border border-transparent transition-all py-1.5 px-3 text-sm flex items-center cursor-pointer gap-x-1 text-[11px]"
-                }
-              >
-                <svg
-                  stroke="currentColor"
-                  fill="currentColor"
-                  strokeWidth="0"
-                  viewBox="0 0 16 16"
-                  className="w-5 h-5"
-                  xmlns="http://www.w3.org/2000/svg"
+            {chainId === 42161 ? (
+              <Link href="/bond">
+                <div
+                  className={
+                    router.pathname.includes("/bond")
+                      ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-3 text-sm flex items-center cursor-pointer gap-x-1 text-[11px]"
+                      : "text-grey1 border border-transparent transition-all py-1.5 px-3 text-sm flex items-center cursor-pointer gap-x-1 text-[11px]"
+                  }
                 >
-                  <path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1H1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"></path>
-                  <path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V5zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2H3z"></path>
-                </svg>
-                BOND
-              </div>
-            </Link>
+                  <svg
+                    stroke="currentColor"
+                    fill="currentColor"
+                    strokeWidth="0"
+                    viewBox="0 0 16 16"
+                    className="w-5 h-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1H1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"></path>
+                    <path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V5zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2H3z"></path>
+                  </svg>
+                  BOND
+                </div>
+              </Link>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
       </div>

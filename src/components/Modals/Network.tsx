@@ -2,14 +2,28 @@ import { Transition, Dialog } from "@headlessui/react";
 import { Fragment } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { useSwitchNetwork } from "wagmi";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
+export default function Network({
+  isOpen,
+  setIsOpen,
+  chainUnsupported,
+  chainId,
+}) {
+  const [setNetworkName, setChainId] = useConfigStore((state) => [
+    state.setNetworkName,
+    state.setChainId,
+  ]);
 
-export default function Network({ isOpen, setIsOpen, chainUnsupported, chainId }) {
-    const { chains, error: networkError, switchNetwork } = useSwitchNetwork({
-      onSuccess(data) {
-        setIsOpen(false)
-      }
-    })
+  const {
+    chains,
+    error: networkError,
+    switchNetwork,
+  } = useSwitchNetwork({
+    onSuccess(data) {
+      setIsOpen(false);
+    },
+  });
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -49,36 +63,101 @@ export default function Network({ isOpen, setIsOpen, chainUnsupported, chainId }
                     className="w-7 cursor-pointer"
                   />
                 </div>
-                {chainUnsupported ? 
-                <h2 className="text-sm text-grey2 mt-2 px-2">
-                  Wrong network detected, switch or disconnect to continue.
-                </h2>
-                : ''}
+                {chainUnsupported ? (
+                  <h2 className="text-sm text-grey2 mt-2 px-2">
+                    Wrong network detected, switch or disconnect to continue.
+                  </h2>
+                ) : (
+                  ""
+                )}
                 <div className="mt-4 space-y-1">
-                  {/*<div
-                  onClick={() => switchNetwork(1)}
-                   className={`${ chainId === 1 ? ' bg-background' :'hover:bg-[#0C0C0C] hover:border-[#1C1C1C]'} flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}>
-                    <div className="flex gap-x-2 items-center">
-                        <img src="/static/images/eth_icon.svg" />
-                        Ethereum
-                    </div>
-                    <div className={`${ chainId === 1 ? ' flex gap-x-2 items-center text-main text-xs' :'hidden'}`}>
-                        Connected
-                        <div className="h-1.5 w-1.5 bg-green-500 rounded-full"/>
-                    </div>
-                  </div>*/}
                   <div
-                  onClick={() => switchNetwork(42161)}
-                   className={`${ chainId === 421613 || chainId === 42161 ? ' bg-background' :'hover:bg-[#0C0C0C] hover:border-[#1C1C1C]'} flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}>
+                    onClick={() => {
+                      setNetworkName("arbitrum-one");
+                      switchNetwork(42161);
+                    }}
+                    className={`${
+                      chainId === 42161
+                        ? " bg-background"
+                        : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
+                    } flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}
+                  >
                     <div className="flex gap-x-2 items-center">
-                        <img src="/static/images/arb_icon.svg" />
-                        Arbitrum Mainnet
+                      <img src="/static/images/arb_icon.svg" />
+                      Arbitrum Mainnet
                     </div>
-                    <div className={`${ chainId === 421613 || chainId === 42161 ? ' flex gap-x-2 items-center text-main text-xs' :'hidden'}`}>
-                        Connected
-                        <div className="h-1.5 w-1.5 bg-green-500 rounded-full"/>
+                    <div
+                      className={`${
+                        chainId === 42161
+                          ? " flex gap-x-2 items-center text-main text-xs"
+                          : "hidden"
+                      }`}
+                    >
+                      Connected
+                      <div className="h-1.5 w-1.5 bg-green-500 rounded-full" />
                     </div>
                   </div>
+                  <div
+                    onClick={() => {
+                      setNetworkName("scroll");
+                      switchNetwork(534352);
+                    }}
+                    className={`${
+                      chainId === 534352
+                        ? " bg-background"
+                        : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
+                    } flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}
+                  >
+                    <div className="flex gap-x-2 items-center">
+                      <img
+                        src="https://scroll-tech.github.io/token-list/scroll.png"
+                        width="28"
+                        height="28"
+                      />
+                      Scroll Mainnet
+                    </div>
+                    <div
+                      className={`${
+                        chainId === 534352
+                          ? " flex gap-x-2 items-center text-main text-xs"
+                          : "hidden"
+                      }`}
+                    >
+                      Connected
+                      <div className="h-1.5 w-1.5 bg-green-500 rounded-full" />
+                    </div>
+                  </div>
+                  {process.env.NEXT_PUBLIC_isPRODUCTION === "false" && (
+                    <div
+                      onClick={() => {
+                        setNetworkName("arbitrum-sepolia");
+                        switchNetwork(421614);
+                      }}
+                      className={`${
+                        chainId === 421614
+                          ? " bg-background"
+                          : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
+                      } flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}
+                    >
+                      <div className="flex gap-x-2 items-center">
+                        <img
+                          className="saturate-0"
+                          src="/static/images/arb_icon.svg"
+                        />
+                        <span className="opacity-70">Arbitrum Sepolia</span>
+                      </div>
+                      <div
+                        className={`${
+                          chainId === 421614
+                            ? " flex gap-x-2 items-center text-main text-xs"
+                            : "hidden"
+                        }`}
+                      >
+                        Connected
+                        <div className="h-1.5 w-1.5 bg-green-500 rounded-full" />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </Dialog.Panel>
             </Transition.Child>

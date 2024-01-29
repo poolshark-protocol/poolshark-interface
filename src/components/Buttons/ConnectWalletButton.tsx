@@ -3,31 +3,31 @@ import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import Network from "../Modals/Network";
 import { useState, useEffect } from "react";
 import React from "react";
+import ChainImage from "./ChainImage";
 
 interface Props {
-    xl?: boolean;
-    center?: boolean;
+  xl?: boolean;
+  center?: boolean;
 }
 
-
-export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
+export const ConnectWalletButton = ({ xl = false, center = false }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [tosAccepted, setTosAccepted] = useState(false);
 
   useEffect(() => {
     // Check if terms of service is accepted
-    const isTosAccepted = localStorage.getItem('tosAccepted') === 'true';
+    const isTosAccepted = localStorage.getItem("tosAccepted") === "true";
     setTosAccepted(isTosAccepted);
 
     // Simulate wallet connection logic
     // In real scenario, this will be replaced with actual wallet connection logic
     // setWalletConnected(true/false) based on wallet connection status
-}, []);
+  }, []);
 
-const handleTosAccept = () => {
-    localStorage.setItem('tosAccepted', 'true');
+  const handleTosAccept = () => {
+    localStorage.setItem("tosAccepted", "true");
     setTosAccepted(true);
-};
+  };
 
   return (
     <>
@@ -63,7 +63,9 @@ const handleTosAccept = () => {
                 if (!connected) {
                   return (
                     <button
-                      className={`w-full mx-auto text-white uppercase px-8  text-center transition cursor-pointer bg-main1 border border-main hover:opacity-80 ${xl ? `py-4 ` : `py-2.5 text-sm`}`}
+                      className={`w-full mx-auto text-white uppercase px-8 rounded-[4px]  text-center transition cursor-pointer bg-main1 border border-main hover:opacity-80 ${
+                        xl ? `py-4 ` : `py-2.5 text-sm`
+                      }`}
                       onClick={openConnectModal}
                       type="button"
                     >
@@ -71,7 +73,7 @@ const handleTosAccept = () => {
                     </button>
                   );
                 }
-                if (chain.unsupported) {
+                if (chain.unsupported && chain.id != 11155111) {
                   return (
                     <>
                       <button
@@ -87,7 +89,10 @@ const handleTosAccept = () => {
                 }
                 return (
                   <>
-                    <div className={`flex w-full flex-row  items-end  justify-end gap-y-4 text-white gap-x-4 ${center ? `justify-center` : ``}`}
+                    <div
+                      className={`flex w-full flex-row  items-end  justify-end gap-y-4 text-white gap-x-4 ${
+                        center ? `justify-center` : ``
+                      }`}
                     >
                       <button
                         onClick={() => setIsOpen(true)}
@@ -107,15 +112,9 @@ const handleTosAccept = () => {
                           </div>
                         )}
                         */}
-                        {chain.id === 421613 || chain.id === 42161 ? (
-                          <img
-                            style={{ width: 17, height: 17 }}
-                            src="/static/images/arb_icon.svg"
-                            className="aspect-square"
-                          />
-                        ) : (
-                          ""
-                        )}
+                        {<ChainImage
+                          chainId={chain?.id}
+                        />}
                       </button>
                       <button
                         onClick={openAccountModal}

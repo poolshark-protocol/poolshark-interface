@@ -21,6 +21,7 @@ import { gasEstimateCoverMint } from "../../../utils/gas";
 import { useCoverStore } from "../../../hooks/useCoverStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getLogoURI } from "../../../utils/tokens";
+import { getRouterAddress } from "../../../utils/config";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
@@ -76,7 +77,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties[networkName]["routerAddress"]],
+    args: [address, getRouterAddress(networkName)],
     chainId: chainId,
     watch: needsAllowance,
     enabled: tokenIn.address != undefined,
@@ -263,7 +264,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                 stateChainName === networkName ? (
                   <CoverMintApproveButton
                     routerAddress={
-                      chainProperties[networkName]["routerAddress"]
+                      getRouterAddress(networkName)
                     }
                     approveToken={tokenIn.address}
                     amount={bnInput}
@@ -275,7 +276,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                     toAddress={address}
                     poolAddress={coverPoolAddress}
                     routerAddress={
-                      chainProperties[networkName]["routerAddress"]
+                      getRouterAddress(networkName)
                     }
                     address={address}
                     lower={Number(coverPositionData.min)}

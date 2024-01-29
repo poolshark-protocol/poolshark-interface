@@ -21,33 +21,32 @@ export const getSwapPools = async (
       tokenIn.address,
       tokenOut.address
     );
+    console.log("limitPools", limitPools);
     const data = limitPools["data"];
     if (data && data["limitPools"]?.length > 0) {
       const allPools = data["limitPools"];
-      if (swapPoolData?.id != allPools[0].id) {
-        setSwapPoolData(allPools[0]);
+      //the selected pool should be the pool with most tvl
+      const selectedPool = allPools.reduce((prev, current) =>
+        Number(prev.totalValueLockedUsd) > Number(current.totalValueLockedUsd)
+          ? prev
+          : current
+      );
+      if (swapPoolData?.id != selectedPool.id) {
+        setSwapPoolData(selectedPool);
       } else {
         if (setSwapPoolPrice != undefined) {
-          if (allPools[0].poolPrice != swapPoolData.poolPrice) {
-            setSwapPoolPrice(allPools[0].poolPrice)
+          if (selectedPool.poolPrice != swapPoolData.poolPrice) {
+            setSwapPoolPrice(selectedPool.poolPrice);
           }
         }
         if (setSwapPoolLiquidity != undefined) {
-          if (allPools[0].liquidity != swapPoolData.liquidity) {
-            setSwapPoolLiquidity(allPools[0].liquidity)
+          if (selectedPool.liquidity != swapPoolData.liquidity) {
+            setSwapPoolLiquidity(selectedPool.liquidity);
           }
         }
       }
-      fetchRangeTokenUSDPrice(
-        allPools[0],
-        tokenIn,
-        setTokenInTradeUSDPrice
-      )
-      fetchRangeTokenUSDPrice(
-        allPools[0],
-        tokenOut,
-        setTokenOutTradeUSDPrice
-      )
+      fetchRangeTokenUSDPrice(selectedPool, tokenIn, setTokenInTradeUSDPrice);
+      fetchRangeTokenUSDPrice(selectedPool, tokenOut, setTokenOutTradeUSDPrice);
       return allPools;
     } else {
       return setSwapPoolData({
@@ -57,6 +56,41 @@ export const getSwapPools = async (
           tickSpacing: 30,
         },
       });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getLimitPoolForFeeTier = async (
+  client: LimitSubgraph,
+  tokenIn: tokenSwap,
+  tokenOut: tokenSwap,
+  feeTier: number
+) => {
+  try {
+    const limitPools = await getLimitPoolFromFactory(
+      client,
+      tokenIn.address,
+      tokenOut.address
+    );
+    const data = limitPools["data"];
+    if (data && data["limitPools"]?.length > 0) {
+      const allPools = data["limitPools"];
+      const selectedPool = allPools.find(
+        (pool) => pool.feeTier.feeAmount == feeTier
+      );
+      if (selectedPool != undefined) {
+        return selectedPool;
+      } else {
+        return {
+          id: ZERO_ADDRESS,
+        };
+      }
+    } else {
+      return {
+        id: ZERO_ADDRESS,
+      };
     }
   } catch (error) {
     console.log(error);

@@ -35,6 +35,7 @@ import { getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
 import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
+import { getRouterAddress } from "../../utils/config";
 
 export default function CreateCover(props: any) {
   const [chainId, networkName, coverSubgraph, coverFactoryAddress] = useConfigStore((state) => [
@@ -147,7 +148,7 @@ export default function CreateCover(props: any) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties[networkName]["routerAddress"]],
+    args: [address, getRouterAddress(networkName)],
     chainId: chainId,
     watch: needsAllowance && !tokenIn.native,
     enabled: tokenIn.address != undefined,
@@ -841,14 +842,14 @@ export default function CreateCover(props: any) {
       {allowanceInCover ? (
         allowanceInCover.lt(coverMintParams.tokenInAmount) && !tokenIn.native ? (
           <CoverMintApproveButton
-            routerAddress={chainProperties[networkName]["routerAddress"]}
+            routerAddress={getRouterAddress(networkName)}
             approveToken={tokenIn.address}
             amount={bnInput}
             tokenSymbol={tokenIn.symbol}
           />
         ) : coverPoolAddress != ZERO_ADDRESS ? (
           <CoverMintButton
-            routerAddress={chainProperties[networkName]["routerAddress"]}
+            routerAddress={getRouterAddress(networkName)}
             poolAddress={coverPoolAddress}
             disabled={coverMintParams.disabled}
             to={address}
@@ -884,7 +885,7 @@ export default function CreateCover(props: any) {
           />
         ) : (
           <CoverCreateAndMintButton
-            routerAddress={chainProperties[networkName]["routerAddress"]}
+            routerAddress={getRouterAddress(networkName)}
             poolType={coverPoolTypes['constant-product']['poolshark']}
             tokenIn={tokenIn}
             tokenOut={tokenOut}

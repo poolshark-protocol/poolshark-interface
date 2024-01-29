@@ -68,7 +68,7 @@ export default function Cover() {
     if (address) {
       const chainConstants = chainProperties[networkName]
         ? chainProperties[networkName]
-        : chainProperties["arbitrumGoerli"];
+        : chainProperties["arbitrum"];
       setCoverSubgraph(chainConstants["coverSubgraphUrl"]);
       getUserCoverPositionData();
     }
