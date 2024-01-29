@@ -27,8 +27,7 @@ import { fetchRangePools } from "../../utils/queries";
 import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButton";
 import { getRouterAddress } from "../../utils/config";
 import BalanceDisplay from "../../components/Display/BalanceDisplay";
-import { Checkbox } from "../../components/ui/checkbox"
-
+import { Checkbox } from "../../components/ui/checkbox";
 
 export default function AddLiquidity({}) {
   const [chainId, networkName, limitSubgraph, coverSubgraph, logoMap] =
@@ -154,6 +153,15 @@ export default function AddLiquidity({}) {
   }, [router.query.feeTier]);
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      if (rangePoolData?.id) {
+        updatePools(parseInt(rangePoolData?.feeTier?.feeAmount ?? "3000"));
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [rangePoolData?.id]);
+
+  useEffect(() => {
     const originalTokenIn = {
       ...tokenIn,
       logoURI: logoMap[tokenIn.address.toLowerCase()],
@@ -220,10 +228,10 @@ export default function AddLiquidity({}) {
 
       if (
         (pool != undefined &&
-          tokenIn.address == pool.token0.id &&
-          tokenOut.address == pool.token1.id) ||
-        (tokenIn.address == pool.token1.id &&
-          tokenOut.address == pool.token0.id)
+          tokenIn.address == pool?.token0?.id &&
+          tokenOut.address == pool?.token1?.id) ||
+        (tokenIn.address == pool?.token1?.id &&
+          tokenOut.address == pool?.token0?.id)
       ) {
         const originalTokenIn = {
           name: pool.token0.symbol,
@@ -285,6 +293,14 @@ export default function AddLiquidity({}) {
           setRangePoolFromFeeTier(tokenIn, tokenOut, "3000", limitSubgraph);
         }
       }
+    }
+    if (rangePoolData.token0 && rangePoolData.token1) {
+      fetchRangeTokenUSDPrice(rangePoolData, tokenIn, setTokenInRangeUSDPrice);
+      fetchRangeTokenUSDPrice(
+        rangePoolData,
+        tokenOut,
+        setTokenOutRangeUSDPrice
+      );
     }
   }
 
