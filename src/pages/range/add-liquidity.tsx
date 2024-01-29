@@ -694,6 +694,8 @@ export default function AddLiquidity({}) {
 
   console.log('token in user balance', tokenIn.userBalance)
 
+
+
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
@@ -918,8 +920,8 @@ export default function AddLiquidity({}) {
                   invertPrice(
                     TickMath.getPriceStringAtTick(
                       priceOrder == (tokenIn.callId == 0)
-                        ? rangePoolData.tickAtPrice - 4055
-                        : rangePoolData.tickAtPrice - -4055,
+                      ? rangePoolData.tickAtPrice - 4055
+                      : rangePoolData.tickAtPrice - -6932,
                       tokenIn,
                       tokenOut
                     ),
@@ -930,7 +932,7 @@ export default function AddLiquidity({}) {
                   invertPrice(
                     TickMath.getPriceStringAtTick(
                       priceOrder == (tokenIn.callId == 0)
-                        ? rangePoolData.tickAtPrice - -4055
+                        ? rangePoolData.tickAtPrice - -6932
                         : rangePoolData.tickAtPrice - 4055,
                       tokenIn,
                       tokenOut
@@ -939,7 +941,7 @@ export default function AddLiquidity({}) {
                   )
                 )
               }}
-               className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all">COMMON</button>
+               className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all">MEDIUM</button>
               <button
               onClick={() => {
                 setMinInput(
@@ -947,7 +949,7 @@ export default function AddLiquidity({}) {
                     TickMath.getPriceStringAtTick(
                       priceOrder == (tokenIn.callId == 0)
                         ? rangePoolData.tickAtPrice - 5596
-                        : rangePoolData.tickAtPrice - -5596,
+                        : rangePoolData.tickAtPrice - -2876,
                       tokenIn,
                       tokenOut
                     ),
@@ -958,7 +960,7 @@ export default function AddLiquidity({}) {
                   invertPrice(
                     TickMath.getPriceStringAtTick(
                       priceOrder == (tokenIn.callId == 0)
-                        ? rangePoolData.tickAtPrice - -5596
+                        ? rangePoolData.tickAtPrice - -2876
                         : rangePoolData.tickAtPrice - 5596,
                       tokenIn,
                       tokenOut
