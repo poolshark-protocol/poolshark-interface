@@ -4,9 +4,6 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import { coverPoolABI } from "../../abis/evm/coverPool";
-import { SuccessToast } from "../Toasts/Success";
-import { ErrorToast } from "../Toasts/Error";
-import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { roundTick } from "../../utils/math/tickMath";
 import { BigNumber, ethers } from "ethers";

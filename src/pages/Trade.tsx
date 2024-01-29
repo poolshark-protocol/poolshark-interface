@@ -7,18 +7,17 @@ import {
   useBalance,
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
-import {
-  chainIdsToNames,
-  chainProperties,
-} from "../utils/chains";
+import { chainProperties } from "../utils/chains";
 import { ZERO_ADDRESS } from "../utils/math/constants";
-import {
-  getLimitTokenUsdPrice, getLogoURI,
-} from "../utils/tokens";
+import { getLimitTokenUsdPrice } from "../utils/tokens";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { fetchLimitPositions } from "../utils/queries";
-import { getClaimTick, mapUserHistoricalOrders, mapUserLimitPositions } from "../utils/maps";
+import {
+  getClaimTick,
+  mapUserHistoricalOrders,
+  mapUserLimitPositions,
+} from "../utils/maps";
 import { timeDifference } from "../utils/time";
 import { parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
@@ -28,6 +27,7 @@ import LimitSwap from "../components/Trade/LimitSwap";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import inputFilter from "../utils/inputFilter";
+import { getRouterAddress } from "../utils/config";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -133,17 +133,7 @@ export default function Trade() {
   ]);
 
   //false order history is selected, true when active orders is selected
-  //BOTH
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
-
-  ////////////////////////////////ChainId
-  //CONFIG STORE
-  const [stateChainName, setStateChainName] = useState();
-
-  // BOTH
-  useEffect(() => {
-    setStateChainName(chainIdsToNames[chainId]);
-  }, [chainId]);
 
   ////////////////////////////////Pools
 
@@ -157,7 +147,6 @@ export default function Trade() {
   const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
   const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
 
-  //BOTH
   useEffect(() => {
     if (
       tokenIn.address != ZERO_ADDRESS &&
@@ -171,7 +160,6 @@ export default function Trade() {
     }
   }, [tokenIn.address, tokenOut.address, tokenIn.native]);
 
-  //BOTH
   useEffect(() => {
     if (
       tokenOut.address != ZERO_ADDRESS &&
@@ -186,15 +174,18 @@ export default function Trade() {
   }, [tokenIn.address, tokenOut.address, tokenIn.native]);
 
   ////////////////////////////////Filled Amount
-  //BOTH
   const { data: filledAmountList } = useContractRead({
-    address: chainProperties[networkName]["routerAddress"],
+    address: getRouterAddress(networkName),
     abi: poolsharkRouterABI,
     functionName: "multiSnapshotLimit",
     args: [limitPoolAddressList, limitPositionSnapshotList],
     chainId: chainId,
     watch: needsSnapshot,
-    enabled: isConnected && limitPoolAddressList.length > 0 && needsSnapshot,
+    enabled:
+      isConnected &&
+      limitPoolAddressList.length > 0 &&
+      needsSnapshot &&
+      getRouterAddress(networkName),
     onSuccess(data) {
       // console.log("Success price filled amount", data);
       // console.log("snapshot address list", limitPoolAddressList);
@@ -202,11 +193,11 @@ export default function Trade() {
       setNeedsSnapshot(false);
     },
     onError(error) {
+      console.log("network check", networkName);
       console.log("Error price Limit", error);
     },
   });
 
-  //BOTH
   useEffect(() => {
     if (filledAmountList) {
       setLimitFilledAmountList(filledAmountList[0]);
@@ -216,31 +207,26 @@ export default function Trade() {
 
   //////////////////////Position Data
 
-  //BOTH
   const [allLimitPositions, setAllLimitPositions] = useState([]);
   const [allHistoricalOrders, setAllHistoricalOrders] = useState([]);
 
-  //BOTH
   useEffect(() => {
     if (address) {
-      const chainConstants = 
-          chainProperties[networkName]
+      const chainConstants = chainProperties[networkName]
         ? chainProperties[networkName]
-        : chainProperties["arbitrumGoerli"]; 
+        : chainProperties["arbitrum"];
       setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
       getUserLimitPositionData();
       setNeedsRefetch(false);
     }
   }, [needsRefetch, needsPosRefetch, address, networkName]);
 
-  //BOTH
   useEffect(() => {
     if (allLimitPositions.length > 0) {
       mapUserLimitSnapshotList();
     }
   }, [allLimitPositions]);
 
-  //BOTH
   async function getUserLimitPositionData() {
     try {
       const data = await fetchLimitPositions(
@@ -260,7 +246,6 @@ export default function Trade() {
     }
   }
 
-  //BOTH
   async function mapUserLimitSnapshotList() {
     try {
       let mappedLimitPoolAddresses = [];
@@ -303,7 +288,7 @@ export default function Trade() {
 
   ////////////////////////////////Balances
 
-  //BOTH
+
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.native ? undefined : tokenIn.address,
@@ -311,13 +296,14 @@ export default function Trade() {
     watch: needsBalanceIn,
     chainId: chainId,
     onSuccess(data) {
-      if (needsBalanceIn) {
-        setNeedsBalanceIn(false);
-      }
+      setNeedsBalanceIn(false);
+      setTimeout(() => {
+        setNeedsBalanceIn(true);
+      }, 5000);
     },
   });
 
-  //BOTH
+
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.native ? undefined : tokenOut.address,
@@ -325,22 +311,22 @@ export default function Trade() {
     watch: needsBalanceOut,
     chainId: chainId,
     onSuccess(data) {
-      if (needsBalanceOut) {
-        setNeedsBalanceOut(false);
-      }
+      setNeedsBalanceOut(false);
+      setTimeout(() => {
+        setNeedsBalanceOut(true);
+      }, 5000);
     },
   });
 
-  //BOTH
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && tokenInBal) {
       setTokenInBalance(
         !isNaN(parseFloat(tokenInBal?.formatted.toString()))
           ? tokenInBal?.formatted.toString()
           : "0.00"
       );
     }
-    if (tokenOutBal) {
+    if (isConnected && tokenOutBal) {
       setTokenOutBalance(
         !isNaN(parseFloat(tokenOutBal?.formatted.toString()))
           ? tokenOutBal?.formatted.toString()
@@ -351,12 +337,11 @@ export default function Trade() {
 
   ////////////////////////////////Allowances
 
-  //BOTH
-  const { data: allowanceInRouter } = useContractRead({
+  const { data: allowanceInRouter, refetch: allowanceInRefetch } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties[networkName]["routerAddress"]],
+    args: [address, getRouterAddress(networkName)],
     chainId: chainId,
     watch: needsAllowanceIn,
     enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
@@ -369,7 +354,6 @@ export default function Trade() {
     },
   });
 
-  //BOTH
   useEffect(() => {
     if (allowanceInRouter) {
       setTokenInTradeAllowance(allowanceInRouter);
@@ -534,11 +518,11 @@ export default function Trade() {
                           <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={getLogoURI(logoMap, allHistoricalOrder.tokenIn)}
+                              src={allHistoricalOrder.tokenIn.logoURI}
                             />
-                            {parseFloat(
-                                allHistoricalOrder.amountIn
-                            ).toFixed(3) +
+                            {parseFloat(allHistoricalOrder.amountIn).toFixed(
+                              3
+                            ) +
                               " " +
                               allHistoricalOrder.tokenIn.symbol}
                           </div>
@@ -547,11 +531,11 @@ export default function Trade() {
                           <div className="flex items-center text-xs text-white gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={getLogoURI(logoMap, allHistoricalOrder.tokenOut)}
+                              src={allHistoricalOrder.tokenOut.logoURI}
                             />
-                            {parseFloat(
-                              allHistoricalOrder.amountOut
-                            ).toFixed(3) +
+                            {parseFloat(allHistoricalOrder.amountOut).toFixed(
+                              3
+                            ) +
                               " " +
                               allHistoricalOrder.tokenOut.symbol}
                           </div>
@@ -573,16 +557,15 @@ export default function Trade() {
                         <td className="md:table-cell hidden">
                           <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
                             <span className="z-50 px-3">
-                              {(
-                                100
-                              ).toFixed(2)}
-                              % Filled
+                              {(100).toFixed(2)}% Filled
                             </span>
                             <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
                           </div>
                         </td>
                         <td className="text-grey1 text-left pl-3 text-xs md:table-cell hidden">
-                          {timeDifference(allHistoricalOrder.completedAtTimestamp)}
+                          {timeDifference(
+                            allHistoricalOrder.completedAtTimestamp
+                          )}
                         </td>
                         <td className="w-[39px] h-1 md:table-cell hidden"></td>
                       </tr>

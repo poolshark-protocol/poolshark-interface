@@ -14,6 +14,7 @@ import { useRouter } from "next/router";
 import { tokenRangeLimit } from "../../utils/types";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
+import { Checkbox } from "../../components/ui/checkbox";
 
 export default function Range() {
   const { address, isDisconnected } = useAccount();
@@ -23,15 +24,23 @@ export default function Range() {
   const [allRangePools, setAllRangePools] = useState([]);
   const [isPositionsLoading, setIsPositionsLoading] = useState(false);
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
+  const [lowTVLHidden, setLowTVLHidden] = useState(true);
 
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph, listedtokenList] =
-    useConfigStore((state) => [
-      state.chainId,
-      state.networkName,
-      state.limitSubgraph,
-      state.setLimitSubgraph,
-      state.listedtokenList,
-    ]);
+  const [
+    chainId,
+    networkName,
+    limitSubgraph,
+    setLimitSubgraph,
+    listedtokenList,
+    logoMap,
+  ] = useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
+    state.limitSubgraph,
+    state.setLimitSubgraph,
+    state.listedtokenList,
+    state.logoMap,
+  ]);
 
   const [
     setTokenIn,
@@ -54,7 +63,7 @@ export default function Range() {
   //////////////////////Get Pools Data
   useEffect(() => {
     getRangePoolData();
-  }, []);
+  }, [chainId]);
 
   async function getRangePoolData() {
     setIsPoolsLoading(true);
@@ -70,18 +79,18 @@ export default function Range() {
     if (address) {
       const chainConstants = chainProperties[networkName]
         ? chainProperties[networkName]
-        : chainProperties["arbitrumGoerli"]; 
+        : chainProperties["arbitrum"];
       setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
       getUserRangePositionData();
     }
   }, []);
 
   useEffect(() => {
-    if (address && needsRefetch) {
+    if (address) {
       getUserRangePositionData();
       setNeedsRefetch(false);
     }
-  }, [address, needsRefetch]);
+  }, [address, needsRefetch, chainId]);
 
   async function getUserRangePositionData() {
     try {
@@ -98,6 +107,10 @@ export default function Range() {
       setIsPositionsLoading(false);
     }
   }
+
+
+  console.log(allRangePools)
+
 
   ///////////////////////////
 
@@ -116,34 +129,37 @@ export default function Range() {
                 BECOME A LIQUIDITY PROVIDER AND EARN FEES
               </h1>
               <p className="text-sm text-white/40 font-light">
-                Range LPs bootstrap
-                token swaps in return for a share of trading fees.
-                <br/><br/>
-                The main advantage of range-bound liquidity is
-                earning more fees with less capital.
-                <br/>
-                Wider price ranges are recommended to
-                reduce losses when removing liquidity.
-                <br/><br/>
+                Range LPs bootstrap token swaps in return for a share of trading
+                fees.
+                <br />
+                <br />
+                The main advantage of range-bound liquidity is earning more fees
+                with less capital.
+                <br />
+                Wider price ranges are recommended to reduce losses when
+                removing liquidity.
+                <br />
+                <br />
                 Provide liquidity and start earning FIN rewards now.
               </p>
             </div>
             <button
               disabled={allRangePools.length == 0}
               onClick={() => {
-                resetRangeLimitParams();
+                resetRangeLimitParams(chainId);
                 if (allRangePools?.length > 0) {
+                  console.log(allRangePools[0]);
                   const tokenIn = {
                     name: allRangePools[0].tokenZero.symbol,
                     address: allRangePools[0].tokenZero.id,
-                    logoURI: allRangePools[0].tokenZero.symbol,
+                    logoURI: logoMap[allRangePools[0].tokenZero.id],
                     symbol: allRangePools[0].tokenZero.symbol,
                     decimals: allRangePools[0].tokenZero.decimals,
                   } as tokenRangeLimit;
                   const tokenOut = {
                     name: allRangePools[0].tokenOne.symbol,
                     address: allRangePools[0].tokenOne.id,
-                    logoURI: allRangePools[0].tokenOne.symbol,
+                    logoURI: logoMap[allRangePools[0].tokenOne.id],
                     symbol: allRangePools[0].tokenOne.symbol,
                     decimals: allRangePools[0].tokenOne.decimals,
                   } as tokenRangeLimit;
@@ -158,7 +174,7 @@ export default function Range() {
                   router.push({
                     pathname: "/range/add-liquidity",
                     query: {
-                      feeTier: allRangePools[0].feeTier ?? 1000,
+                      feeTier: allRangePools[0].feeTier ?? 3000,
                       poolId: allRangePools[0].poolId,
                     },
                   });
@@ -174,9 +190,8 @@ export default function Range() {
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">How it works</h1>
               <p className="text-sm text-grey3 font-light">
-                Range Pools use a dynamic fee system to increase fee
-                revenue.
-                <br/>
+                Range Pools use a dynamic fee system to increase fee revenue.
+                <br />
                 LPs earn more fees on large price swings to reduce loss to
                 arbitrageurs.
                 <br />
@@ -184,7 +199,6 @@ export default function Range() {
                 <span className="text-xs">
                   Tighter ranges increase fee revenue.
                 </span>
-                
                 <br />
                 <span className="text-xs">Wider ranges decrease LVR risk.</span>
               </p>
@@ -314,12 +328,25 @@ export default function Range() {
             </div>
           </div>
           <div className="p-6 bg-black border border-grey/50 rounded-[4px] ">
-            <div className="flex justify-between">
-              <div className="text-white flex items-center text-sm gap-x-3 w-full">
+            <div className="flex items-center justify-between">
+              <div className="flex md:justify-start justify-between items-center gap-x-10 w-full">
+              <div className="text-white flex items-center text-sm gap-x-3 w-auto whitespace-nowrap">
                 <PoolIcon />
                 <h1>ALL POOLS</h1>
               </div>
-              <span className="text-grey1 text-xs md:w-full w-32 md:w-auto text-right">
+              <div className="flex bg-dark items-center space-x-2 text-xs">
+      <span className="text-grey1"><Checkbox 
+      checked={lowTVLHidden}
+                  onCheckedChange={() => setLowTVLHidden(!lowTVLHidden)} id="tvl" /></span>
+      <label
+        htmlFor="tvl"
+        className="text-xs text-white/80 -mt-[2.5px] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      >
+        HIDE LOW TVL POOLS
+      </label>
+    </div>
+              </div>
+              <span className="text-grey1 md:block hidden text-xs md:w-full w-32 md:w-auto text-right">
                 Click on a pool to Add Liquidity
               </span>
             </div>
@@ -347,42 +374,44 @@ export default function Range() {
                           className="h-[50px] w-full bg-grey/30 animate-pulse rounded-[4px]"
                         ></div>
                       ))
-                    : allRangePools.map((allRangePool) => {
-                        if (
-                          allRangePool.tokenZero.name.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          allRangePool.tokenZero.name
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()) ||
-                          allRangePool.tokenOne.name.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          allRangePool.tokenOne.name
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()) ||
-                          allRangePool.tokenZero.symbol.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          allRangePool.tokenZero.symbol
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()) ||
-                          allRangePool.tokenOne.symbol.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          allRangePool.tokenOne.symbol
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()) ||
-                          allRangePool.tokenZero.id.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          allRangePool.tokenOne.id.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          searchTerm === ""
-                        )
-                          return (
-                            <RangePool
-                              key={allRangePool.poolId + "rangePool"}
-                              rangePool={allRangePool}
-                              href="/range/add-liquidity"
-                            />
-                          );
-                      })}
+                    : allRangePools
+                        .filter(allRangePool => lowTVLHidden ? allRangePool.tvlUsd > "1.00" : true)
+                        .map((allRangePool) => {
+                          if (
+                            allRangePool.tokenZero.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenZero.name
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
+                            allRangePool.tokenOne.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenOne.name
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
+                            allRangePool.tokenZero.symbol.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenZero.symbol
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
+                            allRangePool.tokenOne.symbol.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenOne.symbol
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
+                            allRangePool.tokenZero.id.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenOne.id.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            searchTerm === ""
+                          )
+                            return (
+                              <RangePool
+                                key={allRangePool.poolId + "rangePool"}
+                                rangePool={allRangePool}
+                                href="/range/add-liquidity"
+                              />
+                            );
+                        })}
                 </div>
               </div>
             </div>

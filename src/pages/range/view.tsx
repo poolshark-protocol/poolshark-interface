@@ -1,10 +1,7 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import RangeCompoundButton from "../../components/Buttons/RangeCompoundButton";
-import {
-  useAccount,
-  useSigner,
-} from "wagmi";
+import { useAccount, useSigner } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
@@ -28,6 +25,8 @@ import { tokenRangeLimit } from "../../utils/types";
 import RangeStakeButton from "../../components/Buttons/RangeStakeButton";
 import RangeUnstakeButton from "../../components/Buttons/RangeUnstakeButton";
 import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
+import { getRangeStakerAddress } from "../../utils/config";
+import { numFormat } from "../../utils/math/valueMath";
 
 export default function ViewRange() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -198,7 +197,7 @@ export default function ViewRange() {
   useEffect(() => {
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
-      : chainProperties["arbitrumGoerli"]; 
+      : chainProperties["arbitrum"];
     setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
     if (
       rangePositionData.positionId == undefined ||
@@ -236,14 +235,14 @@ export default function ViewRange() {
           const tokenInNew = {
             name: position.tokenZero.name,
             symbol: position.tokenZero.symbol,
-            logoURI: position.tokenZero.symbol,
+            logoURI: logoMap[position.tokenZero.id],
             address: position.tokenZero.id,
             decimals: position.tokenZero.decimals,
           } as tokenRangeLimit;
           const tokenOutNew = {
             name: position.tokenOne.name,
             symbol: position.tokenOne.symbol,
-            logoURI: position.tokenOne.symbol,
+            logoURI: logoMap[position.tokenOne.id],
             address: position.tokenOne.id,
             decimals: position.tokenOne.decimals,
           } as tokenRangeLimit;
@@ -398,7 +397,7 @@ export default function ViewRange() {
     address: rangePoolData.poolToken,
     abi: positionERC1155ABI,
     functionName: "isApprovedForAll",
-    args: [address, chainProperties[networkName]["rangeStakerAddress"]],
+    args: [address, getRangeStakerAddress(networkName)],
     chainId: chainId,
     watch: true,
     enabled: rangePositionData.staked != undefined && !rangePositionData.staked,
@@ -433,7 +432,7 @@ export default function ViewRange() {
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
               ) : (
-                <img height="50" width="50" src={getLogoURI(logoMap, tokenIn)} />
+                <img height="50" width="50" src={tokenIn.logoURI} />
               )}
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
@@ -442,7 +441,7 @@ export default function ViewRange() {
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={getLogoURI(logoMap, tokenOut)}
+                  src={tokenOut.logoURI}
                 />
               )}
             </div>
@@ -459,7 +458,8 @@ export default function ViewRange() {
                 </h1>
                 <a
                   href={
-                    `${chainProperties[networkName]["explorerUrl"]}/address/` + rangePoolAddress
+                    `${chainProperties[networkName]["explorerUrl"]}/address/` +
+                    rangePoolAddress
                   }
                   target="_blank"
                   rel="noreferrer"
@@ -546,7 +546,7 @@ export default function ViewRange() {
                   {isLoading ? (
                     <div className="h-8 w-40 bg-grey/60 animate-pulse rounded-[4px]" />
                   ) : (
-                    amount0.toFixed(2)
+                    numFormat(amount0, 5)
                   )}
 
                   <div className="flex items-center gap-x-2">
@@ -554,11 +554,7 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img
-                          height="25"
-                          width="25"
-                          src={getLogoURI(logoMap, tokenIn)}
-                        />
+                        <img height="25" width="25" src={tokenIn.logoURI} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -581,18 +577,14 @@ export default function ViewRange() {
                   {isLoading ? (
                     <div className="h-8 w-40 bg-grey/60 animate-pulse rounded-[4px]" />
                   ) : (
-                    amount1.toFixed(2)
+                    numFormat(amount1, 5)
                   )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img
-                          height="25"
-                          width="25"
-                          src={getLogoURI(logoMap, tokenOut)}
-                        />
+                        <img height="25" width="25" src={tokenOut.logoURI} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -716,18 +708,14 @@ export default function ViewRange() {
                   {isLoading ? (
                     <div className="h-8 w-40 bg-grey/60 animate-pulse rounded-[4px]" />
                   ) : (
-                    amount0Fees.toFixed(2)
+                    numFormat(amount0Fees, 5)
                   )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img
-                          height="25"
-                          width="25"
-                          src={getLogoURI(logoMap, tokenIn)}
-                        />
+                        <img height="25" width="25" src={tokenIn.logoURI} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -750,18 +738,14 @@ export default function ViewRange() {
                   {isLoading ? (
                     <div className="h-8 w-40 bg-grey/60 animate-pulse rounded-[4px]" />
                   ) : (
-                    amount1Fees.toFixed(2)
+                    numFormat(amount1Fees, 5)
                   )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img
-                          height="25"
-                          width="25"
-                          src={getLogoURI(logoMap, tokenOut)}
-                        />
+                        <img height="25" width="25" src={tokenOut.logoURI} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />

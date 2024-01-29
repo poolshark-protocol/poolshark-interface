@@ -4,14 +4,14 @@ import {
     useWaitForTransaction,
     useAccount,
   } from "wagmi";
-import { SuccessToast } from "../Toasts/Success";
-import { ErrorToast } from "../Toasts/Error";
-import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { weth9ABI } from "../../abis/evm/weth9";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { useEffect } from "react";
+import { chainProperties } from "../../utils/chains";
+import { toast } from "sonner";
   
   export default function SwapWrapNativeButton({
     disabled,
@@ -29,13 +29,12 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
       state.chainId,
       state.networkName
     ]);
+
+    const [toastId, setToastId] = useState(null);
   
     const [setNeedsAllowanceIn, setNeedsBalanceIn, setNeedsBalanceOut, tradeButton] = useRangeLimitStore(
       (state) => [state.setNeedsAllowanceIn, state.setNeedsBalanceIn, state.setNeedsBalanceOut, state.tradeButton]
     );
-  
-    const [errorDisplay, setErrorDisplay] = useState(false);
-    const [successDisplay, setSuccessDisplay] = useState(false);
   
     const { address } = useAccount();
     const userAddress = address;
@@ -58,16 +57,41 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
     const { isLoading } = useWaitForTransaction({
       hash: data?.hash,
       onSuccess() {
-        setSuccessDisplay(true);
+        toast.success("Your transaction was successful",{
+          id: toastId,
+          action: {
+            label: "View",
+            onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          },
+        });
         resetAfterSwap()
         setNeedsAllowanceIn(true);
         setNeedsBalanceIn(true);
         setNeedsBalanceOut(true);
       },
       onError() {
-        setErrorDisplay(true);
+        toast.error("Your transaction failed",{
+          id: toastId,
+          action: {
+            label: "View",
+            onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          },
+        });
       },
     });
+
+    useEffect(() => {
+      if(isLoading) {
+        const newToastId = toast.loading("Your transaction is being confirmed...",{
+          action: {
+            label: "View",
+            onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          },
+        });
+        newToastId
+        setToastId(newToastId);
+      }
+    }, [isLoading]);
   
     return (
       <>
@@ -78,23 +102,6 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
         >
           { disabled && tradeButton.buttonMessage != '' ? tradeButton.buttonMessage : 'Wrap ' + tokenInSymbol }
         </button>
-        <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
-          {errorDisplay && (
-            <ErrorToast
-              hash={data?.hash}
-              errorDisplay={errorDisplay}
-              setErrorDisplay={setErrorDisplay}
-            />
-          )}
-          {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-          {successDisplay && (
-            <SuccessToast
-              hash={data?.hash}
-              successDisplay={successDisplay}
-              setSuccessDisplay={setSuccessDisplay}
-            />
-          )}
-        </div>
       </>
     );
   }

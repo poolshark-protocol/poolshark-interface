@@ -14,6 +14,7 @@ import { coverPoolTypes } from "./pools";
 import { getCoverMintButtonMsgValue, getLimitSwapButtonMsgValue, getRangeMintButtonMsgValue, getRangeMintInputData, getSwapRouterButtonMsgValue } from "./buttons";
 import { weth9ABI } from "../abis/evm/weth9";
 import { rangeStakerABI } from "../abis/evm/rangeStaker";
+import { getRangeStakerAddress, getRouterAddress } from "./config";
 
 export interface gasEstimateResult {
   formattedPrice: string;
@@ -167,7 +168,7 @@ export const gasEstimateMintLimit = async (
     }
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
 
-    const routerAddress = chainProperties[networkName]["routerAddress"];
+    const routerAddress = getRouterAddress(networkName);
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
@@ -261,7 +262,7 @@ export const gasEstimateLimitCreateAndMint = async (
     const recipient = address;
     const zeroForOne = tokenIn.callId == 0;
 
-    const routerAddress = chainProperties[networkName]["routerAddress"];
+    const routerAddress = getRouterAddress(networkName);
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
@@ -397,13 +398,6 @@ export const gasEstimateRangeMint = async (
   positionId?: number,
 ): Promise<gasEstimateResult> => {
   try {
-    
-    console.log('gas estimate range mint', getRangeMintButtonMsgValue(
-      tokenIn.native,
-      tokenOut.native,
-      amountIn,
-      amountOut
-    ).toString(), tokenIn.native, tokenOut.native)
     if (
       !rangePoolRoute ||
       !signer.provider ||
@@ -412,8 +406,8 @@ export const gasEstimateRangeMint = async (
     ) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
-    const routerAddress = chainProperties[networkName]["routerAddress"];
-    const rangeStakerAddress = chainProperties[networkName]["rangeStakerAddress"]
+    const routerAddress = getRouterAddress(networkName);
+    const rangeStakerAddress = getRangeStakerAddress(networkName)
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
@@ -494,7 +488,7 @@ export const gasEstimateRangeCreateAndMint = async (
       console.log('invalid price', startPrice.toString())
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
-    const routerAddress = chainProperties[networkName]["routerAddress"];
+    const routerAddress = getRouterAddress(networkName);
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
@@ -518,7 +512,7 @@ export const gasEstimateRangeCreateAndMint = async (
             positionId: 0, /// @dev - 0 for new position; positionId for existing (i.e. adding liquidity)
             amount0: tokenIn.callId == 0 ? amountIn : amountOut,
             amount1: tokenIn.callId == 0 ? amountOut : amountIn,
-            callbackData: getRangeMintInputData(stakeFlag, chainProperties[networkName]["rangeStakerAddress"]),
+            callbackData: getRangeMintInputData(stakeFlag, getRangeStakerAddress(networkName)),
           },
         ], // range positions
         [], // limit positions
@@ -531,7 +525,6 @@ export const gasEstimateRangeCreateAndMint = async (
           )
         }
       );
-      console.log('create and mint gas units', gasUnits.toString())
     const price = await fetchEthPrice();
     const gasPrice = await signer.provider.getGasPrice();
     const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);
@@ -569,7 +562,7 @@ export const gasEstimateRangeStake = async(
   ) {
     return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
   }
-  const rangeStakerAddress = chainProperties[networkName]["rangeStakerAddress"]
+  const rangeStakerAddress = getRangeStakerAddress(networkName)
   const contract = new ethers.Contract(
     rangeStakerAddress,
     rangeStakerABI,
@@ -618,7 +611,7 @@ export const gasEstimateRangeUnstake = async(
   ) {
     return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
   }
-  const rangeStakerAddress = chainProperties[networkName]["rangeStakerAddress"]
+  const rangeStakerAddress = getRangeStakerAddress(networkName)
   const contract = new ethers.Contract(
     rangeStakerAddress,
     rangeStakerABI,
@@ -668,7 +661,7 @@ export const gasEstimateRangeBurn = async (
     ) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
-    const rangeStakerAddress = chainProperties[networkName]["rangeStakerAddress"]
+    const rangeStakerAddress = getRangeStakerAddress(networkName)
     const contract = new ethers.Contract(
       !staked ? rangePoolRoute : rangeStakerAddress,
       !staked ? rangePoolABI : rangeStakerABI,
@@ -725,7 +718,7 @@ export const gasEstimateCoverMint = async (
     }
     if (inAmount.eq(BN_ZERO))
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
-    const routerAddress = chainProperties[networkName]["routerAddress"];
+    const routerAddress = getRouterAddress(networkName);
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
@@ -790,7 +783,7 @@ export const gasEstimateCoverCreateAndMint = async (
     if (!signer.provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
-    const routerAddress = chainProperties[networkName]["routerAddress"];
+    const routerAddress = getRouterAddress(networkName);
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
