@@ -885,9 +885,89 @@ export default function AddLiquidity({}) {
           </div>
           <div className="flex justify-between items-center w-full md:gap-x-4 gap-x-2">
               <button
+              onClick={() => {
+                setMinInput(
+                  invertPrice(
+                    TickMath.getPriceStringAtTick(
+                      priceOrder == (tokenIn.callId == 0)
+                        ? rangePoolData.tickAtPrice - 2232
+                        : rangePoolData.tickAtPrice - -2232,
+                      tokenIn,
+                      tokenOut
+                    ),
+                    priceOrder == (tokenIn.callId == 0)
+                  )
+                )
+                setMaxInput(
+                  invertPrice(
+                    TickMath.getPriceStringAtTick(
+                      priceOrder == (tokenIn.callId == 0)
+                        ? rangePoolData.tickAtPrice - -2232
+                        : rangePoolData.tickAtPrice - 2232,
+                      tokenIn,
+                      tokenOut
+                    ),
+                    priceOrder == (tokenIn.callId == 0)
+                  )
+                )
+              }}
                className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all">Narrow</button>
-              <button className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all">COMMON</button>
-              <button className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all">WIDE</button>
+              <button
+              onClick={() => {
+                setMinInput(
+                  invertPrice(
+                    TickMath.getPriceStringAtTick(
+                      priceOrder == (tokenIn.callId == 0)
+                        ? rangePoolData.tickAtPrice - 4055
+                        : rangePoolData.tickAtPrice - -4055,
+                      tokenIn,
+                      tokenOut
+                    ),
+                    priceOrder == (tokenIn.callId == 0)
+                  )
+                )
+                setMaxInput(
+                  invertPrice(
+                    TickMath.getPriceStringAtTick(
+                      priceOrder == (tokenIn.callId == 0)
+                        ? rangePoolData.tickAtPrice - -4055
+                        : rangePoolData.tickAtPrice - 4055,
+                      tokenIn,
+                      tokenOut
+                    ),
+                    priceOrder == (tokenIn.callId == 0)
+                  )
+                )
+              }}
+               className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all">COMMON</button>
+              <button
+              onClick={() => {
+                setMinInput(
+                  invertPrice(
+                    TickMath.getPriceStringAtTick(
+                      priceOrder == (tokenIn.callId == 0)
+                        ? rangePoolData.tickAtPrice - 5596
+                        : rangePoolData.tickAtPrice - -5596,
+                      tokenIn,
+                      tokenOut
+                    ),
+                    priceOrder == (tokenIn.callId == 0)
+                  )
+                )
+                setMaxInput(
+                  invertPrice(
+                    TickMath.getPriceStringAtTick(
+                      priceOrder == (tokenIn.callId == 0)
+                        ? rangePoolData.tickAtPrice - -5596
+                        : rangePoolData.tickAtPrice - 5596,
+                      tokenIn,
+                      tokenOut
+                    ),
+                    priceOrder == (tokenIn.callId == 0)
+                  )
+                )
+              }}
+               className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all">WIDE</button>
             </div>
           <div className="flex flex-col gap-y-4">
             <div className="flex md:flex-row flex-col items-center gap-5 mt-3">
@@ -954,7 +1034,11 @@ export default function AddLiquidity({}) {
                 <TooltipProvider>
                 <Tooltip delayDuration={100}>
                   <TooltipTrigger>
-                  <div className="uppercase">
+                  <div className="uppercase flex items-center gap-x-2">
+                  <svg width="17" height="17" viewBox="0 0 24 24" className="text-grey1" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1ZM12 7C11.4477 7 11 7.44772 11 8C11 8.55228 11.4477 9 12 9H12.01C12.5623 9 13.01 8.55228 13.01 8C13.01 7.44772 12.5623 7 12.01 7H12ZM13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12V16C11 16.5523 11.4477 17 12 17C12.5523 17 13 16.5523 13 16V12Z" fill="currentColor"/>
+</svg>
+
                   1{" "}
                   {
                     (priceOrder == (tokenIn.callId == 0) ? tokenIn : tokenOut)
