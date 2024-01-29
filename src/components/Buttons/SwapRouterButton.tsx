@@ -3,15 +3,17 @@ import {
   useContractWrite,
   useWaitForTransaction,
   useAccount,
+  usePrepareSendTransaction,
 } from "wagmi";
 import React, { useState } from "react";
-import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
+import { useTradeStore } from "../../hooks/useTradeStore";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { getSwapRouterButtonMsgValue } from "../../utils/buttons";
 import { chainProperties } from "../../utils/chains";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { parseEther } from "ethers/lib/utils.js";
 
 export default function SwapRouterButton({
   disabled,
@@ -34,9 +36,31 @@ export default function SwapRouterButton({
 
   const [toastId, setToastId] = useState(null);
 
-  const [setNeedsAllowanceIn, setNeedsBalanceIn, setNeedsBalanceOut, tradeButton] = useRangeLimitStore(
-    (state) => [state.setNeedsAllowanceIn, state.setNeedsBalanceIn, state.setNeedsBalanceOut, state.tradeButton]
-  );
+  const [
+    setNeedsRefetch,
+    setNeedsAllowanceIn,
+    setNeedsBalanceIn,
+    setNeedsBalanceOut,
+    setNeedsSnapshot,
+    setNeedsPosRefetch,
+    tokenIn,
+    tokenOut,
+    tradeButton,
+    tradeSdk,
+  ] = useTradeStore((state) => [
+    state.setNeedsRefetch,
+    state.setNeedsAllowanceIn,
+    state.setNeedsBalanceIn,
+    state.setNeedsBalanceOut,
+    state.setNeedsSnapshot,
+    state.setNeedsPosRefetch,
+    state.tokenIn,
+    state.tokenOut,
+    state.tradeButton,
+    state.tradeSdk,
+  ]);
+
+  console.log('swap router button')
 
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -63,6 +87,9 @@ export default function SwapRouterButton({
 
   const { data, write } = useContractWrite(config);
 
+  // const data = tradeSdk.enabled ? exchangeData : approveData
+  // const write = tradeSdk.enabled ? exchangeWrite : approveWrite
+
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
@@ -77,6 +104,11 @@ export default function SwapRouterButton({
       setNeedsAllowanceIn(true);
       setNeedsBalanceIn(true);
       setNeedsBalanceOut(true);
+      setTimeout(() => {
+        setNeedsSnapshot(true);
+        setNeedsRefetch(true);
+        setNeedsPosRefetch(true);
+      }, 2500);
     },
     onError() {
       toast.error("Your transaction failed",{
@@ -106,7 +138,7 @@ export default function SwapRouterButton({
     <>
       <button
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
-        disabled={disabled}
+        disabled={disabled && !tradeSdk.enabled}
         onClick={(address) => (address ? write?.() : null)}
       >
         { disabled && tradeButton.buttonMessage != '' ? tradeButton.buttonMessage : "Swap" }

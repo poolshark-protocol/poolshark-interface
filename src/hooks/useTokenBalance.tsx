@@ -8,6 +8,7 @@ import {
 } from "../utils/chains";
 import { isAlchemySDKSupported } from "../utils/config";
 import axios from "axios";
+import { ZERO_ADDRESS } from "../utils/math/constants";
 
 export default function useTokenBalance(tokenAddress: `0x${string}`) {
   const { address } = useAccount();
@@ -23,7 +24,8 @@ export default function useTokenBalance(tokenAddress: `0x${string}`) {
     token: tokenAddress,
     chainId: chainId,
     enabled:
-      !isAlchemySDKSupported(chainId),
+      !isAlchemySDKSupported(chainId) &&
+      tokenAddress != ZERO_ADDRESS,
     watch: true,
     onSuccess(data) {
       console.log('token balance:', data)

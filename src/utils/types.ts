@@ -27,6 +27,7 @@ export type QuoteOptions = {
 export type TradeSdkStatus = {
   quotes: Quote[];
   enabled: boolean;
+  swapCalldata: `0x${string}`;
   transfer: {
     params: QuoteOptions;
   }

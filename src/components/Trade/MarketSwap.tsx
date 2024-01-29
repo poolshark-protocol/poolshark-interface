@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 import { useAccount, useContractRead, useProvider, useSigner } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
@@ -24,10 +24,10 @@ import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { getRouterAddress, getTradeSDKEnabled as getTradeSdkEnabled } from "../../utils/config";
+import { getRouterAddress, getTradeSdkEnabled } from "../../utils/config";
 import BalanceDisplay from "../Display/BalanceDisplay";
 import { formatBytes32String, formatUnits } from "ethers/lib/utils.js";
-import axios from 'axios';
+import axios from "axios";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -151,6 +151,27 @@ export default function MarketSwap() {
   const [quoteParams, setQuoteParams] = useState(undefined);
 
   useEffect(() => {
+    if (tradeSdk.enabled && 
+        (
+          exactIn ? amountIn.gt(BN_ZERO) 
+                  : amountOut.gt(BN_ZERO)
+        )
+    ) {
+      getSwapPools(
+        limitSubgraph,
+        tokenIn,
+        tokenOut,
+        tradeSdk,
+        tradePoolData,
+        setTradePoolData,
+        setTradeSdkQuotes,
+        setTradeSdkEnabled,
+        setTokenInTradeUSDPrice,
+        setTokenOutTradeUSDPrice,
+        setTradePoolPrice,
+        setTradePoolLiquidity,
+      );
+    }
     const interval = setInterval(() => {
       // Code to run every 5 seconds
       if (exactIn ? amountIn.gt(BN_ZERO) 
@@ -271,52 +292,25 @@ export default function MarketSwap() {
 
     /////////////////////Trade SDK
 
-    // useEffect(() => {
-    //   initTradeSdk()
-    // }, [signer]);
+    useEffect(() => {
+      initTradeSdk()
+    }, [chainId]);
   
     const initTradeSdk = async () => {
-      // allow input and output
-      // input - quote amount
-      // output - reverse quote and set amountIn
-      // when user clicks swap button
-      // 0. skip approve if non-FIN pair and use SwingSDK
-      // - useSwingSDK zustand flag
-      // - always use amountIn for amount
-      // 1. disable while tradeSdkSDK.transfer is in progress
-      // 2. reenable once transfer completes
-      // console.log('signer check', signer)
-      // if (!signer) return
-      // // if having async network switching issues
-      // // set connected false here
-      // setTradeSdkStatus({
-      //   ...tradeSdk,
-      //   enabled: getTradeSdkEnabled(networkName, tokenIn.address, tokenOut.address),
-      //   transfer: {
-      //     ...tradeSdk.transfer,
-      //     params: {
-      //       ...tradeSdk.transfer.params,
-      //       chain: supportedChainIds[chainId],
-      //       fromAddress: address,
-      //     }
-      //   }
-      // })
-
-      // let data=await axios.get(`https://open-api.openocean.finance/v3/arbitrum/tokenList`)
-      // console.log('gas price check', data)
-      // const res = await axios.get( "https://open-api.openocean.finance/v3/arbitrum/quote", {params:{
-      //     chain: 'arbitrum',
-      //     inTokenAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
-      //     outTokenAddress: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
-      //     amount: 10,
-      //     gasPrice: 5,
-      //     slippage: 1,
-      // }}).then((res) => {
-      //     const result = res.data
-      //     console.log('ocean quote:', result.data)
-      // }).catch((err) => {
-      //     throw new Error(err)
-      // })
+      if (!signer) return
+      console.log('signer updated', chainId)
+      setTradeSdkStatus({
+        ...tradeSdk,
+        enabled: getTradeSdkEnabled(networkName, tokenIn.address, tokenOut.address),
+        transfer: {
+          ...tradeSdk.transfer,
+          params: {
+            ...tradeSdk.transfer.params,
+            chain: supportedChainIds[chainId],
+            fromAddress: address,
+          }
+        }
+      })
 
       // setAmountOut(parseUnits('100', 18))
       // setDisplayOut('100')
@@ -395,38 +389,39 @@ export default function MarketSwap() {
   });
 
   useEffect(() => {
+    console.log('quotes changed')
     let quotes; 
     if (tradeSdk.enabled) {
       quotes = tradeSdk.quotes
     } else {
       quotes = poolQuotes
     }
-    if (poolQuotes && poolQuotes[0]) {
-      if (poolQuotes[0].amountIn?.gt(BN_ZERO) && poolQuotes[0].amountOut?.gt(BN_ZERO)) {
+    if (quotes && quotes[0]) {
+      if (quotes[0].amountIn?.gt(BN_ZERO) && quotes[0].amountOut?.gt(BN_ZERO)) {
         if (exactIn) {
-          const value = formatUnits(poolQuotes[0].amountOut, tokenOut.decimals)
-          setAmountOut(poolQuotes[0].amountOut);
+          const value = formatUnits(quotes[0].amountOut, tokenOut.decimals)
+          setAmountOut(quotes[0].amountOut);
           setDisplayOut(
             numFormat(parseFloat(
               formatUnits(
-                poolQuotes[0].amountOut.toString(),
+                quotes[0].amountOut.toString(),
                 tokenOut.decimals
               )
             ), 5)
           );
         } else {
-          const value = formatUnits(poolQuotes[0].amountIn, tokenIn.decimals)
-          setAmountIn(poolQuotes[0].amountIn, value);
+          const value = formatUnits(quotes[0].amountIn, tokenIn.decimals)
+          setAmountIn(quotes[0].amountIn, value);
           setDisplayIn(
             numFormat(parseFloat(
               formatUnits(
-                poolQuotes[0].amountIn.toString(),
+                quotes[0].amountIn.toString(),
                 tokenIn.decimals
               )
             ), 5)
           );
         }
-        updateSwapParams(poolQuotes);
+        updateSwapParams(quotes);
       } else {
         if (exactIn) {
           setAmountOut(BN_ZERO);
@@ -436,7 +431,7 @@ export default function MarketSwap() {
           setDisplayIn('');
         }
       }  
-    } else if (poolQuotes != undefined) {
+    } else if (quotes != undefined) {
       if (exactIn) {
         setAmountOut(BN_ZERO);
         setDisplayOut('');
@@ -445,7 +440,7 @@ export default function MarketSwap() {
         setDisplayIn('');
       }
     }
-  }, [poolQuotes, quoteParams, tradeSlippage,]);
+  }, [poolQuotes, quoteParams, tradeSlippage, tradeSdk.quotes[0]]);
 
   function updateSwapParams(poolQuotes: any) {
     if (!tradeSdk.enabled) {

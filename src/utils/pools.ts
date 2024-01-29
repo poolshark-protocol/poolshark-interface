@@ -1,8 +1,10 @@
 import { formatBytes32String } from "ethers/lib/utils.js";
 import { getLimitPoolFromFactory } from "./queries";
 import { LimitSubgraph, TradeSdkStatus, token, tokenSwap } from "./types";
-import { ZERO, ZERO_ADDRESS } from "./math/constants";
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from "./math/constants";
 import { fetchRangeTokenUSDPrice } from "./tokens";
+import axios from "axios";
+import { getOpenOceanQuote } from "./config";
 
 export const getSwapPools = async (
   client: LimitSubgraph,
@@ -19,9 +21,14 @@ export const getSwapPools = async (
   setSwapPoolLiquidity?
 ) => {
   try {
+    // early return if token unselected
+    if (tokenIn.address == ZERO_ADDRESS || tokenOut.address == ZERO_ADDRESS) return
     if (tradeSdk?.enabled) {
-      // const quotes = await tradeSdkSDK.getQuote(tradeSdk.transfer.params)
-      // setTradeSdkQuotes()
+      await getOpenOceanQuote(tradeSdk, tokenIn, tokenOut, setTradeSdkQuotes, setTradeSdkEnabled)
+      console.log('quotes updated', tradeSdk.quotes[0]?.amountIn.toString())
+      if (tradeSdk.quotes[0]?.amountIn.gt(BN_ZERO)) {
+        return
+      }
     }
     const limitPools = await getLimitPoolFromFactory(
       client,

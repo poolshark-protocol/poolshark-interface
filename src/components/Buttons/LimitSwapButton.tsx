@@ -36,6 +36,7 @@ export default function LimitSwapButton({
     setNeedsRefetch,
     setNeedsAllowanceIn,
     setNeedsBalanceIn,
+    setNeedsBalanceOut,
     setNeedsSnapshot,
     setNeedsPosRefetch,
     tokenIn,
@@ -44,6 +45,7 @@ export default function LimitSwapButton({
     state.setNeedsRefetch,
     state.setNeedsAllowanceIn,
     state.setNeedsBalanceIn,
+    state.setNeedsBalanceOut,
     state.setNeedsSnapshot,
     state.setNeedsPosRefetch,
     state.tokenIn,
@@ -98,8 +100,9 @@ export default function LimitSwapButton({
       resetAfterSwap();
       setNeedsAllowanceIn(true);
       setNeedsBalanceIn(true);
-      setNeedsSnapshot(true);
+      setNeedsBalanceOut(true);
       setTimeout(() => {
+        setNeedsSnapshot(true);
         setNeedsRefetch(true);
         setNeedsPosRefetch(true);
       }, 2500);

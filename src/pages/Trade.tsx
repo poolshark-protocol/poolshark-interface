@@ -292,7 +292,7 @@ export default function Trade() {
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.native ? undefined : tokenIn.address,
-    enabled: tokenIn.address != undefined && needsBalanceIn,
+    enabled: tokenIn.address != ZERO_ADDRESS && needsBalanceIn,
     watch: needsBalanceIn,
     chainId: chainId,
     onSuccess(data) {
@@ -307,7 +307,7 @@ export default function Trade() {
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.native ? undefined : tokenOut.address,
-    enabled: tokenOut.address != undefined && needsBalanceOut,
+    enabled: tokenIn.address != ZERO_ADDRESS && needsBalanceOut,
     watch: needsBalanceOut,
     chainId: chainId,
     onSuccess(data) {

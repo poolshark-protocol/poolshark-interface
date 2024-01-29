@@ -130,7 +130,7 @@ type TradeLimitAction = {
   setLimitPriceOrder: (limitPriceOrder: boolean) => void;
   setTradeSdkStatus: (tradeSdkStatus: TradeSdkStatus) => void;
   setTradeSdkEnabled: (tradeSdkEnabled: boolean) => void;
-  setTradeSdkQuotes: (tradeSdkQuotes: any[]) => void;
+  setTradeSdkQuotes: (tradeSdkQuotes: any[], swapCalldata?: string) => void;
 };
 
 const initialTradeState: TradeState = {
@@ -201,6 +201,7 @@ const initialTradeState: TradeState = {
         amountOut: BN_ZERO,
       }
     ],
+    swapCalldata: ZERO_ADDRESS,
     enabled: false,
     transfer: {
       params: {
@@ -356,8 +357,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
               ...state.tradeSdk.transfer,
               params: {
                 ...state.tradeSdk.transfer.params,
-                inTokenAddress: newTokenIn.address,
-                outTokenAddress: tokenOut.address,
+                inTokenAddress: newTokenIn.native ? ZERO_ADDRESS : newTokenIn.address,
+                outTokenAddress: tokenOut.native ? ZERO_ADDRESS : tokenOut.address,
                 amount: isAmountIn ? parseFloat(amount) 
                                    : state.tradeSdk.transfer.params.amount
               }
@@ -493,8 +494,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
               ...state.tradeSdk.transfer,
               params: {
                 ...state.tradeSdk.transfer.params,
-                fromToken: tokenIn.symbol,
-                toToken: newTokenOut.symbol
+                fromToken: tokenIn.native ? ZERO_ADDRESS : tokenIn.address,
+                toToken: newTokenOut.native ? ZERO_ADDRESS : newTokenOut.address
               }
             }
           }
@@ -532,15 +533,19 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     }));
   },
   setAmountIn: (amountIn: BigNumber, displayIn: string) => {
+    console.log('setting amount in', displayIn)
     set((state) => ({
       amountIn: amountIn,
-      tradeSdk:{
+      tradeSdk: {
         ...state.tradeSdk,
         transfer: {
           ...state.tradeSdk.transfer,
-          amount: displayIn,
-        }
-      }
+          params :{
+            ...state.tradeSdk.transfer.params,
+            amount: Number(displayIn),
+          },
+        },
+      },
     }));
   },
   setAmountOut: (amountOut: BigNumber) => {
@@ -687,7 +692,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       }
     }));
   },
-  setTradeSdkQuotes: (tradeSdkQuotes: any[]) => {
+  setTradeSdkQuotes: (tradeSdkQuotes: any[], swapCalldata?: string) => {
     set((state) => ({
       tradeSdk: {
         ...state.tradeSdk,

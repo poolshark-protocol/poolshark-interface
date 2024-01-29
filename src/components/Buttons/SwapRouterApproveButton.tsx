@@ -54,8 +54,6 @@ export default function SwapRouterApproveButton({
 
   const { data, isSuccess, write } = useContractWrite(config);
 
-
-
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {

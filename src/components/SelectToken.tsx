@@ -10,7 +10,7 @@ import CoinListItem from "./CoinListItem";
 import { useAccount, useToken } from "wagmi";
 import { useConfigStore } from "../hooks/useConfigStore";
 import { defaultTokenLogo, logoMapKey } from "../utils/tokens";
-import { getTradeSDKEnabled } from "../utils/config";
+import { getTradeSdkEnabled } from "../utils/config";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
@@ -60,11 +60,14 @@ export default function SelectToken(props) {
     refetch: refetchTokenInfo,
   } = useToken({
     address: customInput as `0x${string}`,
-    enabled: isAddress(customInput),
+    enabled: isAddress(customInput) && false,
     onSuccess() {
       if (tokenData) setTokenInfo(tokenData);
       else refetchTokenInfo();
     },
+    onError() {
+      console.log('token info error')
+    }
   });
 
   useEffect(() => {
@@ -132,7 +135,7 @@ export default function SelectToken(props) {
             },
             props.amount,
             props.isAmountIn,
-            getTradeSDKEnabled(networkName, props.tokenOut?.address, coin?.address)
+            getTradeSdkEnabled(networkName, props.tokenOut?.address, coin?.address)
           );
         } else {
           props.setTokenIn(
@@ -166,7 +169,7 @@ export default function SelectToken(props) {
             },
             props.amount,
             props.isAmountIn,
-            getTradeSDKEnabled(networkName, props.tokenIn?.address, coin?.address)
+            getTradeSdkEnabled(networkName, props.tokenIn?.address, coin?.address)
           );
         } else {
           props.setTokenOut(
