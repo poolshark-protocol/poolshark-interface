@@ -616,7 +616,15 @@ export default function MarketSwap() {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-center w-full pt-7 pb-4">
+      <div 
+      onClick={() => {
+        switchDirection(
+          exactIn,
+          exactIn ? displayIn : displayOut,
+          exactIn ? setAmountIn : setAmountOut
+        );
+      }}
+      className="flex items-center justify-center w-full pt-10 pb-3">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -624,13 +632,6 @@ export default function MarketSwap() {
           strokeWidth="1.5"
           stroke="currentColor"
           className="w-5 cursor-pointer"
-          onClick={() => {
-            switchDirection(
-              exactIn,
-              exactIn ? displayIn : displayOut,
-              exactIn ? setAmountIn : setAmountOut
-            );
-          }}
         >
           <path
             strokeLinecap="round"

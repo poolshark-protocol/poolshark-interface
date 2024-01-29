@@ -63,7 +63,7 @@ export const ConnectWalletButton = ({ xl = false, center = false }: Props) => {
                 if (!connected) {
                   return (
                     <button
-                      className={`w-full mx-auto text-white uppercase px-8  text-center transition cursor-pointer bg-main1 border border-main hover:opacity-80 ${
+                      className={`w-full mx-auto text-white uppercase px-8 rounded-[4px]  text-center transition cursor-pointer bg-main1 border border-main hover:opacity-80 ${
                         xl ? `py-4 ` : `py-2.5 text-sm`
                       }`}
                       onClick={openConnectModal}
