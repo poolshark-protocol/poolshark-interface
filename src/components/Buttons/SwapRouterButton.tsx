@@ -12,7 +12,7 @@ import { getSwapRouterButtonMsgValue } from "../../utils/buttons";
 import { chainProperties } from "../../utils/chains";
 import { toast } from "sonner";
 import { useEffect } from "react";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { formatCurrency } from "@usedapp/core/dist/esm/src/model";
 
 declare global {
@@ -127,7 +127,7 @@ export default function SwapRouterButton({
       eventType: 'swap',
       eventName: 'swap-main',
       parameters: {
-        fromAmount: (amountIn as BigNumber),
+        fromAmount: Number(ethers.utils.formatEther(amountIn)),
         fromCurrency: (tokenInSymbol as string),
         toCurrency: (tokenOutSymbol as string),
         contractAddress: (routerAddress as string),
@@ -136,7 +136,7 @@ export default function SwapRouterButton({
     })
   };
 
-  console.log(routerAddress)
+  console.log(Number(ethers.utils.formatEther(amountIn)))
 
   return (
     <>
