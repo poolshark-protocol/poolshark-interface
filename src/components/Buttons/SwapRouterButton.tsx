@@ -13,6 +13,19 @@ import { chainProperties } from "../../utils/chains";
 import { toast } from "sonner";
 import { useEffect } from "react";
 
+declare global {
+  interface Window {
+    safary?: {
+      track: (args: {
+        eventType: string
+        eventName: string
+        parameters?: { [key: string]: string | number | boolean }
+      }) => void
+    }
+  }
+}
+
+
 export default function SwapRouterButton({
   disabled,
   routerAddress,
@@ -102,12 +115,29 @@ export default function SwapRouterButton({
     }
   }, [isLoading]);
 
+
+  const ConfirmTransaction = (address) => {
+    if (address) {
+      write?.();
+    }
+    window.safary?.track({
+      eventType: 'swap',
+      eventName: 'swap-main',
+      parameters: {
+        fromAmount: (amountIn as number),
+        fromCurrency: (tokenInNative as string),
+        contractAddress: (routerAddress as string),
+        chainId: (chainId as number) || '',
+      },
+    })
+  };
+
   return (
     <>
       <button
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         disabled={disabled}
-        onClick={(address) => (address ? write?.() : null)}
+        onClick={ConfirmTransaction}
       >
         { disabled && tradeButton.buttonMessage != '' ? tradeButton.buttonMessage : "Swap" }
       </button>
