@@ -11,9 +11,9 @@ export const addressMatches = (addressA: string, addressB: string): boolean => {
 
 export const openoceanNativeAddress = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' as `0x${string}`;
 
-export const getRouterAddress = (networkName: string, tradeSdkEnabled?: boolean) => {
+export const getRouterAddress = (networkName: string, tradeSdkEnabled?: boolean, limitTabSelected?: boolean) => {
 	if(chainProperties[networkName]) {
-			if (tradeSdkEnabled) {
+			if (tradeSdkEnabled && !limitTabSelected) {
 				if (chainProperties[networkName]["openocean"] && 
 						chainProperties[networkName]["openocean"]["routerAddress"]) {
 					return chainProperties[networkName]["openocean"]["routerAddress"]
@@ -97,7 +97,8 @@ export const getOpenOceanQuote = async(
 	setTradeSdkEnabled: any
 ) => {
 	const startSwap = new Date().getTime();
-	console.log('chain check', tradeSdk.transfer.params.chain)
+	console.log('token decimals', tokenIn.decimals, tokenOut.decimals)
+	console.log('signer check2', tradeSdk.transfer.params.fromAddress, tradeSdk.transfer.params.chain)
 	const response = await axios.get(
 		`https://open-api.openocean.finance/v3/${tradeSdk.transfer.params.chain}/swap_quote`,
 		{

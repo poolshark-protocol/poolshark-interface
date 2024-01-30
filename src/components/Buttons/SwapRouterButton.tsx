@@ -4,6 +4,7 @@ import {
   useWaitForTransaction,
   useAccount,
   usePrepareSendTransaction,
+  useSendTransaction,
 } from "wagmi";
 import React, { useState } from "react";
 import { useTradeStore } from "../../hooks/useTradeStore";
@@ -14,6 +15,7 @@ import { chainProperties } from "../../utils/chains";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { parseEther } from "ethers/lib/utils.js";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 
 export default function SwapRouterButton({
   disabled,
@@ -60,15 +62,13 @@ export default function SwapRouterButton({
     state.tradeSdk,
   ]);
 
-  console.log('swap router button')
-
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
   const { address } = useAccount();
   const userAddress = address;
 
-  const { config } = usePrepareContractWrite({
+  const { config: psharkConfig } = usePrepareContractWrite({
     address: routerAddress,
     abi: poolsharkRouterABI,
     functionName: "multiSwapSplit",
@@ -83,12 +83,44 @@ export default function SwapRouterButton({
         amountIn
       )
     },
+    onError() {
+      console.log('multi swap error')
+    }
   });
 
-  const { data, write } = useContractWrite(config);
+  const { data: psharkData, write: psharkWrite } = useContractWrite(psharkConfig);
 
-  // const data = tradeSdk.enabled ? exchangeData : approveData
-  // const write = tradeSdk.enabled ? exchangeWrite : approveWrite
+  const { config: openoceanConfig } = usePrepareSendTransaction({
+    request: {
+      to: routerAddress,
+      data: tradeSdk.swapCalldata,
+      value: getSwapRouterButtonMsgValue(
+        tokenInNative,
+        tokenOutNative,
+        amountIn,
+        tradeSdk
+      )
+    },
+    enabled: tradeSdk.enabled && 
+             tradeSdk.swapCalldata != ZERO_ADDRESS &&
+             amountIn.gt(BN_ZERO) && !disabled,
+    onSuccess() {
+      // console.log('success configuring openocean call')
+    },
+    onError() {
+      console.log('open ocean error', getSwapRouterButtonMsgValue(
+        tokenInNative,
+        tokenOutNative,
+        amountIn,
+        tradeSdk
+      ).toString(), amountIn, tradeSdk.swapCalldata != ZERO_ADDRESS)
+    }
+  });
+
+  const { data: openoceanData, sendTransaction: openoceanWrite } = useSendTransaction(openoceanConfig);
+
+  const data = tradeSdk.enabled ? openoceanData : psharkData
+  const write = tradeSdk.enabled ? openoceanWrite : psharkWrite
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
@@ -138,7 +170,7 @@ export default function SwapRouterButton({
     <>
       <button
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
-        disabled={disabled && !tradeSdk.enabled}
+        disabled={disabled}
         onClick={(address) => (address ? write?.() : null)}
       >
         { disabled && tradeButton.buttonMessage != '' ? tradeButton.buttonMessage : "Swap" }

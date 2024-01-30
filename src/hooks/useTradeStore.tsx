@@ -277,7 +277,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     newTokenIn: tokenSwap,
     amount: string,
     isAmountIn: boolean,
-    tradeSdkSDKEnabled: boolean,
+    tradeSdkEnabled: boolean,
   ) => {
     //if tokenOut is selected
     if (tokenOut.address != initialTradeState.tokenOut.address) {
@@ -322,6 +322,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           wethCall:
             state.tokenOut.address.toLowerCase() ==
             state.tokenIn.address.toLowerCase(),
+          tradeSdk: {
+            ...state.tradeSdk,
+            swapCalldata: ZERO_ADDRESS,
+          },
         }));
       } else {
         //if tokens are different
@@ -352,15 +356,15 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             newTokenIn.address.localeCompare(tokenOut.address) < 0,
           tradeSdk: {
             ...state.tradeSdk,
-            enabled: tradeSdkSDKEnabled,
+            enabled: tradeSdkEnabled,
+            swapCalldata: ZERO_ADDRESS,
             transfer: {
               ...state.tradeSdk.transfer,
               params: {
                 ...state.tradeSdk.transfer.params,
-                inTokenAddress: newTokenIn.native ? ZERO_ADDRESS : newTokenIn.address,
-                outTokenAddress: tokenOut.native ? ZERO_ADDRESS : tokenOut.address,
                 amount: isAmountIn ? parseFloat(amount) 
-                                   : state.tradeSdk.transfer.params.amount
+                                   : state.tradeSdk.transfer.params.amount,
+                swapCallData: ZERO_ADDRESS,
               }
             }
           },
@@ -461,6 +465,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           wethCall:
             state.tokenIn.address.toLowerCase() ==
             state.tokenOut.address.toLowerCase(),
+          tradeSdk: {
+            ...state.tradeSdk,
+            swapCalldata: ZERO_ADDRESS,
+          }
         }));
       } else {
         // token is selected
@@ -494,8 +502,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
               ...state.tradeSdk.transfer,
               params: {
                 ...state.tradeSdk.transfer.params,
-                fromToken: tokenIn.native ? ZERO_ADDRESS : tokenIn.address,
-                toToken: newTokenOut.native ? ZERO_ADDRESS : newTokenOut.address
+                swapCalldata: ZERO_ADDRESS,
               }
             }
           }
@@ -538,6 +545,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       amountIn: amountIn,
       tradeSdk: {
         ...state.tradeSdk,
+        swapCalldata: ZERO_ADDRESS,
         transfer: {
           ...state.tradeSdk.transfer,
           params :{
@@ -613,7 +621,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           state.tokenIn,
           state.tokenOut,
           state.amountIn,
-          state.amountOut
+          state.amountOut,
+          state.tradeSdk,
         ),
         disabled: getTradeButtonDisabled(
           state.tokenIn,
@@ -692,11 +701,12 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       }
     }));
   },
-  setTradeSdkQuotes: (tradeSdkQuotes: any[], swapCalldata?: string) => {
+  setTradeSdkQuotes: (tradeSdkQuotes: any[], swapCalldata?: `0x${string}`) => {
     set((state) => ({
       tradeSdk: {
         ...state.tradeSdk,
-        quotes: tradeSdkQuotes
+        quotes: tradeSdkQuotes,
+        swapCalldata: swapCalldata ?? state.tradeSdk.swapCalldata
       }
     }));
   },
@@ -734,6 +744,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         : parseUnits(amount, state.tokenIn.decimals),
       needsAllowanceIn: true,
       needsSetAmounts: true,
+      tradeSdk: {
+        ...state.tradeSdk,
+        swapCalldata: ZERO_ADDRESS,
+      },
     }));
   },
   setTradePoolFromVolatility: async (
@@ -770,7 +784,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     }
   },
   resetTradeLimitParams: (chainId) => {
-    set({
+    set((state) => ({
       //trade pool & pair
       tradePoolData: initialTradeState.tradePoolData,
       tradeSlippage: initialTradeState.tradeSlippage,
@@ -797,6 +811,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       needsRefetch: initialTradeState.needsRefetch,
       needsPosRefetch: initialTradeState.needsPosRefetch,
       needsSnapshot: initialTradeState.needsSnapshot,
-    });
+      tradeSdk: {
+        ...state.tradeSdk,
+        swapCalldata: ZERO_ADDRESS
+      },
+    }));
   },
 }));

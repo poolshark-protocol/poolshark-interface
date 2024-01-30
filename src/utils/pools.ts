@@ -1,10 +1,11 @@
-import { formatBytes32String } from "ethers/lib/utils.js";
+import { formatBytes32String, formatUnits } from "ethers/lib/utils.js";
 import { getLimitPoolFromFactory } from "./queries";
 import { LimitSubgraph, TradeSdkStatus, token, tokenSwap } from "./types";
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from "./math/constants";
 import { fetchRangeTokenUSDPrice } from "./tokens";
 import axios from "axios";
 import { getOpenOceanQuote } from "./config";
+import { TickMath } from "./math/tickMath";
 
 export const getSwapPools = async (
   client: LimitSubgraph,
@@ -25,8 +26,16 @@ export const getSwapPools = async (
     if (tokenIn.address == ZERO_ADDRESS || tokenOut.address == ZERO_ADDRESS) return
     if (tradeSdk?.enabled) {
       await getOpenOceanQuote(tradeSdk, tokenIn, tokenOut, setTradeSdkQuotes, setTradeSdkEnabled)
-      console.log('quotes updated', tradeSdk.quotes[0]?.amountIn.toString())
-      if (tradeSdk.quotes[0]?.amountIn.gt(BN_ZERO)) {
+      if (
+          tradeSdk.quotes[0]?.amountIn?.gt(BN_ZERO) && 
+          tradeSdk.quotes[0]?.amountOut?.gt(BN_ZERO)
+      ) {
+        const price = parseFloat(formatUnits(tradeSdk.quotes[0].amountOut, tokenOut.decimals))
+                        / parseFloat(formatUnits(tradeSdk.quotes[0].amountIn, tokenIn.decimals))
+        const priceString = price.toString()
+        const sqrtPriceJsbi = TickMath.getSqrtPriceAtPriceString(priceString, tokenIn, tokenOut).toString()
+        const sqrtPrice = parseInt(String(sqrtPriceJsbi))
+        setSwapPoolPrice(sqrtPrice)
         return
       }
     }

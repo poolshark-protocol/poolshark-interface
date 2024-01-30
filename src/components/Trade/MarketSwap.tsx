@@ -28,6 +28,7 @@ import { getRouterAddress, getTradeSdkEnabled } from "../../utils/config";
 import BalanceDisplay from "../Display/BalanceDisplay";
 import { formatBytes32String, formatUnits } from "ethers/lib/utils.js";
 import axios from "axios";
+import { checkUserBalance } from "../../utils/tokens";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -196,7 +197,7 @@ export default function MarketSwap() {
    
     // Clear the interval when the component unmounts
     return () => clearInterval(interval);
-   }, [exactIn ? amountIn : amountOut, tradePoolData?.id]);
+   }, [exactIn ? amountIn : amountOut, tradePoolData?.id, tradeSdk.transfer.params.fromAddress]);
 
   //can go to utils
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
@@ -290,41 +291,6 @@ export default function MarketSwap() {
     }
   };
 
-    /////////////////////Trade SDK
-
-    useEffect(() => {
-      initTradeSdk()
-    }, [chainId]);
-  
-    const initTradeSdk = async () => {
-      if (!signer) return
-      console.log('signer updated', chainId)
-      setTradeSdkStatus({
-        ...tradeSdk,
-        enabled: getTradeSdkEnabled(networkName, tokenIn.address, tokenOut.address),
-        transfer: {
-          ...tradeSdk.transfer,
-          params: {
-            ...tradeSdk.transfer.params,
-            chain: supportedChainIds[chainId],
-            fromAddress: address,
-          }
-        }
-      })
-
-      // setAmountOut(parseUnits('100', 18))
-      // setDisplayOut('100')
-      try  {
-        // await tradeSdkSDK.transfer(transferRoute, transferParams);
-      } catch(e) {
-        console.log('tradeSdk sdk error', e)
-      }
-
-      // set USD out value
-      // set USD in value as amountUsd + bridgeFee
-      // for exact out we quote backwards and set the input to that
-    };
-
   /////////////////////Double Input Boxes
 
   const handleInputBox = (e) => {
@@ -384,21 +350,25 @@ export default function MarketSwap() {
       console.log("Error multiquote", error);
     },
     onSuccess(data) {
-      console.log('multiquote')
+      // console.log('multiquote')
     },
   });
 
   useEffect(() => {
-    console.log('quotes changed')
     let quotes; 
     if (tradeSdk.enabled) {
       quotes = tradeSdk.quotes
+      if (tokenIn.userRouterAllowance?.lt(amountIn)) {
+        // only check allowance if necessary
+        setNeedsAllowanceIn(true)
+      }
+      setSwapGasLimit(BigNumber.from('100000'))
     } else {
       quotes = poolQuotes
     }
     if (quotes && quotes[0]) {
       if (quotes[0].amountIn?.gt(BN_ZERO) && quotes[0].amountOut?.gt(BN_ZERO)) {
-        if (exactIn) {
+        if (exactIn && amountIn.gt(BN_ZERO)) {
           const value = formatUnits(quotes[0].amountOut, tokenOut.decimals)
           setAmountOut(quotes[0].amountOut);
           setDisplayOut(
@@ -819,7 +789,8 @@ export default function MarketSwap() {
           <Option />
         </div>
       </div>
-      {tokenIn.address != ZERO_ADDRESS &&
+      {
+      tokenIn.address != ZERO_ADDRESS &&
       tokenOut.address != ZERO_ADDRESS &&
       tradePoolData?.id == ZERO_ADDRESS &&
       tradePoolData?.feeTier != undefined &&
@@ -882,6 +853,7 @@ export default function MarketSwap() {
           {
             //range buttons
             tokenIn.userRouterAllowance?.lt(amountIn) &&
+            checkUserBalance(tokenIn, displayIn) &&
             !tokenIn.native &&
             pairSelected &&
             amountOut.gt(BN_ZERO) ? (
@@ -898,7 +870,9 @@ export default function MarketSwap() {
                 disabled={
                   tradeButton.disabled ||
                   (needsAllowanceIn && !tokenIn.native) ||
-                  swapGasLimit.lt(BigNumber.from('100000'))
+                  swapGasLimit.lt(BigNumber.from('100000')) ||
+                  (amountIn.eq(BN_ZERO) && amountOut.eq(BN_ZERO)) ||
+                  (tradeSdk.enabled && tradeSdk.swapCalldata == ZERO_ADDRESS)
                 }
                 routerAddress={getRouterAddress(networkName, tradeSdk.enabled)}
                 amountIn={amountIn}
