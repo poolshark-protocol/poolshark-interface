@@ -33,7 +33,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../../components/ui/tooltip";
-import { Checkbox } from "../../components/ui/checkbox"
+import { Checkbox } from "../../components/ui/checkbox";
 
 export default function AddLiquidity({}) {
   const [chainId, networkName, limitSubgraph, coverSubgraph, logoMap] =
@@ -136,6 +136,7 @@ export default function AddLiquidity({}) {
   ////////////////////////////////Pools
 
   useEffect(() => {
+    setManualRange(false);
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address != ZERO_ADDRESS) {
       refetchAllowanceIn();
       refetchAllowanceOut();
@@ -220,6 +221,8 @@ export default function AddLiquidity({}) {
     };
     fetchPool();
   }, [chainId]);
+
+  const [manualRange, setManualRange] = useState(false);
 
   async function updatePools(feeAmount: number) {
     /// @notice - this should filter by the poolId in the actual query
@@ -310,8 +313,40 @@ export default function AddLiquidity({}) {
     }
   }
 
+  useEffect(() => {
+    console.log(manualRange);
+    if (!manualRange) {
+      console.log("updating range");
+      setMinInput(
+        invertPrice(
+          TickMath.getPriceStringAtTick(
+            priceOrder == (tokenIn.callId == 0)
+              ? rangePoolData.tickAtPrice - 4055
+              : rangePoolData.tickAtPrice - -4055,
+            tokenIn,
+            tokenOut
+          ),
+          priceOrder == (tokenIn.callId == 0)
+        )
+      );
+      setMaxInput(
+        invertPrice(
+          TickMath.getPriceStringAtTick(
+            priceOrder == (tokenIn.callId == 0)
+              ? rangePoolData.tickAtPrice - -4055
+              : rangePoolData.tickAtPrice - 4055,
+            tokenIn,
+            tokenOut
+          ),
+          priceOrder == (tokenIn.callId == 0)
+        )
+      );
+    }
+  }, [manualRange, rangePoolData?.id]);
+
   //sames as updatePools but triggered from the html
   const handleManualFeeTierChange = async (feeAmount: number) => {
+    setManualRange(false);
     updatePools(feeAmount);
     setRangePoolData({
       ...rangePoolData,
@@ -939,8 +974,9 @@ export default function AddLiquidity({}) {
             </div>
           </div>
           <div className="flex justify-between items-center w-full md:gap-x-4 gap-x-2">
-              <button
+            <button
               onClick={() => {
+                setManualRange(true);
                 setMinInput(
                   invertPrice(
                     TickMath.getPriceStringAtTick(
@@ -952,7 +988,7 @@ export default function AddLiquidity({}) {
                     ),
                     priceOrder == (tokenIn.callId == 0)
                   )
-                )
+                );
                 setMaxInput(
                   invertPrice(
                     TickMath.getPriceStringAtTick(
@@ -964,11 +1000,15 @@ export default function AddLiquidity({}) {
                     ),
                     priceOrder == (tokenIn.callId == 0)
                   )
-                )
+                );
               }}
-               className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all">Narrow</button>
-              <button
+              className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
+            >
+              Narrow
+            </button>
+            <button
               onClick={() => {
+                setManualRange(true);
                 setMinInput(
                   invertPrice(
                     TickMath.getPriceStringAtTick(
@@ -980,7 +1020,7 @@ export default function AddLiquidity({}) {
                     ),
                     priceOrder == (tokenIn.callId == 0)
                   )
-                )
+                );
                 setMaxInput(
                   invertPrice(
                     TickMath.getPriceStringAtTick(
@@ -992,11 +1032,15 @@ export default function AddLiquidity({}) {
                     ),
                     priceOrder == (tokenIn.callId == 0)
                   )
-                )
+                );
               }}
-               className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all">COMMON</button>
-              <button
+              className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
+            >
+              COMMON
+            </button>
+            <button
               onClick={() => {
+                setManualRange(true);
                 setMinInput(
                   invertPrice(
                     TickMath.getPriceStringAtTick(
@@ -1008,7 +1052,7 @@ export default function AddLiquidity({}) {
                     ),
                     priceOrder == (tokenIn.callId == 0)
                   )
-                )
+                );
                 setMaxInput(
                   invertPrice(
                     TickMath.getPriceStringAtTick(
@@ -1020,10 +1064,13 @@ export default function AddLiquidity({}) {
                     ),
                     priceOrder == (tokenIn.callId == 0)
                   )
-                )
+                );
               }}
-               className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all">WIDE</button>
-            </div>
+              className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
+            >
+              WIDE
+            </button>
+          </div>
           <div className="flex flex-col gap-y-4">
             <div className="flex md:flex-row flex-col items-center gap-5 mt-3">
               <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
@@ -1082,68 +1129,85 @@ export default function AddLiquidity({}) {
                   </div>
                 </div>
               )}
-            
+
             <div className="mb-2 mt-3 flex-col flex gap-y-8">
               <div className="flex items-center justify-between w-full text-xs  text-[#C9C9C9]">
                 <div className="text-xs text-[#4C4C4C]">Market Price</div>
                 <TooltipProvider>
-                <Tooltip delayDuration={100}>
-                  <TooltipTrigger>
-                  <div className="uppercase flex items-center gap-x-2">
-                  <svg width="17" height="17" viewBox="0 0 24 24" className="text-grey1" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1ZM12 7C11.4477 7 11 7.44772 11 8C11 8.55228 11.4477 9 12 9H12.01C12.5623 9 13.01 8.55228 13.01 8C13.01 7.44772 12.5623 7 12.01 7H12ZM13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12V16C11 16.5523 11.4477 17 12 17C12.5523 17 13 16.5523 13 16V12Z" fill="currentColor"/>
-</svg>
-
-                  1{" "}
-                  {
-                    (priceOrder == (tokenIn.callId == 0) ? tokenIn : tokenOut)
-                      .symbol
-                  }{" "}
-                  ={" "}
-                  {!isNaN(parseFloat(rangePrice))
-                    ? parseFloat(
-                        invertPrice(rangePrice, priceOrder)
-                      ).toPrecision(5) +
-                      " " +
-                      (priceOrder == (tokenIn.callId == 0) ? tokenOut : tokenIn)
-                        .symbol
-                    : "?" + " " + tokenOut.symbol}
-                </div>
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3">
-                    <div className="flex items-center flex-col gap-y-1 w-full">
-                      <div className="flex justify-between items-center w-full">
-                        <span className="text-grey2 flex items-center gap-x-1">
-                        <img
-                  className="md:w-4"
-                  src={logoMap[tokenIn.address.toLowerCase()]}
-                />
-                          {tokenIn.symbol}</span>
-                        <span className="text-right">${!isNaN(tokenIn.USDPrice)
-                  ? (
-                      tokenIn.USDPrice *
-                      1
-                    ).toFixed(2)
-                  : "?.??"}</span>
+                  <Tooltip delayDuration={100}>
+                    <TooltipTrigger>
+                      <div className="uppercase flex items-center gap-x-2">
+                        <svg
+                          width="17"
+                          height="17"
+                          viewBox="0 0 24 24"
+                          className="text-grey1"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            clip-rule="evenodd"
+                            d="M12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1ZM12 7C11.4477 7 11 7.44772 11 8C11 8.55228 11.4477 9 12 9H12.01C12.5623 9 13.01 8.55228 13.01 8C13.01 7.44772 12.5623 7 12.01 7H12ZM13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12V16C11 16.5523 11.4477 17 12 17C12.5523 17 13 16.5523 13 16V12Z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                        1{" "}
+                        {
+                          (priceOrder == (tokenIn.callId == 0)
+                            ? tokenIn
+                            : tokenOut
+                          ).symbol
+                        }{" "}
+                        ={" "}
+                        {!isNaN(parseFloat(rangePrice))
+                          ? parseFloat(
+                              invertPrice(rangePrice, priceOrder)
+                            ).toPrecision(5) +
+                            " " +
+                            (priceOrder == (tokenIn.callId == 0)
+                              ? tokenOut
+                              : tokenIn
+                            ).symbol
+                          : "?" + " " + tokenOut.symbol}
                       </div>
-                      <div className="bg-grey w-full h-[1px]" />
-                      <div className="flex justify-between items-center w-full">
-                        <span className="text-grey2 flex items-center gap-x-1">
-                        <img
-                  className=" w-4"
-                  src={logoMap[tokenOut.address.toLowerCase()]}
-                />{tokenOut.symbol}</span>
-                        <span className="text-right">${!isNaN(tokenOut.USDPrice)
-                  ? (
-                      tokenOut.USDPrice *
-                      1
-                    ).toFixed(2)
-                  : "?.??"}</span>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3">
+                      <div className="flex items-center flex-col gap-y-1 w-full">
+                        <div className="flex justify-between items-center w-full">
+                          <span className="text-grey2 flex items-center gap-x-1">
+                            <img
+                              className="md:w-4"
+                              src={logoMap[tokenIn.address.toLowerCase()]}
+                            />
+                            {tokenIn.symbol}
+                          </span>
+                          <span className="text-right">
+                            $
+                            {!isNaN(tokenIn.USDPrice)
+                              ? (tokenIn.USDPrice * 1).toFixed(2)
+                              : "?.??"}
+                          </span>
+                        </div>
+                        <div className="bg-grey w-full h-[1px]" />
+                        <div className="flex justify-between items-center w-full">
+                          <span className="text-grey2 flex items-center gap-x-1">
+                            <img
+                              className=" w-4"
+                              src={logoMap[tokenOut.address.toLowerCase()]}
+                            />
+                            {tokenOut.symbol}
+                          </span>
+                          <span className="text-right">
+                            $
+                            {!isNaN(tokenOut.USDPrice)
+                              ? (tokenOut.USDPrice * 1).toFixed(2)
+                              : "?.??"}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
               {rangeWarning && (
                 <div className=" text-yellow-600 bg-yellow-900/30 text-[10px] md:text-[11px] flex items-center md:gap-x-5 gap-x-3 p-2 rounded-[8px]">
