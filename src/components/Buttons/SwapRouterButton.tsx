@@ -12,6 +12,8 @@ import { getSwapRouterButtonMsgValue } from "../../utils/buttons";
 import { chainProperties } from "../../utils/chains";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { BigNumber } from "ethers";
+import { formatCurrency } from "@usedapp/core/dist/esm/src/model";
 
 declare global {
   interface Window {
@@ -19,12 +21,11 @@ declare global {
       track: (args: {
         eventType: string
         eventName: string
-        parameters?: { [key: string]: string | number | boolean }
+        parameters?: { [key: string]: string | number | boolean | BigNumber }
       }) => void
     }
   }
 }
-
 
 export default function SwapRouterButton({
   disabled,
@@ -35,6 +36,8 @@ export default function SwapRouterButton({
   tokenOutNative,
   swapParams,
   gasLimit,
+  tokenInSymbol,
+  tokenOutSymbol,
   resetAfterSwap
 }) {
   const [
@@ -124,15 +127,16 @@ export default function SwapRouterButton({
       eventType: 'swap',
       eventName: 'swap-main',
       parameters: {
-        fromAmount: (amountIn as number),
-        fromCurrency: (tokenInNative as string),
-        toCurrency: (tokenOutNative as string),
+        fromAmount: (amountIn as BigNumber),
+        fromCurrency: (tokenInSymbol as string),
+        toCurrency: (tokenOutSymbol as string),
         contractAddress: (routerAddress as string),
         chainId: (chainId as number) || '',
       },
     })
-    
   };
+
+  console.log(routerAddress)
 
   return (
     <>
