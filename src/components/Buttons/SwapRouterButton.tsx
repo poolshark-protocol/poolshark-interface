@@ -126,10 +126,12 @@ export default function SwapRouterButton({
       parameters: {
         fromAmount: (amountIn as number),
         fromCurrency: (tokenInNative as string),
+        toCurrency: (tokenOutNative as string),
         contractAddress: (routerAddress as string),
         chainId: (chainId as number) || '',
       },
     })
+    
   };
 
   return (

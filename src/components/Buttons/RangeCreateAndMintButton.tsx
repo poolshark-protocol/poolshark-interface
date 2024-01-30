@@ -149,12 +149,31 @@ export default function RangeCreateAndMintButton({
     setTxHash(data?.hash)
   }, [data]);
 
+
+  const ConfirmTransaction = () => {
+    write?.();
+    window.safary?.track({
+      eventType: 'range',
+      eventName: 'range-mint',
+      parameters: {
+        amount0: (amount0 as string),
+        amount1: (amount1 as string),
+        feeTier: (feeTier as string),
+        routerAddress: (routerAddress as string),
+        lower: (lower as string),
+        upper: (upper as string),
+        startPrice: (startPrice as string)
+      },
+    })
+  
+};
+
   return (
     <>
       <button
         disabled={disabled || gasLimit.lte(BN_ZERO)}
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
-        onClick={() => write?.()}
+        onClick={ConfirmTransaction}
       >
         {buttonMessage != undefined && buttonMessage != '' ? buttonMessage : 'CREATE POOL AND MINT'}
       </button>

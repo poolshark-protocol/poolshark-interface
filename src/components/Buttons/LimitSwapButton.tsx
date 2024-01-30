@@ -129,6 +129,27 @@ export default function LimitSwapButton({
     }
   }, [isLoading]);
 
+
+  const ConfirmTransaction = () => {
+      write?.();
+    window.safary?.track({
+      eventType: 'swap',
+      eventName: 'swap-limit',
+      parameters: {
+        fromAmount: (amount as number),
+        fromCurrency: (tokenIn as any),
+        toCurrency: (tokenOut as any),
+        contractAddress: (routerAddress as string),
+        lower: (lower as string),
+        upper: (upper as string),
+        chainId: (chainId as number) || '',
+        poolAddress: (poolAddress as string),
+      },
+    })
+    
+  };
+
+
   return (
     <>
       <button

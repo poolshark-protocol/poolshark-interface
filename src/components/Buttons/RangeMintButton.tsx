@@ -133,12 +133,33 @@ export default function RangeMintButton({
     setTxHash(data?.hash)
   }, [data]);
 
+
+
+  const ConfirmTransaction = () => {
+      write?.();
+      window.safary?.track({
+        eventType: 'range',
+        eventName: 'range-mint',
+        parameters: {
+          amount0: (amount0 as string),
+          amount1: (amount1 as string),
+          poolAddress: (poolAddress as string),
+          routerAddress: (routerAddress as string),
+          lower: (lower as string),
+          upper: (upper as string)
+        },
+      })
+    
+  };
+
+
+
   return (
     <>
       <button
         disabled={disabled || gasLimit.lte(BN_ZERO)}
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center flex items-center justify-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
-        onClick={() => write?.()}
+        onClick={ConfirmTransaction}
       >
         {gasLimit.lte(BN_ZERO) && !disabled ? <Loader/> : buttonMessage}
       </button>
