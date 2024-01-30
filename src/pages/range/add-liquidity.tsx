@@ -314,9 +314,7 @@ export default function AddLiquidity({}) {
   }
 
   useEffect(() => {
-    console.log(manualRange);
     if (!manualRange) {
-      console.log("updating range");
       setMinInput(
         invertPrice(
           TickMath.getPriceStringAtTick(
