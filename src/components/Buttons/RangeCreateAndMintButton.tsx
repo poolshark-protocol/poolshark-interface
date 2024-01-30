@@ -156,8 +156,8 @@ export default function RangeCreateAndMintButton({
       eventType: 'range',
       eventName: 'range-mint',
       parameters: {
-        amount0: (amount0 as string),
-        amount1: (amount1 as string),
+        amount0: (Number(ethers.utils.formatEther(amount0))),
+        amount1: (Number(ethers.utils.formatEther(amount1))),
         feeTier: (feeTier as string),
         routerAddress: (routerAddress as string),
         lower: (lower as string),
