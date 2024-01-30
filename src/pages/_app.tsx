@@ -26,6 +26,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { useRangeLimitStore } from "../hooks/useRangeLimitStore";
 import { fetchListedTokenBalances, fetchTokenMetadata } from "../utils/tokens";
+import { Toaster } from 'sonner';
 
 const { chains, provider } = configureChains(
   [arbitrum, arbitrumSepolia, scroll],
