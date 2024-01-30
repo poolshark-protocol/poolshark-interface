@@ -4,7 +4,7 @@ import { Alchemy, Network } from "alchemy-sdk";
 import { alchemyNetworks, chainIdsToNames } from "./chains";
 import { ZERO_ADDRESS } from "./math/constants";
 import { fetchTokenPrice } from "./queries";
-import { LimitSubgraph, coinsList } from "./types";
+import { LimitSubgraph, coinsList, tokenSwap } from "./types";
 import { BigNumber, ethers } from "ethers";
 import axios from "axios";
 import { numFormat, numStringFormat } from "./math/valueMath";
@@ -40,6 +40,19 @@ export const fetchCoverTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
     );
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const checkUserBalance = (token: tokenSwap, display: string) => {
+  try {
+    const amountIn = !isNaN(parseFloat(display)) ? parseFloat(display) : 0
+    if (token?.userBalance >= amountIn) {
+      return true
+    }
+    return false
+  } catch (error) {
+    console.log(error);
+    return false
   }
 };
 

@@ -7,7 +7,7 @@ import {
   useBalance,
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
-import { chainProperties } from "../utils/chains";
+import { chainProperties, supportedChainIds } from "../utils/chains";
 import { ZERO_ADDRESS } from "../utils/math/constants";
 import { getLimitTokenUsdPrice } from "../utils/tokens";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
@@ -27,7 +27,7 @@ import LimitSwap from "../components/Trade/LimitSwap";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import inputFilter from "../utils/inputFilter";
-import { getRouterAddress } from "../utils/config";
+import { getRouterAddress, getTradeSdkEnabled } from "../utils/config";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -86,6 +86,8 @@ export default function Trade() {
     setNeedsSnapshot,
     setStartPrice,
     setLimitTabSelected,
+    tradeSdk,
+    setTradeSdkStatus,
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
@@ -130,6 +132,8 @@ export default function Trade() {
     s.setNeedsSnapshot,
     s.setStartPrice,
     s.setLimitTabSelected,
+    s.tradeSdk,
+    s.setTradeSdkStatus,
   ]);
 
   //false order history is selected, true when active orders is selected
@@ -292,7 +296,7 @@ export default function Trade() {
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.native ? undefined : tokenIn.address,
-    enabled: tokenIn.address != undefined && needsBalanceIn,
+    enabled: tokenIn.address != ZERO_ADDRESS && needsBalanceIn,
     watch: needsBalanceIn,
     chainId: chainId,
     onSuccess(data) {
@@ -307,7 +311,7 @@ export default function Trade() {
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.native ? undefined : tokenOut.address,
-    enabled: tokenOut.address != undefined && needsBalanceOut,
+    enabled: tokenIn.address != ZERO_ADDRESS && needsBalanceOut,
     watch: needsBalanceOut,
     chainId: chainId,
     onSuccess(data) {
@@ -341,7 +345,7 @@ export default function Trade() {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, getRouterAddress(networkName)],
+    args: [address, getRouterAddress(networkName, tradeSdk.enabled, limitTabSelected)],
     chainId: chainId,
     watch: needsAllowanceIn,
     enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
@@ -359,6 +363,34 @@ export default function Trade() {
       setTokenInTradeAllowance(allowanceInRouter);
     }
   }, [allowanceInRouter]);
+
+  /////////////////////Trade SDK
+
+  useEffect(() => {
+    initTradeSdk()
+  }, [signer]);
+
+  useEffect(() => {
+    console.log('signer check 1.5:', tradeSdk.transfer.params.fromAddress)
+  }, [tradeSdk.transfer.params.fromAddress]);
+
+  const initTradeSdk = async () => {
+    if (!signer) return
+
+    setTradeSdkStatus({
+      ...tradeSdk,
+      enabled: getTradeSdkEnabled(networkName, tokenIn.address, tokenOut.address),
+      transfer: {
+        ...tradeSdk.transfer,
+        params: {
+          ...tradeSdk.transfer.params,
+          chain: supportedChainIds[chainId],
+          fromAddress: address,
+        }
+      }
+    })
+    console.log('signer updated', address, chainId, tradeSdk.transfer.params.fromAddress)
+  };
 
   ///////////////////////
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);

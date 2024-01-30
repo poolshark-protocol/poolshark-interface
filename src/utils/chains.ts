@@ -87,7 +87,7 @@ export const chainProperties = {
     chainName: "Arbitrum Sepolia Test Network",
 		sdkSupport: {
 			alchemy: false,
-			swing: false
+			tradeSdk: false
     },
     explorerUrl: "https://sepolia.arbiscan.io",
     nativeCurrency: {
@@ -112,7 +112,7 @@ export const chainProperties = {
   "arbitrum-one": {
     sdkSupport: {
 			alchemy: true,
-			swing: true
+			tradeSdk: true
     },
     chainName: "Arbitrum One",
     explorerUrl: "https://arbiscan.io",
@@ -123,8 +123,15 @@ export const chainProperties = {
     },
     wethAddress: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1" as `0x${string}`,
     daiAddress: "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1" as `0x${string}`,
+    finAddress: "0x903ca00944d0b51e50d9f4fc96167c89f211542a" as `0x${string}`,
     routerAddress:
       "0x12b7a6dd3a3dfde6a0f112a1bd876f704d933915" as `0x${string}`,
+    openocean: {
+      routerAddress:
+        "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64" as `0x${string}`,
+      nativeAddress:
+        "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" as `0x${string}`,
+    },
     rangeStakerAddress:
       "0x0e2b069fa52064a7e0b5a044ba25142203210a13" as `0x${string}`,
     coverPoolFactory: ZERO_ADDRESS as `0x${string}`,
@@ -151,7 +158,7 @@ export const chainProperties = {
     chainName: "Scroll",
 		sdkSupport: {
 			alchemy: false,
-			swing: false
+			tradeSdk: true
     },
     explorerUrl: "https://scrollscan.com",
     nativeCurrency: {
@@ -164,6 +171,12 @@ export const chainProperties = {
     finAddress: "0x66864e3954dac74b9377ef25e4b47ca47423688e" as `0x${string}`,
     routerAddress:
       "0x895e1c476130ce9e1b19e01be8801f19122a958c" as `0x${string}`,
+    openocean: {
+        routerAddress:
+          "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64" as `0x${string}`,
+        nativeAddress:
+          "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" as `0x${string}`,
+    },
     rangeStakerAddress:
       "0xebf57cb31ed38e6ccb53fb71ba246ea549c42e51" as `0x${string}`,
     coverPoolFactory:

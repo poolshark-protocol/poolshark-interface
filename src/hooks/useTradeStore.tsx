@@ -1,5 +1,5 @@
-import { BigNumber, ethers } from "ethers";
-import { LimitSubgraph, tokenSwap } from "../utils/types";
+import { BigNumber } from "ethers";
+import { LimitSubgraph, TradeSdkStatus, tokenSwap } from "../utils/types";
 import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import { create } from "zustand";
 import { getLimitPoolFromFactory } from "../utils/queries";
@@ -54,6 +54,8 @@ type TradeState = {
   //Start price for pool creation
   startPrice: string;
   limitPriceOrder: boolean;
+  //Swing SDK
+  tradeSdk: TradeSdkStatus;
 };
 
 type TradeLimitAction = {
@@ -74,7 +76,8 @@ type TradeLimitAction = {
     tokenOut: any,
     newToken: any,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
+    tradeSdkSDKEnabled: boolean,
   ) => void;
   setTokenInTradeUSDPrice: (price: number) => void;
   setTokenInTradeAllowance: (allowance: BigNumber) => void;
@@ -84,13 +87,14 @@ type TradeLimitAction = {
     tokenIn: any,
     newToken: any,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
+    tradeSdkSDKEnabled: boolean,
   ) => void;
   setTokenOutTradeUSDPrice: (price: number) => void;
   setTokenOutTradeAllowance: (allowance: BigNumber) => void;
   setTokenOutBalance: (balance: string) => void;
   //
-  setAmountIn: (amountIn: BigNumber) => void;
+  setAmountIn: (amountIn: BigNumber, displayIn: string) => void;
   setAmountOut: (amountOut: BigNumber) => void;
   //
   setMinInput: (newMinTick: string) => void;
@@ -124,6 +128,9 @@ type TradeLimitAction = {
   setNeedsSetAmounts: (needsSetAmounts: boolean) => void;
   setStartPrice: (startPrice: string) => void;
   setLimitPriceOrder: (limitPriceOrder: boolean) => void;
+  setTradeSdkStatus: (tradeSdkStatus: TradeSdkStatus) => void;
+  setTradeSdkEnabled: (tradeSdkEnabled: boolean) => void;
+  setTradeSdkQuotes: (tradeSdkQuotes: any[], swapCalldata?: string) => void;
 };
 
 const initialTradeState: TradeState = {
@@ -187,6 +194,25 @@ const initialTradeState: TradeState = {
   needsSetAmounts: false,
   startPrice: "",
   limitPriceOrder: true,
+  tradeSdk: {
+    quotes: [
+      {
+        amountIn: BN_ZERO,
+        amountOut: BN_ZERO,
+      }
+    ],
+    swapCalldata: ZERO_ADDRESS,
+    enabled: false,
+    transfer: {
+      params: {
+        chain: 'arbitrum',
+        fromAddress: ZERO_ADDRESS,
+        amount: 0,
+        gasPrice: 0,
+        slippage: 0.5, // 0.5% slippage
+      },
+    }
+  },
 };
 
 export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
@@ -227,6 +253,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   needsSetAmounts: initialTradeState.needsSetAmounts,
   startPrice: initialTradeState.startPrice,
   limitPriceOrder: initialTradeState.limitPriceOrder,
+  tradeSdk: initialTradeState.tradeSdk,
   //actions
   setPairSelected: (pairSelected: boolean) => {
     set(() => ({
@@ -249,11 +276,12 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     tokenOut,
     newTokenIn: tokenSwap,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
+    tradeSdkEnabled: boolean,
   ) => {
     //if tokenOut is selected
     if (tokenOut.address != initialTradeState.tokenOut.address) {
-      //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to initialState
+      // flip tokens check
       if (
         newTokenIn.address?.toLowerCase() == tokenOut.address?.toLowerCase() &&
         newTokenIn.native == tokenOut.native
@@ -294,6 +322,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           wethCall:
             state.tokenOut.address.toLowerCase() ==
             state.tokenIn.address.toLowerCase(),
+          tradeSdk: {
+            ...state.tradeSdk,
+            swapCalldata: ZERO_ADDRESS,
+          },
         }));
       } else {
         //if tokens are different
@@ -322,6 +354,20 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase(),
           limitPriceOrder:
             newTokenIn.address.localeCompare(tokenOut.address) < 0,
+          tradeSdk: {
+            ...state.tradeSdk,
+            enabled: tradeSdkEnabled,
+            swapCalldata: ZERO_ADDRESS,
+            transfer: {
+              ...state.tradeSdk.transfer,
+              params: {
+                ...state.tradeSdk.transfer.params,
+                amount: isAmountIn ? parseFloat(amount) 
+                                   : state.tradeSdk.transfer.params.amount,
+                swapCallData: ZERO_ADDRESS,
+              }
+            }
+          },
         }));
       }
     } else {
@@ -341,6 +387,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           : state.amountIn,
         pairSelected: false,
         wethCall: false,
+        tradeSdk: {
+          ...state.tradeSdk,
+          enabled: false
+        },
         needsAllowanceIn: !newTokenIn.native,
       }));
     }
@@ -369,12 +419,12 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     tokenIn,
     newTokenOut: tokenSwap,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
+    tradeSdkSDKEnabled: boolean,
   ) => {
-    //if tokenIn exists
+    //if tokenIn is selected
     if (tokenIn.address != initialTradeState.tokenOut.address) {
-      //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
-      // NATIVE: only flip tokens if 'isNative' also matches
+      // flip token check
       if (
         newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase() &&
         newTokenOut.native == tokenIn.native
@@ -415,9 +465,13 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           wethCall:
             state.tokenIn.address.toLowerCase() ==
             state.tokenOut.address.toLowerCase(),
+          tradeSdk: {
+            ...state.tradeSdk,
+            swapCalldata: ZERO_ADDRESS,
+          }
         }));
       } else {
-        //if tokens are different
+        // token is selected
         set((state) => ({
           tokenIn: {
             ...tokenIn,
@@ -441,6 +495,17 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           needsPairUpdate: true,
           limitPriceOrder:
             tokenIn.address.localeCompare(newTokenOut.address) < 0,
+          tradeSdk: {
+            ...state.tradeSdk,
+            enabled: tradeSdkSDKEnabled,
+            transfer: {
+              ...state.tradeSdk.transfer,
+              params: {
+                ...state.tradeSdk.transfer.params,
+                swapCalldata: ZERO_ADDRESS,
+              }
+            }
+          }
         }));
       }
     } else {
@@ -474,9 +539,21 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       tokenOut: { ...state.tokenOut, userRouterAllowance: newAllowance },
     }));
   },
-  setAmountIn: (amountIn: BigNumber) => {
+  setAmountIn: (amountIn: BigNumber, displayIn: string) => {
+    console.log('setting amount in', displayIn)
     set((state) => ({
       amountIn: amountIn,
+      tradeSdk: {
+        ...state.tradeSdk,
+        swapCalldata: ZERO_ADDRESS,
+        transfer: {
+          ...state.tradeSdk.transfer,
+          params :{
+            ...state.tradeSdk.transfer.params,
+            amount: Number(displayIn),
+          },
+        },
+      },
     }));
   },
   setAmountOut: (amountOut: BigNumber) => {
@@ -521,8 +598,15 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     }));
   },
   setTradeSlippage: (tradeSlippage: string) => {
-    set(() => ({
+    set((state) => ({
       tradeSlippage: tradeSlippage,
+      tradeSdk: {
+        ...state.tradeSdk,
+        transfer:{
+          ...state.tradeSdk.transfer,
+          maxSlippage: Number(tradeSlippage) / 100
+        }
+      }
     }));
   },
   setTradePositionData: (tradePositionData: any) => {
@@ -537,7 +621,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           state.tokenIn,
           state.tokenOut,
           state.amountIn,
-          state.amountOut
+          state.amountOut,
+          state.tradeSdk,
         ),
         disabled: getTradeButtonDisabled(
           state.tokenIn,
@@ -603,6 +688,28 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       limitPriceOrder: limitPriceOrder,
     });
   },
+  setTradeSdkStatus: (tradeSdkStatus: TradeSdkStatus) => {
+    set((state) => ({
+      tradeSdk: tradeSdkStatus,
+    }));
+  },
+  setTradeSdkEnabled: (tradeSdkEnabled: boolean) => {
+    set((state) => ({
+      tradeSdk: {
+        ...state.tradeSdk,
+        enabled: tradeSdkEnabled,
+      }
+    }));
+  },
+  setTradeSdkQuotes: (tradeSdkQuotes: any[], swapCalldata?: `0x${string}`) => {
+    set((state) => ({
+      tradeSdk: {
+        ...state.tradeSdk,
+        quotes: tradeSdkQuotes,
+        swapCalldata: swapCalldata ?? state.tradeSdk.swapCalldata
+      }
+    }));
+  },
   switchDirection: (isAmountIn: boolean, amount: string) => {
     set((state) => ({
       tokenIn: {
@@ -637,6 +744,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         : parseUnits(amount, state.tokenIn.decimals),
       needsAllowanceIn: true,
       needsSetAmounts: true,
+      tradeSdk: {
+        ...state.tradeSdk,
+        swapCalldata: ZERO_ADDRESS,
+      },
     }));
   },
   setTradePoolFromVolatility: async (
@@ -673,7 +784,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     }
   },
   resetTradeLimitParams: (chainId) => {
-    set({
+    set((state) => ({
       //trade pool & pair
       tradePoolData: initialTradeState.tradePoolData,
       tradeSlippage: initialTradeState.tradeSlippage,
@@ -700,6 +811,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       needsRefetch: initialTradeState.needsRefetch,
       needsPosRefetch: initialTradeState.needsPosRefetch,
       needsSnapshot: initialTradeState.needsSnapshot,
-    });
+      tradeSdk: {
+        ...state.tradeSdk,
+        swapCalldata: ZERO_ADDRESS
+      },
+    }));
   },
 }));

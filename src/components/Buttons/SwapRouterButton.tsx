@@ -3,15 +3,19 @@ import {
   useContractWrite,
   useWaitForTransaction,
   useAccount,
+  usePrepareSendTransaction,
+  useSendTransaction,
 } from "wagmi";
 import React, { useState } from "react";
-import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
+import { useTradeStore } from "../../hooks/useTradeStore";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { getSwapRouterButtonMsgValue } from "../../utils/buttons";
 import { chainProperties } from "../../utils/chains";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { parseEther } from "ethers/lib/utils.js";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 
 export default function SwapRouterButton({
   disabled,
@@ -34,9 +38,29 @@ export default function SwapRouterButton({
 
   const [toastId, setToastId] = useState(null);
 
-  const [setNeedsAllowanceIn, setNeedsBalanceIn, setNeedsBalanceOut, tradeButton] = useRangeLimitStore(
-    (state) => [state.setNeedsAllowanceIn, state.setNeedsBalanceIn, state.setNeedsBalanceOut, state.tradeButton]
-  );
+  const [
+    setNeedsRefetch,
+    setNeedsAllowanceIn,
+    setNeedsBalanceIn,
+    setNeedsBalanceOut,
+    setNeedsSnapshot,
+    setNeedsPosRefetch,
+    tokenIn,
+    tokenOut,
+    tradeButton,
+    tradeSdk,
+  ] = useTradeStore((state) => [
+    state.setNeedsRefetch,
+    state.setNeedsAllowanceIn,
+    state.setNeedsBalanceIn,
+    state.setNeedsBalanceOut,
+    state.setNeedsSnapshot,
+    state.setNeedsPosRefetch,
+    state.tokenIn,
+    state.tokenOut,
+    state.tradeButton,
+    state.tradeSdk,
+  ]);
 
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -44,7 +68,7 @@ export default function SwapRouterButton({
   const { address } = useAccount();
   const userAddress = address;
 
-  const { config } = usePrepareContractWrite({
+  const { config: psharkConfig } = usePrepareContractWrite({
     address: routerAddress,
     abi: poolsharkRouterABI,
     functionName: "multiSwapSplit",
@@ -59,9 +83,44 @@ export default function SwapRouterButton({
         amountIn
       )
     },
+    onError() {
+      console.log('multi swap error')
+    }
   });
 
-  const { data, write } = useContractWrite(config);
+  const { data: psharkData, write: psharkWrite } = useContractWrite(psharkConfig);
+
+  const { config: openoceanConfig } = usePrepareSendTransaction({
+    request: {
+      to: routerAddress,
+      data: tradeSdk.swapCalldata,
+      value: getSwapRouterButtonMsgValue(
+        tokenInNative,
+        tokenOutNative,
+        amountIn,
+        tradeSdk
+      )
+    },
+    enabled: tradeSdk.enabled && 
+             tradeSdk.swapCalldata != ZERO_ADDRESS &&
+             amountIn.gt(BN_ZERO) && !disabled,
+    onSuccess() {
+      // console.log('success configuring openocean call')
+    },
+    onError() {
+      console.log('open ocean error', getSwapRouterButtonMsgValue(
+        tokenInNative,
+        tokenOutNative,
+        amountIn,
+        tradeSdk
+      ).toString(), amountIn, tradeSdk.swapCalldata != ZERO_ADDRESS)
+    }
+  });
+
+  const { data: openoceanData, sendTransaction: openoceanWrite } = useSendTransaction(openoceanConfig);
+
+  const data = tradeSdk.enabled ? openoceanData : psharkData
+  const write = tradeSdk.enabled ? openoceanWrite : psharkWrite
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
@@ -77,6 +136,11 @@ export default function SwapRouterButton({
       setNeedsAllowanceIn(true);
       setNeedsBalanceIn(true);
       setNeedsBalanceOut(true);
+      setTimeout(() => {
+        setNeedsSnapshot(true);
+        setNeedsRefetch(true);
+        setNeedsPosRefetch(true);
+      }, 2500);
     },
     onError() {
       toast.error("Your transaction failed",{

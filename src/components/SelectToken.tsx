@@ -10,6 +10,7 @@ import CoinListItem from "./CoinListItem";
 import { useAccount, useToken } from "wagmi";
 import { useConfigStore } from "../hooks/useConfigStore";
 import { defaultTokenLogo, logoMapKey } from "../utils/tokens";
+import { getTradeSdkEnabled } from "../utils/config";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
@@ -59,11 +60,14 @@ export default function SelectToken(props) {
     refetch: refetchTokenInfo,
   } = useToken({
     address: customInput as `0x${string}`,
-    enabled: isAddress(customInput),
+    enabled: isAddress(customInput) && false,
     onSuccess() {
       if (tokenData) setTokenInfo(tokenData);
       else refetchTokenInfo();
     },
+    onError() {
+      console.log('token info error')
+    }
   });
 
   useEffect(() => {
@@ -117,37 +121,75 @@ export default function SelectToken(props) {
 
     if (props.amount != undefined && props.isAmountIn != undefined) {
       if (props.type === "in") {
-        props.setTokenIn(
-          props.tokenOut,
-          {
-            name: coin?.name,
-            address: coin?.address,
-            symbol: coin?.symbol,
-            logoURI: coin?.logoURI,
-            decimals: coin?.decimals,
-            native: coin?.native ?? false,
-            userBalance: coin?.userBalance ?? 0,
-          },
-          props.amount,
-          props.isAmountIn
-        );
+        if (props.from === "MarketSwap") {
+          props.setTokenIn(
+            props.tokenOut,
+            {
+              name: coin?.name,
+              address: coin?.address,
+              symbol: coin?.symbol,
+              logoURI: coin?.logoURI,
+              decimals: coin?.decimals,
+              native: coin?.native ?? false,
+              userBalance: coin?.userBalance ?? 0,
+            },
+            props.amount,
+            props.isAmountIn,
+            getTradeSdkEnabled(networkName, props.tokenOut?.address, coin?.address)
+          );
+        } else {
+          props.setTokenIn(
+            props.tokenOut,
+            {
+              name: coin?.name,
+              address: coin?.address,
+              symbol: coin?.symbol,
+              logoURI: coin?.logoURI,
+              decimals: coin?.decimals,
+              native: coin?.native ?? false,
+              userBalance: coin?.userBalance ?? 0,
+            },
+            props.amount,
+            props.isAmountIn,
+          );
+        }
       } else {
-        props.setTokenOut(
-          props.tokenIn,
-          {
-            name: coin?.name,
-            address: coin?.address,
-            symbol: coin?.symbol,
-            logoURI: coin?.logoURI,
-            decimals: coin?.decimals,
-            native: coin?.native ?? false,
-            userBalance: coin?.userBalance ?? 0,
-          },
-          props.amount,
-          props.isAmountIn
-        );
+        if (props.from === "MarketSwap") {
+          console.log('from market swap')
+          props.setTokenOut(
+            props.tokenIn,
+            {
+              name: coin?.name,
+              address: coin?.address,
+              symbol: coin?.symbol,
+              logoURI: coin?.logoURI,
+              decimals: coin?.decimals,
+              native: coin?.native ?? false,
+              userBalance: coin?.userBalance ?? 0,
+            },
+            props.amount,
+            props.isAmountIn,
+            getTradeSdkEnabled(networkName, props.tokenIn?.address, coin?.address)
+          );
+        } else {
+          props.setTokenOut(
+            props.tokenIn,
+            {
+              name: coin?.name,
+              address: coin?.address,
+              symbol: coin?.symbol,
+              logoURI: coin?.logoURI,
+              decimals: coin?.decimals,
+              native: coin?.native ?? false,
+              userBalance: coin?.userBalance ?? 0,
+            },
+            props.amount,
+            props.isAmountIn,
+          );
+        }
       }
     } else {
+      console.log('else triggered')
       if (props.type === "in") {
         props.setTokenIn(
           props.tokenOut,

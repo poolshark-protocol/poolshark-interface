@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import { formatUnits } from "ethers/lib/utils.js";
 import { BN_ONE, BN_ZERO, ONE, ZERO_ADDRESS } from "./math/constants";
-import { token } from "./types";
+import { TradeSdkStatus, token } from "./types";
 import JSBI from "jsbi";
 
 export function getLimitSwapButtonMsgValue(
@@ -71,11 +71,12 @@ export function getRangeMintInputData(stakeFlag: boolean, stakeAddress: string):
 export function getSwapRouterButtonMsgValue(
     tokenInNative: boolean,
     tokenOutNative: boolean,
-    amountIn: BigNumber
+    amountIn: BigNumber,
+    tradeSdk?: TradeSdkStatus
 ): BigNumber {
     if (tokenInNative) {
         return amountIn
-    } else if (tokenOutNative) {
+    } else if (tokenOutNative && !tradeSdk?.enabled) {
         return BN_ONE
     } else {
         return BN_ZERO
@@ -87,6 +88,7 @@ export function getTradeButtonMessage(
     tokenOut: token,
     amountIn: BigNumber,
     amountOut: BigNumber,
+    tradeSdk: TradeSdkStatus,
 ): string {
     const amountInValue: number = parseFloat(
         ethers.utils.formatUnits(
@@ -106,7 +108,7 @@ export function getTradeButtonMessage(
         return "Enter Amount"
     } else if (tokenIn.address == ZERO_ADDRESS || tokenOut.address == ZERO_ADDRESS) {
         return "Select Token"
-    } else if (amountOutValue == 0) {
+    } else if (amountOutValue == 0 && !tradeSdk.enabled) {
         return "Empty Quote"
     }
     return ""

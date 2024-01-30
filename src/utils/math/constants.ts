@@ -15,7 +15,7 @@ export const MAX_UINT256 = JSBI.subtract(
 
 // used in tick to price math
 export const Q32 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(32));
-export const ZERO_ADDRESS: string = "0x0000000000000000000000000000000000000000";
+export const ZERO_ADDRESS: `0x${string}` = "0x0000000000000000000000000000000000000000";
 
 // used in liquidity amount math
 export const Q96_BI = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96));

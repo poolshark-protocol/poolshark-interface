@@ -49,6 +49,7 @@ import JSBI from "jsbi";
 import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import BalanceDisplay from "../Display/BalanceDisplay";
 import { getRouterAddress } from "../../utils/config";
+import { formatUnits } from "ethers/lib/utils.js";
 
 export default function LimitSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -171,7 +172,7 @@ export default function LimitSwap() {
     if (!limitTabSelected) return;
     if (exactIn) {
       setDisplayIn("");
-      setAmountIn(BN_ZERO);
+      setAmountIn(BN_ZERO, '0');
     } else {
       setDisplayOut("");
       setAmountOut(BN_ZERO);
@@ -189,8 +190,11 @@ export default function LimitSwap() {
             limitSubgraph,
             tokenIn,
             tokenOut,
+            undefined,
             tradePoolData,
             setTradePoolData,
+            undefined,
+            undefined,
             setTokenInTradeUSDPrice,
             setTokenOutTradeUSDPrice,
             setTradePoolPrice,
@@ -226,7 +230,7 @@ export default function LimitSwap() {
       if (exactIn) {
         if (!isNaN(parseFloat(displayIn))) {
           const bnValue = parseUnits(displayIn, tokenIn.decimals);
-          setAmountIn(bnValue);
+          setAmountIn(bnValue, displayIn);
           setAmounts(bnValue, true);
         }
       } else {
@@ -247,8 +251,11 @@ export default function LimitSwap() {
       limitSubgraph,
       tokenIn,
       tokenOut,
+      undefined,
       tradePoolData,
       setTradePoolData,
+      undefined,
+      undefined,
       setTokenInTradeUSDPrice,
       setTokenOutTradeUSDPrice
     );
@@ -300,10 +307,10 @@ export default function LimitSwap() {
       if (!pairSelected) {
         setDisplayIn(value);
         setDisplayOut("");
-        setAmountIn(bnValue);
+        setAmountIn(bnValue, value);
       } else if (!bnValue.eq(amountIn)) {
         setDisplayIn(value);
-        setAmountIn(bnValue);
+        setAmountIn(bnValue, value);
         setAmounts(bnValue, true);
       } else {
         setDisplayIn(value);
@@ -418,7 +425,7 @@ export default function LimitSwap() {
   const resetAfterSwap = () => {
     setDisplayIn("");
     setDisplayOut("");
-    setAmountIn(BN_ZERO);
+    setAmountIn(BN_ZERO, '0');
     setAmountOut(BN_ZERO);
   };
 
@@ -558,7 +565,7 @@ export default function LimitSwap() {
           );
           const tokenOutAmountDisplay = numFormat(
             parseFloat(
-              ethers.utils.formatUnits(
+              formatUnits(
                 tokenOutAmount.toString(),
                 tokenOut.decimals
               )
@@ -581,7 +588,7 @@ export default function LimitSwap() {
       if (!isNaN(parseFloat(limitPriceString))) {
         if (wethCall) {
           setDisplayIn(displayOut);
-          setAmountIn(amountOut);
+          setAmountIn(amountOut, displayOut);
         } else {
           const tokenInAmount = getExpectedAmountInFromOutput(
             Number(lowerTick),
@@ -591,7 +598,7 @@ export default function LimitSwap() {
           );
           const tokenInAmountDisplay = numFormat(
             parseFloat(
-              ethers.utils.formatUnits(
+              formatUnits(
                 tokenInAmount.toString(),
                 tokenIn.decimals
               )
@@ -599,11 +606,11 @@ export default function LimitSwap() {
             5
           );
           setDisplayIn(tokenInAmountDisplay);
-          setAmountIn(tokenInAmount);
+          setAmountIn(tokenInAmount, displayIn);
         }
       } else {
         setDisplayIn("");
-        setAmountIn(BN_ZERO);
+        setAmountIn(BN_ZERO, '0');
       }
     }
   }, [lowerTick, upperTick]);
@@ -612,7 +619,7 @@ export default function LimitSwap() {
     if (isAmountIn) {
       if (bnValue.gt(BN_ZERO)) {
         if (wethCall) {
-          setDisplayOut(ethers.utils.formatUnits(bnValue, tokenIn.decimals));
+          setDisplayOut(formatUnits(bnValue, tokenIn.decimals));
           setAmountOut(bnValue);
         } else {
           const tokenOutAmount = getExpectedAmountOutFromInput(
@@ -623,7 +630,7 @@ export default function LimitSwap() {
           );
           const tokenOutAmountDisplay = numFormat(
             parseFloat(
-              ethers.utils.formatUnits(
+              formatUnits(
                 tokenOutAmount.toString(),
                 tokenOut.decimals
               )
@@ -640,8 +647,9 @@ export default function LimitSwap() {
     } else {
       if (bnValue.gt(BN_ZERO)) {
         if (wethCall) {
-          setDisplayIn(ethers.utils.formatUnits(bnValue, tokenOut.decimals));
-          setAmountIn(bnValue);
+          const value = formatUnits(bnValue, tokenOut.decimals)
+          setDisplayIn(value);
+          setAmountIn(bnValue, value);
         } else {
           const tokenInAmount = getExpectedAmountInFromOutput(
             Number(lowerTick),
@@ -651,7 +659,7 @@ export default function LimitSwap() {
           );
           const tokenInAmountDisplay = numFormat(
             parseFloat(
-              ethers.utils.formatUnits(
+              formatUnits(
                 tokenInAmount.toString(),
                 tokenIn.decimals
               )
@@ -659,11 +667,11 @@ export default function LimitSwap() {
             5
           );
           setDisplayIn(tokenInAmountDisplay);
-          setAmountIn(tokenInAmount);
+          setAmountIn(tokenInAmount, tokenInAmountDisplay);
         }
       } else {
         setDisplayIn("");
-        setAmountIn(BN_ZERO);
+        setAmountIn(BN_ZERO, '0');
       }
     }
   };
@@ -812,7 +820,7 @@ export default function LimitSwap() {
               {pairSelected
                 ? numFormat(
                     parseFloat(
-                      ethers.utils.formatUnits(
+                      formatUnits(
                         amountOut ?? BN_ZERO,
                         tokenOut.decimals
                       )
@@ -829,7 +837,7 @@ export default function LimitSwap() {
             <div className="ml-auto text-xs">
               {numFormat(
                 (parseFloat(
-                  ethers.utils.formatUnits(amountOut, tokenOut.decimals)
+                  formatUnits(amountOut, tokenOut.decimals)
                 ) *
                   (100 - parseFloat(tradeSlippage))) /
                   100,
