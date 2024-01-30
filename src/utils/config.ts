@@ -98,20 +98,24 @@ export const getOpenOceanQuote = async(
 ) => {
 	const startSwap = new Date().getTime();
 	console.log('token decimals', tokenIn.decimals, tokenOut.decimals)
-	console.log('signer check2', tradeSdk.transfer.params.fromAddress, tradeSdk.transfer.params.chain)
+	const apiParams = {
+		chain: tradeSdk.transfer.params.chain,
+		inTokenAddress: tokenIn.native ? openoceanNativeAddress
+									   : tokenIn.address,
+		outTokenAddress: tokenOut.native ? openoceanNativeAddress
+										 : tokenOut.address,
+		amount: tradeSdk.transfer.params.amount,
+		gasPrice: 100000000,
+		slippage: tradeSdk.transfer.params.slippage,
+		account: tradeSdk.transfer.params.fromAddress
+	};
+	console.log('lamdba check', await axios.get('https://z2cwpnlax5ahuvnwsgmkoos7gu0fjxdq.lambda-url.us-east-1.on.aws/', 		{
+		params: apiParams
+	}))
 	const response = await axios.get(
 		`https://open-api.openocean.finance/v3/${tradeSdk.transfer.params.chain}/swap_quote`,
 		{
-			params: {
-				inTokenAddress: tokenIn.native ? openoceanNativeAddress
-											   : tokenIn.address,
-				outTokenAddress: tokenOut.native ? openoceanNativeAddress
-												 : tokenOut.address,
-				amount: tradeSdk.transfer.params.amount,
-				gasPrice: 100000000,
-				slippage: tradeSdk.transfer.params.slippage,
-				account: tradeSdk.transfer.params.fromAddress
-			},
+			params: apiParams
 		}
 	);
 		// ?&outTokenAddress=0xaf88d065e77c8cC2239327C5EDb3A432268e5831&amount=0.001&gasPrice=100000000&slippage=1&account=0xBd5db4c7D55C086107f4e9D17c4c34395D1B1E1E");
