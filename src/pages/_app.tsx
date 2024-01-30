@@ -26,6 +26,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { useRangeLimitStore } from "../hooks/useRangeLimitStore";
 import { fetchListedTokenBalances, fetchTokenMetadata } from "../utils/tokens";
+import { Toaster } from 'sonner';
 
 const { chains, provider } = configureChains(
   [arbitrum, arbitrumSepolia, scroll],
@@ -164,6 +165,7 @@ function MyApp({ Component, pageProps }) {
     <Head>
        <title>Poolshark</title>
     </Head>
+        <Toaster richColors theme="dark"/>
     <Script
       id="Safary" // A unique ID for your script
       strategy="afterInteractive" // or "beforeInteractive" or "lazyOnload"
