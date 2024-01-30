@@ -161,7 +161,7 @@ function MyApp({ Component, pageProps }) {
       <Head>
         <title>Poolshark</title>
       </Head>
-      <Toaster richColors theme="dark"  />
+      <Toaster richColors theme="dark"/>
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider chains={chains} initialChain={arbitrum}>
           {/* <ApolloProvider client={apolloClient}> */}
