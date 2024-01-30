@@ -14,6 +14,7 @@ import { useRouter } from "next/router";
 import { tokenRangeLimit } from "../../utils/types";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
+import { Checkbox } from "../../components/ui/checkbox";
 
 export default function Range() {
   const { address, isDisconnected } = useAccount();
@@ -23,6 +24,7 @@ export default function Range() {
   const [allRangePools, setAllRangePools] = useState([]);
   const [isPositionsLoading, setIsPositionsLoading] = useState(false);
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
+  const [lowTVLHidden, setLowTVLHidden] = useState(true);
 
   const [
     chainId,
@@ -105,6 +107,10 @@ export default function Range() {
       setIsPositionsLoading(false);
     }
   }
+
+
+  console.log(allRangePools)
+
 
   ///////////////////////////
 
@@ -322,12 +328,25 @@ export default function Range() {
             </div>
           </div>
           <div className="p-6 bg-black border border-grey/50 rounded-[4px] ">
-            <div className="flex justify-between">
-              <div className="text-white flex items-center text-sm gap-x-3 w-full">
+            <div className="flex items-center justify-between">
+              <div className="flex md:justify-start justify-between items-center gap-x-10 w-full">
+              <div className="text-white flex items-center text-sm gap-x-3 w-auto whitespace-nowrap">
                 <PoolIcon />
                 <h1>ALL POOLS</h1>
               </div>
-              <span className="text-grey1 text-xs md:w-full w-32 md:w-auto text-right">
+              <div className="flex bg-dark items-center space-x-2 text-xs">
+      <span className="text-grey1"><Checkbox 
+      checked={lowTVLHidden}
+                  onCheckedChange={() => setLowTVLHidden(!lowTVLHidden)} id="tvl" /></span>
+      <label
+        htmlFor="tvl"
+        className="text-xs text-white/80 -mt-[2.5px] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      >
+        HIDE LOW TVL POOLS
+      </label>
+    </div>
+              </div>
+              <span className="text-grey1 md:block hidden text-xs md:w-full w-32 md:w-auto text-right">
                 Click on a pool to Add Liquidity
               </span>
             </div>
@@ -355,42 +374,44 @@ export default function Range() {
                           className="h-[50px] w-full bg-grey/30 animate-pulse rounded-[4px]"
                         ></div>
                       ))
-                    : allRangePools.map((allRangePool) => {
-                        if (
-                          allRangePool.tokenZero.name.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          allRangePool.tokenZero.name
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()) ||
-                          allRangePool.tokenOne.name.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          allRangePool.tokenOne.name
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()) ||
-                          allRangePool.tokenZero.symbol.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          allRangePool.tokenZero.symbol
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()) ||
-                          allRangePool.tokenOne.symbol.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          allRangePool.tokenOne.symbol
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()) ||
-                          allRangePool.tokenZero.id.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          allRangePool.tokenOne.id.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                          searchTerm === ""
-                        )
-                          return (
-                            <RangePool
-                              key={allRangePool.poolId + "rangePool"}
-                              rangePool={allRangePool}
-                              href="/range/add-liquidity"
-                            />
-                          );
-                      })}
+                    : allRangePools
+                        .filter(allRangePool => lowTVLHidden ? allRangePool.tvlUsd > "1.00" : true)
+                        .map((allRangePool) => {
+                          if (
+                            allRangePool.tokenZero.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenZero.name
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
+                            allRangePool.tokenOne.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenOne.name
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
+                            allRangePool.tokenZero.symbol.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenZero.symbol
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
+                            allRangePool.tokenOne.symbol.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenOne.symbol
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
+                            allRangePool.tokenZero.id.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenOne.id.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            searchTerm === ""
+                          )
+                            return (
+                              <RangePool
+                                key={allRangePool.poolId + "rangePool"}
+                                rangePool={allRangePool}
+                                href="/range/add-liquidity"
+                              />
+                            );
+                        })}
                 </div>
               </div>
             </div>

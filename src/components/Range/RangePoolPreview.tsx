@@ -271,7 +271,7 @@ export default function RangePoolPreview() {
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
-                                          src={tokenIn.logoURI}
+                                          src={logoMap[logoMapKey(tokenIn)]}
                                         />
                                         {tokenIn.symbol}
                                       </div>
@@ -319,7 +319,7 @@ export default function RangePoolPreview() {
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
-                                          src={tokenOut.logoURI}
+                                          src={logoMap[logoMapKey(tokenOut)]}
                                         />
                                         {tokenOut.symbol}
                                       </div>
