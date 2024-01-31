@@ -801,6 +801,8 @@ export default function MarketSwap() {
                 }
                 routerAddress={getRouterAddress(networkName)}
                 amountIn={amountIn}
+                tokenInSymbol={tokenIn.symbol}
+                tokenOutSymbol={tokenOut.symbol}
                 tokenInNative={tokenIn.native ?? false}
                 tokenOutNative={tokenOut.native ?? false}
                 poolAddresses={swapPoolAddresses}

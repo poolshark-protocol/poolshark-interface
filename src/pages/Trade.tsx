@@ -363,6 +363,8 @@ export default function Trade() {
   ///////////////////////
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
+  
+
   return (
     <div className="min-h-[calc(100vh-160px)] w-[48rem] px-3 md:px-0">
       <div className="flex w-full mt-[10vh] justify-center mb-20 ">
@@ -518,7 +520,7 @@ export default function Trade() {
                           <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={allHistoricalOrder.tokenIn.logoURI}
+                              src={logoMap[allHistoricalOrder.tokenIn.id]}
                             />
                             {parseFloat(allHistoricalOrder.amountIn).toFixed(
                               3
@@ -531,7 +533,7 @@ export default function Trade() {
                           <div className="flex items-center text-xs text-white gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={allHistoricalOrder.tokenOut.logoURI}
+                              src={logoMap[allHistoricalOrder.tokenOut.id]}
                             />
                             {parseFloat(allHistoricalOrder.amountOut).toFixed(
                               3
@@ -557,17 +559,16 @@ export default function Trade() {
                         <td className="md:table-cell hidden">
                           <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
                             <span className="z-50 px-3">
-                              {(100).toFixed(2)}% Filled
+                              100% Filled
                             </span>
-                            <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
+                            <div className="h-full bg-grey/60 w-full absolute left-0" />
                           </div>
                         </td>
                         <td className="text-grey1 text-left pl-3 text-xs md:table-cell hidden">
                           {timeDifference(
                             allHistoricalOrder.completedAtTimestamp
-                          )}
+                          )} ago
                         </td>
-                        <td className="w-[39px] h-1 md:table-cell hidden"></td>
                       </tr>
                     );
                   }
