@@ -178,7 +178,7 @@ export default function AddLiquidity({}) {
           || chainSwitched
         )
       ) {
-        setChainSwitched(true)
+        if (!chainSwitched) setChainSwitched(true)
         const pool = data["data"].limitPools[0];
         const originalTokenIn = {
           name: pool.token0.symbol,
