@@ -13,7 +13,7 @@ import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ONE, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
-import { fetchRangeTokenUSDPrice, getLogoURI } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice, logoMapKey } from "../../utils/tokens";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
@@ -159,28 +159,6 @@ export default function AddLiquidity({}) {
   }, [router.query.feeTier]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (rangePoolData?.id) {
-        updatePools(parseInt(rangePoolData?.feeTier?.feeAmount ?? "3000"));
-      }
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [rangePoolData?.id]);
-
-  useEffect(() => {
-    const originalTokenIn = {
-      ...tokenIn,
-      logoURI: logoMap[tokenIn.address.toLowerCase()],
-    };
-    const originalTokenOut = {
-      ...tokenOut,
-      logoURI: logoMap[tokenOut.address.toLowerCase()],
-    };
-    setTokenIn(originalTokenOut, originalTokenIn, "0", true);
-    setTokenOut(originalTokenIn, originalTokenOut, "0", false);
-  }, [logoMap]);
-
-  useEffect(() => {
     const fetchPool = async () => {
       const data = await fetchRangePools(limitSubgraph);
       if (data["data"]) {
@@ -201,21 +179,14 @@ export default function AddLiquidity({}) {
           userBalance: pool.token1.balance,
           callId: 1,
         };
-        if (
-          originalTokenIn.symbol == tokenIn.symbol &&
-          originalTokenOut.symbol == tokenOut.symbol
-        ) {
-          setTokenIn(originalTokenOut, originalTokenIn, "0", true);
-          setTokenOut(originalTokenIn, originalTokenOut, "0", false);
-          setRangePoolFromFeeTier(
-            originalTokenIn,
-            originalTokenOut,
-            parseInt(pool.feeTier.feeAmount),
-            limitSubgraph
-          );
-        } else {
-          setRangePoolFromFeeTier(tokenIn, tokenOut, "3000", limitSubgraph);
-        }
+        setTokenIn(originalTokenOut, originalTokenIn, "0", true);
+        setTokenOut(originalTokenIn, originalTokenOut, "0", false);
+        setRangePoolFromFeeTier(
+          originalTokenIn,
+          originalTokenOut,
+          parseInt(pool.feeTier.feeAmount),
+          limitSubgraph
+        );
       }
     };
     fetchPool();
@@ -231,18 +202,16 @@ export default function AddLiquidity({}) {
         (pool) =>
           pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
       );
-
       if (
-        (pool != undefined &&
-          tokenIn.address == pool?.token0?.id &&
-          tokenOut.address == pool?.token1?.id) ||
-        (tokenIn.address == pool?.token1?.id &&
-          tokenOut.address == pool?.token0?.id)
+        router.query.feeTier &&
+        !isNaN(parseInt(router.query.feeTier.toString())) &&
+        rangePoolData.feeTier == undefined &&
+        router.query.poolId != ZERO_ADDRESS &&
+        pool != undefined
       ) {
         const originalTokenIn = {
           name: pool.token0.symbol,
           address: pool.token0.id,
-          logoURI: logoMap[pool.token0.id.toLowerCase()],
           symbol: pool.token0.symbol,
           decimals: pool.token0.decimals,
           userBalance: pool.token0.balance,
@@ -251,7 +220,6 @@ export default function AddLiquidity({}) {
         const originalTokenOut = {
           name: pool.token1.symbol,
           address: pool.token1.id,
-          logoURI: logoMap[pool.token1.id.toLowerCase()],
           symbol: pool.token1.symbol,
           decimals: pool.token1.decimals,
           userBalance: pool.token1.balance,
@@ -266,47 +234,8 @@ export default function AddLiquidity({}) {
           limitSubgraph
         );
       } else {
-        const pool = data["data"].limitPools[0];
-        const originalTokenIn = {
-          name: pool.token0.symbol,
-          address: pool.token0.id,
-          symbol: pool.token0.symbol,
-          decimals: pool.token0.decimals,
-          userBalance: pool.token0.balance,
-          callId: 0,
-        };
-        const originalTokenOut = {
-          name: pool.token1.symbol,
-          address: pool.token1.id,
-          symbol: pool.token1.symbol,
-          decimals: pool.token1.decimals,
-          userBalance: pool.token1.balance,
-          callId: 1,
-        };
-        if (
-          originalTokenIn.symbol == tokenIn.symbol &&
-          originalTokenOut.symbol == tokenOut.symbol
-        ) {
-          setTokenIn(originalTokenOut, originalTokenIn, "0", true);
-          setTokenOut(originalTokenIn, originalTokenOut, "0", false);
-          setRangePoolFromFeeTier(
-            originalTokenIn,
-            originalTokenOut,
-            parseInt(pool.feeTier.feeAmount),
-            limitSubgraph
-          );
-        } else {
-          setRangePoolFromFeeTier(tokenIn, tokenOut, "3000", limitSubgraph);
-        }
+        setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
       }
-    }
-    if (rangePoolData.token0 && rangePoolData.token1) {
-      fetchRangeTokenUSDPrice(rangePoolData, tokenIn, setTokenInRangeUSDPrice);
-      fetchRangeTokenUSDPrice(
-        rangePoolData,
-        tokenOut,
-        setTokenOutRangeUSDPrice
-      );
     }
   }
 
@@ -760,11 +689,11 @@ export default function AddLiquidity({}) {
               <div className="flex items-center">
                 <img
                   className="md:w-6 w-6"
-                  src={logoMap[tokenIn.address.toLowerCase()]}
+                  src={logoMap[logoMapKey(tokenIn)]}
                 />
                 <img
                   className="md:w-6 w-6 -ml-2"
-                  src={logoMap[tokenOut.address.toLowerCase()]}
+                  src={logoMap[logoMapKey(tokenOut)]}
                 />
               </div>
               <span className="text-white text-xs">
@@ -1091,7 +1020,7 @@ export default function AddLiquidity({}) {
                   <TooltipTrigger>
                   <div className="uppercase flex items-center gap-x-2">
                   <svg width="17" height="17" viewBox="0 0 24 24" className="text-grey1" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1ZM12 7C11.4477 7 11 7.44772 11 8C11 8.55228 11.4477 9 12 9H12.01C12.5623 9 13.01 8.55228 13.01 8C13.01 7.44772 12.5623 7 12.01 7H12ZM13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12V16C11 16.5523 11.4477 17 12 17C12.5523 17 13 16.5523 13 16V12Z" fill="currentColor"/>
+<path fillRule="evenodd" clipRule="evenodd" d="M12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1ZM12 7C11.4477 7 11 7.44772 11 8C11 8.55228 11.4477 9 12 9H12.01C12.5623 9 13.01 8.55228 13.01 8C13.01 7.44772 12.5623 7 12.01 7H12ZM13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12V16C11 16.5523 11.4477 17 12 17C12.5523 17 13 16.5523 13 16V12Z" fill="currentColor"/>
 </svg>
 
                   1{" "}
@@ -1116,7 +1045,7 @@ export default function AddLiquidity({}) {
                         <span className="text-grey2 flex items-center gap-x-1">
                         <img
                   className="md:w-4"
-                  src={logoMap[tokenIn.address.toLowerCase()]}
+                  src={logoMap[logoMapKey(tokenIn)]}
                 />
                           {tokenIn.symbol}</span>
                         <span className="text-right">${!isNaN(tokenIn.USDPrice)
@@ -1131,7 +1060,7 @@ export default function AddLiquidity({}) {
                         <span className="text-grey2 flex items-center gap-x-1">
                         <img
                   className=" w-4"
-                  src={logoMap[tokenOut.address.toLowerCase()]}
+                  src={logoMap[logoMapKey(tokenOut)]}
                 />{tokenOut.symbol}</span>
                         <span className="text-right">${!isNaN(tokenOut.USDPrice)
                   ? (
