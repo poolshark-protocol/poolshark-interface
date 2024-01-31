@@ -520,7 +520,7 @@ export default function Trade() {
                           <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={allHistoricalOrder.tokenIn.logoURI}
+                              src={logoMap[allHistoricalOrder.tokenIn.id]}
                             />
                             {parseFloat(allHistoricalOrder.amountIn).toFixed(
                               3
@@ -533,7 +533,7 @@ export default function Trade() {
                           <div className="flex items-center text-xs text-white gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={allHistoricalOrder.tokenOut.logoURI}
+                              src={logoMap[allHistoricalOrder.tokenOut.id]}
                             />
                             {parseFloat(allHistoricalOrder.amountOut).toFixed(
                               3
