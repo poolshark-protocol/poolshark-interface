@@ -104,6 +104,28 @@ export default function UserLimitPool({
     });
   }
 
+  const filledPercentRaw = (
+    (limitFilledAmount * 100) /
+    parseFloat(
+      ethers.utils.formatUnits(
+        getExpectedAmountOutFromInput(
+          parseInt(limitPosition.min),
+          parseInt(limitPosition.max),
+          limitPosition.tokenIn.id.localeCompare(limitPosition.tokenOut.id) < 0,
+          getExpectedAmountIn(
+            parseInt(limitPosition.min),
+            parseInt(limitPosition.max),
+            limitPosition.tokenIn.id.localeCompare(limitPosition.tokenOut.id) <
+              0,
+            BigNumber.from(limitPosition.liquidity)
+          )
+        ),
+        limitPosition.tokenOut.decimals
+      )
+    )
+  ).toFixed(1);
+  const filledPercent = filledPercentRaw.endsWith('.0') ? filledPercentRaw.slice(0, -2) : filledPercentRaw;
+
   return (
     <tr
       className="text-right text-xs md:text-sm bg-black hover:bg-dark cursor-pointer"
