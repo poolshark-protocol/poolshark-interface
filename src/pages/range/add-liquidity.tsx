@@ -147,7 +147,6 @@ export default function AddLiquidity({}) {
       refetchAllowanceOut();
       setPairSelected(true);
       if (rangePoolData.feeTier != undefined) {
-        console.log("update hook 1");
         updatePools(parseInt(rangePoolData.feeTier.feeAmount));
       }
     } else {
@@ -161,7 +160,6 @@ export default function AddLiquidity({}) {
       !isNaN(parseInt(router.query.feeTier.toString())) &&
       rangePoolData.feeTier == undefined
     ) {
-      console.log("update hook 2");
       updatePools(parseInt(router.query.feeTier.toString()));
     }
   }, [router.query.feeTier]);
@@ -169,7 +167,6 @@ export default function AddLiquidity({}) {
   useEffect(() => {
     const fetchPool = async () => {
       const data = await fetchRangePools(limitSubgraph);
-      console.log("fetch pool", chainId, router.query.chainId);
       if (
         data["data"] &&
         rangePoolData.feeTier == undefined &&
@@ -219,7 +216,6 @@ export default function AddLiquidity({}) {
         (pool) =>
           pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
       );
-      console.log("if 1 check", pool);
       if (
         router.query.feeTier &&
         !isNaN(parseInt(router.query.feeTier.toString())) &&
@@ -257,7 +253,6 @@ export default function AddLiquidity({}) {
           !isNaN(parseInt(router.query.chainId.toString())) &&
           parseInt(router.query?.chainId.toString()) == chainId
         ) {
-          console.log("else if statement hit");
           setRangePoolData({
             ...rangePoolData,
             poolPrice: String(
@@ -270,11 +265,9 @@ export default function AddLiquidity({}) {
             },
           });
         } else {
-          console.log("else 2 hit");
           setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
         }
       } else {
-        console.log("else statement hit");
         setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
       }
     }
