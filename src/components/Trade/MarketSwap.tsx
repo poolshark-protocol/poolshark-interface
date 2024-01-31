@@ -722,6 +722,7 @@ export default function MarketSwap() {
           <Range className="text-main2" />{" "}
           <span className="text-grey3 flex flex-col gap-y-[-2px]">
             No pools exist for this token pair.{" "}
+            {/* set tokenIn and tokenOut in router.query */}
             <a
               className=" hover:underline text-main2 cursor-pointer"
               onClick={() => {
@@ -732,6 +733,9 @@ export default function MarketSwap() {
                   query: {
                     feeTier: "3000",
                     poolId: ZERO_ADDRESS,
+                    tokenIn: tokenIn.address,
+                    tokenOut: tokenOut.address,
+                    chainId: chainId,
                   },
                 });
               }}

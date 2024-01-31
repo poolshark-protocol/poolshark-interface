@@ -4,9 +4,10 @@ import { formatUsdValue } from "../../utils/math/valueMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function RangePool({ rangePool, href }) {
-  const [limitSubgraph, logoMap] = useConfigStore((state) => [
+  const [limitSubgraph, logoMap, chainId] = useConfigStore((state) => [
     state.limitSubgraph,
     state.logoMap,
+    state.chainId,
   ]);
 
   const [
@@ -50,6 +51,7 @@ export default function RangePool({ rangePool, href }) {
       query: {
         feeTier: rangePool.feeTier,
         poolId: rangePool.poolId,
+        chainId: chainId,
       },
     });
   };
