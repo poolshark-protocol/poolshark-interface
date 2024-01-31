@@ -1,4 +1,3 @@
-/* eslint-disable react/no-children-prop */
 import { useEffect, useState } from "react";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import {
@@ -1016,7 +1015,7 @@ export default function AddLiquidity({}) {
             <div className="mb-2 mt-3 flex-col flex gap-y-8">
               <div className="flex items-center justify-between w-full text-xs  text-[#C9C9C9]">
                 <div className="text-xs text-[#4C4C4C]">Market Price</div>
-                <TooltipProvider children={""}>
+                <TooltipProvider>
                 <Tooltip delayDuration={100}>
                   <TooltipTrigger>
                   <div className="uppercase flex items-center gap-x-2">
