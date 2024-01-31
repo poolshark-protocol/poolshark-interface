@@ -137,13 +137,10 @@ export default function LimitSwapButton({
       eventName: 'swap-limit',
       parameters: {
         fromAmount: Number(ethers.utils.formatEther(amount)),
-        fromCurrency: (tokenIn as any),
-        toCurrency: (tokenOut as any),
+        fromCurrency: (tokenIn.symbol as string),
+        toCurrency: (tokenOut.symbol as string),
         contractAddress: (routerAddress as string),
-        lower: (lower as string),
-        upper: (upper as string),
         chainId: (chainId as number) || '',
-        poolAddress: (poolAddress as string),
       },
     })
     
