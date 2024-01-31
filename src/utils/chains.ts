@@ -131,7 +131,7 @@ export const chainProperties = {
     coverSubgraphUrl:
       "",
     limitSubgraphUrl:
-      "https://arbitrum-mainnet.graph-eu.p2pify.com/27c3c2867e193dcf17ca262f64efe2a4/limit-arbitrum-redeploy",
+      "https://arbitrum-mainnet.graph-eu.p2pify.com/5c93ca6548997e3bd183f14d16d19fe1/limit-arbitrum-scroll-release",
     bondProtocol: {
       auctioneerAddress: "0xf7f9a96cdbfefd70bda14a8f30ec503b16bce9b1",
       tellerAddress: "0x007f7735baf391e207e3aa380bb53c4bd9a5fed6",

@@ -470,8 +470,6 @@ export const gasEstimateRangeCreateAndMint = async (
   networkName: string,
 ): Promise<gasEstimateResult> => {
   try {
-    
-
     if (!signer?.provider || (amountIn.eq(BN_ZERO) && amountOut.eq(BN_ZERO))) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
@@ -596,8 +594,6 @@ export const gasEstimateRangeUnstake = async(
   signer
 ): Promise<gasEstimateResult> => {
   try {
-  
-  const provider = signer.provider
   if (
     !rangePoolAddress ||
     !signer.provider ||
@@ -610,7 +606,7 @@ export const gasEstimateRangeUnstake = async(
   const contract = new ethers.Contract(
     rangeStakerAddress,
     rangeStakerABI,
-    provider
+    signer.provider
   );
   const gasUnits =
     await contract.connect(signer).estimateGas.unstakeRange({
@@ -619,7 +615,7 @@ export const gasEstimateRangeUnstake = async(
       positionId: positionId,
     });
   const price = await fetchEthPrice();
-  const gasPrice = await provider.getGasPrice();
+  const gasPrice = await signer.provider.getGasPrice();
   const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
   const networkFeeWei = gasPrice.mul(gasUnits);
   const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
@@ -645,8 +641,6 @@ export const gasEstimateRangeBurn = async (
   signer,
 ): Promise<gasEstimateResult> => {
   try {
-    
-
     if (
       !rangePoolRoute ||
       !signer.provider ||
@@ -706,8 +700,6 @@ export const gasEstimateCoverMint = async (
   positionId?: number
 ): Promise<gasEstimateResult> => {
   try {
-    
-
     if (!coverPoolRoute || !signer.provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
