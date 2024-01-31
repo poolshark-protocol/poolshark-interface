@@ -55,7 +55,7 @@ export default function Network({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-sm transform overflow-hidden rounded-xl bg-black text-white border border-grey2 text-left align-middle shadow-xl px-5 py-5 transition-all">
+                            <Dialog.Panel className="w-full max-w-sm transform overflow-hidden rounded-md bg-black text-white border border-grey text-left align-middle shadow-xl px-5 py-5 transition-all">
                 <div className="flex items-center justify-between px-2">
                   <h1 className="text-lg">Switch Networks</h1>
                   <XMarkIcon
@@ -78,9 +78,9 @@ export default function Network({
                     }}
                     className={`${
                       chainId === 42161
-                        ? " bg-background"
+                        ? " bg-main1 border-main2/20"
                         : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
-                    } flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}
+                    } flex justify-between items-center w-full p-2 rounded-md border border-black cursor-pointer`}
                   >
                     <div className="flex gap-x-2 items-center">
                       <img src="/static/images/arb_icon.svg" />
@@ -89,12 +89,12 @@ export default function Network({
                     <div
                       className={`${
                         chainId === 42161
-                          ? " flex gap-x-2 items-center text-main text-xs"
+                          ? " flex gap-x-2 items-center text-main2 text-xs"
                           : "hidden"
                       }`}
                     >
                       Connected
-                      <div className="h-1.5 w-1.5 bg-green-500 rounded-full" />
+                      <div className="h-1.5 w-1.5 bg-main2 rounded-full" />
                     </div>
                   </div>
                   <div
@@ -104,9 +104,9 @@ export default function Network({
                     }}
                     className={`${
                       chainId === 534352
-                        ? " bg-background"
-                        : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
-                    } flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}
+                      ? " bg-main1 border-main2/20"
+                      : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
+                  } flex justify-between items-center w-full p-2 rounded-md border border-black cursor-pointer`}
                   >
                     <div className="flex gap-x-2 items-center">
                       <img
@@ -119,12 +119,12 @@ export default function Network({
                     <div
                       className={`${
                         chainId === 534352
-                          ? " flex gap-x-2 items-center text-main text-xs"
+                          ? " flex gap-x-2 items-center text-main2 text-xs"
                           : "hidden"
                       }`}
                     >
                       Connected
-                      <div className="h-1.5 w-1.5 bg-green-500 rounded-full" />
+                      <div className="h-1.5 w-1.5 bg-main2 rounded-full" />
                     </div>
                   </div>
                   {process.env.NEXT_PUBLIC_isPRODUCTION === "false" && (
@@ -135,9 +135,9 @@ export default function Network({
                       }}
                       className={`${
                         chainId === 421614
-                          ? " bg-background"
-                          : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
-                      } flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}
+                        ? " bg-main1 border-main2/20"
+                        : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
+                    } flex justify-between items-center w-full p-2 rounded-md border border-black cursor-pointer`}
                     >
                       <div className="flex gap-x-2 items-center">
                         <img
@@ -149,12 +149,12 @@ export default function Network({
                       <div
                         className={`${
                           chainId === 421614
-                            ? " flex gap-x-2 items-center text-main text-xs"
+                            ? " flex gap-x-2 items-center text-main2 text-xs"
                             : "hidden"
                         }`}
                       >
                         Connected
-                        <div className="h-1.5 w-1.5 bg-green-500 rounded-full" />
+                        <div className="h-1.5 w-1.5 bg-main2 rounded-full" />
                       </div>
                     </div>
                   )}
