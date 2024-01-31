@@ -225,7 +225,6 @@ export default function AddLiquidity({}) {
           !isNaN(parseInt(router.query.feeTier.toString())) &&
           rangePoolData.feeTier == undefined
       ) {
-
         if (
           router.query.poolId != ZERO_ADDRESS &&
           pool != undefined
