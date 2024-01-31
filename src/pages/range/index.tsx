@@ -176,6 +176,7 @@ export default function Range() {
                     query: {
                       feeTier: allRangePools[0].feeTier ?? 3000,
                       poolId: allRangePools[0].poolId,
+                      chainId: chainId,
                     },
                   });
                 }
@@ -357,13 +358,13 @@ export default function Range() {
                     <div className="text-left">Pool Name</div>
                     <div className="grid md:grid-cols-3 grid-cols-1 mr-4">
                       <span className="text-right md:table-cell hidden">
-                        Volume (24h)
+                        Volume
                       </span>
                       <span className="text-right md:table-cell hidden">
                         TVL
                       </span>
                       <span className="text-right md:table-cell hidden">
-                        Fees (24h)
+                        Fees
                       </span>
                     </div>
                   </div>
