@@ -551,9 +551,6 @@ export const gasEstimateRangeStake = async(
 ): Promise<gasEstimateResult> => {
   try {
   
-  const provider = new ethers.providers.JsonRpcProvider(
-    "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
-  );
   if (
     !rangePoolAddress ||
     !signer.provider ||
@@ -566,7 +563,7 @@ export const gasEstimateRangeStake = async(
   const contract = new ethers.Contract(
     rangeStakerAddress,
     rangeStakerABI,
-    provider
+    signer.provider
   );
   const gasUnits =
     await contract.connect(signer).estimateGas.stakeRange({
@@ -575,7 +572,7 @@ export const gasEstimateRangeStake = async(
       positionId: positionId,
     });
   const price = await fetchEthPrice();
-  const gasPrice = await provider.getGasPrice();
+  const gasPrice = await signer.provider.getGasPrice();
   const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
   const networkFeeWei = gasPrice.mul(gasUnits);
   const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
@@ -600,9 +597,7 @@ export const gasEstimateRangeUnstake = async(
 ): Promise<gasEstimateResult> => {
   try {
   
-  const provider = new ethers.providers.JsonRpcProvider(
-    "https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/"
-  );
+  const provider = signer.provider
   if (
     !rangePoolAddress ||
     !signer.provider ||
@@ -635,7 +630,7 @@ export const gasEstimateRangeUnstake = async(
   });
   return { formattedPrice, gasUnits };
   } catch (error) {
-    console.log("stake gas error", error);
+    console.log("unstake gas error", error);
     return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
   }
 }

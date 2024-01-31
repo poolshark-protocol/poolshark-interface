@@ -2,7 +2,7 @@
 
 import { Alchemy, Network } from "alchemy-sdk";
 import { alchemyNetworks, chainIdsToNames } from "./chains";
-import { ZERO_ADDRESS } from "./math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "./math/constants";
 import { fetchTokenPrice } from "./queries";
 import { LimitSubgraph, coinsList } from "./types";
 import { BigNumber, ethers } from "ethers";
@@ -80,6 +80,20 @@ export const nativeString = (token: any) => {
     return '-native'
   }
   return ''
+}
+
+export const getUserBalance = (token: any, currentToken: any) => {
+  if (token.address.toLowerCase() == currentToken.address.toLowerCase()) {
+    return currentToken.userBalance ?? 0
+  }
+  return 0
+}
+
+export const getUserAllowance = (token: any, currentToken: any) => {
+  if (token.address.toLowerCase() == currentToken.address.toLowerCase()) {
+    return currentToken.userRouterAllowance ?? BN_ZERO
+  }
+  return BN_ZERO
 }
 
 export const fetchListedTokenBalances = async (

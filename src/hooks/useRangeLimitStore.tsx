@@ -17,6 +17,7 @@ import {
   chainProperties,
   defaultNetwork,
 } from "../utils/chains";
+import { getUserAllowance, getUserBalance } from "../utils/tokens";
 
 type RangeLimitState = {
   //rangePoolAddress for current token pairs
@@ -366,13 +367,13 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               callId:
                 newTokenIn.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
               native: newTokenIn.native ?? false,
-              userRouterAllowance: BN_ZERO,
+              userBalance: getUserBalance(newTokenIn, state.tokenIn), 
+              userRouterAllowance: getUserAllowance(newTokenIn, state.tokenIn),
             },
             tokenOut: {
-              ...tokenOut,
+              ...state.tokenOut,
               callId:
                 tokenOut.address.localeCompare(newTokenIn.address) < 0 ? 0 : 1,
-              userRouterAllowance: BN_ZERO,
             },
             pairSelected: true,
             rangeMintParams: {
@@ -398,10 +399,13 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
             callId: 1,
             native: newTokenIn.native ?? false,
             userRouterAllowance: state.tokenIn?.userRouterAllowance ?? BN_ZERO,
+            userBalance: state.tokenIn?.userBalance ?? 0
           },
           tokenOut: {
             ...tokenOut,
             callId: 0,
+            userRouterAllowance: state.tokenOut?.userRouterAllowance ?? BN_ZERO,
+            userBalance: state.tokenOut?.userBalance ?? 0
           },
           rangeMintParams: {
             ...state.rangeMintParams,
@@ -523,14 +527,14 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
                 state.tokenIn.address.localeCompare(newTokenOut.address) < 0
                   ? 0
                   : 1,
-              userRouterAllowance: state.tokenIn.userRouterAllowance ?? BN_ZERO,
             },
             tokenOut: {
               ...newTokenOut,
               callId:
                 newTokenOut.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
               native: newTokenOut.native ?? false,
-              userRouterAllowance: BN_ZERO,
+              userBalance: getUserBalance(newTokenOut, state.tokenOut),
+              userRouterAllowance: getUserAllowance(newTokenOut, state.tokenOut),
             },
             rangeMintParams: {
               ...state.rangeMintParams,

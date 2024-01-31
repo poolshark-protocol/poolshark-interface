@@ -4,6 +4,7 @@ import {
   getDefaultWallets,
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
+import Script from 'next/script';
 import { configureChains, createClient, useProvider, WagmiConfig } from 'wagmi';
 import { arbitrum } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
@@ -26,6 +27,7 @@ import { useTradeStore } from "../hooks/useTradeStore";
 import { useRangeLimitStore } from "../hooks/useRangeLimitStore";
 import { fetchListedTokenBalances, fetchTokenMetadata } from "../utils/tokens";
 import Safary from '../components/script';
+import { Toaster } from 'sonner';
 
 const { chains, provider } = configureChains(
   [arbitrum, arbitrumSepolia, scroll],
@@ -165,6 +167,7 @@ function MyApp({ Component, pageProps }) {
        <title>Poolshark</title>
     </Head>
 <Safary/>
+<Toaster richColors theme="dark"/>
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider chains={chains} initialChain={arbitrum}>
           {/* <ApolloProvider client={apolloClient}> */}
