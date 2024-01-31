@@ -137,6 +137,7 @@ export default function AddLiquidity({}) {
   const [amountInSetLast, setAmountInSetLast] = useState(true);
   const [amountInDisabled, setAmountInDisabled] = useState(false);
   const [amountOutDisabled, setAmountOutDisabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   ////////////////////////////////Pools
 
@@ -200,6 +201,7 @@ export default function AddLiquidity({}) {
           limitSubgraph
         );
       }
+      setIsLoading(false);
     };
     fetchPool();
   }, [chainId]);
@@ -749,30 +751,34 @@ export default function AddLiquidity({}) {
         <div className="flex md:flex-row flex-col md:items-center items-start gap-y-4 justify-between">
           <h1 className="uppercase">RANGE POOL</h1>
           <div>
-            <div className="flex  items-center gap-x-2 bg-dark border border-grey py-2 px-5 rounded-[4px]">
-              <div className="flex items-center">
-                <img
-                  className="md:w-6 w-6"
-                  src={logoMap[logoMapKey(tokenIn)]}
-                />
-                <img
-                  className="md:w-6 w-6 -ml-2"
-                  src={logoMap[logoMapKey(tokenOut)]}
-                />
+            {isLoading ? (
+              <div className="h-[42.02px] w-[230px] bg-grey/60 animate-pulse rounded-[4px]" />
+            ) : (
+              <div className="flex  items-center gap-x-2 bg-dark border border-grey py-2 px-5 rounded-[4px]">
+                <div className="flex items-center">
+                  <img
+                    className="md:w-6 w-6"
+                    src={logoMap[logoMapKey(tokenIn)]}
+                  />
+                  <img
+                    className="md:w-6 w-6 -ml-2"
+                    src={logoMap[logoMapKey(tokenOut)]}
+                  />
+                </div>
+                <span className="text-white text-xs">
+                  {tokenIn.callId == 0 ? tokenIn.symbol : tokenOut.symbol} -{" "}
+                  {tokenIn.callId == 0 ? tokenOut.symbol : tokenIn.symbol}
+                </span>
+                <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
+                  {(
+                    (!isNaN(rangePoolData.feeTier?.feeAmount)
+                      ? rangePoolData.feeTier?.feeAmount
+                      : 0) / 10000
+                  ).toFixed(2)}
+                  %
+                </span>
               </div>
-              <span className="text-white text-xs">
-                {tokenIn.callId == 0 ? tokenIn.symbol : tokenOut.symbol} -{" "}
-                {tokenIn.callId == 0 ? tokenOut.symbol : tokenIn.symbol}
-              </span>
-              <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                {(
-                  (!isNaN(rangePoolData.feeTier?.feeAmount)
-                    ? rangePoolData.feeTier?.feeAmount
-                    : 0) / 10000
-                ).toFixed(2)}
-                %
-              </span>
-            </div>
+            )}
           </div>
         </div>
         <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
@@ -793,7 +799,11 @@ export default function AddLiquidity({}) {
                     ).toFixed(2)
                   : "?.??"}
               </span>
+              {isLoading ? (
+              <div className="h-[16.5px] w-[100px] bg-grey/60 animate-pulse rounded-[4px]" />
+            ) : (
               <BalanceDisplay token={tokenIn}></BalanceDisplay>
+            )}
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
               {inputBoxIn(
@@ -812,6 +822,9 @@ export default function AddLiquidity({}) {
                   MAX
                 </button>
                 <div className="flex items-center gap-x-2">
+                {isLoading ? (
+              <div className="h-[40px] w-[160px] bg-grey/60 animate-pulse rounded-[4px]" />
+            ) : (
                   <SelectToken
                     index="0"
                     key="in"
@@ -824,6 +837,7 @@ export default function AddLiquidity({}) {
                     amount={amountInSetLast ? displayIn : displayOut}
                     isAmountIn={amountInSetLast}
                   />
+            )}
                 </div>
               </div>
             </div>
@@ -845,7 +859,11 @@ export default function AddLiquidity({}) {
                     ).toFixed(2)
                   : "?.??"}
               </span>
+              {isLoading ? (
+              <div className="h-[16.5px] w-[100px] bg-grey/60 animate-pulse rounded-[4px]" />
+            ) : (
               <BalanceDisplay token={tokenOut}></BalanceDisplay>
+            )}
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
               {inputBoxOut(
@@ -864,18 +882,22 @@ export default function AddLiquidity({}) {
                   MAX
                 </button>
                 <div className="flex items-center gap-x-2">
-                  <SelectToken
-                    key={"out"}
-                    type="out"
-                    tokenIn={tokenIn}
-                    setTokenIn={setTokenIn}
-                    tokenOut={tokenOut}
-                    setTokenOut={setTokenOut}
-                    setPairSelected={setPairSelected}
-                    displayToken={tokenOut}
-                    amount={amountInSetLast ? displayIn : displayOut}
-                    isAmountIn={amountInSetLast}
-                  />
+                {isLoading ? (
+              <div className="h-[40px] w-[160px] bg-grey/60 animate-pulse rounded-[4px]" />
+            ) : (
+              <SelectToken
+              key={"out"}
+              type="out"
+              tokenIn={tokenIn}
+              setTokenIn={setTokenIn}
+              tokenOut={tokenOut}
+              setTokenOut={setTokenOut}
+              setPairSelected={setPairSelected}
+              displayToken={tokenOut}
+              amount={amountInSetLast ? displayIn : displayOut}
+              isAmountIn={amountInSetLast}
+            />
+            )}
                 </div>
               </div>
             </div>
@@ -931,106 +953,112 @@ export default function AddLiquidity({}) {
               <DoubleArrowIcon />
             </div>
           </div>
-          <div className="flex justify-between items-center w-full md:gap-x-4 gap-x-2">
-            <button
-              onClick={() => {
-                setManualRange(true);
-                setMinInput(
-                  invertPrice(
-                    TickMath.getPriceStringAtTick(
+          {rangePoolAddress != ZERO_ADDRESS && (
+            <div className="flex justify-between items-center w-full md:gap-x-4 gap-x-2">
+
+              <button
+                onClick={() => {
+                  setManualRange(true);
+                  setMinInput(
+                    invertPrice(
+                      TickMath.getPriceStringAtTick(
+                        priceOrder == (tokenIn.callId == 0)
+                          ? rangePoolData.tickAtPrice - 2232
+                          : rangePoolData.tickAtPrice - -2232,
+                        tokenIn,
+                        tokenOut
+                      ),
                       priceOrder == (tokenIn.callId == 0)
-                        ? rangePoolData.tickAtPrice - 2232
-                        : rangePoolData.tickAtPrice - -2232,
-                      tokenIn,
-                      tokenOut
-                    ),
-                    priceOrder == (tokenIn.callId == 0)
-                  )
-                );
-                setMaxInput(
-                  invertPrice(
-                    TickMath.getPriceStringAtTick(
+                    )
+                  );
+                  setMaxInput(
+                    invertPrice(
+                      TickMath.getPriceStringAtTick(
+                        priceOrder == (tokenIn.callId == 0)
+                          ? rangePoolData.tickAtPrice - -2232
+                          : rangePoolData.tickAtPrice - 2232,
+                        tokenIn,
+                        tokenOut
+                      ),
                       priceOrder == (tokenIn.callId == 0)
-                        ? rangePoolData.tickAtPrice - -2232
-                        : rangePoolData.tickAtPrice - 2232,
-                      tokenIn,
-                      tokenOut
-                    ),
-                    priceOrder == (tokenIn.callId == 0)
-                  )
-                );
-              }}
-              className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
-            >
-              Narrow
-            </button>
-            <button
-              onClick={() => {
-                setManualRange(true);
-                setMinInput(
-                  invertPrice(
-                    TickMath.getPriceStringAtTick(
+                    )
+                  );
+                }}
+                className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
+              >
+                Narrow
+              </button>
+              <button
+                onClick={() => {
+                  setManualRange(true);
+                  setMinInput(
+                    invertPrice(
+                      TickMath.getPriceStringAtTick(
+                        priceOrder == (tokenIn.callId == 0)
+                          ? rangePoolData.tickAtPrice - 4055
+                          : rangePoolData.tickAtPrice - -4055,
+                        tokenIn,
+                        tokenOut
+                      ),
                       priceOrder == (tokenIn.callId == 0)
-                        ? rangePoolData.tickAtPrice - 4055
-                        : rangePoolData.tickAtPrice - -4055,
-                      tokenIn,
-                      tokenOut
-                    ),
-                    priceOrder == (tokenIn.callId == 0)
-                  )
-                );
-                setMaxInput(
-                  invertPrice(
-                    TickMath.getPriceStringAtTick(
+                    )
+                  );
+                  setMaxInput(
+                    invertPrice(
+                      TickMath.getPriceStringAtTick(
+                        priceOrder == (tokenIn.callId == 0)
+                          ? rangePoolData.tickAtPrice - -4055
+                          : rangePoolData.tickAtPrice - 4055,
+                        tokenIn,
+                        tokenOut
+                      ),
                       priceOrder == (tokenIn.callId == 0)
-                        ? rangePoolData.tickAtPrice - -4055
-                        : rangePoolData.tickAtPrice - 4055,
-                      tokenIn,
-                      tokenOut
-                    ),
-                    priceOrder == (tokenIn.callId == 0)
-                  )
-                );
-              }}
-              className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
-            >
-              COMMON
-            </button>
-            <button
-              onClick={() => {
-                setManualRange(true);
-                setMinInput(
-                  invertPrice(
-                    TickMath.getPriceStringAtTick(
+                    )
+                  );
+                }}
+                className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
+              >
+                COMMON
+              </button>
+              <button
+                onClick={() => {
+                  setManualRange(true);
+                  setMinInput(
+                    invertPrice(
+                      TickMath.getPriceStringAtTick(
+                        priceOrder == (tokenIn.callId == 0)
+                          ? rangePoolData.tickAtPrice - 5596
+                          : rangePoolData.tickAtPrice - -5596,
+                        tokenIn,
+                        tokenOut
+                      ),
                       priceOrder == (tokenIn.callId == 0)
-                        ? rangePoolData.tickAtPrice - 5596
-                        : rangePoolData.tickAtPrice - -5596,
-                      tokenIn,
-                      tokenOut
-                    ),
-                    priceOrder == (tokenIn.callId == 0)
-                  )
-                );
-                setMaxInput(
-                  invertPrice(
-                    TickMath.getPriceStringAtTick(
+                    )
+                  );
+                  setMaxInput(
+                    invertPrice(
+                      TickMath.getPriceStringAtTick(
+                        priceOrder == (tokenIn.callId == 0)
+                          ? rangePoolData.tickAtPrice - -5596
+                          : rangePoolData.tickAtPrice - 5596,
+                        tokenIn,
+                        tokenOut
+                      ),
                       priceOrder == (tokenIn.callId == 0)
-                        ? rangePoolData.tickAtPrice - -5596
-                        : rangePoolData.tickAtPrice - 5596,
-                      tokenIn,
-                      tokenOut
-                    ),
-                    priceOrder == (tokenIn.callId == 0)
-                  )
-                );
-              }}
-              className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
-            >
-              WIDE
-            </button>
-          </div>
+                    )
+                  );
+                }}
+                className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
+              >
+                WIDE
+              </button>
+            </div>
+          )}
           <div className="flex flex-col gap-y-4">
             <div className="flex md:flex-row flex-col items-center gap-5 mt-3">
+            {isLoading ? (
+              <div className="h-[128px] w-full bg-grey/60 animate-pulse rounded-[4px]" />
+            ) : (
               <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                 <span className="text-grey1 text-xs">MIN. PRICE</span>
                 <span className="text-white text-3xl">
@@ -1047,6 +1075,10 @@ export default function AddLiquidity({}) {
                   }
                 </span>
               </div>
+            )}
+            {isLoading ? (
+              <div className="h-[128px] w-full bg-grey/60 animate-pulse rounded-[4px]" />
+            ) : (
               <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                 <span className="text-grey1 text-xs">MAX. PRICE</span>
                 <span className="text-white text-3xl">
@@ -1063,6 +1095,7 @@ export default function AddLiquidity({}) {
                   }
                 </span>
               </div>
+            )}
             </div>
             {rangePoolAddress == ZERO_ADDRESS &&
               rangePoolData.feeTier != undefined && (
