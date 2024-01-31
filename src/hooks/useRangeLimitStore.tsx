@@ -79,6 +79,7 @@ type RangeLimitState = {
   currentAmountOut: string;
   //Start price for pool creation
   startPrice: string;
+  chainSwitched: boolean;
 };
 
 type RangeLimitAction = {
@@ -162,6 +163,7 @@ type RangeLimitAction = {
   setStartPrice: (startPrice: string) => void;
   setLimitAddLiqDisabled: (limitAddLiqDisabled: boolean) => void;
   setStakeFlag: (stakeFlag: boolean) => void;
+  setChainSwitched: (chainSwitched: boolean) => void;
 };
 
 const initialRangeLimitState: RangeLimitState = {
@@ -253,6 +255,7 @@ const initialRangeLimitState: RangeLimitState = {
   //
   currentAmountOut: "0",
   startPrice: "",
+  chainSwitched: false,
 };
 
 export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
@@ -298,6 +301,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     currentAmountOut: initialRangeLimitState.currentAmountOut,
     //start price for pool creation
     startPrice: initialRangeLimitState.startPrice,
+    //whether chain was already switched
+    chainSwitched: initialRangeLimitState.chainSwitched,
     //actions
     setPairSelected: (pairSelected: boolean) => {
       set(() => ({
@@ -858,6 +863,11 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     setStartPrice: (startPrice: string) => {
       set(() => ({
         startPrice: startPrice,
+      }));
+    },
+    setChainSwitched: (chainSwitched: boolean) => {
+      set(() => ({
+        chainSwitched: chainSwitched,
       }));
     },
     setStakeFlag: (stakeFlag: boolean) => {

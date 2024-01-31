@@ -81,6 +81,8 @@ export default function AddLiquidity({}) {
     setRangePoolData,
     setStartPrice,
     setStakeFlag,
+    chainSwitched,
+    setChainSwitched,
   ] = useRangeLimitStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
@@ -116,6 +118,8 @@ export default function AddLiquidity({}) {
     state.setRangePoolData,
     state.setStartPrice,
     state.setStakeFlag,
+    state.chainSwitched,
+    state.setChainSwitched,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -169,9 +173,12 @@ export default function AddLiquidity({}) {
         data["data"] && 
         rangePoolData.feeTier == undefined &&
         !isNaN(parseInt(router.query.chainId?.toString())) &&
-        parseInt(router.query.chainId?.toString()) != chainId
+        (
+          parseInt(router.query.chainId?.toString()) != chainId
+          || chainSwitched
+        )
       ) {
-
+        setChainSwitched(true)
         const pool = data["data"].limitPools[0];
         const originalTokenIn = {
           name: pool.token0.symbol,
