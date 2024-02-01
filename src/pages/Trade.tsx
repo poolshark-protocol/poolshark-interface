@@ -158,7 +158,7 @@ export default function Trade() {
         limitSubgraph
       );
     }
-  }, [tokenIn.address, tokenOut.address, tokenIn.native]);
+  }, [tokenIn.address]);
 
   useEffect(() => {
     if (
@@ -171,7 +171,7 @@ export default function Trade() {
         limitSubgraph
       );
     }
-  }, [tokenIn.address, tokenOut.address, tokenIn.native]);
+  }, [tokenOut.address]);
 
   ////////////////////////////////Filled Amount
   const { data: filledAmountList } = useContractRead({
@@ -288,7 +288,6 @@ export default function Trade() {
 
   ////////////////////////////////Balances
 
-
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.native ? undefined : tokenIn.address,
@@ -302,7 +301,6 @@ export default function Trade() {
       }, 5000);
     },
   });
-
 
   const { data: tokenOutBal } = useBalance({
     address: address,
@@ -337,22 +335,23 @@ export default function Trade() {
 
   ////////////////////////////////Allowances
 
-  const { data: allowanceInRouter, refetch: allowanceInRefetch } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, getRouterAddress(networkName)],
-    chainId: chainId,
-    watch: needsAllowanceIn,
-    enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
-    onError(error) {
-      console.log("Error allowance", error);
-    },
-    onSuccess(data) {
-      setNeedsAllowanceIn(false);
-      // console.log("Success allowance", tokenIn.symbol, tokenIn.userRouterAllowance?.gte(amountIn));
-    },
-  });
+  const { data: allowanceInRouter, refetch: allowanceInRefetch } =
+    useContractRead({
+      address: tokenIn.address,
+      abi: erc20ABI,
+      functionName: "allowance",
+      args: [address, getRouterAddress(networkName)],
+      chainId: chainId,
+      watch: needsAllowanceIn,
+      enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
+      onError(error) {
+        console.log("Error allowance", error);
+      },
+      onSuccess(data) {
+        setNeedsAllowanceIn(false);
+        // console.log("Success allowance", tokenIn.symbol, tokenIn.userRouterAllowance?.gte(amountIn));
+      },
+    });
 
   useEffect(() => {
     if (allowanceInRouter) {
@@ -362,8 +361,6 @@ export default function Trade() {
 
   ///////////////////////
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
-  
 
   return (
     <div className="min-h-[calc(100vh-160px)] w-[48rem] px-3 md:px-0">
@@ -558,16 +555,15 @@ export default function Trade() {
                         </td>
                         <td className="md:table-cell hidden">
                           <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
-                            <span className="z-50 px-3">
-                              100% Filled
-                            </span>
+                            <span className="z-50 px-3">100% Filled</span>
                             <div className="h-full bg-grey/60 w-full absolute left-0" />
                           </div>
                         </td>
                         <td className="text-grey1 text-left pl-3 text-xs md:table-cell hidden">
                           {timeDifference(
                             allHistoricalOrder.completedAtTimestamp
-                          )} ago
+                          )}{" "}
+                          ago
                         </td>
                       </tr>
                     );

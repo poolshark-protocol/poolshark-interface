@@ -230,7 +230,7 @@ export default function AddLiquidity({}) {
         limitSubgraph
       );
     }
-  }, [tokenIn.address, tokenOut.address, tokenIn.native]);
+  }, [tokenIn.address]);
 
   useEffect(() => {
     if (
@@ -243,7 +243,7 @@ export default function AddLiquidity({}) {
         limitSubgraph
       );
     }
-  }, [tokenIn.address, tokenOut.address, tokenIn.native]);
+  }, [tokenOut.address]);
 
   async function updatePools(feeAmount: number) {
     /// @notice - this should filter by the poolId in the actual query
