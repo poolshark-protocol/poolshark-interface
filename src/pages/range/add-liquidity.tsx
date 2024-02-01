@@ -264,16 +264,21 @@ export default function AddLiquidity({}) {
         ) {
           const tokenInAddress = router.query.tokenIn?.toString();
           const tokenOutAddress = router.query.tokenOut?.toString();
+          console.log("search ", searchtokenList);
           const routerTokenIn = searchtokenList.find(
             (token) =>
               token.address.toLowerCase() == tokenInAddress.toLowerCase() &&
-              token.symbol == router.query.tokenInSymbol
+              (token.native?.toString() == router.query.tokenInNative ||
+                token.native == undefined)
           );
           const routerTokenOut = searchtokenList.find(
             (token) =>
               token.address.toLowerCase() == tokenOutAddress.toLowerCase() &&
-              token.symbol == router.query.tokenOutSymbol
+              (token.native?.toString() == router.query.tokenOutNative ||
+                token.native == undefined)
           );
+          console.log("routerTokenIn", routerTokenIn);
+          console.log("routerTokenOut", routerTokenOut);
           setTokenIn(routerTokenOut, routerTokenIn, "0", true);
           setTokenOut(routerTokenIn, routerTokenOut, "0", false);
           setRangePoolData({

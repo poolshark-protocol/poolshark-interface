@@ -735,9 +735,9 @@ export default function MarketSwap() {
                     feeTier: "3000",
                     poolId: ZERO_ADDRESS,
                     tokenIn:  tokenIn.address, 
-                    tokenInSymbol: tokenIn.symbol,
+                    tokenInNative: tokenIn.native,
                     tokenOut: tokenOut.address,
-                    tokenOutSymbol: tokenOut.symbol,
+                    tokenOutNative: tokenOut.native,
                     chainId: chainId,
                   },
                 });
