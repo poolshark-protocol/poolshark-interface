@@ -13,7 +13,11 @@ import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ONE, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
-import { fetchRangeTokenUSDPrice, logoMapKey } from "../../utils/tokens";
+import {
+  fetchRangeTokenUSDPrice,
+  getLimitTokenUsdPrice,
+  logoMapKey,
+} from "../../utils/tokens";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
@@ -215,6 +219,32 @@ export default function AddLiquidity({}) {
 
   const [manualRange, setManualRange] = useState(false);
 
+  useEffect(() => {
+    if (
+      tokenIn.address != ZERO_ADDRESS &&
+      (rangePoolData?.id == ZERO_ADDRESS || rangePoolData?.id == undefined)
+    ) {
+      getLimitTokenUsdPrice(
+        tokenIn.address,
+        setTokenInRangeUSDPrice,
+        limitSubgraph
+      );
+    }
+  }, [tokenIn.address, tokenOut.address, tokenIn.native]);
+
+  useEffect(() => {
+    if (
+      tokenOut.address != ZERO_ADDRESS &&
+      (rangePoolData?.id == ZERO_ADDRESS || rangePoolData?.id == undefined)
+    ) {
+      getLimitTokenUsdPrice(
+        tokenOut.address,
+        setTokenOutRangeUSDPrice,
+        limitSubgraph
+      );
+    }
+  }, [tokenIn.address, tokenOut.address, tokenIn.native]);
+
   async function updatePools(feeAmount: number) {
     /// @notice - this should filter by the poolId in the actual query
     const data = await fetchRangePools(limitSubgraph);
@@ -262,22 +292,27 @@ export default function AddLiquidity({}) {
           !isNaN(parseInt(router.query.chainId.toString())) &&
           parseInt(router.query?.chainId.toString()) == chainId
         ) {
-          const tokenInAddress = router.query.tokenIn?.toString();
-          const tokenOutAddress = router.query.tokenOut?.toString();
-          const routerTokenIn = searchtokenList.find(
-            (token) =>
-              token.address.toLowerCase() == tokenInAddress.toLowerCase() &&
-              (token.native?.toString() == router.query.tokenInNative ||
-                token.native == undefined)
-          );
-          const routerTokenOut = searchtokenList.find(
-            (token) =>
-              token.address.toLowerCase() == tokenOutAddress.toLowerCase() &&
-              (token.native?.toString() == router.query.tokenOutNative ||
-                token.native == undefined)
-          );
-          setTokenIn(routerTokenOut, routerTokenIn, "0", true);
-          setTokenOut(routerTokenIn, routerTokenOut, "0", false);
+          if (
+            tokenIn.address != router.query.tokenIn ||
+            tokenOut.address != router.query.tokenOutƒ
+          ) {
+            const tokenInAddress = router.query.tokenIn?.toString();
+            const tokenOutAddress = router.query.tokenOut?.toString();
+            const routerTokenIn = searchtokenList.find(
+              (token) =>
+                token.address.toLowerCase() == tokenInAddress.toLowerCase() &&
+                (token.native?.toString() == router.query.tokenInNative ||
+                  token.native == undefined)
+            );
+            const routerTokenOut = searchtokenList.find(
+              (token) =>
+                token.address.toLowerCase() == tokenOutAddress.toLowerCase() &&
+                (token.native?.toString() == router.query.tokenOutNative ||
+                  token.native == undefined)
+            );
+            setTokenIn(routerTokenOut, routerTokenIn, "0", true);
+            setTokenOut(routerTokenIn, routerTokenOut, "0", false);
+          }
           setRangePoolData({
             ...rangePoolData,
             poolPrice: String(
