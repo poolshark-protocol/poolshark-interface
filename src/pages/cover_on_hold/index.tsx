@@ -347,7 +347,7 @@ export default function Cover() {
                     <div className="grid grid-cols-3">
                       <span className="text-right md:table-cell hidden"></span>
                       <span className="text-right md:table-cell hidden">
-                        Volume (24h)
+                        Volume
                       </span>
                       <span className="text-right mr-4 md:table-cell hidden">
                         TVL

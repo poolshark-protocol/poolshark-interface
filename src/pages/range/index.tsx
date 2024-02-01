@@ -176,6 +176,7 @@ export default function Range() {
                     query: {
                       feeTier: allRangePools[0].feeTier ?? 3000,
                       poolId: allRangePools[0].poolId,
+                      chainId: chainId,
                     },
                   });
                 }

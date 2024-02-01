@@ -13,7 +13,7 @@ import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ONE, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
-import { fetchRangeTokenUSDPrice, logoMapKey } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice, getLimitTokenUsdPrice, logoMapKey } from "../../utils/tokens";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
@@ -34,14 +34,16 @@ import {
   TooltipTrigger,
 } from "../../components/ui/tooltip";
 import { Checkbox } from "../../components/ui/checkbox"
+import { isAddress } from "ethers/lib/utils.js";
 
 export default function AddLiquidity({}) {
-  const [chainId, networkName, limitSubgraph, coverSubgraph, logoMap] =
+  const [chainId, networkName, limitSubgraph, coverSubgraph, searchtokenList, logoMap] =
     useConfigStore((state) => [
       state.chainId,
       state.networkName,
       state.limitSubgraph,
       state.coverSubgraph,
+      state.searchtokenList,
       state.logoMap,
     ]);
 
@@ -80,6 +82,8 @@ export default function AddLiquidity({}) {
     setRangePoolData,
     setStartPrice,
     setStakeFlag,
+    chainSwitched,
+    setChainSwitched,
   ] = useRangeLimitStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
@@ -115,6 +119,8 @@ export default function AddLiquidity({}) {
     state.setRangePoolData,
     state.setStartPrice,
     state.setStakeFlag,
+    state.chainSwitched,
+    state.setChainSwitched,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -141,6 +147,7 @@ export default function AddLiquidity({}) {
       refetchAllowanceOut();
       setPairSelected(true);
       if (rangePoolData.feeTier != undefined) {
+        console.log('update hook 1')
         updatePools(parseInt(rangePoolData.feeTier.feeAmount));
       }
     } else {
@@ -154,6 +161,7 @@ export default function AddLiquidity({}) {
       !isNaN(parseInt(router.query.feeTier.toString())) &&
       rangePoolData.feeTier == undefined
     ) {
+      console.log('update hook 2')
       updatePools(parseInt(router.query.feeTier.toString()));
     }
   }, [router.query.feeTier]);
@@ -161,7 +169,17 @@ export default function AddLiquidity({}) {
   useEffect(() => {
     const fetchPool = async () => {
       const data = await fetchRangePools(limitSubgraph);
-      if (data["data"]) {
+      console.log('fetch pool', chainId, router.query.chainId)
+      if (
+        data["data"] && 
+        rangePoolData.feeTier == undefined &&
+        !isNaN(parseInt(router.query.chainId?.toString())) &&
+        (
+          parseInt(router.query.chainId?.toString()) != chainId
+          || chainSwitched
+        )
+      ) {
+        if (!chainSwitched) setChainSwitched(true)
         const pool = data["data"].limitPools[0];
         const originalTokenIn = {
           name: pool.token0.symbol,
@@ -192,6 +210,32 @@ export default function AddLiquidity({}) {
     fetchPool();
   }, [chainId]);
 
+  useEffect(() => {
+    if (
+      tokenIn.address != ZERO_ADDRESS &&
+      (rangePoolData?.id == ZERO_ADDRESS || rangePoolData?.id == undefined)
+    ) {
+      getLimitTokenUsdPrice(
+        tokenIn.address,
+        setTokenInRangeUSDPrice,
+        limitSubgraph
+      );
+    }
+  }, [tokenIn.address]);
+
+  useEffect(() => {
+    if (
+      tokenOut.address != ZERO_ADDRESS &&
+      (rangePoolData?.id == ZERO_ADDRESS || rangePoolData?.id == undefined)
+    ) {
+      getLimitTokenUsdPrice(
+        tokenOut.address,
+        setTokenOutRangeUSDPrice,
+        limitSubgraph
+      );
+    }
+  }, [tokenOut.address]);
+
   async function updatePools(feeAmount: number) {
     /// @notice - this should filter by the poolId in the actual query
     const data = await fetchRangePools(limitSubgraph);
@@ -202,38 +246,88 @@ export default function AddLiquidity({}) {
         (pool) =>
           pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
       );
+      console.log('if 1 check', pool)
       if (
-        router.query.feeTier &&
-        !isNaN(parseInt(router.query.feeTier.toString())) &&
-        rangePoolData.feeTier == undefined &&
-        router.query.poolId != ZERO_ADDRESS &&
-        pool != undefined
+          router.query.feeTier &&
+          !isNaN(parseInt(router.query.feeTier.toString())) &&
+          rangePoolData.feeTier == undefined
       ) {
-        const originalTokenIn = {
-          name: pool.token0.symbol,
-          address: pool.token0.id,
-          symbol: pool.token0.symbol,
-          decimals: pool.token0.decimals,
-          userBalance: pool.token0.balance,
-          callId: 0,
-        };
-        const originalTokenOut = {
-          name: pool.token1.symbol,
-          address: pool.token1.id,
-          symbol: pool.token1.symbol,
-          decimals: pool.token1.decimals,
-          userBalance: pool.token1.balance,
-          callId: 1,
-        };
-        setTokenIn(originalTokenOut, originalTokenIn, "0", true);
-        setTokenOut(originalTokenIn, originalTokenOut, "0", false);
-        setRangePoolFromFeeTier(
-          originalTokenIn,
-          originalTokenOut,
-          feeAmount,
-          limitSubgraph
-        );
+        if (
+          router.query.poolId != ZERO_ADDRESS &&
+          pool != undefined
+        ) {
+          const originalTokenIn = {
+            name: pool.token0.symbol,
+            address: pool.token0.id,
+            symbol: pool.token0.symbol,
+            decimals: pool.token0.decimals,
+            userBalance: pool.token0.balance,
+            callId: 0,
+          };
+          const originalTokenOut = {
+            name: pool.token1.symbol,
+            address: pool.token1.id,
+            symbol: pool.token1.symbol,
+            decimals: pool.token1.decimals,
+            userBalance: pool.token1.balance,
+            callId: 1,
+          };
+          setTokenIn(originalTokenOut, originalTokenIn, "0", true);
+          setTokenOut(originalTokenIn, originalTokenOut, "0", false);
+          setRangePoolFromFeeTier(
+            originalTokenIn,
+            originalTokenOut,
+            feeAmount,
+            limitSubgraph
+          );
+        } else if (
+          router.query.poolId == ZERO_ADDRESS &&
+          isAddress(router.query.tokenIn?.toString()) &&
+          isAddress(router.query.tokenOut?.toString()) &&
+          !isNaN(parseInt(router.query.chainId.toString())) &&
+          parseInt(router.query?.chainId.toString()) == chainId
+        ) {
+          console.log('else if statement hit')
+          if (
+            tokenIn.address != router.query.tokenIn ||
+            tokenOut.address != router.query.tokenOutƒ
+          ) {
+            const tokenInAddress = router.query.tokenIn?.toString();
+            const tokenOutAddress = router.query.tokenOut?.toString();
+            const routerTokenIn = searchtokenList.find(
+              (token) =>
+                token.address.toLowerCase() == tokenInAddress.toLowerCase() &&
+                (token.native?.toString() == router.query.tokenInNative ||
+                  token.native == undefined)
+            );
+            const routerTokenOut = searchtokenList.find(
+              (token) =>
+                token.address.toLowerCase() == tokenOutAddress.toLowerCase() &&
+                (token.native?.toString() == router.query.tokenOutNative ||
+                  token.native == undefined)
+            );
+            setTokenIn(routerTokenOut, routerTokenIn, "0", true);
+            setTokenOut(routerTokenIn, routerTokenOut, "0", false);
+          }
+          setRangePoolData({
+            ...rangePoolData,
+            poolPrice: String(TickMath.getSqrtPriceAtPriceString(
+              '1.00',
+              tokenIn,
+              tokenOut,
+            )),
+            feeTier: {
+              ...rangePoolData.feeTier,
+              feeAmount: feeAmount,
+              tickSpacing: feeTierMap[feeAmount].tickSpacing,
+            },
+          });
+        } else {
+          console.log('else 2 hit')
+          setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
+        }
       } else {
+        console.log('else statement hit')
         setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
       }
     }

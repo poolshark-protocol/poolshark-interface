@@ -54,3 +54,17 @@ export const isAlchemySDKSupported = (chainId: number) => {
 	// default not supported
 	return false
 }
+
+export const tokenAddressRegex = /^0x[a-fA-F0-9]{40}$/;
+
+const isAddress = (input: string) => {
+    // validate address
+    if (
+      input.match(tokenAddressRegex)?.length == 1 &&
+      input.length == 42
+    ) {
+      // if not in listed tokens or search tokens we need to fetch data from the chain
+      return true;
+    }
+    return false;
+};
