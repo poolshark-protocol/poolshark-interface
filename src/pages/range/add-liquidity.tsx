@@ -231,7 +231,6 @@ export default function AddLiquidity({}) {
         rangePoolData.feeTier == undefined
       ) {
         if (router.query.poolId != ZERO_ADDRESS && pool != undefined) {
-          console.log("entrou1");
           const originalTokenIn = {
             name: pool.token0.symbol,
             address: pool.token0.id,
@@ -263,19 +262,20 @@ export default function AddLiquidity({}) {
           !isNaN(parseInt(router.query.chainId.toString())) &&
           parseInt(router.query?.chainId.toString()) == chainId
         ) {
-          console.log("entrou2");
           const tokenInAddress = router.query.tokenIn?.toString();
           const tokenOutAddress = router.query.tokenOut?.toString();
-          const tokenIn = searchtokenList.find(
+          const routerTokenIn = searchtokenList.find(
             (token) =>
-              token.address.toLowerCase() == tokenInAddress.toLowerCase()
+              token.address.toLowerCase() == tokenInAddress.toLowerCase() &&
+              token.symbol == router.query.tokenInSymbol
           );
-          const tokenOut = searchtokenList.find(
+          const routerTokenOut = searchtokenList.find(
             (token) =>
-              token.address.toLowerCase() == tokenOutAddress.toLowerCase()
+              token.address.toLowerCase() == tokenOutAddress.toLowerCase() &&
+              token.symbol == router.query.tokenOutSymbol
           );
-          setTokenIn(tokenOut, tokenIn, "0", true);
-          setTokenOut(tokenIn, tokenOut, "0", false);
+          setTokenIn(routerTokenOut, routerTokenIn, "0", true);
+          setTokenOut(routerTokenIn, routerTokenOut, "0", false);
           setRangePoolData({
             ...rangePoolData,
             poolPrice: String(
@@ -288,11 +288,9 @@ export default function AddLiquidity({}) {
             },
           });
         } else {
-          console.log("entrou3");
           setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
         }
       } else {
-        console.log("entrou4");
         setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
       }
     }
