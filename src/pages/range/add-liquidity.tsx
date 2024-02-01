@@ -37,14 +37,21 @@ import { Checkbox } from "../../components/ui/checkbox";
 import { isAddress } from "ethers/lib/utils.js";
 
 export default function AddLiquidity({}) {
-  const [chainId, networkName, limitSubgraph, coverSubgraph, logoMap] =
-    useConfigStore((state) => [
-      state.chainId,
-      state.networkName,
-      state.limitSubgraph,
-      state.coverSubgraph,
-      state.logoMap,
-    ]);
+  const [
+    chainId,
+    networkName,
+    limitSubgraph,
+    coverSubgraph,
+    logoMap,
+    searchtokenList,
+  ] = useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
+    state.limitSubgraph,
+    state.coverSubgraph,
+    state.logoMap,
+    state.searchtokenList,
+  ]);
 
   const [
     rangePoolAddress,
@@ -224,6 +231,7 @@ export default function AddLiquidity({}) {
         rangePoolData.feeTier == undefined
       ) {
         if (router.query.poolId != ZERO_ADDRESS && pool != undefined) {
+          console.log("entrou1");
           const originalTokenIn = {
             name: pool.token0.symbol,
             address: pool.token0.id,
@@ -255,6 +263,19 @@ export default function AddLiquidity({}) {
           !isNaN(parseInt(router.query.chainId.toString())) &&
           parseInt(router.query?.chainId.toString()) == chainId
         ) {
+          console.log("entrou2");
+          const tokenInAddress = router.query.tokenIn?.toString();
+          const tokenOutAddress = router.query.tokenOut?.toString();
+          const tokenIn = searchtokenList.find(
+            (token) =>
+              token.address.toLowerCase() == tokenInAddress.toLowerCase()
+          );
+          const tokenOut = searchtokenList.find(
+            (token) =>
+              token.address.toLowerCase() == tokenOutAddress.toLowerCase()
+          );
+          setTokenIn(tokenOut, tokenIn, "0", true);
+          setTokenOut(tokenIn, tokenOut, "0", false);
           setRangePoolData({
             ...rangePoolData,
             poolPrice: String(
@@ -267,9 +288,11 @@ export default function AddLiquidity({}) {
             },
           });
         } else {
+          console.log("entrou3");
           setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
         }
       } else {
+        console.log("entrou4");
         setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
       }
     }
@@ -800,10 +823,10 @@ export default function AddLiquidity({}) {
                   : "?.??"}
               </span>
               {isLoading ? (
-              <div className="h-[16.5px] w-[100px] bg-grey/60 animate-pulse rounded-[4px]" />
-            ) : (
-              <BalanceDisplay token={tokenIn}></BalanceDisplay>
-            )}
+                <div className="h-[16.5px] w-[100px] bg-grey/60 animate-pulse rounded-[4px]" />
+              ) : (
+                <BalanceDisplay token={tokenIn}></BalanceDisplay>
+              )}
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
               {inputBoxIn(
@@ -822,22 +845,22 @@ export default function AddLiquidity({}) {
                   MAX
                 </button>
                 <div className="flex items-center gap-x-2">
-                {isLoading ? (
-              <div className="h-[40px] w-[160px] bg-grey/60 animate-pulse rounded-[4px]" />
-            ) : (
-                  <SelectToken
-                    index="0"
-                    key="in"
-                    type="in"
-                    tokenIn={tokenIn}
-                    setTokenIn={setTokenIn}
-                    tokenOut={tokenOut}
-                    setTokenOut={setTokenOut}
-                    displayToken={tokenIn}
-                    amount={amountInSetLast ? displayIn : displayOut}
-                    isAmountIn={amountInSetLast}
-                  />
-            )}
+                  {isLoading ? (
+                    <div className="h-[40px] w-[160px] bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    <SelectToken
+                      index="0"
+                      key="in"
+                      type="in"
+                      tokenIn={tokenIn}
+                      setTokenIn={setTokenIn}
+                      tokenOut={tokenOut}
+                      setTokenOut={setTokenOut}
+                      displayToken={tokenIn}
+                      amount={amountInSetLast ? displayIn : displayOut}
+                      isAmountIn={amountInSetLast}
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -860,10 +883,10 @@ export default function AddLiquidity({}) {
                   : "?.??"}
               </span>
               {isLoading ? (
-              <div className="h-[16.5px] w-[100px] bg-grey/60 animate-pulse rounded-[4px]" />
-            ) : (
-              <BalanceDisplay token={tokenOut}></BalanceDisplay>
-            )}
+                <div className="h-[16.5px] w-[100px] bg-grey/60 animate-pulse rounded-[4px]" />
+              ) : (
+                <BalanceDisplay token={tokenOut}></BalanceDisplay>
+              )}
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
               {inputBoxOut(
@@ -882,22 +905,22 @@ export default function AddLiquidity({}) {
                   MAX
                 </button>
                 <div className="flex items-center gap-x-2">
-                {isLoading ? (
-              <div className="h-[40px] w-[160px] bg-grey/60 animate-pulse rounded-[4px]" />
-            ) : (
-              <SelectToken
-              key={"out"}
-              type="out"
-              tokenIn={tokenIn}
-              setTokenIn={setTokenIn}
-              tokenOut={tokenOut}
-              setTokenOut={setTokenOut}
-              setPairSelected={setPairSelected}
-              displayToken={tokenOut}
-              amount={amountInSetLast ? displayIn : displayOut}
-              isAmountIn={amountInSetLast}
-            />
-            )}
+                  {isLoading ? (
+                    <div className="h-[40px] w-[160px] bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    <SelectToken
+                      key={"out"}
+                      type="out"
+                      tokenIn={tokenIn}
+                      setTokenIn={setTokenIn}
+                      tokenOut={tokenOut}
+                      setTokenOut={setTokenOut}
+                      setPairSelected={setPairSelected}
+                      displayToken={tokenOut}
+                      amount={amountInSetLast ? displayIn : displayOut}
+                      isAmountIn={amountInSetLast}
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -955,7 +978,6 @@ export default function AddLiquidity({}) {
           </div>
           {rangePoolAddress != ZERO_ADDRESS && (
             <div className="flex justify-between items-center w-full md:gap-x-4 gap-x-2">
-
               <button
                 onClick={() => {
                   setManualRange(true);
@@ -1056,46 +1078,50 @@ export default function AddLiquidity({}) {
           )}
           <div className="flex flex-col gap-y-4">
             <div className="flex md:flex-row flex-col items-center gap-5 mt-3">
-            {isLoading ? (
-              <div className="h-[128px] w-full bg-grey/60 animate-pulse rounded-[4px]" />
-            ) : (
-              <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
-                <span className="text-grey1 text-xs">MIN. PRICE</span>
-                <span className="text-white text-3xl">
-                  {
-                    <input
-                      autoComplete="off"
-                      className="bg-black py-2 outline-none text-center w-full"
-                      placeholder="0"
-                      id="minInput"
-                      type="text"
-                      value={minInput}
-                      onChange={(e) => setMinInput(inputFilter(e.target.value))}
-                    />
-                  }
-                </span>
-              </div>
-            )}
-            {isLoading ? (
-              <div className="h-[128px] w-full bg-grey/60 animate-pulse rounded-[4px]" />
-            ) : (
-              <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
-                <span className="text-grey1 text-xs">MAX. PRICE</span>
-                <span className="text-white text-3xl">
-                  {
-                    <input
-                      autoComplete="off"
-                      className="bg-black py-2 outline-none text-center w-full"
-                      placeholder="0"
-                      id="minInput"
-                      type="text"
-                      value={maxInput}
-                      onChange={(e) => setMaxInput(inputFilter(e.target.value))}
-                    />
-                  }
-                </span>
-              </div>
-            )}
+              {isLoading ? (
+                <div className="h-[128px] w-full bg-grey/60 animate-pulse rounded-[4px]" />
+              ) : (
+                <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
+                  <span className="text-grey1 text-xs">MIN. PRICE</span>
+                  <span className="text-white text-3xl">
+                    {
+                      <input
+                        autoComplete="off"
+                        className="bg-black py-2 outline-none text-center w-full"
+                        placeholder="0"
+                        id="minInput"
+                        type="text"
+                        value={minInput}
+                        onChange={(e) =>
+                          setMinInput(inputFilter(e.target.value))
+                        }
+                      />
+                    }
+                  </span>
+                </div>
+              )}
+              {isLoading ? (
+                <div className="h-[128px] w-full bg-grey/60 animate-pulse rounded-[4px]" />
+              ) : (
+                <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
+                  <span className="text-grey1 text-xs">MAX. PRICE</span>
+                  <span className="text-white text-3xl">
+                    {
+                      <input
+                        autoComplete="off"
+                        className="bg-black py-2 outline-none text-center w-full"
+                        placeholder="0"
+                        id="minInput"
+                        type="text"
+                        value={maxInput}
+                        onChange={(e) =>
+                          setMaxInput(inputFilter(e.target.value))
+                        }
+                      />
+                    }
+                  </span>
+                </div>
+              )}
             </div>
             {rangePoolAddress == ZERO_ADDRESS &&
               rangePoolData.feeTier != undefined && (
