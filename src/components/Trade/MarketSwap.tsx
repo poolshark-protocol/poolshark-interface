@@ -152,7 +152,8 @@ export default function MarketSwap() {
           setTradePoolLiquidity,
         );
       }
-    }, quoteRefetchDelay);
+    }, 
+    quoteRefetchDelay);
    
     // Clear the interval when the component unmounts
     return () => clearInterval(interval);

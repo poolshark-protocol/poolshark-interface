@@ -136,8 +136,6 @@ export default function SwapRouterButton({
     })
   };
 
-  console.log(Number(ethers.utils.formatEther(amountIn)))
-
   return (
     <>
       <button
