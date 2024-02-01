@@ -294,7 +294,7 @@ export default function AddLiquidity({}) {
         ) {
           if (
             tokenIn.address != router.query.tokenIn ||
-            tokenOut.address != router.query.tokenOutƒ
+            tokenOut.address != router.query.tokenOut
           ) {
             const tokenInAddress = router.query.tokenIn?.toString();
             const tokenOutAddress = router.query.tokenOut?.toString();
