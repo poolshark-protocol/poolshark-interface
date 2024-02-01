@@ -26,7 +26,7 @@ export default function useTokenBalance(tokenAddress: `0x${string}`) {
       !isAlchemySDKSupported(chainId),
     watch: true,
     onSuccess(data) {
-      console.log('token balance:', data)
+      //console.log('token balance:', data)
       setTokenBalanceInfo(data);
     },
   });
