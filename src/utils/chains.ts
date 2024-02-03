@@ -215,7 +215,7 @@ export const chainProperties = {
     },
     wethAddress: "0x4200000000000000000000000000000000000006" as `0x${string}`,
     daiAddress: "0xE7798f023fC62146e8Aa1b36Da45fb70855a77Ea" as `0x${string}`,
-    finAddress: "0x66864e3954dac74b9377ef25e4b47ca47423688e" as `0x${string}`,
+    finAddress: "0xebF57CB31Ed38e6ccB53FB71bA246eA549c42E51" as `0x${string}`,
     routerAddress:
       "0x33a28c58ab9c2fc5bc0ef84ca1b28763a904c4dd" as `0x${string}`,
     rangeStakerAddress:
