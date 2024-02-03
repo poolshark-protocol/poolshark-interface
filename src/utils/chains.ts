@@ -217,14 +217,14 @@ export const chainProperties = {
     daiAddress: "0xE7798f023fC62146e8Aa1b36Da45fb70855a77Ea" as `0x${string}`,
     finAddress: "0x66864e3954dac74b9377ef25e4b47ca47423688e" as `0x${string}`,
     routerAddress:
-      "0x895e1c476130ce9e1b19e01be8801f19122a958c" as `0x${string}`,
+      "0x33a28c58ab9c2fc5bc0ef84ca1b28763a904c4dd" as `0x${string}`,
     rangeStakerAddress:
-      "0xebf57cb31ed38e6ccb53fb71ba246ea549c42e51" as `0x${string}`,
+      "0x58d8235108e12e6b725a53b57cd0b00c5edee0da" as `0x${string}`,
     coverPoolFactory:
       ZERO_ADDRESS as `0x${string}`,
     coverSubgraphUrl:
       "",
     limitSubgraphUrl:
-      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-scroll/0.1.2/gn",
+      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-mode/0.1.0/gn",
   },
 };
