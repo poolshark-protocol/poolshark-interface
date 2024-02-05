@@ -43,6 +43,8 @@ function USDPriceDisplay({ token, display }) {
       });
   }
 
+  //try to fetch it from the subgraph, if the token doesnt exist in the subgraph, fetch it from defined.fi
+
   useEffect(() => {
     if (
       token.address != ZERO_ADDRESS &&
@@ -51,7 +53,7 @@ function USDPriceDisplay({ token, display }) {
     ) {
       fetchUSDPriceFromDefined();
     }
-  });
+  }, [token, chainId]);
 
   return (
     <span>
