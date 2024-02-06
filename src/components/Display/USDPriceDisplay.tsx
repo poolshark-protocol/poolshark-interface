@@ -37,6 +37,7 @@ function USDPriceDisplay({ token, display }) {
         }
       )
       .then((response) => {
+        console.log(response.data);
         setPriceFromAPI(
           response.data.data?.getTokenPrices[0]?.priceUsd ?? undefined
         );
@@ -51,9 +52,10 @@ function USDPriceDisplay({ token, display }) {
       token.USDPrice == "0" &&
       chainProperties[networkName].sdkSupport.defined
     ) {
+      console.log("timestamp", Date.now() / 1000);
       fetchUSDPriceFromDefined();
     }
-  }, [token, chainId]);
+  }, [token.address, chainId]);
 
   return (
     <span>
