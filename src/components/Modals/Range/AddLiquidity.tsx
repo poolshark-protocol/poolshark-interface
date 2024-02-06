@@ -117,6 +117,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [buttonState, setButtonState] = useState("");
 
   useEffect(() => {
+    setTokenInAmount(BN_ZERO)
+    setTokenOutAmount(BN_ZERO)
+    setDisplay("")
+    setDisplay2("")
     setStateChainName(chainIdsToNames[chainId]);
   }, [chainId]);
 
