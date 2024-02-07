@@ -229,33 +229,48 @@ export default function Earn() {
             Vesting 
           </div>
           <div className="flex flex-col gap-y-1 mt-6 mb-5 px-5">
-                  <div className="flex items-center">
-                    <span className="text-xs w-5 flex items-center justify-center text-white">
-                      12/01
+                  <div className="flex items-center mb-2">
+                    <span className={`text-xs w-5 flex items-center justify-center ${new Date() > new Date('2024-02-09') ? 'text-white' : 'text-grey1'}`}>
+                    02/09
                     </span>
                     <div className="w-full h-[2px]" />
-                    <span className="text-xs w-5 flex items-center justify-center text-white">
-                      18/01
+                    <span className={`text-xs w-5 flex items-center justify-center ${new Date() > new Date('2024-03-09') ? 'text-white' : 'text-grey1'}`}>
+                    03/09
                     </span>
                     <div className="w-full h-[2px]" />
-                    <span className="text-xs w-5 flex items-center justify-center text-grey1">
+                    <span className={`text-xs w-5 flex items-center justify-center ${new Date() > new Date('2025-00-00') ? 'text-white' : 'text-grey1'}`}>
                       24/01
                     </span>
                     <div className="w-full h-[2px]" />
-                    <span className="text-xs w-5 flex items-center justify-center text-grey1">
+                    <span className={`text-xs w-5 flex items-center justify-center ${new Date() > new Date('2025-00-00') ? 'text-white' : 'text-grey1'}`}>
                       30/01
                     </span>
                   </div>
                   <div className="flex items-center">
-                    <div className="w-6 h-6 aspect-square bg-main2 rounded-full relative flex items-center justify-center">
-                      <CheckIcon className="w-4" />
-                    </div>
-                    <div className="w-full h-[2px] bg-main2" />
-                    <div className="w-6 h-6 aspect-square bg-main2 rounded-full" />
-                    <div className="w-full h-[2px] bg-main" />
-                    <div className="w-6 h-6 aspect-square bg-main rounded-full" />
-                    <div className="w-full h-[2px] bg-main" />
-                    <div className="w-6 h-6 aspect-square bg-main rounded-full" />
+                  <div className={`w-6 h-6 aspect-square ${new Date() > new Date('2024-02-09') ? 'bg-main2' : 'bg-main'} rounded-full`} />
+                  <div className={`w-full h-[2px] aspect-square ${new Date() > new Date('2024-03-09') ? 'bg-main2' : 'bg-main'}`} />
+                    <div className={`w-6 h-6 aspect-square ${new Date() > new Date('2024-03-09') ? 'bg-main2' : 'bg-main'} rounded-full`} />
+                    <div className={`w-full h-[2px] aspect-square ${new Date() > new Date('2025-00-00') ? 'bg-main2' : 'bg-main'}`} />
+                    <div className={`w-6 h-6 aspect-square ${new Date() > new Date('2025-00-00') ? 'bg-main2' : 'bg-main'} rounded-full`} />
+                    <div className={`w-full h-[2px] aspect-square ${new Date() > new Date('2025-00-00') ? 'bg-main2' : 'bg-main'}`} />
+                    <div className={`w-6 h-6 aspect-square ${new Date() > new Date('2025-00-00') ? 'bg-main2' : 'bg-main'} rounded-full`} />
+                  </div>
+                  <div className="flex items-center mt-2">
+                  <span className={`text-xs w-5 flex items-center justify-center ${new Date() > new Date('2024-02-09') ? 'text-white' : 'text-grey1'}`}>
+                      START
+                    </span>
+                    <div className="w-full h-[2px]" />
+                    <span className={`text-xs w-5 flex items-center justify-center ${new Date() > new Date('2024-03-09') ? 'text-white' : 'text-grey1'}`}>
+                      SNAPSHOT
+                    </span>
+                    <div className="w-full h-[2px]" />
+                    <span className={`text-xs w-5 flex items-center justify-center ${new Date() > new Date('2025-00-00') ? 'text-white' : 'text-grey1'}`}>
+                      DROP
+                    </span>
+                    <div className="w-full h-[2px]" />
+                    <span className={`text-xs w-5 flex items-center justify-center ${new Date() > new Date('2025-00-00') ? 'text-white' : 'text-grey1'}`}>
+                      END
+                    </span>
                   </div>
                 </div>
           </div>
