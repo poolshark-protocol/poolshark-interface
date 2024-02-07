@@ -126,7 +126,7 @@ export default function Earn() {
         <div className="w-full border border-grey p-7 flex flex-col justify-between">
             <div className="flex flex-col gap-y-3 mb-10">
               <h1 className="uppercase text-white">How Fincentives work</h1>
-              <p className="text-xs text-grey3 font-light">
+              <p className="text-[12px] text-grey3 font-light">
                 FINcentives split revenue between short-term stakeholders and long-term stakeholders.
                 <br/><br/>
                 Liquidity Miners are able to purchase FIN at a fixed price or discount to market.
