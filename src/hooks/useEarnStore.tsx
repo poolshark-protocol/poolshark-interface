@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { tokenSwap } from "../utils/types";
 import { BN_ZERO } from "../utils/math/constants";
 
-type IncentivesState = {
+type EarnState = {
     // token to be claimed as vested rewards
     tokenClaim: tokenSwap;
     // FIN rewards
@@ -36,7 +36,7 @@ type IncentivesState = {
     };
 };
 
-type IncentivesAction = {
+type EarnAction = {
     setTokenClaim: (tokenClaim: any) => void;
     setUserSeason1FIN: (userSeason1FIN: any) => void;
     setUserSeason1FINTotal: (userSeason1FINTotal: number) => void;
@@ -44,7 +44,7 @@ type IncentivesAction = {
     setTotalSeason1Points: (totalSeason1Points: any) => void;
 }
 
-const initialIncentivesState: IncentivesState = {
+const initialEarnState: EarnState = {
     tokenClaim: {
         callId: 0,
         name: 'FIN Season 1 OLM',
@@ -87,13 +87,13 @@ const initialIncentivesState: IncentivesState = {
     },
 };
 
-export const useIncentivesStore = create<IncentivesState & IncentivesAction>((set) => ({
-    tokenClaim: initialIncentivesState.tokenClaim,
-    userSeason1FINTotal: initialIncentivesState.userSeason1FINTotal,
-    userSeason1FIN: initialIncentivesState.userSeason1FIN,
-    totalSeason1FIN: initialIncentivesState.totalSeason1FIN,
-    userSeason1Points: initialIncentivesState.userSeason1Points,
-    totalSeason1Points: initialIncentivesState.totalSeason1Points,
+export const useEarnStore = create<EarnState & EarnAction>((set) => ({
+    tokenClaim: initialEarnState.tokenClaim,
+    userSeason1FINTotal: initialEarnState.userSeason1FINTotal,
+    userSeason1FIN: initialEarnState.userSeason1FIN,
+    totalSeason1FIN: initialEarnState.totalSeason1FIN,
+    userSeason1Points: initialEarnState.userSeason1Points,
+    totalSeason1Points: initialEarnState.totalSeason1Points,
     setTokenClaim: (tokenClaim: any) => {
         set(() => ({
             tokenClaim: tokenClaim

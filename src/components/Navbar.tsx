@@ -101,10 +101,10 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                 <></>
               )}
               {chainId === 34443 ? (
-                <Link href="/incentives">
+                <Link href="/earn">
                   <div
                     className={
-                      router.pathname.includes("/incentives")
+                      router.pathname.includes("/earn")
                         ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
                         : "text-grey1 border border-transparent transition-all py-1.5 px-5 md:px-4 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]"
                     }
@@ -199,10 +199,10 @@ export default function Navbar({ create, setCreate }: NavOptions) {
               <></>
             )}
             {chainId === 34443 ? (
-              <Link href="/incentives">
+              <Link href="/earn">
                 <div
                   className={
-                    router.pathname.includes("/incentives")
+                    router.pathname.includes("/earn")
                       ? "bg-main1 border border-main text-main2 transition-all py-1.5 px-3 text-sm flex items-center cursor-pointer gap-x-1 text-[11px]"
                       : "text-grey1 border border-transparent transition-all py-1.5 px-3 text-sm flex items-center cursor-pointer gap-x-1 text-[11px]"
                   }

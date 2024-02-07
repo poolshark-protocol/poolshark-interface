@@ -7,9 +7,9 @@ import { useAccount, useProvider } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useEffect } from "react";
 import { fetchSeason1Rewards } from "../../utils/queries";
-import { useIncentivesStore } from "../../hooks/useIncentivesStore";
+import { useEarnStore } from "../../hooks/useEarnStore";
 
-export default function Incentives() {
+export default function Earn() {
 
   const { address, isConnected } = useAccount();
   const provider = useProvider();
@@ -41,7 +41,7 @@ export default function Incentives() {
     setUserSeason1FINTotal,
     setUserSeason1Points,
     setTotalSeason1Points
-  ] = useIncentivesStore((state) => [
+  ] = useEarnStore((state) => [
     state.tokenClaim,
     state.userSeason1FINTotal,
     state.userSeason1FIN,
@@ -133,7 +133,7 @@ export default function Incentives() {
                 <br/><br/>
                 The FIN Treasury then receives revenue from Liquidity Miners to back FIN and increase RFV.
                 <br/><br/>
-                Step 1: Deposit liquidity or swap tokens
+                Step 1: Deposit liquidity on supported pairs
                 <br/>
                 Step 2: Track your oFIN using this page
                 <br/>
@@ -158,14 +158,14 @@ export default function Incentives() {
               <div className="bg-dark border border-grey p-5 w-full">
                 <h1>oFIN EARNED</h1>
                 <div className="flex md:flex-row flex-col gap-5 mt-5">
-                  <div className="border border-grey w-full rounded-[4px] bg-black flex flex-col w-full items-center justify-center gap-y-3 h-32">
+                  {/* <div className="border border-grey w-full rounded-[4px] bg-black flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs uppercase">
                       Trading Rewards
                     </span>
                     <span className="text-white text-2xl md:text-3xl">
                       {userSeason1FIN.volumeTradedUsd ? userSeason1FIN.volumeTradedUsd.toPrecision(6) : 0}
                     </span>
-                  </div>
+                  </div> */}
 
                   <div className="border border-grey w-full rounded-[4px] bg-black flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs uppercase">
@@ -183,14 +183,14 @@ export default function Incentives() {
                       {userSeason1FIN.stakingPoints.toPrecision(6)}
                     </span>
                   </div> */}
-                  <div className="border border-main w-full rounded-[4px] bg-main1 flex flex-col w-full items-center justify-center gap-y-3 h-32">
-                    <span className="text-white/20 text-xs uppercase">
-                      Total Rewards
-                    </span>
-                    <span className="text-main2 text-2xl md:text-3xl">
-                    {userSeason1FINTotal === 0 ? 0 : userSeason1FINTotal.toPrecision(6)}
-                    </span>
-                  </div>
+                    {/* <div className="border border-main w-full rounded-[4px] bg-main1 flex flex-col w-full items-center justify-center gap-y-3 h-32">
+                      <span className="text-white/20 text-xs uppercase">
+                        Total Rewards
+                      </span>
+                      <span className="text-main2 text-2xl md:text-3xl">
+                      {userSeason1FINTotal === 0 ? 0 : userSeason1FINTotal.toPrecision(6)}
+                      </span>
+                    </div> */}
                 </div>
               </div>
               <div className="border h-full bg-dark border-grey rounded-[4px] lg:w-[80%] w-full p-5">
