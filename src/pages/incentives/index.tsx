@@ -127,15 +127,24 @@ export default function Incentives() {
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">How Fincentives work</h1>
               <p className="text-sm text-grey3 font-light">
-                FINcentives apply a revenue split between short-term stakeholders and long-term stakeholders.
+                FINcentives split revenue between short-term stakeholders and long-term stakeholders.
                 <br/><br/>
-                Short-term stakeholders get to purchase FIN at a fixed price or discount to market.
+                Liquidity Miners are able to purchase FIN at a fixed price or discount to market.
                 <br/><br/>
-                Long-term stakeholders get revenue for the DAO treasury to purchase yield-bearing assets.
+                The FIN Treasury then receives revenue from Liquidity Miners to back FIN and increase RFV.
+                <br/><br/>
+                Step 1: Deposit liquidity or swap tokens
+                <br/>
+                Step 2: Track your oFIN using this page
+                <br/>
+                Step 3: Claim your oFIN when the drop starts
+                <br/>
+                Step 4: Convert your oFIN to FIN
+                <br/>
               </p>
             </div>
             <a
-              href="https://docs.poolsharks.io/overview/cover-pools/"
+              href="https://docs.poolshark.fi/token/why-ofin"
               target="_blank"
               rel="noreferrer"
               className="text-grey3 underline text-sm flex items-center gap-x-2 font-light"

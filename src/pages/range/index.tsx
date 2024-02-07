@@ -201,7 +201,7 @@ export default function Range() {
               </p>
             </div>
             <a
-              href="https://docs.poolsharks.io/overview/range-pools/"
+              href="https://docs.poolshark.fi/concepts/protocol/Range"
               target="_blank"
               rel="noreferrer"
               className="text-grey3 underline text-sm flex items-center gap-x-2 font-light"
