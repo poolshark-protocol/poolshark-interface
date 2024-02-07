@@ -57,40 +57,51 @@ export default function Earn() {
 
   useEffect(() => {
     if (isConnected) {
-      const userFINRewards = {
-        whitelistedFeesUsd:
-          userSeason1Points.whitelistedFeesUsd > 0
-          ? totalSeason1FIN.whitelistedFeesUsd
-            * userSeason1Points.whitelistedFeesUsd 
-            / totalSeason1Points.whitelistedFeesUsd
-          : 0,
-        nonWhitelistedFeesUsd:
-          userSeason1Points.nonWhitelistedFeesUsd > 0
-          ? totalSeason1FIN.nonWhitelistedFeesUsd
-            * userSeason1Points.nonWhitelistedFeesUsd 
-            / totalSeason1Points.nonWhitelistedFeesUsd
-          : 0,
-        stakingPoints:
-          userSeason1Points.stakingPoints > 0
-          ? totalSeason1FIN.stakingPoints
-          * userSeason1Points.stakingPoints 
-          / totalSeason1Points.stakingPoints
-          : 0,
-        volumeTradedUsd:
-          userSeason1Points.volumeTradedUsd > 0
-          ? totalSeason1FIN.volumeTradedUsd
-          * userSeason1Points.volumeTradedUsd 
-          / totalSeason1Points.volumeTradedUsd
-          : 0,
+      if (userSeason1Points) {
+        const userFINRewards = {
+          whitelistedFeesUsd:
+            userSeason1Points.whitelistedFeesUsd > 0
+            ? totalSeason1FIN.whitelistedFeesUsd
+              * userSeason1Points.whitelistedFeesUsd 
+              / totalSeason1Points.whitelistedFeesUsd
+            : 0,
+          nonWhitelistedFeesUsd:
+            userSeason1Points.nonWhitelistedFeesUsd > 0
+            ? totalSeason1FIN.nonWhitelistedFeesUsd
+              * userSeason1Points.nonWhitelistedFeesUsd 
+              / totalSeason1Points.nonWhitelistedFeesUsd
+            : 0,
+          stakingPoints:
+            userSeason1Points.stakingPoints > 0
+            ? totalSeason1FIN.stakingPoints
+            * userSeason1Points.stakingPoints 
+            / totalSeason1Points.stakingPoints
+            : 0,
+          volumeTradedUsd:
+            userSeason1Points.volumeTradedUsd > 0
+            ? totalSeason1FIN.volumeTradedUsd
+            * userSeason1Points.volumeTradedUsd 
+            / totalSeason1Points.volumeTradedUsd
+            : 0,
+        }
+        console.log('lp rewards:', userFINRewards.whitelistedFeesUsd + userFINRewards.nonWhitelistedFeesUsd)
+        setUserSeason1FIN(userFINRewards)
+        setUserSeason1FINTotal(
+          userFINRewards.whitelistedFeesUsd
+          + userFINRewards.nonWhitelistedFeesUsd
+          + userFINRewards.stakingPoints
+          + userFINRewards.volumeTradedUsd
+        )
+      } else {
+        const userFINRewards = {
+          whitelistedFeesUsd: 0,
+          nonWhitelistedFeesUsd: 0,
+          stakingPoints: 0,
+          volumeTradedUsd: 0,
+        }
+        setUserSeason1FIN(userFINRewards)
+        setUserSeason1FINTotal(0)
       }
-      console.log('lp rewards:', userFINRewards.whitelistedFeesUsd + userFINRewards.nonWhitelistedFeesUsd)
-      setUserSeason1FIN(userFINRewards)
-      setUserSeason1FINTotal(
-        userFINRewards.whitelistedFeesUsd
-        + userFINRewards.nonWhitelistedFeesUsd
-        + userFINRewards.stakingPoints
-        + userFINRewards.volumeTradedUsd
-      )
     }
   }, [
     userSeason1Points,
@@ -99,6 +110,7 @@ export default function Earn() {
 
   useEffect(() => {
     if (isConnected) {
+
       updateSeasonRewards()
     }
   }, [
@@ -106,6 +118,7 @@ export default function Earn() {
   ]);
 
   async function updateSeasonRewards() {
+    console.log('fetch rewards for address:', address)
     const data = await fetchSeason1Rewards(limitSubgraph, address);
     if (data["data"]) {
       if (data["data"].totalSeasonRewards?.length == 1) {
@@ -114,6 +127,8 @@ export default function Earn() {
       if (data["data"].userSeasonRewards?.length == 1) {
         console.log('user season rewards', data["data"].userSeasonRewards)
         setUserSeason1Points(data["data"].userSeasonRewards[0])
+      } else {
+        setUserSeason1Points(undefined)
       }
     }
   }
@@ -131,7 +146,7 @@ export default function Earn() {
                 <br/><br/>
                 Liquidity Miners are able to purchase FIN at a fixed price or discount to market.
                 <br/><br/>
-                The FIN Treasury then receives revenue from Liquidity Miners to back FIN and increase RFV.
+                The FIN Treasury then receives revenue from Liquidity Miners to increase RFV.
                 <br/><br/>
                 Step 1: Deposit liquidity on supported pairs
                 <br/>
@@ -172,7 +187,7 @@ export default function Earn() {
                       LP Rewards
                     </span>
                     <span className="text-white text-2xl md:text-3xl">
-                      {userSeason1FIN.whitelistedFeesUsd + userSeason1FIN.nonWhitelistedFeesUsd === 0 ? 0 : (userSeason1FIN.whitelistedFeesUsd + userSeason1FIN.nonWhitelistedFeesUsd).toPrecision(6)}
+                      {userSeason1FIN.whitelistedFeesUsd === 0 || !userSeason1FIN ? 0 : userSeason1FIN.whitelistedFeesUsd.toPrecision(6)}
                     </span>
                   </div>
                   {/* <div className="border border-grey w-full rounded-[4px] bg-black flex flex-col w-full items-center justify-center gap-y-3 h-32">
