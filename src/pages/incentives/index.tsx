@@ -163,7 +163,7 @@ export default function Incentives() {
                       Trading Rewards
                     </span>
                     <span className="text-white text-2xl md:text-3xl">
-                      {userSeason1FIN.volumeTradedUsd.toPrecision(6)}
+                      {userSeason1FIN.volumeTradedUsd ? userSeason1FIN.volumeTradedUsd.toPrecision(6) : 0}
                     </span>
                   </div>
 
@@ -172,7 +172,7 @@ export default function Incentives() {
                       LP Rewards
                     </span>
                     <span className="text-white text-2xl md:text-3xl">
-                      {(userSeason1FIN.whitelistedFeesUsd + userSeason1FIN.nonWhitelistedFeesUsd).toPrecision(6)}
+                      {userSeason1FIN.whitelistedFeesUsd + userSeason1FIN.nonWhitelistedFeesUsd === 0 ? 0 : (userSeason1FIN.whitelistedFeesUsd + userSeason1FIN.nonWhitelistedFeesUsd).toPrecision(6)}
                     </span>
                   </div>
                   {/* <div className="border border-grey w-full rounded-[4px] bg-black flex flex-col w-full items-center justify-center gap-y-3 h-32">
@@ -188,12 +188,12 @@ export default function Incentives() {
                       Total Rewards
                     </span>
                     <span className="text-main2 text-2xl md:text-3xl">
-                    {userSeason1FINTotal.toPrecision(6)}
+                    {userSeason1FINTotal === 0 ? 0 : userSeason1FINTotal.toPrecision(6)}
                     </span>
                   </div>
                 </div>
               </div>
-              <div className="border h-full bg-dark border-grey rounded-[4px] lg:w-1/2 w-full p-5">
+              <div className="border h-full bg-dark border-grey rounded-[4px] lg:w-[80%] w-full p-5">
                 <div className="flex justify-between">
                   <h1 className="uppercase text-white">
                     Rewards Available to Claim
