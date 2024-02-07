@@ -66,10 +66,10 @@ const initialEarnState: EarnState = {
     },
     // FIN rewards
     totalSeason1FIN: {
-        whitelistedFeesUsd: 240000,
-        nonWhitelistedFeesUsd: 108000,
-        stakingPoints: 48000,
-        volumeTradedUsd: 72000,
+        whitelistedFeesUsd: 60000, // MODE NETWORK VALUE
+        nonWhitelistedFeesUsd: 0,
+        stakingPoints: 0,
+        volumeTradedUsd: 0,
     },
     // USD values
     userSeason1Points: {
