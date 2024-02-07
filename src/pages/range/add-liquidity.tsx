@@ -824,8 +824,8 @@ export default function AddLiquidity({}) {
                   />
                 </div>
                 <span className="text-white text-xs">
-                  {tokenIn.callId == 0 ? tokenIn.symbol : tokenOut.symbol} -{" "}
-                  {tokenIn.callId == 0 ? tokenOut.symbol : tokenIn.symbol}
+                  {tokenIn.symbol} -{" "}
+                  {tokenOut.symbol}
                 </span>
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
                   {(
