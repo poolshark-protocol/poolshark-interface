@@ -312,7 +312,6 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           amountIn: isAmountIn
             ? parseUnits(amount, newTokenIn.decimals)
             : state.amountIn,
-          // if wethCall
           pairSelected: true,
           needsBalanceIn: true,
           needsAllowanceIn: true,
