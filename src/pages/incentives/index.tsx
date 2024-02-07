@@ -119,12 +119,12 @@ export default function Incentives() {
   }
 
   return (
-    <div className=" bg-no-repeat bg-black min-h-screen ">
+    <div className=" bg-no-repeat bg-black min-h-screen pb-20">
       <Navbar />
       <div className="flex justify-center w-full text-white container mx-auto">
-        <div className=" mt-8">
-        <div className="lg:h-[300px] h-full w-full border border-grey p-7 flex flex-col justify-between">
-            <div className="flex flex-col gap-y-3 ">
+        <div className="w-full mt-8">
+        <div className="w-full border border-grey p-7 flex flex-col justify-between">
+            <div className="flex flex-col gap-y-3 mb-10">
               <h1 className="uppercase text-white">How Fincentives work</h1>
               <p className="text-sm text-grey3 font-light">
                 FINcentives split revenue between short-term stakeholders and long-term stakeholders.
@@ -154,10 +154,10 @@ export default function Incentives() {
             </a>
           </div>
           <div className="w-full mb-5">
-            <div className="flex h-full gap-x-5  mt-5">
+            <div className="flex lg:flex-row flex-col h-full gap-5  mt-5">
               <div className="bg-dark border border-grey p-5 w-full">
                 <h1>oFIN EARNED</h1>
-                <div className="flex gap-x-5 mt-5">
+                <div className="flex md:flex-row flex-col gap-5 mt-5">
                   <div className="border border-grey w-full rounded-[4px] bg-black flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs uppercase">
                       Trading Rewards
