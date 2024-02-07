@@ -125,17 +125,13 @@ export default function Incentives() {
         <div className=" mt-8">
         <div className="lg:h-[300px] h-full w-full border border-grey p-7 flex flex-col justify-between">
             <div className="flex flex-col gap-y-3 ">
-              <h1 className="uppercase text-white">How Incentives work</h1>
+              <h1 className="uppercase text-white">How Fincentives work</h1>
               <p className="text-sm text-grey3 font-light">
-                Lorem ipsum dolor sit amet consectetur adipiscing elit venenatis
-                sollicitudin, magnis tempor maecenas aliquet tincidunt faucibus
-                turpis imperdiet at praesent, sagittis class id nostra facilisi
-                auctor eu mi. Ligula sapien a egestas ac mus blandit dignissim
-                neque lacinia phasellus, <br /> <br />
-                venenatis tincidunt aliquet aliquam justo mauris dui nisl
-                vulputate. Ac a consequat venenatis arcu rhoncus condimentum
-                pulvinar eu cras tristique mollis, quis aenean natoque urna
-                commodo nullam fermentum at conubia gravida
+                FINcentives apply a revenue split between short-term stakeholders and long-term stakeholders.
+                <br/><br/>
+                Short-term stakeholders get to purchase FIN at a fixed price or discount to market.
+                <br/><br/>
+                Long-term stakeholders get revenue for the DAO treasury to purchase yield-bearing assets.
               </p>
             </div>
             <a
@@ -170,14 +166,14 @@ export default function Incentives() {
                       {(userSeason1FIN.whitelistedFeesUsd + userSeason1FIN.nonWhitelistedFeesUsd).toPrecision(6)}
                     </span>
                   </div>
-                  <div className="border border-grey w-full rounded-[4px] bg-black flex flex-col w-full items-center justify-center gap-y-3 h-32">
+                  {/* <div className="border border-grey w-full rounded-[4px] bg-black flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs uppercase">
                       FIN Staking Rewards
                     </span>
                     <span className="text-white text-2xl md:text-3xl">
                       {userSeason1FIN.stakingPoints.toPrecision(6)}
                     </span>
-                  </div>
+                  </div> */}
                   <div className="border border-main w-full rounded-[4px] bg-main1 flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-white/20 text-xs uppercase">
                       Total Rewards
