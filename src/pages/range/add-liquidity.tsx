@@ -1211,7 +1211,9 @@ export default function AddLiquidity({}) {
                           ).symbol
                         }{" "}
                         ={" "}
-                        {!isNaN(parseFloat(rangePrice))
+                        {!isNaN(parseFloat(rangePrice)) &&
+                        !isNaN(parseFloat(startPrice)) &&
+                        parseFloat(startPrice) > 0
                           ? parseFloat(
                               invertPrice(rangePrice, priceOrder)
                             ).toPrecision(5) +
