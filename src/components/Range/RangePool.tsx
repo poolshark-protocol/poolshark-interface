@@ -87,7 +87,7 @@ export default function RangePool({ rangePool, href }) {
               {Number(rangePool.feeTier / 10000).toFixed(2)}%
             </span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 md:w-full justify-end text-right items-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 md:w-full justify-end text-right items-center">
             <div className="text-white md:block hidden text-right text-xs">
               ${formatUsdValue(rangePool.volumeUsd)}
             </div>
@@ -97,7 +97,7 @@ export default function RangePool({ rangePool, href }) {
             <div className="text-right md:block hidden text-white text-xs">
               <span>${formatUsdValue(rangePool.feesUsd)} </span>
             </div>
-            <div className="text-right text-white text-xs flex items-center justify-end">
+            <div className="text-right text-white text-xs flex items-center justify-end hidden">
               <TooltipProvider>
                 <Tooltip delayDuration={100}>
                   <TooltipTrigger>
