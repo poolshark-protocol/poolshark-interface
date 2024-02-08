@@ -334,7 +334,8 @@ export default function AddLiquidity({}) {
   }
 
   useEffect(() => {
-    if (!manualRange) {
+    if (!manualRange && rangePoolData?.id != ZERO_ADDRESS) {
+ 
       setMinInput(
         invertPrice(
           TickMath.getPriceStringAtTick(
