@@ -12,6 +12,20 @@ import { getSwapRouterButtonMsgValue } from "../../utils/buttons";
 import { chainProperties } from "../../utils/chains";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { BigNumber, ethers } from "ethers";
+import { formatCurrency } from "@usedapp/core/dist/esm/src/model";
+
+declare global {
+  interface Window {
+    safary?: {
+      track: (args: {
+        eventType: string
+        eventName: string
+        parameters?: { [key: string]: string | number | boolean | BigNumber }
+      }) => void
+    }
+  }
+}
 
 export default function SwapRouterButton({
   disabled,
@@ -22,6 +36,8 @@ export default function SwapRouterButton({
   tokenOutNative,
   swapParams,
   gasLimit,
+  tokenInSymbol,
+  tokenOutSymbol,
   resetAfterSwap
 }) {
   const [
@@ -102,12 +118,30 @@ export default function SwapRouterButton({
     }
   }, [isLoading]);
 
+
+  const ConfirmTransaction = (address) => {
+    if (address) {
+      write?.();
+    }
+    window.safary?.track({
+      eventType: 'swap',
+      eventName: 'swap-main',
+      parameters: {
+        fromAmount: Number(ethers.utils.formatEther(amountIn)),
+        fromCurrency: (tokenInSymbol as string),
+        toCurrency: (tokenOutSymbol as string),
+        contractAddress: (routerAddress as string),
+        chainId: (chainId as number) || '',
+      },
+    })
+  };
+
   return (
     <>
       <button
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         disabled={disabled}
-        onClick={(address) => (address ? write?.() : null)}
+        onClick={ConfirmTransaction}
       >
         { disabled && tradeButton.buttonMessage != '' ? tradeButton.buttonMessage : "Swap" }
       </button>

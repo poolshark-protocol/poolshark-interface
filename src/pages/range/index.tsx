@@ -15,6 +15,7 @@ import { tokenRangeLimit } from "../../utils/types";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 import { Checkbox } from "../../components/ui/checkbox";
+import { isWhitelistedPool } from "../../utils/config";
 
 export default function Range() {
   const { address, isDisconnected } = useAccount();
@@ -77,11 +78,12 @@ export default function Range() {
 
   useEffect(() => {
     if (address) {
-      const chainConstants = chainProperties[networkName]
-        ? chainProperties[networkName]
-        : chainProperties["arbitrum"];
-      setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
-      getUserRangePositionData();
+      const chainConstants = chainProperties[networkName] 
+                              ?? chainProperties["arbitrum"]
+      if (chainConstants["limitSubgraphUrl"]) {
+        setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
+        getUserRangePositionData();
+      }
     }
   }, []);
 
@@ -107,10 +109,6 @@ export default function Range() {
       setIsPositionsLoading(false);
     }
   }
-
-
-  console.log(allRangePools)
-
 
   ///////////////////////////
 
@@ -176,6 +174,7 @@ export default function Range() {
                     query: {
                       feeTier: allRangePools[0].feeTier ?? 3000,
                       poolId: allRangePools[0].poolId,
+                      chainId: chainId,
                     },
                   });
                 }
@@ -204,7 +203,7 @@ export default function Range() {
               </p>
             </div>
             <a
-              href="https://docs.poolsharks.io/overview/range-pools/"
+              href="https://docs.poolshark.fi/concepts/protocol/Range"
               target="_blank"
               rel="noreferrer"
               className="text-grey3 underline text-sm flex items-center gap-x-2 font-light"
@@ -330,21 +329,25 @@ export default function Range() {
           <div className="p-6 bg-black border border-grey/50 rounded-[4px] ">
             <div className="flex items-center justify-between">
               <div className="flex md:justify-start justify-between items-center gap-x-10 w-full">
-              <div className="text-white flex items-center text-sm gap-x-3 w-auto whitespace-nowrap">
-                <PoolIcon />
-                <h1>ALL POOLS</h1>
-              </div>
-              <div className="flex bg-dark items-center space-x-2 text-xs">
-      <span className="text-grey1"><Checkbox 
-      checked={lowTVLHidden}
-                  onCheckedChange={() => setLowTVLHidden(!lowTVLHidden)} id="tvl" /></span>
-      <label
-        htmlFor="tvl"
-        className="text-xs text-white/80 -mt-[2.5px] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-      >
-        HIDE LOW TVL POOLS
-      </label>
-    </div>
+                <div className="text-white flex items-center text-sm gap-x-3 w-auto whitespace-nowrap">
+                  <PoolIcon />
+                  <h1>ALL POOLS</h1>
+                </div>
+                <div className="flex bg-dark items-center space-x-2 text-xs">
+                  <span className="text-grey1">
+                    <Checkbox
+                      checked={lowTVLHidden}
+                      onCheckedChange={() => setLowTVLHidden(!lowTVLHidden)}
+                      id="tvl"
+                    />
+                  </span>
+                  <label
+                    htmlFor="tvl"
+                    className="text-xs text-white/80 -mt-[2.5px] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    HIDE LOW TVL POOLS
+                  </label>
+                </div>
               </div>
               <span className="text-grey1 md:block hidden text-xs md:w-full w-32 md:w-auto text-right">
                 Click on a pool to Add Liquidity
@@ -355,15 +358,18 @@ export default function Range() {
                 <div className="space-y-3 w-full">
                   <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
                     <div className="text-left">Pool Name</div>
-                    <div className="grid md:grid-cols-3 grid-cols-1 mr-4">
+                    <div className="grid md:grid-cols-4 grid-cols-1 mr-4">
                       <span className="text-right md:table-cell hidden">
-                        Volume (24h)
+                        Volume
                       </span>
                       <span className="text-right md:table-cell hidden">
                         TVL
                       </span>
                       <span className="text-right md:table-cell hidden">
-                        Fees (24h)
+                        Fees
+                      </span>
+                      <span className="text-right md:table-cell hidden">
+                        
                       </span>
                     </div>
                   </div>
@@ -375,7 +381,10 @@ export default function Range() {
                         ></div>
                       ))
                     : allRangePools
-                        .filter(allRangePool => lowTVLHidden ? allRangePool.tvlUsd > "1.00" : true)
+                        .filter((allRangePool) =>
+                          lowTVLHidden ? allRangePool.tvlUsd > "1.00" : true
+                        )
+                        .sort((a, b) => (isWhitelistedPool(b, networkName) ? 1 : -1))
                         .map((allRangePool) => {
                           if (
                             allRangePool.tokenZero.name.toLowerCase() ===
