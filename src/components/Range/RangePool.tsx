@@ -106,7 +106,7 @@ export default function RangePool({ rangePool, href }) {
                         <div className="flex items-center gap-x-1.5">
                           <InformationCircleIcon className="w-4 text-grey" /> 
                           {isWhitelistedPool(rangePool, networkName) && (
-                          <SparklesIcon className="w-3" />
+                          <SparklesIcon className="w-[18px]" />
                           )}
                         </div>
                       </span>

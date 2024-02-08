@@ -15,6 +15,7 @@ import { tokenRangeLimit } from "../../utils/types";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 import { Checkbox } from "../../components/ui/checkbox";
+import { isWhitelistedPool } from "../../utils/config";
 
 export default function Range() {
   const { address, isDisconnected } = useAccount();
@@ -383,6 +384,7 @@ export default function Range() {
                         .filter((allRangePool) =>
                           lowTVLHidden ? allRangePool.tvlUsd > "1.00" : true
                         )
+                        .sort((a, b) => (isWhitelistedPool(b, networkName) ? 1 : -1))
                         .map((allRangePool) => {
                           if (
                             allRangePool.tokenZero.name.toLowerCase() ===
