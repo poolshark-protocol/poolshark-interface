@@ -187,7 +187,7 @@ export default function Earn() {
                       LP Rewards
                     </span>
                     <span className="text-white text-2xl md:text-3xl">
-                      {userSeason1FIN.whitelistedFeesUsd === 0 || !userSeason1FIN ? 0 : userSeason1FIN.whitelistedFeesUsd.toPrecision(6)}
+                      {userSeason1FIN.whitelistedFeesUsd === 0 || !userSeason1FIN ? 0 : userSeason1FIN.whitelistedFeesUsd.toFixed(2)}
                     </span>
                   </div>
                   {/* <div className="border border-grey w-full rounded-[4px] bg-black flex flex-col w-full items-center justify-center gap-y-3 h-32">
@@ -254,11 +254,11 @@ export default function Earn() {
                     </span>
                     <div className="w-full h-[2px]" />
                     <span className={`text-xs w-5 flex items-center justify-center ${new Date() > new Date('2025-00-00') ? 'text-white' : 'text-grey1'}`}>
-                      24/01
+                      ??/??
                     </span>
                     <div className="w-full h-[2px]" />
                     <span className={`text-xs w-5 flex items-center justify-center ${new Date() > new Date('2025-00-00') ? 'text-white' : 'text-grey1'}`}>
-                      30/01
+                      ??/??
                     </span>
                   </div>
                   <div className="flex items-center">

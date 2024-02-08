@@ -79,8 +79,10 @@ export default function Range() {
     if (address) {
       const chainConstants = chainProperties[networkName] 
                               ?? chainProperties["arbitrum"]
-      setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
-      getUserRangePositionData();
+      if (chainConstants["limitSubgraphUrl"]) {
+        setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
+        getUserRangePositionData();
+      }
     }
   }, []);
 

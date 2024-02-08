@@ -1019,7 +1019,7 @@ export const fetchSeason1Rewards = (client: LimitSubgraph, userAddress: string) 
     }
   `;
     client
-      .query({ query: gql(poolsQuery) })
+      ?.query({ query: gql(poolsQuery) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
