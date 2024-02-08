@@ -809,8 +809,13 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           set((state) => ({
             rangePoolAddress: ZERO_ADDRESS as `0x${string}`,
             rangePoolData: {
+              ...state.rangePoolData,
               id: ZERO_ADDRESS as `0x${string}`,
-              feeTier: state.rangePoolData.feeTier,
+              feeTier: state.rangePoolData.feeTier ?? {
+                feeAmount: "3000",
+                id: "3000",
+                tickSpacing: "30",
+              },
             },
           }));
         }

@@ -154,6 +154,7 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     setManualRange(false);
+    setRangePoolData({});
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address != ZERO_ADDRESS) {
       refetchAllowanceIn();
       refetchAllowanceOut();
@@ -255,12 +256,15 @@ export default function AddLiquidity({}) {
         (pool) =>
           pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
       );
+      console.log("rangePoolData", rangePoolData)
       if (
         router.query.feeTier &&
         !isNaN(parseInt(router.query.feeTier.toString())) &&
         rangePoolData.feeTier == undefined
       ) {
+        console.log("1");
         if (router.query.poolId != ZERO_ADDRESS && pool != undefined) {
+          console.log("2");
           const originalTokenIn = {
             name: pool.token0.symbol,
             address: pool.token0.id,
@@ -292,6 +296,7 @@ export default function AddLiquidity({}) {
           !isNaN(parseInt(router.query.chainId.toString())) &&
           parseInt(router.query?.chainId.toString()) == chainId
         ) {
+          console.log("3");
           if (
             tokenIn.address != router.query.tokenIn ||
             tokenOut.address != router.query.tokenOut
@@ -315,9 +320,6 @@ export default function AddLiquidity({}) {
           }
           setRangePoolData({
             ...rangePoolData,
-            poolPrice: String(
-              TickMath.getSqrtPriceAtPriceString("1.00", tokenIn, tokenOut)
-            ),
             feeTier: {
               ...rangePoolData.feeTier,
               feeAmount: feeAmount,
@@ -325,9 +327,11 @@ export default function AddLiquidity({}) {
             },
           });
         } else {
+          console.log("4");
           setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
         }
       } else {
+        console.log("5");
         setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
       }
     }
@@ -335,7 +339,6 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     if (!manualRange && rangePoolData?.id != ZERO_ADDRESS) {
- 
       setMinInput(
         invertPrice(
           TickMath.getPriceStringAtTick(
@@ -414,9 +417,9 @@ export default function AddLiquidity({}) {
       setRangeSqrtPrice(sqrtPrice);
     }
   }, [
-    rangePoolData.feeTier,
-    rangePoolData.poolPrice,
-    rangePoolData.tickAtPrice,
+    rangePoolData?.feeTier,
+    rangePoolData?.poolPrice,
+    rangePoolData?.tickAtPrice,
   ]);
 
   ////////////////////////////////Allowances
@@ -1012,7 +1015,7 @@ export default function AddLiquidity({}) {
               <DoubleArrowIcon />
             </div>
           </div>
-          {rangePoolAddress != ZERO_ADDRESS && (
+          {Number(minInput) > 0 && (
             <div className="flex justify-between items-center w-full md:gap-x-4 gap-x-2">
               <button
                 onClick={() => {
