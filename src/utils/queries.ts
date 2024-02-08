@@ -993,7 +993,42 @@ export const fetchUserVFinPositions = (client: LimitSubgraph, ownerAddress: stri
         resolve(err);
       });
   });
-}
+};
+
+export const fetchSeason1Rewards = (client: LimitSubgraph, userAddress: string) => {
+  return new Promise(function (resolve) {
+    const poolsQuery = `
+    { 
+      userSeasonRewards(
+        first: 1
+        where: {id:"${userAddress.toLowerCase()}"}
+      ) {
+        volumeTradedUsd
+        nonWhitelistedFeesUsd
+        stakingPoints
+        whitelistedFeesUsd
+      }
+      totalSeasonRewards(
+        first: 1
+      ) {
+        volumeTradedUsd
+        nonWhitelistedFeesUsd
+        stakingPoints
+        whitelistedFeesUsd
+      }
+    }
+  `;
+    client
+      ?.query({ query: gql(poolsQuery) })
+      .then((data) => {
+        resolve(data);
+        /* console.log(data) */
+      })
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+};
 
 export const fetchUserBonds = (marketId: string, recipient: string, subgraphUrl: string) => {
   return new Promise(function (resolve) {
@@ -1046,7 +1081,7 @@ export const fetchUserBonds = (marketId: string, recipient: string, subgraphUrl:
         resolve(err);
       });
   });
-}
+};
 
 export const fetchBondMarket = (marketId: string, subgraphUrl: string) => {
   return new Promise(function (resolve) {
@@ -1139,4 +1174,4 @@ export const fetchBondMarket = (marketId: string, subgraphUrl: string) => {
         resolve(err);
       });
   });
-}
+};

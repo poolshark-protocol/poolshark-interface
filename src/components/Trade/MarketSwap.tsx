@@ -152,7 +152,8 @@ export default function MarketSwap() {
           setTradePoolLiquidity,
         );
       }
-    }, quoteRefetchDelay);
+    }, 
+    quoteRefetchDelay);
    
     // Clear the interval when the component unmounts
     return () => clearInterval(interval);
@@ -722,6 +723,7 @@ export default function MarketSwap() {
           <Range className="text-main2" />{" "}
           <span className="text-grey3 flex flex-col gap-y-[-2px]">
             No pools exist for this token pair.{" "}
+            {/* set tokenIn and tokenOut in router.query */}
             <a
               className=" hover:underline text-main2 cursor-pointer"
               onClick={() => {
@@ -732,6 +734,11 @@ export default function MarketSwap() {
                   query: {
                     feeTier: "3000",
                     poolId: ZERO_ADDRESS,
+                    tokenIn:  tokenIn.address, 
+                    tokenInNative: tokenIn.native,
+                    tokenOut: tokenOut.address,
+                    tokenOutNative: tokenOut.native,
+                    chainId: chainId,
                   },
                 });
               }}
@@ -796,6 +803,8 @@ export default function MarketSwap() {
                 }
                 routerAddress={getRouterAddress(networkName)}
                 amountIn={amountIn}
+                tokenInSymbol={tokenIn.symbol}
+                tokenOutSymbol={tokenOut.symbol}
                 tokenInNative={tokenIn.native ?? false}
                 tokenOutNative={tokenOut.native ?? false}
                 poolAddresses={swapPoolAddresses}

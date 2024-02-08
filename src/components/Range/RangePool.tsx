@@ -1,12 +1,22 @@
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { useRouter } from "next/router";
-import { formatUsdValue } from "../../utils/math/valueMath";
+import { formatUsdValue, getFeeApy } from "../../utils/math/valueMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { SparklesIcon, InformationCircleIcon } from "@heroicons/react/20/solid";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
+import { isWhitelistedPool } from "../../utils/config";
 
 export default function RangePool({ rangePool, href }) {
-  const [limitSubgraph, logoMap] = useConfigStore((state) => [
+  const [limitSubgraph, logoMap, chainId, networkName] = useConfigStore((state) => [
     state.limitSubgraph,
     state.logoMap,
+    state.chainId,
+    state.networkName,
   ]);
 
   const [
@@ -50,6 +60,7 @@ export default function RangePool({ rangePool, href }) {
       query: {
         feeTier: rangePool.feeTier,
         poolId: rangePool.poolId,
+        chainId: chainId,
       },
     });
   };
@@ -57,8 +68,8 @@ export default function RangePool({ rangePool, href }) {
   return (
     <>
       <div className="group relative cursor-pointer" onClick={chooseRangePool}>
-        <div className="grid md:grid-cols-2 items-center bg-black hover:bg-main1/40 transition-all px-4 py-3 rounded-[4px] border-grey/50 border">
-          <div className="flex items-center md:gap-x-6 gap-x-3">
+        <div className="md:grid flex flex-col gap-y-4 grid-cols-2 md:items-center bg-black hover:bg-main1/40 transition-all px-4 py-3 rounded-[4px] border-grey/50 border">
+          <div className="flex items-center w-full md:gap-x-6 gap-x-3">
             <div className="flex items-center">
               <img
                 className="w-[25px] h-[25px]"
@@ -76,15 +87,45 @@ export default function RangePool({ rangePool, href }) {
               {Number(rangePool.feeTier / 10000).toFixed(2)}%
             </span>
           </div>
-          <div className="md:grid hidden grid-cols-3 w-full justify-end text-right items-center">
-            <div className="text-white text-right text-xs">
+          <div className="grid grid-cols-1 md:grid-cols-4 md:w-full justify-end text-right items-center">
+            <div className="text-white md:block hidden text-right text-xs">
               ${formatUsdValue(rangePool.volumeUsd)}
             </div>
-            <div className="text-right text-white text-xs">
+            <div className="text-right md:block hidden text-white text-xs">
               ${formatUsdValue(rangePool.tvlUsd)}
             </div>
-            <div className="text-right text-white text-xs">
+            <div className="text-right md:block hidden text-white text-xs">
               <span>${formatUsdValue(rangePool.feesUsd)} </span>
+            </div>
+            <div className="text-right text-white text-xs flex items-center justify-end">
+              <TooltipProvider>
+                <Tooltip delayDuration={100}>
+                  <TooltipTrigger>
+                    <div>
+                      <span className="text-main2 flex items-center justify-end gap-x-3">
+                        <div className="flex items-center gap-x-1.5">
+                          <InformationCircleIcon className="w-4 text-grey" /> 
+                          {isWhitelistedPool(rangePool, networkName) && (
+                          <SparklesIcon className="w-[18px]" />
+                          )}
+                        </div>
+                      </span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3">
+                    <div className="flex items-center flex-col gap-y-1 w-full">
+                      <div className="flex justify-between items-center w-full text-left">
+                        <div className="flex items-center gap-x-1">
+                        {isWhitelistedPool(rangePool, networkName) ? (
+                          <span className="text-grey3 "> This pool has been incentivised with <span className="text-white">60k oFIN</span></span>
+                          ) : ( <span className="text-grey3 "> This pool is not being incentivised with oFIN</span>)}</div>
+                        
+                      </div>
+
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         </div>

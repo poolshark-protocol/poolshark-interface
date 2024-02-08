@@ -129,12 +129,30 @@ export default function LimitSwapButton({
     }
   }, [isLoading]);
 
+
+  const ConfirmTransaction = () => {
+      write?.();
+    window.safary?.track({
+      eventType: 'swap',
+      eventName: 'swap-limit',
+      parameters: {
+        fromAmount: Number(ethers.utils.formatEther(amount)),
+        fromCurrency: (tokenIn.symbol as string),
+        toCurrency: (tokenOut.symbol as string),
+        contractAddress: (routerAddress as string),
+        chainId: (chainId as number) || '',
+      },
+    })
+    
+  };
+
+
   return (
     <>
       <button
         disabled={disabled}
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
-        onClick={() => write?.()}
+        onClick={ConfirmTransaction}
       >
         LIMIT SWAP
       </button>
