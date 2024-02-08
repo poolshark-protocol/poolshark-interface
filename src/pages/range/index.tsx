@@ -355,7 +355,7 @@ export default function Range() {
                 <div className="space-y-3 w-full">
                   <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
                     <div className="text-left">Pool Name</div>
-                    <div className="grid md:grid-cols-3 grid-cols-1 mr-4">
+                    <div className="grid md:grid-cols-4 grid-cols-1 mr-4">
                       <span className="text-right md:table-cell hidden">
                         Volume
                       </span>
@@ -365,8 +365,8 @@ export default function Range() {
                       <span className="text-right md:table-cell hidden">
                         Fees
                       </span>
-                      <span className="text-right hidden">
-                        APY
+                      <span className="text-right md:table-cell hidden">
+                        
                       </span>
                     </div>
                   </div>

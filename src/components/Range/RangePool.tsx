@@ -87,7 +87,7 @@ export default function RangePool({ rangePool, href }) {
               {Number(rangePool.feeTier / 10000).toFixed(2)}%
             </span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 md:w-full justify-end text-right items-center">
+          <div className="grid grid-cols-1 md:grid-cols-4 md:w-full justify-end text-right items-center">
             <div className="text-white md:block hidden text-right text-xs">
               ${formatUsdValue(rangePool.volumeUsd)}
             </div>
@@ -97,31 +97,29 @@ export default function RangePool({ rangePool, href }) {
             <div className="text-right md:block hidden text-white text-xs">
               <span>${formatUsdValue(rangePool.feesUsd)} </span>
             </div>
-            <div className="text-right text-white text-xs flex items-center justify-end hidden">
+            <div className="text-right text-white text-xs flex items-center justify-end">
               <TooltipProvider>
                 <Tooltip delayDuration={100}>
                   <TooltipTrigger>
                     <div>
                       <span className="text-main2 flex items-center justify-end gap-x-3">
-                        {!isWhitelistedPool(rangePool, networkName) ? <div className="text-white">{getFeeApy(rangePool)}%</div> :
                         <div className="flex items-center gap-x-1.5">
                           <InformationCircleIcon className="w-4 text-grey" /> 
+                          {isWhitelistedPool(rangePool, networkName) && (
                           <SparklesIcon className="w-3" />
-                          {getFeeApy(rangePool)}%
-                          
-                          
-                        </div>}
+                          )}
+                        </div>
                       </span>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3">
                     <div className="flex items-center flex-col gap-y-1 w-full">
                       <div className="flex justify-between items-center w-full text-left">
-                        {isWhitelistedPool(rangePool, networkName) ?
-                        (<div className="flex items-center gap-x-1"><span className="text-grey3 ">
-                          This pool has been incentivised with <span className="text-white">60k oFIN</span>{" "}
-                        </span></div>) : (<></>)}
-                        <span className="text-right text-white "></span>
+                        <div className="flex items-center gap-x-1">
+                        {isWhitelistedPool(rangePool, networkName) ? (
+                          <span className="text-grey3 "> This pool has been incentivised with <span className="text-white">60k oFIN</span></span>
+                          ) : ( <span className="text-grey3 "> This pool is not being incentivised with oFIN</span>)}</div>
+                        
                       </div>
 
                     </div>
