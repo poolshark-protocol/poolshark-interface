@@ -400,10 +400,15 @@ export const gasEstimateRangeMint = async (
   try {
     if (
       !rangePoolRoute ||
+      !signer ||
       !signer.provider ||
-      (amountIn.eq(BN_ZERO) && amountOut.eq(BN_ZERO)) ||
-      !signer
+      (amountIn.eq(BN_ZERO) && amountOut.eq(BN_ZERO))
     ) {
+      return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
+    }
+    const tokenInBalance = parseUnits(tokenIn.userBalance.toString(), tokenIn.decimals)
+    const tokenOutBalance = parseUnits(tokenOut.userBalance.toString(), tokenOut.decimals)
+    if (amountIn.gt(tokenInBalance) || amountOut.gt(tokenOutBalance)) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     const routerAddress = getRouterAddress(networkName);
@@ -413,6 +418,8 @@ export const gasEstimateRangeMint = async (
       poolsharkRouterABI,
       signer.provider
     );
+    if (amountIn.lt(BN_ZERO)) amountIn = BN_ZERO
+    if (amountOut.lt(BN_ZERO)) amountOut = BN_ZERO
     const gasUnits = await routerContract
       .connect(signer)
       .estimateGas.multiMintRange(
@@ -596,16 +603,15 @@ export const gasEstimateRangeUnstake = async(
   signer
 ): Promise<gasEstimateResult> => {
   try {
-  
-  const provider = signer.provider
   if (
     !rangePoolAddress ||
-    !signer.provider ||
     !signer ||
+    !signer.provider ||
     !positionId
   ) {
     return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
   }
+  const provider = signer?.provider
   const rangeStakerAddress = getRangeStakerAddress(networkName)
   const contract = new ethers.Contract(
     rangeStakerAddress,

@@ -127,6 +127,36 @@ export default function Network({
                       <div className="h-1.5 w-1.5 bg-main2 rounded-full" />
                     </div>
                   </div>
+                  <div
+                    onClick={() => {
+                      setNetworkName("mode");
+                      switchNetwork(34443);
+                    }}
+                    className={`${
+                      chainId === 34443
+                      ? " bg-main1 border-main2/20"
+                      : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
+                  } flex justify-between items-center w-full p-2 rounded-md border border-black cursor-pointer`}
+                  >
+                    <div className="flex gap-x-2 items-center">
+                      <img
+                        src="https://raw.githubusercontent.com/mode-network/brandkit/main/Assets/Round/Mode%20round%20white.svg"
+                        width="28"
+                        height="28"
+                      />
+                      Mode Mainnet
+                    </div>
+                    <div
+                      className={`${
+                        chainId === 34443
+                          ? " flex gap-x-2 items-center text-main2 text-xs"
+                          : "hidden"
+                      }`}
+                    >
+                      Connected
+                      <div className="h-1.5 w-1.5 bg-main2 rounded-full" />
+                    </div>
+                  </div>
                   {process.env.NEXT_PUBLIC_isPRODUCTION === "false" && (
                     <div
                       onClick={() => {

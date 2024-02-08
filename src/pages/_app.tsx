@@ -20,6 +20,7 @@ import {
   arbitrumSepolia,
   chainIdToRpc,
   scroll,
+  mode,
 } from "../utils/chains";
 import TermsOfService from "../components/Modals/ToS";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -30,7 +31,7 @@ import Safary from '../components/script';
 import { Toaster } from 'sonner';
 
 const { chains, provider } = configureChains(
-  [arbitrum, arbitrumSepolia, scroll],
+  [arbitrum, arbitrumSepolia, scroll, mode],
   [
     jsonRpcProvider({
       rpc: (chain) => ({
