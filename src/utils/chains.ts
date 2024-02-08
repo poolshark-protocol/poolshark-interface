@@ -200,6 +200,14 @@ export const chainProperties = {
       "",
     limitSubgraphUrl:
       "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-scroll/0.1.2/gn",
+    whitelistedPools: [
+      '0x622fa26556cbc082816311c0b22c668a4a566fe5', // WETH-USDT 0.1%
+    ],
+    season0Rewards: {
+      block1: {
+        whitelistedFeesUsd: 20000
+      }
+    }
   },
   "mode": {
     chainName: "Mode Network",
@@ -230,6 +238,11 @@ export const chainProperties = {
       '0xb5fd40e12a35c6afe8dcc48544082ef2cc371aa5', // WETH-USDT 0.1%
       '0xe0691e6803d4fa0d8fa8ee8da7667eb4a6b99415', // WETH-USDC 0.1%
       '0x1a4cadc783f06829df1cff5db0df7288d716c5a1' // USDC-USDT 0.1%
-    ]
+    ],
+    season0Rewards: {
+      block1: {
+        whitelistedFeesUsd: 60000
+      }
+    }
   },
 };
