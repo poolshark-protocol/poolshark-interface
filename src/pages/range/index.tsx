@@ -365,6 +365,9 @@ export default function Range() {
                       <span className="text-right md:table-cell hidden">
                         Fees
                       </span>
+                      <span className="text-right md:table-cell hidden">
+                        APY
+                      </span>
                     </div>
                   </div>
                   {isPoolsLoading

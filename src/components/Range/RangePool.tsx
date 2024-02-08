@@ -68,7 +68,7 @@ export default function RangePool({ rangePool, href }) {
   return (
     <>
       <div className="group relative cursor-pointer" onClick={chooseRangePool}>
-        <div className="md:grid flex flex-col gap-y-4 grid-cols-2 md:items-start bg-black hover:bg-main1/40 transition-all px-4 py-3 rounded-[4px] border-grey/50 border">
+        <div className="md:grid flex flex-col gap-y-4 grid-cols-2 md:items-center bg-black hover:bg-main1/40 transition-all px-4 py-3 rounded-[4px] border-grey/50 border">
           <div className="flex items-center w-full md:gap-x-6 gap-x-3">
             <div className="flex items-center">
               <img
@@ -87,7 +87,7 @@ export default function RangePool({ rangePool, href }) {
               {Number(rangePool.feeTier / 10000).toFixed(2)}%
             </span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 w-min md:w-full justify-end text-right items-center">
+          <div className="grid grid-cols-1 md:grid-cols-4 md:w-full justify-end text-right items-center">
             <div className="text-white md:block hidden text-right text-xs">
               ${formatUsdValue(rangePool.volumeUsd)}
             </div>
@@ -97,34 +97,31 @@ export default function RangePool({ rangePool, href }) {
             <div className="text-right md:block hidden text-white text-xs">
               <span>${formatUsdValue(rangePool.feesUsd)} </span>
             </div>
-            <div className="text-right text-white text-xs">
+            <div className="text-right text-white text-xs flex items-center justify-end">
               <TooltipProvider>
                 <Tooltip delayDuration={100}>
                   <TooltipTrigger>
                     <div>
-                      {/*<span>5.4% </span> */}
                       <span className="text-main2 flex items-center justify-end gap-x-3">
-                        {!isWhitelistedPool(rangePool, networkName) ? <InformationCircleIcon className="w-4 text-grey" /> :
+                        {!isWhitelistedPool(rangePool, networkName) ? <div className="text-white">{getFeeApy(rangePool)}%</div> :
                         <div className="flex items-center gap-x-1.5">
+                          <InformationCircleIcon className="w-4 text-grey" /> 
                           <SparklesIcon className="w-3" />
-                          oFIN
+                          {getFeeApy(rangePool)}%
+                          
+                          
                         </div>}
                       </span>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3">
                     <div className="flex items-center flex-col gap-y-1 w-full">
-                      <div className="flex justify-between items-center w-full">
+                      <div className="flex justify-between items-center w-full text-left">
                         {isWhitelistedPool(rangePool, networkName) ?
-                        (<span className="text-grey2 flex items-center gap-x-1">
-                          60k oFIN <SparklesIcon className="w-3" />{" "}
-                        </span>) : (<></>)}
+                        (<div className="flex items-center gap-x-1"><span className="text-grey3 ">
+                          This pool has been incentivised with <span className="text-white">60k oFIN</span>{" "}
+                        </span></div>) : (<></>)}
                         <span className="text-right text-white "></span>
-                      </div>
-                      <div className="flex justify-between items-center w-full">
-                        <span className="text-grey2">Fee APY</span>
-                        {/* TODO: use 24h fees for Fee APY */}
-                        <span className="text-right">{getFeeApy(rangePool)}%</span>
                       </div>
 
                     </div>
