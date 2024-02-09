@@ -74,7 +74,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                 COVER
               </div>
                </Link> */}
-              {chainId === 42161 ? (
+              {/* {chainId === 42161 ? (
                 <Link href="/bond">
                   <div
                     className={
@@ -99,8 +99,8 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                 </Link>
               ) : (
                 <></>
-              )}
-              {chainId === 34443 ? (
+              )} */}
+              {chainId === 34443 || chainId === 534352 ? (
                 <Link href="/earn">
                   <div
                     className={
