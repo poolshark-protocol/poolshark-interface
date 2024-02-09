@@ -94,10 +94,11 @@ export default function Bond() {
   const [needsVestingPosition, setNeedsVestingPosition] = useState(true);
   const [vestedAmount, setVestedAmount] = useState(0);
   const [vestedClaimAmount, setVestedClaimAmount] = useState(0);
-  const vestPercent = (
-                        (Math.floor((new Date()).getTime() / 1000) - vestStartTime) // current - start
-                        / (vestEndTime - vestStartTime) * 100                       // divided by
-                      ).toFixed(2)                                                  // end - start
+  // const vestPercent = (
+  //                       (Math.floor((new Date()).getTime() / 1000) - vestStartTime) // current - start
+  //                       / (vestEndTime - vestStartTime) * 100                       // divided by
+  //                     ).toFixed(2)                                                  // end - start
+  const vestPercent = "100.00"
 
   const { data: vestedPosition } = useContractRead({
     address: bondProtocolConfig["vFinAddress"],
