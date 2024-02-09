@@ -162,7 +162,7 @@ export default function Bond() {
           address,
         );
         const chainConstants = chainProperties[networkName] ? chainProperties[networkName]
-                                                            : chainProperties['arbitrumGoerli'];
+                                                            : chainProperties['arbitrum'];
         setLimitSubgraph(chainConstants['limitSubgraphUrl'])
         if (data["data"] && data["data"]["vfinPositions"]?.length == 1) {
           setVestingPositionId(data["data"]["vfinPositions"][0].positionId);
@@ -242,7 +242,6 @@ export default function Bond() {
     },
   });
 
-  console.log('vest percent', vestPercent)
   useEffect(() => {
     if (marketPurchaseData) {
       setMarketPurchase(marketPurchaseData);
@@ -340,9 +339,8 @@ export default function Bond() {
     functionName: "balanceOf",
     args: [address, bondTokenId],
     chainId: chainId,
-    watch: needsBondTokenData,
-    enabled: needsBondTokenData 
-              && bondTokenId != undefined
+    watch: true,
+    enabled: bondTokenId != undefined
               && address != undefined,
     onError() {
       console.log("balanceOf error", address, bondTokenId);
