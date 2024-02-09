@@ -1233,7 +1233,10 @@ export default function AddLiquidity({}) {
                                 ? tokenOut
                                 : tokenIn
                               ).symbol
-                            : "?" + " " + tokenOut.symbol
+                            : "?" + " " + (priceOrder == (tokenIn.callId == 0)
+                                              ? tokenOut
+                                              : tokenIn
+                                          ).symbol
                           }
                       </div>
                     </TooltipTrigger>
