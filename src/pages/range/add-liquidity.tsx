@@ -1075,7 +1075,7 @@ export default function AddLiquidity({}) {
                 }}
                 className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
               >
-                COMMON
+                MEDIUM
               </button>
               <button
                 onClick={() => {
@@ -1211,18 +1211,33 @@ export default function AddLiquidity({}) {
                           ).symbol
                         }{" "}
                         ={" "}
-                        {!isNaN(parseFloat(rangePrice)) &&
-                        !isNaN(parseFloat(startPrice)) &&
-                        parseFloat(startPrice) > 0
-                          ? parseFloat(
-                              invertPrice(rangePrice, priceOrder)
-                            ).toPrecision(5) +
-                            " " +
-                            (priceOrder == (tokenIn.callId == 0)
-                              ? tokenOut
-                              : tokenIn
-                            ).symbol
-                          : "?" + " " + tokenOut.symbol}
+                        {
+                          !isNaN(parseFloat(rangePrice)) &&
+                          (
+                            // pool exists
+                            (
+                              rangePoolAddress != ZERO_ADDRESS
+                            ) ||
+                            // pool doesn't exist and start price is valid
+                            (
+                              rangePoolAddress == ZERO_ADDRESS &&
+                              !isNaN(parseFloat(startPrice)) &&
+                              parseFloat(startPrice) > 0
+                            )
+                          )
+                            ? parseFloat(
+                                invertPrice(rangePrice, priceOrder)
+                              ).toPrecision(5) +
+                              " " +
+                              (priceOrder == (tokenIn.callId == 0)
+                                ? tokenOut
+                                : tokenIn
+                              ).symbol
+                            : "?" + " " + (priceOrder == (tokenIn.callId == 0)
+                                              ? tokenOut
+                                              : tokenIn
+                                          ).symbol
+                          }
                       </div>
                     </TooltipTrigger>
                     <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3">
