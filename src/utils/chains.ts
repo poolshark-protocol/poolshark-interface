@@ -207,7 +207,7 @@ export const chainProperties = {
 			alchemy: false,
 			swing: false
     },
-    explorerUrl: "https://explorer.mode.network/",
+    explorerUrl: "https://modescan.io",
     nativeCurrency: {
       name: "ETH",
       symbol: "ETH",
