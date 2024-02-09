@@ -85,7 +85,8 @@ import { parseUnits } from "../../utils/math/valueMath";
       enabled: bondBalance != undefined
                 && bondApproved
                 && bondTokenId != undefined
-                && vFinAddress != undefined,
+                && vFinAddress != undefined
+                && false, 
       onSuccess() {
       },
       onError() {
