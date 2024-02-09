@@ -199,7 +199,7 @@ export const chainProperties = {
     coverSubgraphUrl:
       "",
     limitSubgraphUrl:
-      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-scroll/0.1.3/gn",
+      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-scroll/0.1.4/gn",
     whitelistedPools: [
       '0x622fa26556cbc082816311c0b22c668a4a566fe5', // WETH-USDT 0.1%
     ],
