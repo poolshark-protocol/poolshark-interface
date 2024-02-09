@@ -334,7 +334,7 @@ export default function AddLiquidity({}) {
   }
 
   useEffect(() => {
-    if (!manualRange && rangePoolData?.id != ZERO_ADDRESS) {
+    if (!manualRange) {
  
       setMinInput(
         invertPrice(
