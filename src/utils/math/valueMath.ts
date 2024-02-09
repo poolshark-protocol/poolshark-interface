@@ -38,6 +38,11 @@ export function inputHandler(e, token: token, skipFilter?: boolean): [string, Bi
     }
 }
 
+export function getFeeApy(rangePool: any): string {
+  if (!rangePool.tvlUsd || rangePool.tvlUsd == 0) return "0.00"
+  return ((rangePool.feesUsd ?? 0) * 365 / (rangePool.tvlUsd) * 100).toFixed(2)
+}
+
 export function parseUnits(value: string, decimals: number): BigNumber {
   const floatValue = parseFloat(value)
   if (isNaN(floatValue)) return BN_ZERO
@@ -61,4 +66,4 @@ export function parseUnits(value: string, decimals: number): BigNumber {
     value = floatValue.toFixed(decimals)
    }
   return ethers.utils.parseUnits(value, decimals)
-} 
+}

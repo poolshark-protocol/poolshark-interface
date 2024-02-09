@@ -68,3 +68,16 @@ const isAddress = (input: string) => {
     }
     return false;
 };
+
+export const isWhitelistedPool = (rangePool: any, networkName: string): boolean => {
+	if (!rangePool?.poolId) {
+		return false
+	} else if (chainProperties[networkName]?.whitelistedPools) {
+		const whitelistedPools: string[] = chainProperties[networkName].whitelistedPools
+		if (whitelistedPools.indexOf(rangePool?.poolId) != -1) {
+			return true
+		}
+		return false
+	}
+	return false
+}

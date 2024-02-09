@@ -15,6 +15,7 @@ import { tokenRangeLimit } from "../../utils/types";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 import { Checkbox } from "../../components/ui/checkbox";
+import { isWhitelistedPool } from "../../utils/config";
 
 export default function Range() {
   const { address, isDisconnected } = useAccount();
@@ -77,11 +78,12 @@ export default function Range() {
 
   useEffect(() => {
     if (address) {
-      const chainConstants = chainProperties[networkName]
-        ? chainProperties[networkName]
-        : chainProperties["arbitrum"];
-      setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
-      getUserRangePositionData();
+      const chainConstants = chainProperties[networkName] 
+                              ?? chainProperties["arbitrum"]
+      if (chainConstants["limitSubgraphUrl"]) {
+        setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
+        getUserRangePositionData();
+      }
     }
   }, []);
 
@@ -201,7 +203,7 @@ export default function Range() {
               </p>
             </div>
             <a
-              href="https://docs.poolsharks.io/overview/range-pools/"
+              href="https://docs.poolshark.fi/concepts/protocol/Range"
               target="_blank"
               rel="noreferrer"
               className="text-grey3 underline text-sm flex items-center gap-x-2 font-light"
@@ -356,7 +358,7 @@ export default function Range() {
                 <div className="space-y-3 w-full">
                   <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
                     <div className="text-left">Pool Name</div>
-                    <div className="grid md:grid-cols-3 grid-cols-1 mr-4">
+                    <div className="grid md:grid-cols-4 grid-cols-1 mr-4">
                       <span className="text-right md:table-cell hidden">
                         Volume
                       </span>
@@ -365,6 +367,9 @@ export default function Range() {
                       </span>
                       <span className="text-right md:table-cell hidden">
                         Fees
+                      </span>
+                      <span className="text-right md:table-cell hidden">
+                        
                       </span>
                     </div>
                   </div>
@@ -379,6 +384,7 @@ export default function Range() {
                         .filter((allRangePool) =>
                           lowTVLHidden ? allRangePool.tvlUsd > "1.00" : true
                         )
+                        .sort((a, b) => (isWhitelistedPool(b, networkName) ? 1 : -1))
                         .map((allRangePool) => {
                           if (
                             allRangePool.tokenZero.name.toLowerCase() ===

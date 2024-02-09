@@ -188,7 +188,7 @@ export const fetchTokenMetadata = async (
   const chainName = chainIdsToNames[chainId];
   axios
     .get(
-      `https://raw.githubusercontent.com/poolshark-protocol/token-metadata/` +
+      `https://raw.githubusercontent.com/poolshark-protocol/token-lists/` +
         tokenMetadataBranch +
         `/blockchains/${chainName ?? "arbitrum-one"}/tokenlist.json`
     )
