@@ -16,6 +16,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 import { Checkbox } from "../../components/ui/checkbox";
 import { isWhitelistedPool } from "../../utils/config";
+import Analytics from "../../components/Modals/Range/Analytics";
 
 export default function Range() {
   const { address, isDisconnected } = useAccount();
@@ -26,6 +27,7 @@ export default function Range() {
   const [isPositionsLoading, setIsPositionsLoading] = useState(false);
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
   const [lowTVLHidden, setLowTVLHidden] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const [
     chainId,
@@ -78,8 +80,8 @@ export default function Range() {
 
   useEffect(() => {
     if (address) {
-      const chainConstants = chainProperties[networkName] 
-                              ?? chainProperties["arbitrum"]
+      const chainConstants =
+        chainProperties[networkName] ?? chainProperties["arbitrum"];
       if (chainConstants["limitSubgraphUrl"]) {
         setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
         getUserRangePositionData();
@@ -121,7 +123,7 @@ export default function Range() {
       <Navbar />
       <div className="container mx-auto my-8 px-3 md:px-0 pb-32">
         <div className="flex lg:flex-row flex-col gap-x-8 gap-y-5 justify-between">
-          <div className="p-7 lg:h-[300px] w-full lg:w-[60%] flex flex-col justify-between bg-cover bg-[url('/static/images/bg/shark1.png')]">
+          <div className="p-7 lg:h-[320px] w-full lg:w-[60%] flex flex-col justify-between bg-cover bg-[url('/static/images/bg/shark1.png')]">
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">
                 BECOME A LIQUIDITY PROVIDER AND EARN FEES
@@ -185,7 +187,7 @@ export default function Range() {
               CREATE RANGE POSITION
             </button>
           </div>
-          <div className="lg:h-[300px] h-full w-full lg:w-[80%] xl:w-[40%] border border-grey p-7 flex flex-col justify-between">
+          <div className="lg:h-[320px] h-full w-full lg:w-[80%] xl:w-[40%] border border-grey p-7 flex flex-col justify-between">
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">How it works</h1>
               <p className="text-sm text-grey3 font-light">
@@ -211,6 +213,39 @@ export default function Range() {
               <InfoIcon />
               Read More
             </a>
+            <button
+              onClick={() => setIsOpen(true)}
+              className="bg-dark px-5 flex items-center justify-center gap-x-2 border-grey rounded-[4px] border mt-2 text-grey3 text-xs py-2"
+            >
+              <svg
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M18 9C18.5523 9 19 9.44772 19 10V20C19 20.5523 18.5523 21 18 21C17.4477 21 17 20.5523 17 20V10C17 9.44772 17.4477 9 18 9Z"
+                  fill="currentColor"
+                />
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M6 13C6.55228 13 7 13.4477 7 14V20C7 20.5523 6.55228 21 6 21C5.44772 21 5 20.5523 5 20V14C5 13.4477 5.44772 13 6 13Z"
+                  fill="currentColor"
+                />
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M12 3C12.5523 3 13 3.44772 13 4V20C13 20.5523 12.5523 21 12 21C11.4477 21 11 20.5523 11 20V4C11 3.44772 11.4477 3 12 3Z"
+                  fill="currentColor"
+                />
+              </svg>
+              View Analytics
+            </button>
+            <Analytics isOpen={isOpen} setIsOpen={setIsOpen} />
           </div>
         </div>
         <div className="flex flex-col gap-y-4 mt-9">
@@ -368,9 +403,7 @@ export default function Range() {
                       <span className="text-right md:table-cell hidden">
                         Fees
                       </span>
-                      <span className="text-right md:table-cell hidden">
-                        
-                      </span>
+                      <span className="text-right md:table-cell hidden"></span>
                     </div>
                   </div>
                   {isPoolsLoading
@@ -384,7 +417,9 @@ export default function Range() {
                         .filter((allRangePool) =>
                           lowTVLHidden ? allRangePool.tvlUsd > "1.00" : true
                         )
-                        .sort((a, b) => (isWhitelistedPool(b, networkName) ? 1 : -1))
+                        .sort((a, b) =>
+                          isWhitelistedPool(b, networkName) ? 1 : -1
+                        )
                         .map((allRangePool) => {
                           if (
                             allRangePool.tokenZero.name.toLowerCase() ===
