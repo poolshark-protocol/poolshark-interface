@@ -561,7 +561,7 @@ export default function Bond() {
                   tokenId={bondProtocolConfig['bondTokenId']}
                   amount={bondTokenBalance}
                   setNeedsBondTokenData={setNeedsBondTokenData}
-                  disabled={bondTokenBalance?.gt(BN_ZERO)}
+                  disabled={false}
                 />
                 ) : (
                   <VestFinButton
