@@ -64,7 +64,7 @@ export default function Bond() {
     useState(undefined);
   const [maxAmountAccepted, setMaxAmountAccepted] = useState(undefined);
   const [bondTokenBalance, setBondTokenBalance] = useState(undefined);
-  const [bondTokenId, setBondTokenId] = useState(undefined);
+  const bondTokenId = BigNumber.from('50041069287616932026042816520963973508955622977186811114648766172172485699723')
   const [bondProtocolConfig, setBondProtocolConfig] = useState({});
 
   useEffect(() => {
@@ -310,16 +310,6 @@ export default function Bond() {
       console.log("maxAmountAccepted error");
     },
   });
-
-  const bondTokenIdData = BigNumber.from("50041069287616932026042816520963973508955622977186811114648766172172485699723")
-
-  console.log('bond token data', bondTokenIdData.toString())
-
-  useEffect(() => {
-    if (bondTokenIdData) {
-      setBondTokenId(bondTokenIdData);
-    }
-  }, [bondTokenIdData]);
 
   const { data: bondTokenBalanceData } = useContractRead({
     address: bondProtocolConfig["tellerAddress"],
