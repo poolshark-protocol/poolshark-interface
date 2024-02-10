@@ -144,7 +144,7 @@ export default function PositionMintModal({
                   {isLoading
                     ? "Your position is being created..."
                     : successDisplay
-                    ? "Your position has been created succesfully!"
+                    ? "Your position has been created successfully!"
                     : errorDisplay &&
                       "Your position was not able to be created"}
                 </h1>
