@@ -70,8 +70,8 @@ export default function Bond() {
   useEffect(() => {
     console.log('network name', networkName)
     setBondProtocolConfig(
-      chainProperties[networkName]["bondProtocol"] ??
-        chainProperties["arbitrum"]["bondProtocol"]
+      chainProperties[networkName]?.bondProtocol ??
+        chainProperties["arbitrum"]?.bondProtocol
     );
   }, [networkName]);
 
