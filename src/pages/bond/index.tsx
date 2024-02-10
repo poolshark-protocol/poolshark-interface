@@ -311,25 +311,9 @@ export default function Bond() {
     },
   });
 
-  const { data: bondTokenIdData } = useContractRead({
-    address: bondProtocolConfig["tellerAddress"],
-    abi: bondTellerABI,
-    functionName: "getTokenId",
-    args: [bondProtocolConfig["finAddress"], marketData[0]?.vesting], // add vesting period to each date market is open
-    chainId: chainId,
-    enabled:
-      bondProtocolConfig["tellerAddress"] != undefined &&
-      marketData[0] != undefined &&
-      chainId == 42161,
-    onError() {
-      console.log(
-        "getTokenId error",
-        bondProtocolConfig["tellerAddress"],
-        bondProtocolConfig["finAddress"],
-        marketData[0]?.vesting
-      );
-    },
-  });
+  const bondTokenIdData = BigNumber.from("50041069287616932026042816520963973508955622977186811114648766172172485699723")
+
+  console.log('bond token data', bondTokenIdData.toString())
 
   useEffect(() => {
     if (bondTokenIdData) {
