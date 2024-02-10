@@ -41,7 +41,8 @@ import { chainProperties } from "../../utils/chains";
       watch: true,
       enabled: tellerAddress != undefined
                 && vFinAddress != undefined
-                && address != undefined,
+                && address != undefined
+                && chainId == 42161,
       onError() {
         console.log('balanceOf error',)
       },
@@ -62,7 +63,8 @@ import { chainProperties } from "../../utils/chains";
       watch: true,
       enabled: tellerAddress != undefined
                 && vFinAddress != undefined
-                && address != undefined,
+                && address != undefined
+                && chainId == 42161,
       onError() {
         console.log('isApprovedForAll error',)
       },
@@ -86,7 +88,8 @@ import { chainProperties } from "../../utils/chains";
       enabled: bondBalance != undefined
                 && bondApproved
                 && bondTokenId != undefined
-                && vFinAddress != undefined,
+                && vFinAddress != undefined
+                && false,
       onSuccess() {
       },
       onError() {
