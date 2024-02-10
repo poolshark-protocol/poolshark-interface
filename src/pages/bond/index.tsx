@@ -100,6 +100,8 @@ export default function Bond() {
   //                     ).toFixed(2)                                                  // end - start
   const vestPercent = "100.00"
 
+  console.log('bond balance', bondTokenBalance?.toString(), vestingPositionId == undefined, bondTokenBalance?.gt(BN_ZERO))
+
   const { data: vestedPosition } = useContractRead({
     address: bondProtocolConfig["vFinAddress"],
     abi: vFinABI,
