@@ -64,7 +64,7 @@ export default function Bond() {
     useState(undefined);
   const [maxAmountAccepted, setMaxAmountAccepted] = useState(undefined);
   const [bondTokenBalance, setBondTokenBalance] = useState(undefined);
-  const [bondTokenId, setBondTokenId] = useState(undefined);
+  const bondTokenId = BigNumber.from('50041069287616932026042816520963973508955622977186811114648766172172485699723')
   const [bondProtocolConfig, setBondProtocolConfig] = useState({});
 
   useEffect(() => {
@@ -99,6 +99,8 @@ export default function Bond() {
   //                       / (vestEndTime - vestStartTime) * 100                       // divided by
   //                     ).toFixed(2)                                                  // end - start
   const vestPercent = "100.00"
+
+  console.log('bond balance', bondTokenBalance?.toString(), vestingPositionId == undefined, bondTokenBalance?.gt(BN_ZERO))
 
   const { data: vestedPosition } = useContractRead({
     address: bondProtocolConfig["vFinAddress"],
@@ -308,32 +310,6 @@ export default function Bond() {
       console.log("maxAmountAccepted error");
     },
   });
-
-  const { data: bondTokenIdData } = useContractRead({
-    address: bondProtocolConfig["tellerAddress"],
-    abi: bondTellerABI,
-    functionName: "getTokenId",
-    args: [bondProtocolConfig["finAddress"], marketData[0]?.vesting], // add vesting period to each date market is open
-    chainId: chainId,
-    enabled:
-      bondProtocolConfig["tellerAddress"] != undefined &&
-      marketData[0] != undefined &&
-      chainId == 42161,
-    onError() {
-      console.log(
-        "getTokenId error",
-        bondProtocolConfig["tellerAddress"],
-        bondProtocolConfig["finAddress"],
-        marketData[0]?.vesting
-      );
-    },
-  });
-
-  useEffect(() => {
-    if (bondTokenIdData) {
-      setBondTokenId(bondTokenIdData);
-    }
-  }, [bondTokenIdData]);
 
   const { data: bondTokenBalanceData } = useContractRead({
     address: bondProtocolConfig["tellerAddress"],
@@ -585,7 +561,7 @@ export default function Bond() {
                   tokenId={bondProtocolConfig['bondTokenId']}
                   amount={bondTokenBalance}
                   setNeedsBondTokenData={setNeedsBondTokenData}
-                  disabled={bondTokenBalance?.gt(BN_ZERO)}
+                  disabled={false}
                 />
                 ) : (
                   <VestFinButton
