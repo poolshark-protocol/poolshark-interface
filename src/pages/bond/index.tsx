@@ -22,7 +22,7 @@ import { chainProperties, supportedNetworkNames } from "../../utils/chains";
 import ClaimFinButton from "../../components/Buttons/ClaimFinButton";
 import VestFinButton from "../../components/Buttons/VestFinButton";
 import { vFinABI } from "../../abis/evm/vFin";
-import { BN_ZERO } from "../../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { numFormat } from "../../utils/math/valueMath";
 import RedeemBondButton from "../../components/Buttons/RedeemBondButton";
 
@@ -68,15 +68,14 @@ export default function Bond() {
   const [bondProtocolConfig, setBondProtocolConfig] = useState({});
 
   useEffect(() => {
-    console.log('network name', networkName)
     setBondProtocolConfig(
-      chainProperties[networkName]["bondProtocol"] ??
-        chainProperties["arbitrum"]["bondProtocol"]
+      chainProperties[networkName]?.bondProtocol ??
+        chainProperties["arbitrum-one"]?.bondProtocol
     );
   }, [networkName]);
 
   const [tellerDisplay, setPoolDisplay] = useState(
-    bondProtocolConfig["tellerAddress"]
+    bondProtocolConfig && bondProtocolConfig["tellerAddress"]
       ? bondProtocolConfig["tellerAddress"].toString().substring(0, 6) +
           "..." +
           bondProtocolConfig["tellerAddress"]
@@ -109,7 +108,8 @@ export default function Bond() {
     chainId: chainId,
     watch: true,
     enabled: bondProtocolConfig["vFinAddress"] != undefined
-              && vestingPositionId != undefined,
+              && vestingPositionId != undefined
+              && chainId == 42161,
     onSuccess() {
     },
     onError() {
@@ -125,7 +125,8 @@ export default function Bond() {
     chainId: chainId,
     watch: true,
     enabled: bondProtocolConfig["vFinAddress"] != undefined
-              && vestingPositionId != undefined,
+              && vestingPositionId != undefined
+              && chainId == 42161,
     onSuccess() {
       console.log('current claim:', viewClaimData?.toString())
     },
@@ -236,7 +237,7 @@ export default function Bond() {
     args: [bondProtocolConfig["marketId"]],
     chainId: chainId,
     watch: needsMarketPurchaseData,
-    enabled: needsMarketPurchaseData,
+    enabled: needsMarketPurchaseData && chainId == 42161,
     onError() {
       console.log("getMarketInfoForPurchase error");
     },
@@ -256,7 +257,7 @@ export default function Bond() {
     args: [bondProtocolConfig["marketId"]],
     chainId: chainId,
     watch: needsCapacityData,
-    enabled: needsCapacityData,
+    enabled: needsCapacityData && chainId == 42161,
     onError() {
       console.log("current capacity error");
     },
@@ -276,7 +277,7 @@ export default function Bond() {
     args: [bondProtocolConfig["marketId"]],
     chainId: chainId,
     watch: needsMarketPriceData,
-    enabled: needsMarketPriceData,
+    enabled: needsMarketPriceData && chainId == 42161,
     onError() {
       console.log("marketPrice error");
     },
@@ -289,7 +290,7 @@ export default function Bond() {
     args: [bondProtocolConfig["marketId"]],
     chainId: chainId,
     watch: needsMarketPriceData,
-    enabled: needsMarketPriceData,
+    enabled: needsMarketPriceData && chainId == 42161,
     onError() {
       console.log("marketScale error");
     },
@@ -302,7 +303,7 @@ export default function Bond() {
     args: [bondProtocolConfig["marketId"], bondProtocolConfig["nullReferrer"]],
     chainId: chainId,
     watch: needsMaxAmountAcceptedData,
-    enabled: needsMaxAmountAcceptedData,
+    enabled: needsMaxAmountAcceptedData && chainId == 42161,
     onError() {
       console.log("maxAmountAccepted error");
     },
@@ -316,7 +317,8 @@ export default function Bond() {
     chainId: chainId,
     enabled:
       bondProtocolConfig["tellerAddress"] != undefined &&
-      marketData[0] != undefined,
+      marketData[0] != undefined &&
+      chainId == 42161,
     onError() {
       console.log(
         "getTokenId error",
@@ -341,7 +343,8 @@ export default function Bond() {
     chainId: chainId,
     watch: true,
     enabled: bondTokenId != undefined
-              && address != undefined,
+              && address != undefined
+              && chainId == 42161,
     onError() {
       console.log("balanceOf error", address, bondTokenId);
     },
@@ -508,7 +511,7 @@ export default function Bond() {
                 </span>
                 <span className="text-white text-center xl:text-4xl md:text-3xl text-2xl">
                   $
-                  {marketData[0] != undefined && ethPrice != undefined
+                  {marketData[0] != undefined && ethPrice != undefined && chainId == 42161
                     ? (marketData[0].totalBondedAmount * ethPrice).toFixed(2)
                     : "0"}{" "}
                   <span className="text-grey1">
@@ -861,9 +864,7 @@ export default function Bond() {
                                 {/*<td className="">0.9%</td>
                             <td className="">0.94 FIN</td>*/}
                                 <td className="">
-                                  {convertTimestampToDateFormat(
-                                    Date.now() / 1000 + marketData[0]?.vesting
-                                  )}
+                                  {"02/09/2024"}
                                 </td>
                                 <td className="text-grey1 text-right pr-2 md:pr-0 md:w-40 ">
                                   <a
