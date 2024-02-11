@@ -38,6 +38,8 @@ export default function ViewRange() {
       state.logoMap,
     ]);
 
+
+
   const [
     rangePoolAddress,
     rangePoolData,
@@ -421,6 +423,9 @@ export default function ViewRange() {
   }, [tokenIn, rangeMintParams?.tokenInAmount]);
 
   ////////////////////////////////Return
+
+  ///TODO: insert something to tell the user they are on the wrong chain
+
 
   return (
     <div className="bg-black min-h-screen  ">
