@@ -115,7 +115,8 @@ export const chainProperties = {
     chainName: "Arbitrum Sepolia Test Network",
 		sdkSupport: {
 			alchemy: false,
-			swing: false
+			swing: false,
+      defined: false,
     },
     explorerUrl: "https://sepolia.arbiscan.io",
     nativeCurrency: {
@@ -140,7 +141,8 @@ export const chainProperties = {
   "arbitrum-one": {
     sdkSupport: {
 			alchemy: true,
-			swing: true
+			swing: true,
+      defined: true,
     },
     chainName: "Arbitrum One",
     explorerUrl: "https://arbiscan.io",
@@ -179,7 +181,8 @@ export const chainProperties = {
     chainName: "Scroll Mainnet",
 		sdkSupport: {
 			alchemy: false,
-			swing: false
+			swing: false,
+      defined: false,
     },
     explorerUrl: "https://scrollscan.com",
     nativeCurrency: {

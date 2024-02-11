@@ -49,6 +49,7 @@ import JSBI from "jsbi";
 import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import BalanceDisplay from "../Display/BalanceDisplay";
 import { getRouterAddress } from "../../utils/config";
+import USDPriceDisplay from "../Display/USDPriceDisplay";
 
 export default function LimitSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -846,18 +847,10 @@ export default function LimitSwap() {
     <div>
       <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
         <div className="flex items-end justify-between text-[11px] text-grey1">
-          <span>
-            {" "}
-            ~$
-            {!isNaN(parseInt(amountIn.toString())) &&
-            !isNaN(tokenIn.decimals) &&
-            !isNaN(tokenIn.USDPrice)
-              ? (
-                  (!isNaN(parseFloat(displayIn)) ? parseFloat(displayIn) : 0) *
-                  (tokenIn.USDPrice ?? 0)
-                ).toFixed(2)
-              : (0).toFixed(2)}
-          </span>
+          <USDPriceDisplay
+            token={tokenIn}
+            display={displayIn}
+          ></USDPriceDisplay>
           <BalanceDisplay token={tokenIn}></BalanceDisplay>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3">
@@ -893,15 +886,16 @@ export default function LimitSwap() {
           </div>
         </div>
       </div>
-      <div 
-      onClick={() => {
-        switchDirection(
-          exactIn,
-          exactIn ? displayIn : displayOut,
-          exactIn ? setAmountIn : setAmountOut
-        );
-      }}
-      className="flex items-center justify-center w-full pt-10 pb-3">
+      <div
+        onClick={() => {
+          switchDirection(
+            exactIn,
+            exactIn ? displayIn : displayOut,
+            exactIn ? setAmountIn : setAmountOut
+          );
+        }}
+        className="flex items-center justify-center w-full pt-10 pb-3"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -909,7 +903,6 @@ export default function LimitSwap() {
           strokeWidth="1.5"
           stroke="currentColor"
           className="w-5 cursor-pointer"
-          
         >
           <path
             strokeLinecap="round"
@@ -921,25 +914,11 @@ export default function LimitSwap() {
       <span className="text-[11px] text-grey1">TO</span>
       <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
         <div className="flex items-end justify-between text-[11px] text-grey1">
-          <span>
-            ~$
-            {!isNaN(tokenOut.decimals) && !isNaN(tokenOut.USDPrice) ? (
-              (
-                (!isNaN(parseFloat(displayOut)) ? parseFloat(displayOut) : 0) *
-                (tokenOut.USDPrice ?? 0)
-              ).toFixed(2)
-            ) : (
-              <>{(0).toFixed(2)}</>
-            )}
-          </span>
-          <span>
-            {pairSelected ? (
-              "Balance: " +
-              (!isNaN(tokenOut?.userBalance) ? tokenOut.userBalance : "0")
-            ) : (
-              <></>
-            )}
-          </span>
+          <USDPriceDisplay
+            token={tokenOut}
+            display={displayOut}
+          ></USDPriceDisplay>
+          <BalanceDisplay token={tokenOut}></BalanceDisplay>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
           {
