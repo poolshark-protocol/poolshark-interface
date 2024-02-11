@@ -71,7 +71,7 @@ export const arbitrumSepolia: Chain = {
   },
 };
 
-export const defaultNetwork = "arbitrum-one";
+export const defaultNetwork = "mode";
 
 export const chainIdsToNames = {
   421614: "arbitrum-sepolia",
