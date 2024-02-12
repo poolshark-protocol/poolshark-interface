@@ -7,6 +7,7 @@ import Trade from "./Icons/TradeIcon";
 import Range from "./Icons/RangeIcon";
 import Cover from "./Icons/CoverIcon";
 import { useConfigStore } from "../hooks/useConfigStore";
+import { supportedChainIds } from "../utils/chains";
 
 interface NavOptions {
   create?: boolean;
@@ -100,7 +101,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
               ) : (
                 <></>
               )}
-              {chainId === 34443 ? (
+              {chainId === 34443 || chainId == supportedChainIds["scroll"] ? (
                 <Link href="/earn">
                   <div
                     className={
