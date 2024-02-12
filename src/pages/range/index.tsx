@@ -120,8 +120,8 @@ export default function Range() {
     <div className="min-h-screen bg-black">
       <Navbar />
       <div className="container mx-auto my-8 px-3 md:px-0 pb-32">
-        <div className="flex lg:flex-row flex-col gap-x-8 gap-y-5 justify-between">
-          <div className="p-7 lg:h-[300px] w-full lg:w-[60%] flex flex-col justify-between bg-cover bg-[url('/static/images/bg/shark1.png')]">
+        <div className="flex lg:flex-row items-start flex-col gap-x-8 gap-y-5 justify-between">
+          <div className="p-7 xl:h-[300px] lg:h-[400px] w-full lg:w-[60%] flex flex-col justify-between bg-cover bg-[url('/static/images/bg/shark1.png')]">
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">
                 BECOME A LIQUIDITY PROVIDER AND EARN FEES
@@ -179,13 +179,13 @@ export default function Range() {
                   });
                 }
               }}
-              className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
+              className="px-12 mt-5 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
                 hover:opacity-80"
             >
               CREATE RANGE POSITION
             </button>
           </div>
-          <div className="lg:h-[300px] h-full w-full lg:w-[80%] xl:w-[40%] border border-grey p-7 flex flex-col justify-between">
+          <div className="xl:h-[300px] lg:h-[400px] h-full w-full lg:w-[40%] xl:w-[40%] border border-grey p-7 flex flex-col justify-between">
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">How it works</h1>
               <p className="text-sm text-grey3 font-light">

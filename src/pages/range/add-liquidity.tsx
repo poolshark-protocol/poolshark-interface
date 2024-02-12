@@ -39,6 +39,7 @@ import {
 } from "../../components/ui/tooltip";
 import { Checkbox } from "../../components/ui/checkbox";
 import { isAddress } from "ethers/lib/utils.js";
+import { ArrowTopRightOnSquareIcon } from "@heroicons/react/20/solid";
 
 export default function AddLiquidity({}) {
   const [
@@ -813,7 +814,8 @@ export default function AddLiquidity({}) {
             {isLoading ? (
               <div className="h-[42.02px] w-[230px] bg-grey/60 animate-pulse rounded-[4px]" />
             ) : (
-              <div className="flex  items-center gap-x-2 bg-dark border border-grey py-2 px-5 rounded-[4px]">
+              <a href={`${chainProperties[networkName]["explorerUrl"]}/address/${rangePoolAddress}`} target="_blank" rel="noreferrer">
+              <div className="flex  items-center gap-x-2 hover:bg-grey/50 cursor-pointer transition-all bg-dark border border-grey hover:border-grey2 py-2 px-5 rounded-[4px]">
                 <div className="flex items-center">
                   <img
                     className="md:w-6 w-6"
@@ -836,7 +838,9 @@ export default function AddLiquidity({}) {
                   ).toFixed(2)}
                   %
                 </span>
+                <ArrowTopRightOnSquareIcon className="w-4 ml-2"/>
               </div>
+              </a>
             )}
           </div>
         </div>
