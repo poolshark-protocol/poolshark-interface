@@ -22,8 +22,9 @@ import { chainProperties, supportedNetworkNames } from "../../utils/chains";
 import ClaimFinButton from "../../components/Buttons/ClaimFinButton";
 import VestFinButton from "../../components/Buttons/VestFinButton";
 import { vFinABI } from "../../abis/evm/vFin";
-import { BN_ZERO } from "../../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { numFormat } from "../../utils/math/valueMath";
+import RedeemBondButton from "../../components/Buttons/RedeemBondButton";
 
 export default function Bond() {
   const { address, isConnected } = useAccount();
@@ -62,20 +63,19 @@ export default function Bond() {
   const [quoteTokensPerPayoutToken, setQuoteTokensPerPayoutToken] =
     useState(undefined);
   const [maxAmountAccepted, setMaxAmountAccepted] = useState(undefined);
-  const [vestingTokenBalance, setVestingTokenBalance] = useState(undefined);
-  const [vestingTokenId, setVestingTokenId] = useState(undefined);
+  const [bondTokenBalance, setBondTokenBalance] = useState(undefined);
+  const bondTokenId = BigNumber.from('50041069287616932026042816520963973508955622977186811114648766172172485699723')
   const [bondProtocolConfig, setBondProtocolConfig] = useState({});
 
   useEffect(() => {
-    console.log('network name', networkName)
     setBondProtocolConfig(
-      chainProperties[networkName]["bondProtocol"] ??
-        chainProperties["arbitrum"]["bondProtocol"]
+      chainProperties[networkName]?.bondProtocol ??
+        chainProperties["arbitrum-one"]?.bondProtocol
     );
   }, [networkName]);
 
   const [tellerDisplay, setPoolDisplay] = useState(
-    bondProtocolConfig["tellerAddress"]
+    bondProtocolConfig && bondProtocolConfig["tellerAddress"]
       ? bondProtocolConfig["tellerAddress"].toString().substring(0, 6) +
           "..." +
           bondProtocolConfig["tellerAddress"]
@@ -94,10 +94,13 @@ export default function Bond() {
   const [needsVestingPosition, setNeedsVestingPosition] = useState(true);
   const [vestedAmount, setVestedAmount] = useState(0);
   const [vestedClaimAmount, setVestedClaimAmount] = useState(0);
-  const vestPercent = (
-                        (Math.floor((new Date()).getTime() / 1000) - vestStartTime) // current - start
-                        / (vestEndTime - vestStartTime) * 100                       // divided by
-                      ).toFixed(2)                                                  // end - start
+  // const vestPercent = (
+  //                       (Math.floor((new Date()).getTime() / 1000) - vestStartTime) // current - start
+  //                       / (vestEndTime - vestStartTime) * 100                       // divided by
+  //                     ).toFixed(2)                                                  // end - start
+  const vestPercent = "100.00"
+
+  console.log('bond balance', bondTokenBalance?.toString(), vestingPositionId == undefined, bondTokenBalance?.gt(BN_ZERO))
 
   const { data: vestedPosition } = useContractRead({
     address: bondProtocolConfig["vFinAddress"],
@@ -107,7 +110,8 @@ export default function Bond() {
     chainId: chainId,
     watch: true,
     enabled: bondProtocolConfig["vFinAddress"] != undefined
-              && vestingPositionId != undefined,
+              && vestingPositionId != undefined
+              && chainId == 42161,
     onSuccess() {
     },
     onError() {
@@ -123,7 +127,8 @@ export default function Bond() {
     chainId: chainId,
     watch: true,
     enabled: bondProtocolConfig["vFinAddress"] != undefined
-              && vestingPositionId != undefined,
+              && vestingPositionId != undefined
+              && chainId == 42161,
     onSuccess() {
       console.log('current claim:', viewClaimData?.toString())
     },
@@ -159,7 +164,8 @@ export default function Bond() {
           limitSubgraph,
           address,
         );
-        const chainConstants = chainProperties[networkName] 
+        const chainConstants = chainProperties[networkName] ? chainProperties[networkName]
+                                                            : chainProperties['arbitrum'];
         setLimitSubgraph(chainConstants['limitSubgraphUrl'])
         if (data["data"] && data["data"]["vfinPositions"]?.length == 1) {
           setVestingPositionId(data["data"]["vfinPositions"][0].positionId);
@@ -233,7 +239,7 @@ export default function Bond() {
     args: [bondProtocolConfig["marketId"]],
     chainId: chainId,
     watch: needsMarketPurchaseData,
-    enabled: needsMarketPurchaseData,
+    enabled: needsMarketPurchaseData && chainId == 42161,
     onError() {
       console.log("getMarketInfoForPurchase error");
     },
@@ -253,7 +259,7 @@ export default function Bond() {
     args: [bondProtocolConfig["marketId"]],
     chainId: chainId,
     watch: needsCapacityData,
-    enabled: needsCapacityData,
+    enabled: needsCapacityData && chainId == 42161,
     onError() {
       console.log("current capacity error");
     },
@@ -273,7 +279,7 @@ export default function Bond() {
     args: [bondProtocolConfig["marketId"]],
     chainId: chainId,
     watch: needsMarketPriceData,
-    enabled: needsMarketPriceData,
+    enabled: needsMarketPriceData && chainId == 42161,
     onError() {
       console.log("marketPrice error");
     },
@@ -286,7 +292,7 @@ export default function Bond() {
     args: [bondProtocolConfig["marketId"]],
     chainId: chainId,
     watch: needsMarketPriceData,
-    enabled: needsMarketPriceData,
+    enabled: needsMarketPriceData && chainId == 42161,
     onError() {
       console.log("marketScale error");
     },
@@ -299,58 +305,33 @@ export default function Bond() {
     args: [bondProtocolConfig["marketId"], bondProtocolConfig["nullReferrer"]],
     chainId: chainId,
     watch: needsMaxAmountAcceptedData,
-    enabled: needsMaxAmountAcceptedData,
+    enabled: needsMaxAmountAcceptedData && chainId == 42161,
     onError() {
       console.log("maxAmountAccepted error");
     },
   });
 
-  const { data: vestingTokenIdData } = useContractRead({
-    address: bondProtocolConfig["tellerAddress"],
-    abi: bondTellerABI,
-    functionName: "getTokenId",
-    args: [bondProtocolConfig["finAddress"], marketData[0]?.vesting], // add vesting period to each date market is open
-    chainId: chainId,
-    enabled:
-      bondProtocolConfig["tellerAddress"] != undefined &&
-      marketData[0] != undefined,
-    onError() {
-      console.log(
-        "getTokenId error",
-        bondProtocolConfig["tellerAddress"],
-        bondProtocolConfig["finAddress"],
-        marketData[0]?.vesting
-      );
-    },
-  });
-
-  useEffect(() => {
-    if (vestingTokenIdData) {
-      setVestingTokenId(vestingTokenIdData);
-    }
-  }, [vestingTokenIdData]);
-
-  const { data: vestingTokenBalanceData } = useContractRead({
+  const { data: bondTokenBalanceData } = useContractRead({
     address: bondProtocolConfig["tellerAddress"],
     abi: bondTellerABI,
     functionName: "balanceOf",
-    args: [address, vestingTokenId],
+    args: [address, bondTokenId],
     chainId: chainId,
-    watch: needsBondTokenData,
-    enabled: needsBondTokenData 
-              && vestingTokenId != undefined
-              && address != undefined,
+    watch: true,
+    enabled: bondTokenId != undefined
+              && address != undefined
+              && chainId == 42161,
     onError() {
-      console.log("balanceOf error", address, vestingTokenId);
+      console.log("balanceOf error", address, bondTokenId);
     },
   });
 
   useEffect(() => {
-    if (vestingTokenBalanceData) {
-      setVestingTokenBalance(vestingTokenBalanceData);
+    if (bondTokenBalanceData) {
+      setBondTokenBalance(bondTokenBalanceData);
       setNeedsBondTokenData(false);
     }
-  }, [vestingTokenBalanceData]);
+  }, [bondTokenBalanceData]);
 
   useEffect(() => {
     if (maxAmountAcceptedData) {
@@ -451,23 +432,23 @@ export default function Bond() {
           </div>
         </div>
         {/* add vesting claim for each day the market is live */}
-        {vestingTokenBalance != undefined &&
-        vestingTokenId != undefined &&
-        parseFloat(formatEther(vestingTokenBalance)) > 0 ? (
+        {bondTokenBalance != undefined &&
+        bondTokenId != undefined &&
+        parseFloat(formatEther(bondTokenBalance)) > 0 ? (
           <div className="border bg-main1/30 border-main/40 p-5 mt-5">
             <h1 className="">PAYOUT AVAILABLE</h1>
             <div className="flex flex-col gap-y-4 border-main/60 border rounded-[4px] text-xs p-5 mt-4 bg-black/50 mb-2">
               <div className="flex flex-col gap-y-1 justify-between w-full items-center text-white/20">
                 AMOUNT{" "}
                 <span className="text-white text-lg">
-                  {parseFloat(formatEther(vestingTokenBalance)).toFixed(2)} FIN
+                  {parseFloat(formatEther(bondTokenBalance)).toFixed(2)} FIN
                 </span>
               </div>
             </div>
             <RedeemMulticallBondButton
               tellerAddress={bondProtocolConfig["tellerAddress"]}
-              tokenId={vestingTokenId}
-              amount={vestingTokenBalance}
+              tokenId={bondTokenId}
+              amount={bondTokenBalance}
               setNeedsBondTokenData={setNeedsBondTokenData}
             />
           </div>
@@ -506,7 +487,7 @@ export default function Bond() {
                 </span>
                 <span className="text-white text-center xl:text-4xl md:text-3xl text-2xl">
                   $
-                  {marketData[0] != undefined && ethPrice != undefined
+                  {marketData[0] != undefined && ethPrice != undefined && chainId == 42161
                     ? (marketData[0].totalBondedAmount * ethPrice).toFixed(2)
                     : "0"}{" "}
                   <span className="text-grey1">
@@ -550,13 +531,7 @@ export default function Bond() {
              
             </div>
             */}
-          </div>
-          <div className="flex gap-y-5 flex-col w-full lg:w-1/2 relative">
-          {vestingPositionId == undefined &&
-          <div className="bg-black/60 backdrop-blur-[4px] w-full h-full absolute z-50 px-5 flex items-center justify-center ">
-            <div className="flex w-full flex-col gap-y-8 items-start justify-center bg-dark border border-grey rounded-[4px] p-5">
-              <div className="">
-                <h1 className="uppercase text-white">VEST BOND</h1>
+                            {/* <h1 className="uppercase text-white">VEST BOND</h1>
                 <p className="text-sm text-grey3 font-light mt-1">
                 Exchange your FIN bonds for an equal 60-day vest ending 02/09/2024.
                 </p>
@@ -567,7 +542,37 @@ export default function Bond() {
                   bondTokenId={bondProtocolConfig['bondTokenId']}
                   needsVestingPosition={needsVestingPosition}
                   setNeedsVestingPosition={setNeedsVestingPosition}
+                /> */}
+          </div>
+          <div className="flex gap-y-5 flex-col w-full lg:w-1/2 relative">
+          {vestingPositionId == undefined &&
+          <div className="bg-black/60 backdrop-blur-[4px] w-full h-full absolute z-50 px-5 flex items-center justify-center ">
+            <div className="flex w-full flex-col gap-y-8 items-start justify-center bg-dark border border-grey rounded-[4px] p-5">
+              <div className="">
+                <h1 className="uppercase text-white">{bondTokenBalance?.gt(BN_ZERO) ? "REDEEM" : "VEST"} BOND</h1>
+                <p className="text-sm text-grey3 font-light mt-1">
+                {bondTokenBalance?.gt(BN_ZERO) ? "Redeem your FIN bonds 1:1 for FIN." : "Exchange your FIN bonds for an equal 60-day vest ending 02/09/2024."}
+                </p>
+              </div>
+              {
+                bondTokenBalance?.gt(BN_ZERO) ? (
+                  <RedeemBondButton
+                  tellerAddress={bondProtocolConfig['tellerAddress']} // use teller address
+                  tokenId={bondProtocolConfig['bondTokenId']}
+                  amount={bondTokenBalance}
+                  setNeedsBondTokenData={setNeedsBondTokenData}
+                  disabled={false}
                 />
+                ) : (
+                  <VestFinButton
+                    vFinAddress={bondProtocolConfig['vFinAddress']}
+                    tellerAddress={bondProtocolConfig['tellerAddress']} // use teller address
+                    bondTokenId={bondProtocolConfig['bondTokenId']}
+                    needsVestingPosition={needsVestingPosition}
+                    setNeedsVestingPosition={setNeedsVestingPosition}
+                  />
+                )
+              }
             </div>
           </div>}
             <div className="border relative bg-dark border-grey rounded-[4px] w-full p-5 pb-7 h-full">
@@ -761,8 +766,8 @@ export default function Bond() {
                                 {/*
                               <td className="w-28">
                                 <RedeemBondButton 
-                          tokenId={vestingTokenId != undefined ? vestingTokenId : BigNumber.from(0)}
-                          amount={vestingTokenBalance != undefined ? vestingTokenBalance : BigNumber.from(0)}
+                          tokenId={bondTokenId != undefined ? bondTokenId : BigNumber.from(0)}
+                          amount={bondTokenBalance != undefined ? bondTokenBalance : BigNumber.from(0)}
                           setNeedsBondTokenData={setNeedsBondTokenData}
                           disabled={marketData != undefined ? ((Date.now() / 1000) < (userBond.timestamp + marketData[0]?.vesting)) : true}
                             />
@@ -835,9 +840,7 @@ export default function Bond() {
                                 {/*<td className="">0.9%</td>
                             <td className="">0.94 FIN</td>*/}
                                 <td className="">
-                                  {convertTimestampToDateFormat(
-                                    Date.now() / 1000 + marketData[0]?.vesting
-                                  )}
+                                  {"02/09/2024"}
                                 </td>
                                 <td className="text-grey1 text-right pr-2 md:pr-0 md:w-40 ">
                                   <a
@@ -876,8 +879,8 @@ export default function Bond() {
                                 {/*
                               <td className="w-28">
                                 <RedeemBondButton 
-                          tokenId={vestingTokenId != undefined ? vestingTokenId : BigNumber.from(0)}
-                          amount={vestingTokenBalance != undefined ? vestingTokenBalance : BigNumber.from(0)}
+                          tokenId={bondTokenId != undefined ? bondTokenId : BigNumber.from(0)}
+                          amount={bondTokenBalance != undefined ? bondTokenBalance : BigNumber.from(0)}
                           setNeedsBondTokenData={setNeedsBondTokenData}
                           disabled={marketData != undefined ? ((Date.now() / 1000) < (userBond.timestamp + marketData[0]?.vesting)) : true}
                             />

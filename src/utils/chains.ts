@@ -2,29 +2,6 @@ import { ZERO_ADDRESS } from "./math/constants";
 import { Chain } from "wagmi";
 import { Network } from "alchemy-sdk";
 
-export const arbitrumSepolia: Chain = {
-  id: 421614,
-  name: "Arbitrum Sepolia",
-  network: "arbitrumSepolia",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Ether",
-    symbol: "ETH",
-  },
-  rpcUrls: {
-    default: {
-      http: [
-        "https://arbitrum-sepolia.core.chainstack.com/a0fd1794b40136e3d035e89ecbeca764",
-      ],
-    },
-    public: {
-      http: [
-        "https://arbitrum-sepolia.core.chainstack.com/a0fd1794b40136e3d035e89ecbeca764",
-      ],
-    },
-  },
-};
-
 export const scroll: Chain = {
   id: 534352,
   name: "Scroll Mainnet",
@@ -48,24 +25,73 @@ export const scroll: Chain = {
   },
 };
 
+export const mode: Chain = {
+  id: 34443,
+  name: "Mode Network",
+  network: "mode",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Ether",
+    symbol: "ETH",
+  },
+  rpcUrls: {
+    default: {
+      http: [
+        "https://mainnet.mode.network",
+      ],
+    },
+    public: {
+      http: [
+        "https://mainnet.mode.network",
+      ],
+    },
+  },
+};
+
+export const arbitrumSepolia: Chain = {
+  id: 421614,
+  name: "Arbitrum Sepolia",
+  network: "arbitrumSepolia",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Ether",
+    symbol: "ETH",
+  },
+  rpcUrls: {
+    default: {
+      http: [
+        "https://arbitrum-sepolia.core.chainstack.com/a0fd1794b40136e3d035e89ecbeca764",
+      ],
+    },
+    public: {
+      http: [
+        "https://arbitrum-sepolia.core.chainstack.com/a0fd1794b40136e3d035e89ecbeca764",
+      ],
+    },
+  },
+};
+
 export const defaultNetwork = "arbitrum-one";
 
 export const chainIdsToNames = {
   421614: "arbitrum-sepolia",
   42161: "arbitrum-one",
-  534352: "scroll"
+  534352: "scroll",
+  34443: "mode",
 };
 
 export const supportedChainIds = {
   421614: "arbitrumSepolia",
   42161: "arbitrum",
   534352: "scroll",
+  34443: "mode",
 };
 
 export const supportedNetworkNames = {
   arbitrumSepolia: "arbitrum-sepolia",
   arbitrum: "arbitrum-one",
   scroll: "scroll",
+  mode: "mode",
 };
 
 export const chainIdToRpc = {
@@ -75,6 +101,8 @@ export const chainIdToRpc = {
     "https://arbitrum-sepolia.core.chainstack.com/a0fd1794b40136e3d035e89ecbeca764",
   534352:
     "https://chaotic-cosmopolitan-replica.scroll-mainnet.quiknode.pro/8ef882241d10f392fcbb1b1b051cd8cda1eaacf9/",
+  34443:
+    "https://mainnet.mode.network",
 };
 
 export const alchemyNetworks = {
@@ -148,7 +176,7 @@ export const chainProperties = {
     },
   },
   "scroll": {
-    chainName: "Scroll",
+    chainName: "Scroll Mainnet",
 		sdkSupport: {
 			alchemy: false,
 			swing: false
@@ -172,5 +200,36 @@ export const chainProperties = {
       "",
     limitSubgraphUrl:
       "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-scroll/0.1.2/gn",
+  },
+  "mode": {
+    chainName: "Mode Network",
+		sdkSupport: {
+			alchemy: false,
+			swing: false
+    },
+    explorerUrl: "https://modescan.io",
+    nativeCurrency: {
+      name: "ETH",
+      symbol: "ETH",
+      decimals: 18,
+    },
+    wethAddress: "0x4200000000000000000000000000000000000006" as `0x${string}`,
+    daiAddress: "0xE7798f023fC62146e8Aa1b36Da45fb70855a77Ea" as `0x${string}`,
+    finAddress: "0x66864e3954daC74b9377Ef25E4B47Ca47423688E" as `0x${string}`,
+    routerAddress:
+      "0x33a28c58ab9c2fc5bc0ef84ca1b28763a904c4dd" as `0x${string}`,
+    rangeStakerAddress:
+      "0x58d8235108e12e6b725a53b57cd0b00c5edee0da" as `0x${string}`,
+    coverPoolFactory:
+      ZERO_ADDRESS as `0x${string}`,
+    coverSubgraphUrl:
+      "",
+    limitSubgraphUrl:
+      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-mode/0.1.9/gn",
+    whitelistedPools: [
+      '0xb5fd40e12a35c6afe8dcc48544082ef2cc371aa5', // WETH-USDT 0.1%
+      '0xe0691e6803d4fa0d8fa8ee8da7667eb4a6b99415', // WETH-USDC 0.1%
+      '0x1a4cadc783f06829df1cff5db0df7288d716c5a1' // USDC-USDT 0.1%
+    ]
   },
 };

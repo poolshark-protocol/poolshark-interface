@@ -817,6 +817,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
                 tickSpacing: "30",
               },
             },
+            
           }));
         }
       } catch (error) {

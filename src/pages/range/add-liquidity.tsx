@@ -338,7 +338,8 @@ export default function AddLiquidity({}) {
   }
 
   useEffect(() => {
-    if (!manualRange && rangePoolData?.id != ZERO_ADDRESS) {
+    if (!manualRange) {
+ 
       setMinInput(
         invertPrice(
           TickMath.getPriceStringAtTick(
@@ -382,7 +383,7 @@ export default function AddLiquidity({}) {
 
   //this sets the default position price range
   useEffect(() => {
-    if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
+    if (rangePoolData.poolPrice) {
       const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
       if (rangePoolAddress != ZERO_ADDRESS && rangePrice == undefined) {
@@ -828,8 +829,8 @@ export default function AddLiquidity({}) {
                   />
                 </div>
                 <span className="text-white text-xs">
-                  {tokenIn.callId == 0 ? tokenIn.symbol : tokenOut.symbol} -{" "}
-                  {tokenIn.callId == 0 ? tokenOut.symbol : tokenIn.symbol}
+                  {tokenIn.symbol} -{" "}
+                  {tokenOut.symbol}
                 </span>
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
                   {(
@@ -1079,7 +1080,7 @@ export default function AddLiquidity({}) {
                 }}
                 className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
               >
-                COMMON
+                MEDIUM
               </button>
               <button
                 onClick={() => {
@@ -1215,16 +1216,33 @@ export default function AddLiquidity({}) {
                           ).symbol
                         }{" "}
                         ={" "}
-                        {!isNaN(parseFloat(rangePrice))
-                          ? parseFloat(
-                              invertPrice(rangePrice, priceOrder)
-                            ).toPrecision(5) +
-                            " " +
-                            (priceOrder == (tokenIn.callId == 0)
-                              ? tokenOut
-                              : tokenIn
-                            ).symbol
-                          : "?" + " " + tokenOut.symbol}
+                        {
+                          !isNaN(parseFloat(rangePrice)) &&
+                          (
+                            // pool exists
+                            (
+                              rangePoolAddress != ZERO_ADDRESS
+                            ) ||
+                            // pool doesn't exist and start price is valid
+                            (
+                              rangePoolAddress == ZERO_ADDRESS &&
+                              !isNaN(parseFloat(startPrice)) &&
+                              parseFloat(startPrice) > 0
+                            )
+                          )
+                            ? parseFloat(
+                                invertPrice(rangePrice, priceOrder)
+                              ).toPrecision(5) +
+                              " " +
+                              (priceOrder == (tokenIn.callId == 0)
+                                ? tokenOut
+                                : tokenIn
+                              ).symbol
+                            : "?" + " " + (priceOrder == (tokenIn.callId == 0)
+                                              ? tokenOut
+                                              : tokenIn
+                                          ).symbol
+                          }
                       </div>
                     </TooltipTrigger>
                     <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3">
