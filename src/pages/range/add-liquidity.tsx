@@ -154,7 +154,7 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     setManualRange(false);
-    setRangePoolData({});
+    //setRangePoolData({});
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address != ZERO_ADDRESS) {
       refetchAllowanceIn();
       refetchAllowanceOut();
