@@ -29,7 +29,7 @@ import { feeTierMap, feeTiers } from "../../utils/pools";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { fetchRangePools } from "../../utils/queries";
 import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButton";
-import { getRouterAddress } from "../../utils/config";
+import { getRouterAddress, isStablePair, setDefaultRange } from "../../utils/config";
 import BalanceDisplay from "../../components/Display/BalanceDisplay";
 import {
   Tooltip,
@@ -156,10 +156,10 @@ export default function AddLiquidity({}) {
   useEffect(() => {
     setManualRange(false);
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address != ZERO_ADDRESS) {
-      refetchAllowanceIn();
-      refetchAllowanceOut();
       setPairSelected(true);
       if (rangePoolData.feeTier != undefined) {
+        refetchAllowanceIn();
+        refetchAllowanceOut();
         updatePools(parseInt(rangePoolData.feeTier.feeAmount));
       }
     } else {
@@ -336,31 +336,18 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     if (!manualRange) {
- 
-      setMinInput(
-        invertPrice(
-          TickMath.getPriceStringAtTick(
-            priceOrder == (tokenIn.callId == 0)
-              ? rangePoolData.tickAtPrice - 4055
-              : rangePoolData.tickAtPrice - -4055,
-            tokenIn,
-            tokenOut
-          ),
-          priceOrder == (tokenIn.callId == 0)
-        )
-      );
-      setMaxInput(
-        invertPrice(
-          TickMath.getPriceStringAtTick(
-            priceOrder == (tokenIn.callId == 0)
-              ? rangePoolData.tickAtPrice - -4055
-              : rangePoolData.tickAtPrice - 4055,
-            tokenIn,
-            tokenOut
-          ),
-          priceOrder == (tokenIn.callId == 0)
-        )
-      );
+      console.log('autoset range')
+      const tickAtPrice = rangePoolData.tickAtPrice;
+      setDefaultRange(
+        tokenIn,
+        tokenOut,
+        networkName,
+        priceOrder,
+        tickAtPrice,
+        setMinInput,
+        setMaxInput,
+        rangePoolData?.id
+      )
     }
   }, [manualRange, rangePoolData?.id]);
 
@@ -384,30 +371,16 @@ export default function AddLiquidity({}) {
       const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
       if (rangePoolAddress != ZERO_ADDRESS && rangePrice == undefined) {
-        setMinInput(
-          invertPrice(
-            TickMath.getPriceStringAtTick(
-              priceOrder == (tokenIn.callId == 0)
-                ? tickAtPrice - 7000
-                : tickAtPrice - -7000,
-              tokenIn,
-              tokenOut
-            ),
-            priceOrder == (tokenIn.callId == 0)
-          )
-        );
-        setMaxInput(
-          invertPrice(
-            TickMath.getPriceStringAtTick(
-              priceOrder == (tokenIn.callId == 0)
-                ? tickAtPrice - -7000
-                : tickAtPrice - 7000,
-              tokenIn,
-              tokenOut
-            ),
-            priceOrder == (tokenIn.callId == 0)
-          )
-        );
+        console.log('pool data changed')
+        setDefaultRange(
+          tokenIn,
+          tokenOut,
+          networkName,
+          priceOrder,
+          tickAtPrice,
+          setMinInput,
+          setMaxInput
+        )
       }
       setRangePrice(
         TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut)
@@ -429,13 +402,14 @@ export default function AddLiquidity({}) {
       args: [address, getRouterAddress(networkName)],
       chainId: chainId,
       watch: true,
-      enabled: tokenIn.address != undefined,
+      enabled: tokenIn.address &&
+                tokenIn.address != ZERO_ADDRESS,
       onSuccess(data) {
         //console.log("allowance in fetched", allowanceInRange?.toString());
         //setNeedsAllowanceIn(false);
       },
       onError(error) {
-        console.log("Error allowance", error);
+        console.log("Error tokenIn allowance", address, tokenIn.address, getRouterAddress(networkName), error);
       },
     });
 
@@ -447,12 +421,14 @@ export default function AddLiquidity({}) {
       args: [address, getRouterAddress(networkName)],
       chainId: chainId,
       watch: true,
+      enabled: tokenOut.address &&
+                tokenOut.address != ZERO_ADDRESS,
       onSuccess(data) {
         //console.log("allowance out fetched", allowanceOutRange?.toString());
         //setNeedsAllowanceOut(false);
       },
       onError(error) {
-        console.log("Error allowance", error);
+        console.log("Error tokenOut allowance", address, tokenOut.address, getRouterAddress(networkName), error);
       },
     });
 
@@ -490,7 +466,7 @@ export default function AddLiquidity({}) {
       }, 5000);
     },
     onError(err) {
-      console.log("token out error", err);
+      console.log("token out error", address, tokenOut.address, err);
     },
   });
 
