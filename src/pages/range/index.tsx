@@ -16,6 +16,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 import { Checkbox } from "../../components/ui/checkbox";
 import { isWhitelistedPool } from "../../utils/config";
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/20/solid";
 
 export default function Range() {
   const { address, isDisconnected } = useAccount();
@@ -26,6 +27,7 @@ export default function Range() {
   const [isPositionsLoading, setIsPositionsLoading] = useState(false);
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
   const [lowTVLHidden, setLowTVLHidden] = useState(true);
+  const [sort, setSort] = useState("TVL");
 
   const [
     chainId,
@@ -78,8 +80,8 @@ export default function Range() {
 
   useEffect(() => {
     if (address) {
-      const chainConstants = chainProperties[networkName] 
-                              ?? chainProperties["arbitrum"]
+      const chainConstants =
+        chainProperties[networkName] ?? chainProperties["arbitrum"];
       if (chainConstants["limitSubgraphUrl"]) {
         setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
         getUserRangePositionData();
@@ -116,6 +118,7 @@ export default function Range() {
     setSearchTerm(event.target.value);
   };
 
+  console.log(sort);
   return (
     <div className="min-h-screen bg-black">
       <Navbar />
@@ -359,18 +362,52 @@ export default function Range() {
                   <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
                     <div className="text-left">Pool Name</div>
                     <div className="grid md:grid-cols-4 grid-cols-1 mr-4">
-                      <span className="text-right md:table-cell hidden">
-                        Volume
-                      </span>
-                      <span className="text-right md:table-cell hidden">
-                        TVL
-                      </span>
-                      <span className="text-right md:table-cell hidden">
-                        Fees
-                      </span>
-                      <span className="text-right md:table-cell hidden">
-                        
-                      </span>
+                      <button
+                        className="text-right md:table-cell  hidden"
+                        onClick={() => setSort("Volume")}
+                      >
+                        <span
+                          className={`flex justify-end gap-x-2 ${
+                            sort === "Volume" && "text-white"
+                          }`}
+                        >
+                          {sort === "Volume" && (
+                            <ChevronDownIcon className="w-4" />
+                          )}
+                          Volume
+                        </span>
+                      </button>
+                      <button
+                        className="text-right md:table-cell hidden"
+                        onClick={() => setSort("TVL")}
+                      >
+                        <span
+                          className={`flex justify-end gap-x-2 ${
+                            sort === "TVL" && "text-white"
+                          }`}
+                        >
+                          {sort === "TVL" && (
+                            <ChevronDownIcon className="w-4" />
+                          )}
+                          TVL
+                        </span>
+                      </button>
+                      <button
+                        className="text-right md:table-cell hidden"
+                        onClick={() => setSort("Fees")}
+                      >
+                        <span
+                          className={`flex justify-end gap-x-2 ${
+                            sort === "Fees" && "text-white"
+                          }`}
+                        >
+                          {sort === "Fees" && (
+                            <ChevronDownIcon className="w-4" />
+                          )}
+                          Fees
+                        </span>
+                      </button>
+                      <span className="text-right md:table-cell hidden"></span>
                     </div>
                   </div>
                   {isPoolsLoading
@@ -382,9 +419,24 @@ export default function Range() {
                       ))
                     : allRangePools
                         .filter((allRangePool) =>
-                          lowTVLHidden ? allRangePool.tvlUsd > "1.00" : true
+                          lowTVLHidden
+                            ? parseFloat(allRangePool.tvlUsd) > 1.0
+                            : true
                         )
-                        .sort((a, b) => (isWhitelistedPool(b, networkName) ? 1 : -1))
+                        .sort((a, b) => {
+                          if (sort === "Volume") {
+                            return (
+                              parseFloat(b.volumeUsd) - parseFloat(a.volumeUsd)
+                            );
+                          } else if (sort === "Fees") {
+                            return (
+                              parseFloat(b.feesUsd) - parseFloat(a.feesUsd)
+                            );
+                          } else if (sort === "TVL") {
+                            return parseFloat(b.tvlUsd) - parseFloat(a.tvlUsd);
+                          }
+                          return 0;
+                        })
                         .map((allRangePool) => {
                           if (
                             allRangePool.tokenZero.name.toLowerCase() ===
