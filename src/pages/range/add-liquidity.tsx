@@ -158,8 +158,6 @@ export default function AddLiquidity({}) {
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address != ZERO_ADDRESS) {
       setPairSelected(true);
       if (rangePoolData.feeTier != undefined) {
-        refetchAllowanceIn();
-        refetchAllowanceOut();
         updatePools(parseInt(rangePoolData.feeTier.feeAmount));
       }
     } else {

@@ -139,7 +139,6 @@ export const setDefaultRange = (
 		)
 		);
 	} else {
-		if (chainProperties[networkName])
 		console.log('non stable pair')
 		setMinInput(
 			invertPrice(
