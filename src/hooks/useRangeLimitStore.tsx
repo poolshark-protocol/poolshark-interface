@@ -212,7 +212,7 @@ const initialRangeLimitState: RangeLimitState = {
 
     logoURI:
       "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
-    address: chainProperties[defaultNetwork]["wethAddress"],
+    address: ZERO_ADDRESS,
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: BigNumber.from(0),
@@ -232,7 +232,7 @@ const initialRangeLimitState: RangeLimitState = {
 
     logoURI:
       "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
-    address: chainProperties[defaultNetwork]["daiAddress"],
+    address: ZERO_ADDRESS,
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: BigNumber.from(0),
