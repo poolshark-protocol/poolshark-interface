@@ -29,7 +29,11 @@ import { feeTierMap, feeTiers } from "../../utils/pools";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { fetchRangePools } from "../../utils/queries";
 import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButton";
-import { getRouterAddress, isStablePair, setDefaultRange } from "../../utils/config";
+import {
+  getRouterAddress,
+  isStablePair,
+  setDefaultRange,
+} from "../../utils/config";
 import BalanceDisplay from "../../components/Display/BalanceDisplay";
 import {
   Tooltip,
@@ -335,7 +339,7 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     if (!manualRange) {
-      console.log('autoset range')
+      console.log("autoset range");
       const tickAtPrice = rangePoolData.tickAtPrice;
       setDefaultRange(
         tokenIn,
@@ -346,7 +350,7 @@ export default function AddLiquidity({}) {
         setMinInput,
         setMaxInput,
         rangePoolData?.id
-      )
+      );
     }
   }, [manualRange, rangePoolData?.id]);
 
@@ -370,7 +374,7 @@ export default function AddLiquidity({}) {
       const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
       if (rangePoolAddress != ZERO_ADDRESS && rangePrice == undefined) {
-        console.log('pool data changed')
+        console.log("pool data changed");
         setDefaultRange(
           tokenIn,
           tokenOut,
@@ -379,7 +383,7 @@ export default function AddLiquidity({}) {
           tickAtPrice,
           setMinInput,
           setMaxInput
-        )
+        );
       }
       setRangePrice(
         TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut)
@@ -401,14 +405,19 @@ export default function AddLiquidity({}) {
       args: [address, getRouterAddress(networkName)],
       chainId: chainId,
       watch: true,
-      enabled: tokenIn.address &&
-                tokenIn.address != ZERO_ADDRESS,
+      enabled: tokenIn.address && tokenIn.address != ZERO_ADDRESS,
       onSuccess(data) {
         //console.log("allowance in fetched", allowanceInRange?.toString());
         //setNeedsAllowanceIn(false);
       },
       onError(error) {
-        console.log("Error tokenIn allowance", address, tokenIn.address, getRouterAddress(networkName), error);
+        console.log(
+          "Error tokenIn allowance",
+          address,
+          tokenIn.address,
+          getRouterAddress(networkName),
+          error
+        );
       },
     });
 
@@ -420,14 +429,19 @@ export default function AddLiquidity({}) {
       args: [address, getRouterAddress(networkName)],
       chainId: chainId,
       watch: true,
-      enabled: tokenOut.address &&
-                tokenOut.address != ZERO_ADDRESS,
+      enabled: tokenOut.address && tokenOut.address != ZERO_ADDRESS,
       onSuccess(data) {
         //console.log("allowance out fetched", allowanceOutRange?.toString());
         //setNeedsAllowanceOut(false);
       },
       onError(error) {
-        console.log("Error tokenOut allowance", address, tokenOut.address, getRouterAddress(networkName), error);
+        console.log(
+          "Error tokenOut allowance",
+          address,
+          tokenOut.address,
+          getRouterAddress(networkName),
+          error
+        );
       },
     });
 
@@ -789,46 +803,66 @@ export default function AddLiquidity({}) {
             {isLoading ? (
               <div className="h-[42.02px] w-[230px] bg-grey/60 animate-pulse rounded-[4px]" />
             ) : (
-              <a href={`${chainProperties[networkName]["explorerUrl"]}/address/${rangePoolAddress}`} target="_blank" rel="noreferrer">
-              <div className="flex  items-center gap-x-2 hover:bg-grey/50 cursor-pointer transition-all bg-dark border border-grey hover:border-grey2 py-2 px-5 rounded-[4px]">
-                <div className="flex items-center">
-                  <img
-                    className="md:w-6 w-6"
-                    src={logoMap[logoMapKey(tokenIn)]}
-                  />
-                  <img
-                    className="md:w-6 w-6 -ml-2"
-                    src={logoMap[logoMapKey(tokenOut)]}
-                  />
+              <a
+                href={`${chainProperties[networkName]["explorerUrl"]}/address/${rangePoolAddress}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <div className="flex  items-center gap-x-2 hover:bg-grey/50 cursor-pointer transition-all bg-dark border border-grey hover:border-grey2 py-2 px-5 rounded-[4px]">
+                  <div className="flex items-center">
+                    <img
+                      className="md:w-6 w-6"
+                      src={logoMap[logoMapKey(tokenIn)]}
+                    />
+                    <img
+                      className="md:w-6 w-6 -ml-2"
+                      src={logoMap[logoMapKey(tokenOut)]}
+                    />
+                  </div>
+                  <span className="text-white text-xs">
+                    {tokenIn.symbol} - {tokenOut.symbol}
+                  </span>
+                  <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
+                    {(
+                      (!isNaN(rangePoolData.feeTier?.feeAmount)
+                        ? rangePoolData.feeTier?.feeAmount
+                        : 0) / 10000
+                    ).toFixed(2)}
+                    %
+                  </span>
+                  <ArrowTopRightOnSquareIcon className="w-4 ml-2" />
                 </div>
-                <span className="text-white text-xs">
-                  {tokenIn.symbol} -{" "}
-                  {tokenOut.symbol}
-                </span>
-                <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {(
-                    (!isNaN(rangePoolData.feeTier?.feeAmount)
-                      ? rangePoolData.feeTier?.feeAmount
-                      : 0) / 10000
-                  ).toFixed(2)}
-                  %
-                </span>
-                <ArrowTopRightOnSquareIcon className="w-4 ml-2"/>
-              </div>
               </a>
             )}
           </div>
         </div>
 
-       <div className="flex flex-col bg-dark  p-2 border border-grey mt-3 rounded-[4px]">
-       <div className="flex items-center bg-black p-1 rounded-[4px]">
-       <button onClick={() => setPoolType("Range")} className={`${poolType === "Range" ? "bg-main1 border-main" : "bg-black border-black"} rounded-[4px] border w-full text-sm py-2`}>RANGE</button>
-          <button onClick={() => setPoolType("Classic")} className={`${poolType === "Classic" ? "bg-main1 border-main" : "bg-black border-black"} rounded-[4px] border w-full text-sm py-2`}>CLASSIC</button>
+        <div className="flex flex-col bg-dark  p-2 border border-grey mt-3 rounded-[4px]">
+          <div className="flex items-center bg-black p-1 rounded-[4px]">
+            <button
+              onClick={() => setPoolType("Range")}
+              className={`${
+                poolType === "Range"
+                  ? "bg-main1 border-main"
+                  : "bg-black border-black"
+              } rounded-[4px] border w-full text-sm py-2`}
+            >
+              RANGE
+            </button>
+            <button
+              onClick={() => setPoolType("Classic")}
+              className={`${
+                poolType === "Classic"
+                  ? "bg-main1 border-main"
+                  : "bg-black border-black"
+              } rounded-[4px] border w-full text-sm py-2`}
+            >
+              CLASSIC
+            </button>
+          </div>
         </div>
-       </div>
         <div className="bg-dark w-full p-6 border border-grey mt-3 rounded-[4px]">
           <div className="border border-grey bg-black rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
-            
             <div className="flex items-end justify-between text-[11px] text-grey1">
               <span>
                 ~$
@@ -949,274 +983,267 @@ export default function AddLiquidity({}) {
           </div>
           {poolType === "Range" && (
             <div>
-            <div className="flex justify-between md:items-center items-start mb-4 mt-10">
-            <div className="flex  md:flex-row flex-col md:items-center  gap-3">
-              <h1>SET A PRICE RANGE</h1>
-              <button
-                className="text-grey1 text-xs bg-black border border-grey px-4 py-0.5 rounded-[4px] whitespace-nowrap"
-                onClick={() => {
-                  setMinInput(
-                    TickMath.getPriceStringAtTick(
-                      roundTick(
-                        -887272,
-                        parseInt(rangePoolData.feeTier?.tickSpacing ?? 30)
-                      ),
-                      tokenIn,
-                      tokenOut
-                    )
-                  );
-                  setMaxInput(
-                    TickMath.getPriceStringAtTick(
-                      roundTick(
-                        887272,
-                        parseInt(rangePoolData.feeTier?.tickSpacing ?? 30)
-                      ),
-                      tokenIn,
-                      tokenOut
-                    )
-                  );
-                }}
-              >
-                Full Range
-              </button>
-            </div>
-            <div
-              onClick={handlePriceSwitch}
-              className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
-            >
-              <span className="whitespace-nowrap">
-                {priceOrder == (tokenIn.callId == 0) ? (
-                  <>{tokenOut.symbol}</>
-                ) : (
-                  <>{tokenIn.symbol}</>
-                )}{" "}
-                per{" "}
-                {priceOrder == (tokenIn.callId == 0) ? (
-                  <>{tokenIn.symbol}</>
-                ) : (
-                  <>{tokenOut.symbol}</>
-                )}
-              </span>{" "}
-              <DoubleArrowIcon />
-            </div>
-          </div>
-          {rangePoolAddress != ZERO_ADDRESS && (
-            <div className="flex justify-between items-center w-full md:gap-x-4 gap-x-2">
-              <button
-                onClick={() => {
-                  setManualRange(true);
-                  setMinInput(
-                    invertPrice(
-                      TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
-                          ? rangePoolData.tickAtPrice - 2232
-                          : rangePoolData.tickAtPrice - -2232,
-                        tokenIn,
-                        tokenOut
-                      ),
-                      priceOrder == (tokenIn.callId == 0)
-                    )
-                  );
-                  setMaxInput(
-                    invertPrice(
-                      TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
-                          ? rangePoolData.tickAtPrice - -2232
-                          : rangePoolData.tickAtPrice - 2232,
-                        tokenIn,
-                        tokenOut
-                      ),
-                      priceOrder == (tokenIn.callId == 0)
-                    )
-                  );
-                }}
-                className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
-              >
-                Narrow
-              </button>
-              <button
-                onClick={() => {
-                  setManualRange(true);
-                  setMinInput(
-                    invertPrice(
-                      TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
-                          ? rangePoolData.tickAtPrice - 4055
-                          : rangePoolData.tickAtPrice - -4055,
-                        tokenIn,
-                        tokenOut
-                      ),
-                      priceOrder == (tokenIn.callId == 0)
-                    )
-                  );
-                  setMaxInput(
-                    invertPrice(
-                      TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
-                          ? rangePoolData.tickAtPrice - -4055
-                          : rangePoolData.tickAtPrice - 4055,
-                        tokenIn,
-                        tokenOut
-                      ),
-                      priceOrder == (tokenIn.callId == 0)
-                    )
-                  );
-                }}
-                className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
-              >
-                MEDIUM
-              </button>
-              <button
-                onClick={() => {
-                  setManualRange(true);
-                  setMinInput(
-                    invertPrice(
-                      TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
-                          ? rangePoolData.tickAtPrice - 5596
-                          : rangePoolData.tickAtPrice - -5596,
-                        tokenIn,
-                        tokenOut
-                      ),
-                      priceOrder == (tokenIn.callId == 0)
-                    )
-                  );
-                  setMaxInput(
-                    invertPrice(
-                      TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
-                          ? rangePoolData.tickAtPrice - -5596
-                          : rangePoolData.tickAtPrice - 5596,
-                        tokenIn,
-                        tokenOut
-                      ),
-                      priceOrder == (tokenIn.callId == 0)
-                    )
-                  );
-                }}
-                className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
-              >
-                WIDE
-              </button>
-            </div>
-          )}
-          <div className="flex flex-col gap-y-4">
-            <div className="flex md:flex-row flex-col items-center gap-5 mt-3">
-              {isLoading ? (
-                <div className="h-[128px] w-full bg-grey/60 animate-pulse rounded-[4px]" />
-              ) : (
-                <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
-                  <span className="text-grey1 text-xs">MIN. PRICE</span>
-                  <span className="text-white text-3xl">
-                    {
-                      <input
-                        autoComplete="off"
-                        className="bg-black py-2 outline-none text-center w-full"
-                        placeholder="0"
-                        id="minInput"
-                        type="text"
-                        value={minInput}
-                        onChange={(e) =>
-                          setMinInput(inputFilter(e.target.value))
-                        }
-                      />
-                    }
-                  </span>
+              <div className="flex justify-between md:items-center items-start mb-4 mt-10">
+                <div className="flex  md:flex-row flex-col md:items-center  gap-3">
+                  <h1>SET A PRICE RANGE</h1>
+                  <button
+                    className="text-grey1 text-xs bg-black border border-grey px-4 py-0.5 rounded-[4px] whitespace-nowrap"
+                    onClick={() => {
+                      setMinInput(
+                        TickMath.getPriceStringAtTick(
+                          roundTick(
+                            -887272,
+                            parseInt(rangePoolData.feeTier?.tickSpacing ?? 30)
+                          ),
+                          tokenIn,
+                          tokenOut
+                        )
+                      );
+                      setMaxInput(
+                        TickMath.getPriceStringAtTick(
+                          roundTick(
+                            887272,
+                            parseInt(rangePoolData.feeTier?.tickSpacing ?? 30)
+                          ),
+                          tokenIn,
+                          tokenOut
+                        )
+                      );
+                    }}
+                  >
+                    Full Range
+                  </button>
                 </div>
-              )}
-              {isLoading ? (
-                <div className="h-[128px] w-full bg-grey/60 animate-pulse rounded-[4px]" />
-              ) : (
-                <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
-                  <span className="text-grey1 text-xs">MAX. PRICE</span>
-                  <span className="text-white text-3xl">
-                    {
-                      <input
-                        autoComplete="off"
-                        className="bg-black py-2 outline-none text-center w-full"
-                        placeholder="0"
-                        id="minInput"
-                        type="text"
-                        value={maxInput}
-                        onChange={(e) =>
-                          setMaxInput(inputFilter(e.target.value))
-                        }
-                      />
-                    }
-                  </span>
+                <div
+                  onClick={handlePriceSwitch}
+                  className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
+                >
+                  <span className="whitespace-nowrap">
+                    {priceOrder == (tokenIn.callId == 0) ? (
+                      <>{tokenOut.symbol}</>
+                    ) : (
+                      <>{tokenIn.symbol}</>
+                    )}{" "}
+                    per{" "}
+                    {priceOrder == (tokenIn.callId == 0) ? (
+                      <>{tokenIn.symbol}</>
+                    ) : (
+                      <>{tokenOut.symbol}</>
+                    )}
+                  </span>{" "}
+                  <DoubleArrowIcon />
                 </div>
-              )}
-            </div>
-            {rangePoolAddress == ZERO_ADDRESS &&
-              rangePoolData.feeTier != undefined && (
-                <div className="bg-black border rounded-[4px] border-grey/50 p-5">
-                  <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
-                    This pool does not exist so a start price must be set.
-                  </p>
-                  <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
-                    <span className="text-grey1 text-xs">STARTING PRICE</span>
-                    <span className="text-white text-3xl">
-                      <input
-                        autoComplete="off"
-                        className="bg-black py-2 outline-none text-center w-full"
-                        placeholder="0"
-                        id="startPrice"
-                        type="text"
-                        onChange={(e) => {
-                          setStartPrice(inputFilter(e.target.value));
-                        }}
-                      />
-                    </span>
-                  </div>
-                </div>
-              )}
               </div>
-          
-          
-
-            <div className="mb-2 mt-3 flex-col flex gap-y-8">
-              <div className="flex items-center justify-between w-full text-xs  text-[#C9C9C9]">
-                <div className="text-xs text-[#4C4C4C]">Market Price</div>
-                <TooltipProvider>
-                  <Tooltip delayDuration={100}>
-                    <TooltipTrigger>
-                      <div className="uppercase flex items-center gap-x-2">
-                        <svg
-                          width="17"
-                          height="17"
-                          viewBox="0 0 24 24"
-                          className="text-grey1"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1ZM12 7C11.4477 7 11 7.44772 11 8C11 8.55228 11.4477 9 12 9H12.01C12.5623 9 13.01 8.55228 13.01 8C13.01 7.44772 12.5623 7 12.01 7H12ZM13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12V16C11 16.5523 11.4477 17 12 17C12.5523 17 13 16.5523 13 16V12Z"
-                            fill="currentColor"
+              {rangePoolAddress != ZERO_ADDRESS && (
+                <div className="flex justify-between items-center w-full md:gap-x-4 gap-x-2">
+                  <button
+                    onClick={() => {
+                      setManualRange(true);
+                      setMinInput(
+                        invertPrice(
+                          TickMath.getPriceStringAtTick(
+                            priceOrder == (tokenIn.callId == 0)
+                              ? rangePoolData.tickAtPrice - 2232
+                              : rangePoolData.tickAtPrice - -2232,
+                            tokenIn,
+                            tokenOut
+                          ),
+                          priceOrder == (tokenIn.callId == 0)
+                        )
+                      );
+                      setMaxInput(
+                        invertPrice(
+                          TickMath.getPriceStringAtTick(
+                            priceOrder == (tokenIn.callId == 0)
+                              ? rangePoolData.tickAtPrice - -2232
+                              : rangePoolData.tickAtPrice - 2232,
+                            tokenIn,
+                            tokenOut
+                          ),
+                          priceOrder == (tokenIn.callId == 0)
+                        )
+                      );
+                    }}
+                    className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
+                  >
+                    Narrow
+                  </button>
+                  <button
+                    onClick={() => {
+                      setManualRange(true);
+                      setMinInput(
+                        invertPrice(
+                          TickMath.getPriceStringAtTick(
+                            priceOrder == (tokenIn.callId == 0)
+                              ? rangePoolData.tickAtPrice - 4055
+                              : rangePoolData.tickAtPrice - -4055,
+                            tokenIn,
+                            tokenOut
+                          ),
+                          priceOrder == (tokenIn.callId == 0)
+                        )
+                      );
+                      setMaxInput(
+                        invertPrice(
+                          TickMath.getPriceStringAtTick(
+                            priceOrder == (tokenIn.callId == 0)
+                              ? rangePoolData.tickAtPrice - -4055
+                              : rangePoolData.tickAtPrice - 4055,
+                            tokenIn,
+                            tokenOut
+                          ),
+                          priceOrder == (tokenIn.callId == 0)
+                        )
+                      );
+                    }}
+                    className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
+                  >
+                    MEDIUM
+                  </button>
+                  <button
+                    onClick={() => {
+                      setManualRange(true);
+                      setMinInput(
+                        invertPrice(
+                          TickMath.getPriceStringAtTick(
+                            priceOrder == (tokenIn.callId == 0)
+                              ? rangePoolData.tickAtPrice - 5596
+                              : rangePoolData.tickAtPrice - -5596,
+                            tokenIn,
+                            tokenOut
+                          ),
+                          priceOrder == (tokenIn.callId == 0)
+                        )
+                      );
+                      setMaxInput(
+                        invertPrice(
+                          TickMath.getPriceStringAtTick(
+                            priceOrder == (tokenIn.callId == 0)
+                              ? rangePoolData.tickAtPrice - -5596
+                              : rangePoolData.tickAtPrice - 5596,
+                            tokenIn,
+                            tokenOut
+                          ),
+                          priceOrder == (tokenIn.callId == 0)
+                        )
+                      );
+                    }}
+                    className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
+                  >
+                    WIDE
+                  </button>
+                </div>
+              )}
+              <div className="flex flex-col gap-y-4">
+                <div className="flex md:flex-row flex-col items-center gap-5 mt-3">
+                  {isLoading ? (
+                    <div className="h-[128px] w-full bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
+                      <span className="text-grey1 text-xs">MIN. PRICE</span>
+                      <span className="text-white text-3xl">
+                        {
+                          <input
+                            autoComplete="off"
+                            className="bg-black py-2 outline-none text-center w-full"
+                            placeholder="0"
+                            id="minInput"
+                            type="text"
+                            value={minInput}
+                            onChange={(e) =>
+                              setMinInput(inputFilter(e.target.value))
+                            }
                           />
-                        </svg>
-                        1{" "}
+                        }
+                      </span>
+                    </div>
+                  )}
+                  {isLoading ? (
+                    <div className="h-[128px] w-full bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
+                      <span className="text-grey1 text-xs">MAX. PRICE</span>
+                      <span className="text-white text-3xl">
                         {
-                          (priceOrder == (tokenIn.callId == 0)
-                            ? tokenIn
-                            : tokenOut
-                          ).symbol
-                        }{" "}
-                        ={" "}
-                        {
-                          !isNaN(parseFloat(rangePrice)) &&
-                          (
-                            // pool exists
-                            (
-                              rangePoolAddress != ZERO_ADDRESS
-                            ) ||
+                          <input
+                            autoComplete="off"
+                            className="bg-black py-2 outline-none text-center w-full"
+                            placeholder="0"
+                            id="minInput"
+                            type="text"
+                            value={maxInput}
+                            onChange={(e) =>
+                              setMaxInput(inputFilter(e.target.value))
+                            }
+                          />
+                        }
+                      </span>
+                    </div>
+                  )}
+                </div>
+                {rangePoolAddress == ZERO_ADDRESS &&
+                  rangePoolData.feeTier != undefined && (
+                    <div className="bg-black border rounded-[4px] border-grey/50 p-5">
+                      <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
+                        This pool does not exist so a start price must be set.
+                      </p>
+                      <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
+                        <span className="text-grey1 text-xs">
+                          STARTING PRICE
+                        </span>
+                        <span className="text-white text-3xl">
+                          <input
+                            autoComplete="off"
+                            className="bg-black py-2 outline-none text-center w-full"
+                            placeholder="0"
+                            id="startPrice"
+                            type="text"
+                            onChange={(e) => {
+                              setStartPrice(inputFilter(e.target.value));
+                            }}
+                          />
+                        </span>
+                      </div>
+                    </div>
+                  )}
+              </div>
+
+              <div className="mb-2 mt-3 flex-col flex gap-y-8">
+                <div className="flex items-center justify-between w-full text-xs  text-[#C9C9C9]">
+                  <div className="text-xs text-[#4C4C4C]">Market Price</div>
+                  <TooltipProvider>
+                    <Tooltip delayDuration={100}>
+                      <TooltipTrigger>
+                        <div className="uppercase flex items-center gap-x-2">
+                          <svg
+                            width="17"
+                            height="17"
+                            viewBox="0 0 24 24"
+                            className="text-grey1"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              clipRule="evenodd"
+                              d="M12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1ZM12 7C11.4477 7 11 7.44772 11 8C11 8.55228 11.4477 9 12 9H12.01C12.5623 9 13.01 8.55228 13.01 8C13.01 7.44772 12.5623 7 12.01 7H12ZM13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12V16C11 16.5523 11.4477 17 12 17C12.5523 17 13 16.5523 13 16V12Z"
+                              fill="currentColor"
+                            />
+                          </svg>
+                          1{" "}
+                          {
+                            (priceOrder == (tokenIn.callId == 0)
+                              ? tokenIn
+                              : tokenOut
+                            ).symbol
+                          }{" "}
+                          ={" "}
+                          {!isNaN(parseFloat(rangePrice)) &&
+                          // pool exists
+                          (rangePoolAddress != ZERO_ADDRESS ||
                             // pool doesn't exist and start price is valid
-                            (
-                              rangePoolAddress == ZERO_ADDRESS &&
+                            (rangePoolAddress == ZERO_ADDRESS &&
                               !isNaN(parseFloat(startPrice)) &&
-                              parseFloat(startPrice) > 0
-                            )
-                          )
+                              parseFloat(startPrice) > 0))
                             ? parseFloat(
                                 invertPrice(rangePrice, priceOrder)
                               ).toPrecision(5) +
@@ -1225,96 +1252,97 @@ export default function AddLiquidity({}) {
                                 ? tokenOut
                                 : tokenIn
                               ).symbol
-                            : "?" + " " + (priceOrder == (tokenIn.callId == 0)
-                                              ? tokenOut
-                                              : tokenIn
-                                          ).symbol
-                          }
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3">
-                      {/* <div className="flex items-center flex-col gap-y-1 w-full"> */}
-                      <div className="flex justify-between items-center w-full">
-                        <span className="text-grey2 flex items-center gap-x-1">
-                          <img
-                            className="md:w-4"
-                            src={logoMap[logoMapKey(tokenIn)]}
-                          />
-                          {tokenIn.symbol}
-                        </span>
-                        <span className="text-right">
-                          $
-                          {!isNaN(tokenIn.USDPrice)
-                            ? (tokenIn.USDPrice * 1).toFixed(2)
-                            : "?.??"}
-                        </span>
-                      </div>
-                      <div className="bg-grey w-full h-[1px]" />
-                      <div className="flex justify-between items-center w-full">
-                        <span className="text-grey2 flex items-center gap-x-1">
-                          <img
-                            className=" w-4"
-                            src={logoMap[logoMapKey(tokenOut)]}
-                          />
-                          {tokenOut.symbol}
-                        </span>
-                        <span className="text-right">
-                          $
-                          {!isNaN(tokenOut.USDPrice)
-                            ? (tokenOut.USDPrice * 1).toFixed(2)
-                            : "?.??"}
-                        </span>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              {rangeWarning && (
-                <div className=" text-yellow-600 bg-yellow-900/30 text-[10px] md:text-[11px] flex items-center md:gap-x-5 gap-x-3 p-2 rounded-[8px]">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    className="md:w-9 w-12"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Your position will not earn fees or be used in trades until
-                  the market price moves into your range.
+                            : "?" +
+                              " " +
+                              (priceOrder == (tokenIn.callId == 0)
+                                ? tokenOut
+                                : tokenIn
+                              ).symbol}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3">
+                        {/* <div className="flex items-center flex-col gap-y-1 w-full"> */}
+                        <div className="flex justify-between items-center w-full">
+                          <span className="text-grey2 flex items-center gap-x-1">
+                            <img
+                              className="md:w-4"
+                              src={logoMap[logoMapKey(tokenIn)]}
+                            />
+                            {tokenIn.symbol}
+                          </span>
+                          <span className="text-right">
+                            $
+                            {!isNaN(tokenIn.USDPrice)
+                              ? (tokenIn.USDPrice * 1).toFixed(2)
+                              : "?.??"}
+                          </span>
+                        </div>
+                        <div className="bg-grey w-full h-[1px]" />
+                        <div className="flex justify-between items-center w-full">
+                          <span className="text-grey2 flex items-center gap-x-1">
+                            <img
+                              className=" w-4"
+                              src={logoMap[logoMapKey(tokenOut)]}
+                            />
+                            {tokenOut.symbol}
+                          </span>
+                          <span className="text-right">
+                            $
+                            {!isNaN(tokenOut.USDPrice)
+                              ? (tokenOut.USDPrice * 1).toFixed(2)
+                              : "?.??"}
+                          </span>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
-              )}
+                {rangeWarning && (
+                  <div className=" text-yellow-600 bg-yellow-900/30 text-[10px] md:text-[11px] flex items-center md:gap-x-5 gap-x-3 p-2 rounded-[8px]">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="md:w-9 w-12"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Your position will not earn fees or be used in trades until
+                    the market price moves into your range.
+                  </div>
+                )}
 
-              {(rangeMintParams.tokenInAmount?.gt(BN_ZERO) ||
-                rangeMintParams.tokenOutAmount?.gt(BN_ZERO)) &&
-              JSBI.lessThanOrEqual(rangeMintParams.liquidityAmount, ONE) ? (
-                <div className=" text-red-600 bg-red-900/30 text-[10px] md:text-[11px] flex items-center md:gap-x-5 gap-x-3 p-2 rounded-[8px]">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    className="md:w-9 w-12"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Liquidity size too small: please add more tokens or decrease
-                  the price range.
-                </div>
-              ) : (
-                <></>
-              )}
+                {(rangeMintParams.tokenInAmount?.gt(BN_ZERO) ||
+                  rangeMintParams.tokenOutAmount?.gt(BN_ZERO)) &&
+                JSBI.lessThanOrEqual(rangeMintParams.liquidityAmount, ONE) ? (
+                  <div className=" text-red-600 bg-red-900/30 text-[10px] md:text-[11px] flex items-center md:gap-x-5 gap-x-3 p-2 rounded-[8px]">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="md:w-9 w-12"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Liquidity size too small: please add more tokens or decrease
+                    the price range.
+                  </div>
+                ) : (
+                  <></>
+                )}
+              </div>
             </div>
-          </div>
           )}
         </div>
-            
+
         <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
           <h1 className="mb-4">SELECT A FEE TIER</h1>
           <div className="flex md:flex-row flex-col justify-between mt-8 gap-x-16 gap-y-4">
