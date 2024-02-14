@@ -150,6 +150,7 @@ export default function AddLiquidity({}) {
   const [amountInDisabled, setAmountInDisabled] = useState(false);
   const [amountOutDisabled, setAmountOutDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [poolType, setPoolType] = useState("Range");
 
   ////////////////////////////////Pools
 
@@ -783,7 +784,7 @@ export default function AddLiquidity({}) {
       <Navbar />
       <div className="text-white flex flex-col mx-auto max-w-2xl  justify-center pt-10 px-3 md:px-0 pb-32">
         <div className="flex md:flex-row flex-col md:items-center items-start gap-y-4 justify-between">
-          <h1 className="uppercase">RANGE POOL</h1>
+          <h1 className="uppercase">POOL</h1>
           <div>
             {isLoading ? (
               <div className="h-[42.02px] w-[230px] bg-grey/60 animate-pulse rounded-[4px]" />
@@ -818,9 +819,16 @@ export default function AddLiquidity({}) {
             )}
           </div>
         </div>
-        <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
-          <h1 className="mb-4">ADD LIQUIDITY</h1>
+
+       <div className="flex flex-col bg-dark  p-2 border border-grey mt-3 rounded-[4px]">
+       <div className="flex items-center bg-black p-1 rounded-[4px]">
+       <button onClick={() => setPoolType("Range")} className={`${poolType === "Range" ? "bg-main1 border-main" : "bg-black border-black"} rounded-[4px] border w-full text-sm py-2`}>RANGE</button>
+          <button onClick={() => setPoolType("Classic")} className={`${poolType === "Classic" ? "bg-main1 border-main" : "bg-black border-black"} rounded-[4px] border w-full text-sm py-2`}>CLASSIC</button>
+        </div>
+       </div>
+        <div className="bg-dark w-full p-6 border border-grey mt-3 rounded-[4px]">
           <div className="border border-grey bg-black rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+            
             <div className="flex items-end justify-between text-[11px] text-grey1">
               <span>
                 ~$
@@ -939,7 +947,9 @@ export default function AddLiquidity({}) {
               </div>
             </div>
           </div>
-          <div className="flex justify-between md:items-center items-start mb-4 mt-10">
+          {poolType === "Range" && (
+            <div>
+            <div className="flex justify-between md:items-center items-start mb-4 mt-10">
             <div className="flex  md:flex-row flex-col md:items-center  gap-3">
               <h1>SET A PRICE RANGE</h1>
               <button
@@ -1160,6 +1170,9 @@ export default function AddLiquidity({}) {
                   </div>
                 </div>
               )}
+              </div>
+          
+          
 
             <div className="mb-2 mt-3 flex-col flex gap-y-8">
               <div className="flex items-center justify-between w-full text-xs  text-[#C9C9C9]">
@@ -1299,7 +1312,9 @@ export default function AddLiquidity({}) {
               )}
             </div>
           </div>
+          )}
         </div>
+            
         <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
           <h1 className="mb-4">SELECT A FEE TIER</h1>
           <div className="flex md:flex-row flex-col justify-between mt-8 gap-x-16 gap-y-4">
