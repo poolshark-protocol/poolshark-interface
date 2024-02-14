@@ -256,13 +256,22 @@ export default function AddLiquidity({}) {
         (pool) =>
           pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
       );
-      console.log("rangePoolData", rangePoolData)
+      console.log("rangePoolData", rangePoolData);
       if (
         router.query.feeTier &&
         !isNaN(parseInt(router.query.feeTier.toString())) &&
         rangePoolData.feeTier == undefined
       ) {
         console.log("1");
+        //after changing to a non existing pool with the same tokens -> price range keeps there
+
+        //after changing to  different tokens with no existing pools -> price range resets to 0
+
+        //after changing to different tokens with existing pools -> should land on the existing pool with the new price ranges
+
+        //if initial pool is non existing -> price range initiates at 0
+
+        
         if (router.query.poolId != ZERO_ADDRESS && pool != undefined) {
           console.log("2");
           const originalTokenIn = {
@@ -339,7 +348,6 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     if (!manualRange) {
- 
       setMinInput(
         invertPrice(
           TickMath.getPriceStringAtTick(
@@ -829,8 +837,7 @@ export default function AddLiquidity({}) {
                   />
                 </div>
                 <span className="text-white text-xs">
-                  {tokenIn.symbol} -{" "}
-                  {tokenOut.symbol}
+                  {tokenIn.symbol} - {tokenOut.symbol}
                 </span>
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
                   {(
@@ -1216,33 +1223,27 @@ export default function AddLiquidity({}) {
                           ).symbol
                         }{" "}
                         ={" "}
-                        {
-                          !isNaN(parseFloat(rangePrice)) &&
-                          (
-                            // pool exists
-                            (
-                              rangePoolAddress != ZERO_ADDRESS
-                            ) ||
-                            // pool doesn't exist and start price is valid
-                            (
-                              rangePoolAddress == ZERO_ADDRESS &&
-                              !isNaN(parseFloat(startPrice)) &&
-                              parseFloat(startPrice) > 0
-                            )
-                          )
-                            ? parseFloat(
-                                invertPrice(rangePrice, priceOrder)
-                              ).toPrecision(5) +
-                              " " +
-                              (priceOrder == (tokenIn.callId == 0)
-                                ? tokenOut
-                                : tokenIn
-                              ).symbol
-                            : "?" + " " + (priceOrder == (tokenIn.callId == 0)
-                                              ? tokenOut
-                                              : tokenIn
-                                          ).symbol
-                          }
+                        {!isNaN(parseFloat(rangePrice)) &&
+                        // pool exists
+                        (rangePoolAddress != ZERO_ADDRESS ||
+                          // pool doesn't exist and start price is valid
+                          (rangePoolAddress == ZERO_ADDRESS &&
+                            !isNaN(parseFloat(startPrice)) &&
+                            parseFloat(startPrice) > 0))
+                          ? parseFloat(
+                              invertPrice(rangePrice, priceOrder)
+                            ).toPrecision(5) +
+                            " " +
+                            (priceOrder == (tokenIn.callId == 0)
+                              ? tokenOut
+                              : tokenIn
+                            ).symbol
+                          : "?" +
+                            " " +
+                            (priceOrder == (tokenIn.callId == 0)
+                              ? tokenOut
+                              : tokenIn
+                            ).symbol}
                       </div>
                     </TooltipTrigger>
                     <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3">
