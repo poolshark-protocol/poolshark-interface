@@ -154,7 +154,7 @@ export default function ViewRange() {
       limitSubgraph,
       undefined,
       undefined,
-
+      rangePositionData.poolType
     );
   }, [router.query.feeTier]);
 
