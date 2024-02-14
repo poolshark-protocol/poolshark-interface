@@ -131,13 +131,17 @@ export const getClaimTick = async (
   return claimTick;
 };
 
-export function mapUserRangePositions(rangePositions) {
+export function mapUserRangePositions(rangePositions, setNumLegacyPositions?: any, resetNumLegacyPositions?: any) {
   const mappedRangePositions = [];
+  if (resetNumLegacyPositions) {
+    resetNumLegacyPositions()
+  }
   rangePositions?.map((rangePosition) => {
     const rangePositionData = {
       id: rangePosition.id,
       positionId: rangePosition.positionId,
       poolId: rangePosition.pool.id,
+      poolType: rangePosition.pool.poolType,
       staked: rangePosition.staked,
       tokenZero: rangePosition.pool.token0,
       valueTokenZero: rangePosition.pool.token0.usdPrice,
@@ -161,6 +165,9 @@ export function mapUserRangePositions(rangePositions) {
       volumeEth: (parseFloat(rangePosition.pool.volumeEth) / 1).toFixed(2),
       userOwnerAddress: rangePosition.owner.replace(/"|'/g, ""),
     };
+    if (rangePositionData.poolType == "0") {
+      setNumLegacyPositions()
+    }
     mappedRangePositions.push(rangePositionData);
   });
   return mappedRangePositions;

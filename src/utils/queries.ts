@@ -65,6 +65,7 @@ export const getRangePoolFromFactory = (
             orderDirection: desc
           ) {
             id
+            poolType
             poolPrice
             tickAtPrice
             feeTier {
@@ -172,6 +173,7 @@ export const getLimitPoolFromFactory = (
             ) {
               id
               epoch
+              poolType
               token0{
                   id
                   name
@@ -221,6 +223,7 @@ export const getLimitPoolFromFactory = (
             orderDirection: desc
           ) {
             id
+            poolType
             epoch
             token0{
                 id
@@ -664,6 +667,7 @@ export const fetchLimitPools = (client: LimitSubgraph) => {
                   orderDirection: desc
                 ) {
                     id
+                    poolType
                     epoch
                     token0{
                         id
@@ -743,6 +747,7 @@ export const fetchRangePools = (client: LimitSubgraph) => {
             query($id: String) {
                 limitPools(id: $id, orderBy: totalValueLockedUsd, orderDirection: desc, where:{poolType: "1"}) {
                     id
+                    poolType
                     token0{
                         id
                         name
@@ -814,6 +819,7 @@ export const fetchRangePositions = (client: LimitSubgraph, address: string) => {
             liquidity
             pool {
               id
+              poolType
               token0{
                   id
                   name

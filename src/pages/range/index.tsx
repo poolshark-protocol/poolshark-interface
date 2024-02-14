@@ -53,6 +53,9 @@ export default function Range() {
     needsRefetch,
     setNeedsRefetch,
     resetRangeLimitParams,
+    numLegacyPositions,
+    setNumLegacyPositions,
+    resetNumLegacyPositions
   ] = useRangeLimitStore((state) => [
     state.setTokenIn,
     state.setTokenOut,
@@ -60,6 +63,9 @@ export default function Range() {
     state.needsRefetch,
     state.setNeedsRefetch,
     state.resetRangeLimitParams,
+    state.numLegacyPositions,
+    state.setNumLegacyPositions,
+    state.resetNumLegacyPositions,
   ]);
 
   const router = useRouter();
@@ -100,10 +106,11 @@ export default function Range() {
   async function getUserRangePositionData() {
     try {
       setIsPositionsLoading(true);
+      resetNumLegacyPositions();
       const data = await fetchRangePositions(limitSubgraph, address);
       if (data["data"].rangePositions) {
         setAllRangePositions(
-          mapUserRangePositions(data["data"].rangePositions)
+          mapUserRangePositions(data["data"].rangePositions, setNumLegacyPositions, resetNumLegacyPositions)
         );
         setIsPositionsLoading(false);
       }
@@ -119,7 +126,6 @@ export default function Range() {
     setSearchTerm(event.target.value);
   };
 
-  console.log(sort);
   return (
     <div className="min-h-screen bg-black">
       <Navbar />
@@ -150,7 +156,6 @@ export default function Range() {
               onClick={() => {
                 resetRangeLimitParams(chainId);
                 if (allRangePools?.length > 0) {
-                  console.log(allRangePools[0]);
                   const tokenIn = {
                     name: allRangePools[0].tokenZero.symbol,
                     address: allRangePools[0].tokenZero.id,
@@ -256,7 +261,7 @@ export default function Range() {
                 >
                   LEGACY{" "}
                   <span className="text-xs bg-main1 rounded-full flex items-center justify-center w-6 h-6 text-main2">
-                    4
+                    {numLegacyPositions}
                   </span>
                 </button>
               </div>
@@ -341,16 +346,36 @@ export default function Range() {
                             ) != undefined ||
                             searchTerm === "")
                         ) {
-                          return poolType === "Current" ? (
-                            <div></div>
-                          ) : (
-                            <UserRangePool
-                              key={allRangePosition.id}
-                              rangePosition={allRangePosition}
-                              href={"/range/view"}
-                              isModal={false}
-                            />
-                          );
+                          if (poolType === "Current") {
+                            if(allRangePosition.poolType == "1") {
+                              return <UserRangePool
+                                key={allRangePosition.id}
+                                rangePosition={allRangePosition}
+                                href={"/range/view"}
+                                isModal={false}
+                              />
+                            }
+                          } else if (poolType === "Legacy") {
+                            if(allRangePosition.poolType == "0") {
+                              return <UserRangePool
+                                key={allRangePosition.id}
+                                rangePosition={allRangePosition}
+                                href={"/range/view"}
+                                isModal={false}
+                              />
+                            }
+                          }
+                          // return poolType === "Current" ? (
+                          //   <div></div>
+                          // ) : (
+                          //   if(allRangePosition.poolType == "1")
+                          //   <UserRangePool
+                          //     key={allRangePosition.id}
+                          //     rangePosition={allRangePosition}
+                          //     href={"/range/view"}
+                          //     isModal={false}
+                          //   />
+                          // );
                         }
                       })}
                     </div>

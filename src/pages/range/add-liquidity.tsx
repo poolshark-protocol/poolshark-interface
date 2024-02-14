@@ -334,7 +334,6 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     if (!manualRange) {
-      console.log('autoset range')
       const tickAtPrice = rangePoolData.tickAtPrice;
       setDefaultRange(
         tokenIn,
@@ -369,7 +368,6 @@ export default function AddLiquidity({}) {
       const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
       if (rangePoolAddress != ZERO_ADDRESS && rangePrice == undefined) {
-        console.log('pool data changed')
         setDefaultRange(
           tokenIn,
           tokenOut,
