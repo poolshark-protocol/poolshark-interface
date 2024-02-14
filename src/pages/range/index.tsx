@@ -230,7 +230,7 @@ export default function Range() {
             />
           </div>
           <div className="p-6 bg-dark border border-grey rounded-[4px]">
-            <div className="flex items-center justify-between">
+            <div className="flex md:flex-row flex-col md:items-center gap-y-2 justify-between">
               <div className="text-white flex items-center text-sm gap-x-3">
                 <UserIcon />
                 <h1>YOUR POSITIONS</h1>
@@ -238,7 +238,7 @@ export default function Range() {
               <div className="bg-black flex items-center p-1 text-sm rounded-[2px]">
                 <button
                   onClick={() => setPoolType("Current")}
-                  className={`w-full rounded-[2px] py-1.5 px-7 border ${
+                  className={`w-full justify-center rounded-[2px] py-1.5 px-7 border ${
                     poolType === "Current"
                       ? "bg-main1 text-white border-main "
                       : "border-black text-grey1"
@@ -248,7 +248,7 @@ export default function Range() {
                 </button>
                 <button
                   onClick={() => setPoolType("Legacy")}
-                  className={`w-full items-center gap-x-2 flex rounded-[2px] py-1.5 px-5 border ${
+                  className={`w-full items-center gap-x-2 flex justify-center rounded-[2px] py-1.5 px-5 border ${
                     poolType === "Legacy"
                       ? "bg-main1 text-white border-main "
                       : "border-black text-grey1"
