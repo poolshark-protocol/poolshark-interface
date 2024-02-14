@@ -170,7 +170,7 @@ export default function Range() {
                     tokenIn,
                     tokenOut,
                     allRangePools[0].feeTier.toString(),
-                    limitSubgraph
+                    limitSubgraph,
                   );
                   router.push({
                     pathname: "/range/add-liquidity",
