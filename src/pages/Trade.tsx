@@ -214,7 +214,7 @@ export default function Trade() {
     if (address) {
       const chainConstants = chainProperties[networkName]
         ? chainProperties[networkName]
-        : chainProperties["arbitrum"];
+        : chainProperties["arbitrum-one"];
       setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
       getUserLimitPositionData();
       setNeedsRefetch(false);
@@ -223,17 +223,21 @@ export default function Trade() {
 
   useEffect(() => {
     if (allLimitPositions.length > 0) {
+      console.log('user limit positions', allLimitPositions)
       mapUserLimitSnapshotList();
     }
   }, [allLimitPositions]);
 
   async function getUserLimitPositionData() {
     try {
+
       const data = await fetchLimitPositions(
         limitSubgraph,
         address?.toLowerCase()
       );
+      console.log('getting limit data', data)
       if (data["data"]) {
+        console.log('user limit positions:', )
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
         );

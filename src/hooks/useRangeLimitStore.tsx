@@ -141,7 +141,8 @@ type RangeLimitAction = {
     tokenIn: any,
     tokenOut: any,
     volatility: any,
-    client: LimitSubgraph
+    client: LimitSubgraph,
+    poolTypeId?: number,
   ) => void;
   resetRangeLimitParams: (chainId) => void;
   resetMintParams: () => void;
@@ -825,7 +826,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       tokenIn,
       tokenOut,
       volatility: any,
-      client: LimitSubgraph
+      client: LimitSubgraph,
+      poolTypeId?: number
     ) => {
       try {
         const pool = await getLimitPoolFromFactory(
@@ -836,7 +838,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         const dataLength = pool["data"]["limitPools"].length;
         for (let i = 0; i < dataLength; i++) {
           if (
-            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility &&
+            (poolTypeId == undefined || pool["data"]["limitPools"][i]["poolType"] == poolTypeId)
           ) {
             set(() => ({
               limitPoolAddress: pool["data"]["limitPools"][i]["id"],

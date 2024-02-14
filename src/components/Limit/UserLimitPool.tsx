@@ -70,6 +70,8 @@ export default function UserLimitPool({
 
   //////////////////////////Set Position when selected
 
+  console.log('limit position pool type', limitPosition.poolType)
+
   async function choosePosition() {
     setLimitPositionData(limitPosition);
     setNeedsAllowanceIn(true);
@@ -94,7 +96,8 @@ export default function UserLimitPool({
       tokenInNew,
       tokenOutNew,
       limitPosition.feeTier.toString(),
-      limitSubgraph
+      limitSubgraph,
+      limitPosition.poolType
     );
     router.push({
       pathname: href,
