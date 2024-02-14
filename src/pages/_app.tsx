@@ -182,6 +182,9 @@ function MyApp({ Component, pageProps }) {
             )}
             {!isLoading ? (
               <div className="font-Jetbrains">
+                <div className="bg-main2 w-full py-1.5 text-sm flex items-center justify-center">
+                  Please migrate your open range positions from the Legacy pools to the Current pools. <a href='twitter thread here' target="_blank" className='underline ml-2'>Click here to read why and how to do it</a>
+                </div>
                 <Component {...pageProps} />
               </div>
             ) : (
