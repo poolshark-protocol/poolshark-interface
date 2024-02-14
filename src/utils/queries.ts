@@ -65,6 +65,7 @@ export const getRangePoolFromFactory = (
             orderDirection: desc
           ) {
             id
+            poolType
             poolPrice
             tickAtPrice
             feeTier {
@@ -763,6 +764,7 @@ export const fetchRangePositions = (client: LimitSubgraph, address: string) => {
             liquidity
             pool {
               id
+              poolType
               token0{
                   id
                   name

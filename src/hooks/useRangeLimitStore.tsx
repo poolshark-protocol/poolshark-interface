@@ -134,7 +134,8 @@ type RangeLimitAction = {
     volatility: any,
     client: LimitSubgraph,
     poolPrice?: any,
-    tickAtPrice?: any
+    tickAtPrice?: any,
+    poolTypeId?: any,
   ) => void;
   setLimitPoolFromVolatility: (
     tokenIn: any,
@@ -784,19 +785,21 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       volatility: any,
       client: LimitSubgraph,
       poolPrice?: any,
-      tickAtPrice?: any
+      tickAtPrice?: any,
+      poolTypeId?: any
     ) => {
       try {
         const pool = await getRangePoolFromFactory(
           client,
           tokenIn.address,
-          tokenOut.address
+          tokenOut.address,
         );
         const dataLength = pool["data"]["limitPools"].length;
         let poolFound = false;
         for (let i = 0; i < dataLength; i++) {
           if (
-            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility &&
+            (poolTypeId == undefined || pool["data"]["limitPools"][i]["poolType"] == poolTypeId)
           ) {
             poolFound = true;
             set(() => ({
