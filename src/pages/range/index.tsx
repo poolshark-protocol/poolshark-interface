@@ -365,17 +365,6 @@ export default function Range() {
                               />
                             }
                           }
-                          // return poolType === "Current" ? (
-                          //   <div></div>
-                          // ) : (
-                          //   if(allRangePosition.poolType == "1")
-                          //   <UserRangePool
-                          //     key={allRangePosition.id}
-                          //     rangePosition={allRangePosition}
-                          //     href={"/range/view"}
-                          //     isModal={false}
-                          //   />
-                          // );
                         }
                       })}
                     </div>
