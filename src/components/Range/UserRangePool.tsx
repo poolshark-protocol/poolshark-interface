@@ -101,14 +101,17 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     const pool = await getRangePoolFromFactory(
       limitSubgraph,
       tokenInNew.address,
-      tokenOutNew.address
+      tokenOutNew.address,
+      rangePosition.poolType
     );
     if (pool && pool["data"] && pool["data"]["limitPools"]) {
       const dataLength = pool["data"]["limitPools"].length;
       for (let i = 0; i < dataLength; i++) {
         if (
           pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] ==
-          rangePosition.pool.feeTier.feeAmount
+          rangePosition.pool.feeTier.feeAmount &&
+          pool["data"]["limitPools"][i]["poolType"] ==
+          rangePosition.poolType
         ) {
           const poolData = pool["data"]["limitPools"][i];
           setRangePoolData(poolData);
