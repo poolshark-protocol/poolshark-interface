@@ -28,6 +28,7 @@ export default function Range() {
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
   const [lowTVLHidden, setLowTVLHidden] = useState(true);
   const [sort, setSort] = useState("TVL");
+  const [poolType, setPoolType] = useState("Current");
 
   const [
     chainId,
@@ -229,9 +230,36 @@ export default function Range() {
             />
           </div>
           <div className="p-6 bg-dark border border-grey rounded-[4px]">
-            <div className="text-white flex items-center text-sm gap-x-3">
-              <UserIcon />
-              <h1>YOUR POSITIONS</h1>
+            <div className="flex md:flex-row flex-col md:items-center gap-y-2 justify-between">
+              <div className="text-white flex items-center text-sm gap-x-3">
+                <UserIcon />
+                <h1>YOUR POSITIONS</h1>
+              </div>
+              <div className="bg-black flex items-center p-1 text-sm rounded-[2px]">
+                <button
+                  onClick={() => setPoolType("Current")}
+                  className={`w-full justify-center rounded-[2px] py-1.5 px-7 border ${
+                    poolType === "Current"
+                      ? "bg-main1 text-white border-main "
+                      : "border-black text-grey1"
+                  }`}
+                >
+                  CURRENT
+                </button>
+                <button
+                  onClick={() => setPoolType("Legacy")}
+                  className={`w-full items-center gap-x-2 flex justify-center rounded-[2px] py-1.5 px-5 border ${
+                    poolType === "Legacy"
+                      ? "bg-main1 text-white border-main "
+                      : "border-black text-grey1"
+                  }`}
+                >
+                  LEGACY{" "}
+                  <span className="text-xs bg-main1 rounded-full flex items-center justify-center w-6 h-6 text-main2">
+                    4
+                  </span>
+                </button>
+              </div>
             </div>
             <div>
               {isPositionsLoading ? (
@@ -313,7 +341,9 @@ export default function Range() {
                             ) != undefined ||
                             searchTerm === "")
                         ) {
-                          return (
+                          return poolType === "Current" ? (
+                            <div></div>
+                          ) : (
                             <UserRangePool
                               key={allRangePosition.id}
                               rangePosition={allRangePosition}
