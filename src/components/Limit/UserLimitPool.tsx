@@ -94,7 +94,8 @@ export default function UserLimitPool({
       tokenInNew,
       tokenOutNew,
       limitPosition.feeTier.toString(),
-      limitSubgraph
+      limitSubgraph,
+      limitPosition.poolType
     );
     router.push({
       pathname: href,
@@ -226,7 +227,7 @@ export default function UserLimitPool({
         </div>
       </td>
       <td className="text-grey1 text-left pl-3 text-xs md:table-cell hidden">
-        {timeDifference(limitPosition.timestamp)} ago
+        {timeDifference(limitPosition.timestamp) != "" ? timeDifference(limitPosition.timestamp): "0m "} ago
         
       </td>
       <td className="text-sm text-grey1 md:table-cell hidden">

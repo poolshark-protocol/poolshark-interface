@@ -572,6 +572,7 @@ export const fetchLimitPositions = (client: LimitSubgraph, address: string) => {
             owner
             pool{
                 id
+                poolType
                 liquidity
                 liquidityGlobal
                 epoch

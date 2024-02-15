@@ -268,6 +268,7 @@ export function mapUserLimitPositions(limitPositions) {
       id: limitPosition.id,
       positionId: limitPosition.positionId,
       pool: limitPosition.pool,
+      poolType: Number(limitPosition.pool.poolType),
       poolId: limitPosition.pool.id,
       amountIn: limitPosition.amountIn,
       amountFilled: limitPosition.amountFilled,
