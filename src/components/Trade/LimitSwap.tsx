@@ -194,7 +194,8 @@ export default function LimitSwap() {
             setTokenInTradeUSDPrice,
             setTokenOutTradeUSDPrice,
             setTradePoolPrice,
-            setTradePoolLiquidity
+            setTradePoolLiquidity,
+            limitPoolTypeIds["constant-product-1.1"]
           );
           setSelectedFeeTier(tradePoolData?.feeTier?.id);
         }
@@ -250,9 +251,11 @@ export default function LimitSwap() {
       tradePoolData,
       setTradePoolData,
       setTokenInTradeUSDPrice,
-      setTokenOutTradeUSDPrice
+      setTokenOutTradeUSDPrice,
+      undefined,
+      undefined,
+      limitPoolTypeIds["constant-product-1.1"]
     );
-
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
     if (pools) {
@@ -281,7 +284,8 @@ export default function LimitSwap() {
       limitSubgraph,
       tokenIn,
       tokenOut,
-      feeAmount
+      feeAmount,
+      limitPoolTypeIds['constant-product-1.1']
     );
     setSelectedFeeTier(feeAmount.toString());
     setTradePoolData(pool);
@@ -753,7 +757,7 @@ export default function LimitSwap() {
         );
       } else {
         await gasEstimateLimitCreateAndMint(
-          limitPoolTypeIds["constant-product"],
+          limitPoolTypeIds["constant-product-1.1"],
           tradePoolData?.feeTier?.feeAmount ?? 3000,
           address,
           lowerTick,
@@ -981,7 +985,7 @@ export default function LimitSwap() {
                 handleManualFeeTierChange(1000);
               }}
             >
-              0.01%
+              0.1%
             </div>
             <div
               className={
@@ -993,7 +997,7 @@ export default function LimitSwap() {
                 handleManualFeeTierChange(3000);
               }}
             >
-              0.03%
+              0.3%
             </div>
             <div
               className={
@@ -1005,7 +1009,7 @@ export default function LimitSwap() {
                 handleManualFeeTierChange(10000);
               }}
             >
-              0.1%
+              1.0%
             </div>
           </div>
         </div>
@@ -1233,7 +1237,7 @@ export default function LimitSwap() {
               <LimitCreateAndMintButton
                 disabled={mintGasLimit.eq(BN_ZERO) || tradeButton.disabled}
                 routerAddress={getRouterAddress(networkName)}
-                poolTypeId={limitPoolTypeIds["constant-product"]}
+                poolTypeId={limitPoolTypeIds["constant-product-1.1"]}
                 tokenIn={tokenIn}
                 tokenOut={tokenOut}
                 feeTier={tradePoolData?.feeTier?.feeAmount}
