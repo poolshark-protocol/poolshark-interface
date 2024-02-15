@@ -122,7 +122,7 @@ export default function Range() {
             setNumLegacyPositions,
             resetNumLegacyPositions,
             setNumCurrentPositions,
-            resetNumCurrentPositions,
+            resetNumCurrentPositions
           )
         );
         setIsPositionsLoading(false);
@@ -189,7 +189,7 @@ export default function Range() {
                     tokenIn,
                     tokenOut,
                     allRangePools[0].feeTier.toString(),
-                    limitSubgraph,
+                    limitSubgraph
                   );
                   router.push({
                     pathname: "/range/add-liquidity",
@@ -299,7 +299,19 @@ export default function Range() {
                     </div>
                   </div>
                 </div>
-              ) : isDisconnected || allRangePositions.length === 0 ? (
+              ) : isDisconnected ||
+                (poolType === "Legacy" &&
+                  !allRangePositions.some(
+                    (position) =>
+                      position.poolType !=
+                      String(limitPoolTypeIds["constant-product-1.1"])
+                  )) ||
+                (poolType === "Current" &&
+                  !allRangePositions.some(
+                    (position) =>
+                      position.poolType ==
+                      String(limitPoolTypeIds["constant-product-1.1"])
+                  )) ? (
                 <div className="text-grey1 text-xs  py-10 text-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -360,22 +372,32 @@ export default function Range() {
                             searchTerm === "")
                         ) {
                           if (poolType === "Current") {
-                            if(allRangePosition.poolType == String(limitPoolTypeIds["constant-product-1.1"])) {
-                              return <UserRangePool
-                                key={allRangePosition.id}
-                                rangePosition={allRangePosition}
-                                href={"/range/view"}
-                                isModal={false}
-                              />
+                            if (
+                              allRangePosition.poolType ==
+                              String(limitPoolTypeIds["constant-product-1.1"])
+                            ) {
+                              return (
+                                <UserRangePool
+                                  key={allRangePosition.id}
+                                  rangePosition={allRangePosition}
+                                  href={"/range/view"}
+                                  isModal={false}
+                                />
+                              );
                             }
                           } else if (poolType === "Legacy") {
-                            if(allRangePosition.poolType != String(limitPoolTypeIds["constant-product-1.1"])) {
-                              return <UserRangePool
-                                key={allRangePosition.id}
-                                rangePosition={allRangePosition}
-                                href={"/range/view"}
-                                isModal={false}
-                              />
+                            if (
+                              allRangePosition.poolType !=
+                              String(limitPoolTypeIds["constant-product-1.1"])
+                            ) {
+                              return (
+                                <UserRangePool
+                                  key={allRangePosition.id}
+                                  rangePosition={allRangePosition}
+                                  href={"/range/view"}
+                                  isModal={false}
+                                />
+                              );
                             }
                           }
                         }
