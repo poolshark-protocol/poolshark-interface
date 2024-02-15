@@ -6,6 +6,7 @@ import {
 } from "@apollo/client";
 import { BigNumber } from "ethers";
 import { CoverSubgraph, LimitSubgraph } from "./types";
+import { limitPoolTypeIds } from "./pools";
 
 export interface PoolState {
   unlocked: number;
@@ -774,7 +775,7 @@ export const fetchRangePools = (client: LimitSubgraph) => {
   return new Promise(function (resolve) {
     const poolsQuery = `
             query($id: String) {
-                limitPools(id: $id, orderBy: totalValueLockedUsd, orderDirection: desc, where:{poolType: "1"}) {
+                limitPools(id: $id, orderBy: totalValueLockedUsd, orderDirection: desc, where:{poolType: "${limitPoolTypeIds["constant-product-1.1"]}"}) {
                     id
                     poolType
                     token0{

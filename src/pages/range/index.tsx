@@ -17,6 +17,7 @@ import { chainProperties } from "../../utils/chains";
 import { Checkbox } from "../../components/ui/checkbox";
 import { isWhitelistedPool } from "../../utils/config";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/20/solid";
+import { limitPoolTypeIds } from "../../utils/pools";
 
 export default function Range() {
   const { address, isDisconnected } = useAccount();
@@ -347,7 +348,7 @@ export default function Range() {
                             searchTerm === "")
                         ) {
                           if (poolType === "Current") {
-                            if(allRangePosition.poolType == "1") {
+                            if(allRangePosition.poolType == String(limitPoolTypeIds["constant-product-1.1"])) {
                               return <UserRangePool
                                 key={allRangePosition.id}
                                 rangePosition={allRangePosition}
@@ -356,7 +357,7 @@ export default function Range() {
                               />
                             }
                           } else if (poolType === "Legacy") {
-                            if(allRangePosition.poolType == "0") {
+                            if(allRangePosition.poolType != String(limitPoolTypeIds["constant-product-1.1"])) {
                               return <UserRangePool
                                 key={allRangePosition.id}
                                 rangePosition={allRangePosition}

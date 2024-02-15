@@ -1,3 +1,4 @@
+import { limitPoolTypeIds } from "./pools";
 import {
   getLimitTickIfNotZeroForOne,
   getLimitTickIfZeroForOne,
@@ -165,7 +166,7 @@ export function mapUserRangePositions(rangePositions, setNumLegacyPositions?: an
       volumeEth: (parseFloat(rangePosition.pool.volumeEth) / 1).toFixed(2),
       userOwnerAddress: rangePosition.owner.replace(/"|'/g, ""),
     };
-    if (rangePositionData.poolType == 0) {
+    if (rangePositionData.poolType != limitPoolTypeIds["constant-product-1.1"]) {
       setNumLegacyPositions()
     }
     mappedRangePositions.push(rangePositionData);

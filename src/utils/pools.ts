@@ -185,7 +185,7 @@ export const volatilityTiers = [
 ];
 
 export const limitPoolTypeIds = {
-  "constant-product-1.1": 1,
+  "constant-product-1.1": 2,
 };
 
 export const coverPoolTypes = {
