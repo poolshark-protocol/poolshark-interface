@@ -55,8 +55,11 @@ export default function Range() {
     setNeedsRefetch,
     resetRangeLimitParams,
     numLegacyPositions,
+    numCurrentPositions,
     setNumLegacyPositions,
-    resetNumLegacyPositions
+    resetNumLegacyPositions,
+    setNumCurrentPositions,
+    resetNumCurrentPositions,
   ] = useRangeLimitStore((state) => [
     state.setTokenIn,
     state.setTokenOut,
@@ -65,8 +68,11 @@ export default function Range() {
     state.setNeedsRefetch,
     state.resetRangeLimitParams,
     state.numLegacyPositions,
+    state.numCurrentPositions,
     state.setNumLegacyPositions,
     state.resetNumLegacyPositions,
+    state.setNumCurrentPositions,
+    state.resetNumCurrentPositions,
   ]);
 
   const router = useRouter();
@@ -111,7 +117,13 @@ export default function Range() {
       const data = await fetchRangePositions(limitSubgraph, address);
       if (data["data"].rangePositions) {
         setAllRangePositions(
-          mapUserRangePositions(data["data"].rangePositions, setNumLegacyPositions, resetNumLegacyPositions)
+          mapUserRangePositions(
+            data["data"].rangePositions,
+            setNumLegacyPositions,
+            resetNumLegacyPositions,
+            setNumCurrentPositions,
+            resetNumCurrentPositions,
+          )
         );
         setIsPositionsLoading(false);
       }
