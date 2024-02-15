@@ -21,7 +21,7 @@ export function timeDifference(unixTimestamp: number): string {
     let timeString = '';
     if (days > 0) timeString += `${days}d,`;
     if (hours > 0) timeString += `${hours}h,`;
-    if (minutes > 0) timeString += `${minutes}m`;
+    if (minutes >= 0) timeString += `${minutes}m`;
   
     // Remove trailing comma if exists
     if (timeString.endsWith(',')) {
