@@ -290,7 +290,6 @@ export default function ViewLimit() {
         );
         setAllLimitPositions(mappedPositions);
         const positionId = limitPositionData.id ?? router.query.id;
-        console.log('position id check:', limitPositionData.id, router.query.id)
         if (positionId == undefined) return;
         const position = mappedPositions.find(
           (position) => position.id == positionId

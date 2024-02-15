@@ -223,7 +223,6 @@ export default function Trade() {
 
   useEffect(() => {
     if (allLimitPositions.length > 0) {
-      console.log('user limit positions', allLimitPositions)
       mapUserLimitSnapshotList();
     }
   }, [allLimitPositions]);
@@ -237,7 +236,6 @@ export default function Trade() {
       );
       console.log('getting limit data', data)
       if (data["data"]) {
-        console.log('user limit positions:', )
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
         );
