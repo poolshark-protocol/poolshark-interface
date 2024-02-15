@@ -183,8 +183,9 @@ function MyApp({ Component, pageProps }) {
                   Please migrate your Range positions from the Legacy pools
                   to the Current pools.{" "}
                   <a
-                    href="twitter thread here"
+                    href="https://twitter.com/PoolsharkLabs/status/1758144346011140569"
                     target="_blank"
+                    rel="noreferrer"
                     className="underline ml-2"
                   >
                     Click here to read why and how to do it
