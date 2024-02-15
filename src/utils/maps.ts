@@ -141,7 +141,7 @@ export function mapUserRangePositions(rangePositions, setNumLegacyPositions?: an
       id: rangePosition.id,
       positionId: rangePosition.positionId,
       poolId: rangePosition.pool.id,
-      poolType: rangePosition.pool.poolType,
+      poolType: Number(rangePosition.pool.poolType),
       staked: rangePosition.staked,
       tokenZero: rangePosition.pool.token0,
       valueTokenZero: rangePosition.pool.token0.usdPrice,
@@ -165,7 +165,7 @@ export function mapUserRangePositions(rangePositions, setNumLegacyPositions?: an
       volumeEth: (parseFloat(rangePosition.pool.volumeEth) / 1).toFixed(2),
       userOwnerAddress: rangePosition.owner.replace(/"|'/g, ""),
     };
-    if (rangePositionData.poolType == "0") {
+    if (rangePositionData.poolType == 0) {
       setNumLegacyPositions()
     }
     mappedRangePositions.push(rangePositionData);
@@ -274,6 +274,7 @@ export function mapUserLimitPositions(limitPositions) {
       id: limitPosition.id,
       positionId: limitPosition.positionId,
       pool: limitPosition.pool,
+      poolType: Number(limitPosition.pool.poolType),
       poolId: limitPosition.pool.id,
       amountIn: limitPosition.amountIn,
       amountFilled: limitPosition.amountFilled,

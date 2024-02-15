@@ -135,13 +135,15 @@ type RangeLimitAction = {
     volatility: any,
     client: LimitSubgraph,
     poolPrice?: any,
-    tickAtPrice?: any
+    tickAtPrice?: any,
+    poolTypeId?: any,
   ) => void;
   setLimitPoolFromVolatility: (
     tokenIn: any,
     tokenOut: any,
     volatility: any,
-    client: LimitSubgraph
+    client: LimitSubgraph,
+    poolTypeId?: number,
   ) => void;
   resetRangeLimitParams: (chainId) => void;
   resetMintParams: () => void;
@@ -789,19 +791,21 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       volatility: any,
       client: LimitSubgraph,
       poolPrice?: any,
-      tickAtPrice?: any
+      tickAtPrice?: any,
+      poolTypeId?: any
     ) => {
       try {
         const pool = await getRangePoolFromFactory(
           client,
           tokenIn.address,
-          tokenOut.address
+          tokenOut.address,
         );
         const dataLength = pool["data"]["limitPools"].length;
         let poolFound = false;
         for (let i = 0; i < dataLength; i++) {
           if (
-            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility &&
+            (poolTypeId == undefined || pool["data"]["limitPools"][i]["poolType"] == poolTypeId)
           ) {
             poolFound = true;
             set(() => ({
@@ -827,7 +831,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       tokenIn,
       tokenOut,
       volatility: any,
-      client: LimitSubgraph
+      client: LimitSubgraph,
+      poolTypeId?: number
     ) => {
       try {
         const pool = await getLimitPoolFromFactory(
@@ -838,8 +843,10 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         const dataLength = pool["data"]["limitPools"].length;
         for (let i = 0; i < dataLength; i++) {
           if (
-            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility &&
+            (poolTypeId == undefined || pool["data"]["limitPools"][i]["poolType"] == poolTypeId)
           ) {
+            console.log('pool found')
             set(() => ({
               limitPoolAddress: pool["data"]["limitPools"][i]["id"],
               limitPoolData: pool["data"]["limitPools"][i],

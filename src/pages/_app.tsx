@@ -180,7 +180,7 @@ function MyApp({ Component, pageProps }) {
             {!isLoading ? (
               <div className="font-Jetbrains">
                 <div className="bg-main2 md:text-sm text-xs md:flex-row flex-col text-center w-full py-1.5 text-sm flex items-center justify-center">
-                  Please migrate your open Range positions from the Legacy pools
+                  Please migrate your Range positions from the Legacy pools
                   to the Current pools.{" "}
                   <a
                     href="twitter thread here"
