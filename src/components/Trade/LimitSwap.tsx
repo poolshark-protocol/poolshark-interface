@@ -254,7 +254,8 @@ export default function LimitSwap() {
       setTokenOutTradeUSDPrice,
       undefined,
       undefined,
-      limitPoolTypeIds["constant-product-1.1"]
+      limitPoolTypeIds["constant-product-1.1"],
+      setSelectedFeeTier
     );
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
