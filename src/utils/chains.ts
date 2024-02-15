@@ -139,7 +139,7 @@ export const chainProperties = {
   },
   "arbitrum-one": {
     sdkSupport: {
-			alchemy: true,
+			alchemy: false,
 			swing: true
     },
     chainName: "Arbitrum One",
