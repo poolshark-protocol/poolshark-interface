@@ -93,7 +93,8 @@ export default function RangeMintButton({
         rangeMintParams.tokenOutAmount
       )
     },
-    onSuccess() {},
+    onSuccess() {
+    },
     onError() {
       setErrorDisplay(true);
     },

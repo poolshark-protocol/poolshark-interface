@@ -1,3 +1,4 @@
+import { limitPoolTypeIds } from "./pools";
 import {
   getLimitTickIfNotZeroForOne,
   getLimitTickIfZeroForOne,
@@ -131,8 +132,11 @@ export const getClaimTick = async (
   return claimTick;
 };
 
-export function mapUserRangePositions(rangePositions) {
+export function mapUserRangePositions(rangePositions, setNumLegacyPositions?: any, resetNumLegacyPositions?: any) {
   const mappedRangePositions = [];
+  if (resetNumLegacyPositions) {
+    resetNumLegacyPositions()
+  }
   rangePositions?.map((rangePosition) => {
     const rangePositionData = {
       id: rangePosition.id,
@@ -162,6 +166,9 @@ export function mapUserRangePositions(rangePositions) {
       volumeEth: (parseFloat(rangePosition.pool.volumeEth) / 1).toFixed(2),
       userOwnerAddress: rangePosition.owner.replace(/"|'/g, ""),
     };
+    if (rangePositionData.poolType != limitPoolTypeIds["constant-product-1.1"]) {
+      setNumLegacyPositions()
+    }
     mappedRangePositions.push(rangePositionData);
   });
   return mappedRangePositions;
