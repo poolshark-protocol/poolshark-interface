@@ -132,10 +132,19 @@ export const getClaimTick = async (
   return claimTick;
 };
 
-export function mapUserRangePositions(rangePositions, setNumLegacyPositions?: any, resetNumLegacyPositions?: any) {
+export function mapUserRangePositions(
+  rangePositions,
+  setNumLegacyPositions?: any,
+  resetNumLegacyPositions?: any,
+  setNumCurrentPositions?: any,
+  resetNumCurrentPositions?: any,
+) {
   const mappedRangePositions = [];
   if (resetNumLegacyPositions) {
     resetNumLegacyPositions()
+  }
+  if (resetNumCurrentPositions) {
+    resetNumCurrentPositions()
   }
   rangePositions?.map((rangePosition) => {
     const rangePositionData = {
@@ -166,8 +175,11 @@ export function mapUserRangePositions(rangePositions, setNumLegacyPositions?: an
       volumeEth: (parseFloat(rangePosition.pool.volumeEth) / 1).toFixed(2),
       userOwnerAddress: rangePosition.owner.replace(/"|'/g, ""),
     };
-    if (rangePositionData.poolType != limitPoolTypeIds["constant-product-1.1"]) {
+    if (setNumLegacyPositions && rangePositionData.poolType != limitPoolTypeIds["constant-product-1.1"]) {
       setNumLegacyPositions()
+    }
+    if (setNumCurrentPositions && rangePositionData.poolType == limitPoolTypeIds["constant-product-1.1"]) {
+      setNumCurrentPositions()
     }
     mappedRangePositions.push(rangePositionData);
   });
