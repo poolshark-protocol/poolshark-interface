@@ -227,9 +227,9 @@ export const chainProperties = {
     limitSubgraphUrl:
       "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-mode/0.2.4/gn",
     whitelistedPools: [
-      '0x6c827ff250027187a180c059b20299fe3fd35622', // WETH-USDT 0.1%
-      '0x3ce675d43195e506e7da2ad4905b178371124eba', // WETH-USDC 0.1%
-      '0xe63a6865626c6cfdfcb559ef9592df86d7b0e8e7' // USDC-USDT 0.1%
+      '0xfc16003afdff37580c9de7deeeb87f9c65b6908a', // WETH-USDT 0.1%
+      '0xc20b141edd79f912897651eba9a2bca6b17dc7f1', // WETH-USDC 0.1%
+      '0x7efec766f18d4b79abf5b550bfe59a1bffb37d95' // USDC-USDT 0.1%
     ],
     usdStables: [
       '0xd988097fb8612cc24eec14542bc03424c656005f', // USDC
@@ -237,7 +237,7 @@ export const chainProperties = {
       '0xe7798f023fc62146e8aa1b36da45fb70855a77ea', // DAI
     ],
     stablePools: [
-      '0xe63a6865626c6cfdfcb559ef9592df86d7b0e8e7' // USDC-USDT 0.1%
+      '0x7efec766f18d4b79abf5b550bfe59a1bffb37d95' // USDC-USDT 0.1%
     ],
   },
 };
