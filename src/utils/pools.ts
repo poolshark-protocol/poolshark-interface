@@ -14,7 +14,8 @@ export const getSwapPools = async (
   setTokenOutTradeUSDPrice,
   setSwapPoolPrice?,
   setSwapPoolLiquidity?,
-  poolTypeId?: number
+  poolTypeId?: number,
+  setSelectedFeeTier?: any,
 ) => {
   try {
     const limitPools = await getLimitPoolFromFactory(
@@ -32,6 +33,8 @@ export const getSwapPools = async (
           ? prev
           : current
       );
+      if (setSelectedFeeTier)
+        setSelectedFeeTier(selectedPool.feeTier.feeAmount)
       if (swapPoolData?.id != selectedPool.id) {
         setSwapPoolData(selectedPool);
       } else {
