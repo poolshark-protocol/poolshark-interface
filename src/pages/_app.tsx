@@ -1,16 +1,13 @@
-import '../styles/globals.css'
-import '@rainbow-me/rainbowkit/styles.css';
-import {
-  getDefaultWallets,
-  RainbowKitProvider,
-} from '@rainbow-me/rainbowkit';
-import Script from 'next/script';
-import { configureChains, createClient, useProvider, WagmiConfig } from 'wagmi';
-import { arbitrum } from 'wagmi/chains';
-import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
-import Head from 'next/head'
-import { useState, useEffect } from 'react'
-import { useAccount } from 'wagmi'
+import "../styles/globals.css";
+import "@rainbow-me/rainbowkit/styles.css";
+import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import Script from "next/script";
+import { configureChains, createClient, useProvider, WagmiConfig } from "wagmi";
+import { arbitrum } from "wagmi/chains";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
+import Head from "next/head";
+import { useState, useEffect } from "react";
+import { useAccount } from "wagmi";
 import { isMobile } from "react-device-detect";
 // import { Analytics } from "@vercel/analytics/react";
 import { useConfigStore } from "../hooks/useConfigStore";
@@ -27,8 +24,8 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { useRangeLimitStore } from "../hooks/useRangeLimitStore";
 import { fetchListedTokenBalances, fetchTokenMetadata } from "../utils/tokens";
-import Safary from '../components/script';
-import { Toaster } from 'sonner';
+import Safary from "../components/script";
+import { Toaster } from "sonner";
 
 const { chains, provider } = configureChains(
   [arbitrum, arbitrumSepolia, scroll, mode],
@@ -164,11 +161,11 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <>
-    <Head>
-       <title>Poolshark</title>
-    </Head>
-<Safary/>
-<Toaster richColors theme="dark"/>
+      <Head>
+        <title>Poolshark</title>
+      </Head>
+      <Safary />
+      <Toaster richColors theme="dark" />
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider chains={chains} initialChain={arbitrum}>
           {/* <ApolloProvider client={apolloClient}> */}
@@ -182,6 +179,17 @@ function MyApp({ Component, pageProps }) {
             )}
             {!isLoading ? (
               <div className="font-Jetbrains">
+                <div className="bg-main2 md:text-sm text-xs md:flex-row flex-col text-center w-full py-1.5 text-sm flex items-center justify-center">
+                  Please migrate your Range positions from the Legacy pools
+                  to the Current pools.{" "}
+                  <a
+                    href="twitter thread here"
+                    target="_blank"
+                    className="underline ml-2"
+                  >
+                    Click here to read why and how to do it
+                  </a>
+                </div>
                 <Component {...pageProps} />
               </div>
             ) : (
