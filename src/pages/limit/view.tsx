@@ -14,7 +14,7 @@ import { limitPoolABI } from "../../abis/evm/limitPool";
 import { getClaimTick, mapUserLimitPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Limit/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Limit/AddLiquidity";
-import { fetchLimitTokenUSDPrice, getLogoURI } from "../../utils/tokens";
+import { fetchLimitTokenUSDPrice, getLogoURI, logoMapKey } from "../../utils/tokens";
 import { fetchLimitPositions } from "../../utils/queries";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
@@ -172,7 +172,8 @@ export default function ViewLimit() {
         limitPositionData.tokenIn,
         limitPositionData.tokenOut,
         limitPositionData.feeTier,
-        limitSubgraph
+        limitSubgraph,
+        limitPositionData.poolType
       );
     }
   }, [limitPositionData.tokenIn]);
@@ -289,6 +290,7 @@ export default function ViewLimit() {
         );
         setAllLimitPositions(mappedPositions);
         const positionId = limitPositionData.id ?? router.query.id;
+        console.log('position id check:', limitPositionData.id, router.query.id)
         if (positionId == undefined) return;
         const position = mappedPositions.find(
           (position) => position.id == positionId
@@ -368,7 +370,7 @@ export default function ViewLimit() {
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
               ) : (
-                <img height="50" width="50" src={tokenIn.logoURI} />
+                <img height="50" width="50" src={logoMap[logoMapKey(tokenIn)]} />
               )}
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
@@ -377,7 +379,7 @@ export default function ViewLimit() {
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={tokenOut.logoURI}
+                  src={logoMap[logoMapKey(tokenOut)]}
                 />
               )}
             </div>
@@ -506,7 +508,7 @@ export default function ViewLimit() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenIn.logoURI} />
+                        <img height="25" width="25" src={logoMap[logoMapKey(tokenIn)]} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -769,7 +771,7 @@ export default function ViewLimit() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenOut.logoURI} />
+                        <img height="25" width="25" src={logoMap[logoMapKey(tokenOut)]} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
