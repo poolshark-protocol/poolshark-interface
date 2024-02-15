@@ -152,7 +152,8 @@ export default function MarketSwap() {
           setTradePoolLiquidity,
         );
       }
-    }, quoteRefetchDelay);
+    }, 
+    quoteRefetchDelay);
    
     // Clear the interval when the component unmounts
     return () => clearInterval(interval);
@@ -312,6 +313,12 @@ export default function MarketSwap() {
             ), 5)
           );
         } else {
+          // add up amount outs
+          // set amount out if less than current
+          let amountOutTotal: BigNumber = BN_ZERO
+          for (let i = 0; poolQuotes[i] != undefined; i++) {
+            amountOutTotal = amountOutTotal.add(poolQuotes[i]?.amountOut)
+          }
           setAmountIn(poolQuotes[0].amountIn);
           setDisplayIn(
             numFormat(parseFloat(
@@ -321,6 +328,17 @@ export default function MarketSwap() {
               )
             ), 5)
           );
+          if (amountOutTotal.lt(amountOut)) {
+            setAmountOut(amountOutTotal)
+            setDisplayOut(
+              numFormat(parseFloat(
+                ethers.utils.formatUnits(
+                  amountOutTotal.toString(),
+                  tokenOut.decimals
+                )
+              ), 5)
+            );
+          }
         }
         updateSwapParams(poolQuotes);
       } else {
@@ -722,6 +740,7 @@ export default function MarketSwap() {
           <Range className="text-main2" />{" "}
           <span className="text-grey3 flex flex-col gap-y-[-2px]">
             No pools exist for this token pair.{" "}
+            {/* set tokenIn and tokenOut in router.query */}
             <a
               className=" hover:underline text-main2 cursor-pointer"
               onClick={() => {
@@ -732,6 +751,11 @@ export default function MarketSwap() {
                   query: {
                     feeTier: "3000",
                     poolId: ZERO_ADDRESS,
+                    tokenIn:  tokenIn.address, 
+                    tokenInNative: tokenIn.native,
+                    tokenOut: tokenOut.address,
+                    tokenOutNative: tokenOut.native,
+                    chainId: chainId,
                   },
                 });
               }}
@@ -796,6 +820,8 @@ export default function MarketSwap() {
                 }
                 routerAddress={getRouterAddress(networkName)}
                 amountIn={amountIn}
+                tokenInSymbol={tokenIn.symbol}
+                tokenOutSymbol={tokenOut.symbol}
                 tokenInNative={tokenIn.native ?? false}
                 tokenOutNative={tokenOut.native ?? false}
                 poolAddresses={swapPoolAddresses}

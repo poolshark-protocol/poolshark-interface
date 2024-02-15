@@ -39,6 +39,7 @@ export default function RangeAddLiqButton({
 
   const [
     rangePositionData,
+    rangeMintParams,
     setNeedsAllowanceIn,
     setNeedsAllowanceOut,
     setNeedsBalanceIn,
@@ -47,6 +48,7 @@ export default function RangeAddLiqButton({
     setNeedsPosRefetch,
   ] = useRangeLimitStore((state) => [
     state.rangePositionData,
+    state.rangeMintParams,
     state.setNeedsAllowanceIn,
     state.setNeedsAllowanceOut,
     state.setNeedsBalanceIn,
@@ -145,7 +147,10 @@ export default function RangeAddLiqButton({
           address ? write?.() : null;
         }}
       >
-        {gasLimit?.lte(BN_ZERO) && (amount0?.gt(BN_ZERO) || amount1?.gt(BN_ZERO)) ? <Loader/> : "Add liquidity"}
+        {(gasLimit?.lte(BN_ZERO) && !rangeMintParams.disabled) ? <Loader/> 
+                                                               : (rangeMintParams.buttonMessage != "Mint Range Position" 
+                                                                  ? rangeMintParams.buttonMessage
+                                                                  : "Add liquidity")}
       </button>
     </>
   );

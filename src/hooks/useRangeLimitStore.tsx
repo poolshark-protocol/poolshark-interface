@@ -79,6 +79,7 @@ type RangeLimitState = {
   currentAmountOut: string;
   //Start price for pool creation
   startPrice: string;
+  chainSwitched: boolean;
 };
 
 type RangeLimitAction = {
@@ -133,13 +134,15 @@ type RangeLimitAction = {
     volatility: any,
     client: LimitSubgraph,
     poolPrice?: any,
-    tickAtPrice?: any
+    tickAtPrice?: any,
+    poolTypeId?: any,
   ) => void;
   setLimitPoolFromVolatility: (
     tokenIn: any,
     tokenOut: any,
     volatility: any,
-    client: LimitSubgraph
+    client: LimitSubgraph,
+    poolTypeId?: number,
   ) => void;
   resetRangeLimitParams: (chainId) => void;
   resetMintParams: () => void;
@@ -162,6 +165,7 @@ type RangeLimitAction = {
   setStartPrice: (startPrice: string) => void;
   setLimitAddLiqDisabled: (limitAddLiqDisabled: boolean) => void;
   setStakeFlag: (stakeFlag: boolean) => void;
+  setChainSwitched: (chainSwitched: boolean) => void;
 };
 
 const initialRangeLimitState: RangeLimitState = {
@@ -210,7 +214,7 @@ const initialRangeLimitState: RangeLimitState = {
 
     logoURI:
       "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
-    address: chainProperties[defaultNetwork]["wethAddress"],
+    address: ZERO_ADDRESS,
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: BigNumber.from(0),
@@ -230,7 +234,7 @@ const initialRangeLimitState: RangeLimitState = {
 
     logoURI:
       "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
-    address: chainProperties[defaultNetwork]["daiAddress"],
+    address: ZERO_ADDRESS,
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: BigNumber.from(0),
@@ -253,6 +257,7 @@ const initialRangeLimitState: RangeLimitState = {
   //
   currentAmountOut: "0",
   startPrice: "",
+  chainSwitched: false,
 };
 
 export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
@@ -298,6 +303,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     currentAmountOut: initialRangeLimitState.currentAmountOut,
     //start price for pool creation
     startPrice: initialRangeLimitState.startPrice,
+    //whether chain was already switched
+    chainSwitched: initialRangeLimitState.chainSwitched,
     //actions
     setPairSelected: (pairSelected: boolean) => {
       set(() => ({
@@ -779,19 +786,21 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       volatility: any,
       client: LimitSubgraph,
       poolPrice?: any,
-      tickAtPrice?: any
+      tickAtPrice?: any,
+      poolTypeId?: any
     ) => {
       try {
         const pool = await getRangePoolFromFactory(
           client,
           tokenIn.address,
-          tokenOut.address
+          tokenOut.address,
         );
         const dataLength = pool["data"]["limitPools"].length;
         let poolFound = false;
         for (let i = 0; i < dataLength; i++) {
           if (
-            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility &&
+            (poolTypeId == undefined || pool["data"]["limitPools"][i]["poolType"] == poolTypeId)
           ) {
             poolFound = true;
             set(() => ({
@@ -817,7 +826,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       tokenIn,
       tokenOut,
       volatility: any,
-      client: LimitSubgraph
+      client: LimitSubgraph,
+      poolTypeId?: number
     ) => {
       try {
         const pool = await getLimitPoolFromFactory(
@@ -828,8 +838,10 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         const dataLength = pool["data"]["limitPools"].length;
         for (let i = 0; i < dataLength; i++) {
           if (
-            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility &&
+            (poolTypeId == undefined || pool["data"]["limitPools"][i]["poolType"] == poolTypeId)
           ) {
+            console.log('pool found')
             set(() => ({
               limitPoolAddress: pool["data"]["limitPools"][i]["id"],
               limitPoolData: pool["data"]["limitPools"][i],
@@ -858,6 +870,11 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     setStartPrice: (startPrice: string) => {
       set(() => ({
         startPrice: startPrice,
+      }));
+    },
+    setChainSwitched: (chainSwitched: boolean) => {
+      set(() => ({
+        chainSwitched: chainSwitched,
       }));
     },
     setStakeFlag: (stakeFlag: boolean) => {

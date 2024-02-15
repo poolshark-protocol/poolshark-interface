@@ -52,12 +52,13 @@ export const countDecimals = (value: number, tokenDecimals: number) => {
 export const getRangePoolFromFactory = (
   client: LimitSubgraph,
   tokenA?: string,
-  tokenB?: string
+  tokenB?: string,
+  poolTypeId?: number,
 ) => {
   const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
   const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
   return new Promise(function (resolve) {
-    const getPool = `
+    const getPool = poolTypeId == undefined ?`
         {
           limitPools(
             where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}},
@@ -65,6 +66,7 @@ export const getRangePoolFromFactory = (
             orderDirection: desc
           ) {
             id
+            poolType
             poolPrice
             tickAtPrice
             feeTier {
@@ -81,7 +83,33 @@ export const getRangePoolFromFactory = (
             poolToken
           }
         }
-        `;
+        `
+      :`
+      {
+        limitPools(
+          where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}, poolType: "${poolTypeId}"},
+          orderBy: poolLiquidity,
+          orderDirection: desc
+        ) {
+          id
+          poolType
+          poolPrice
+          tickAtPrice
+          feeTier {
+            id
+            feeAmount
+            tickSpacing
+          }
+          token0 {
+            usdPrice
+          }
+          token1 {
+            usdPrice
+          }
+          poolToken
+        }
+      }
+      `;
     client
       ?.query({ query: gql(getPool) })
       .then((data) => {
@@ -170,6 +198,7 @@ export const getLimitPoolFromFactory = (
               orderDirection: desc
             ) {
               id
+              poolType
               epoch
               token0{
                   id
@@ -543,6 +572,7 @@ export const fetchLimitPositions = (client: LimitSubgraph, address: string) => {
             owner
             pool{
                 id
+                poolType
                 liquidity
                 liquidityGlobal
                 epoch
@@ -613,6 +643,7 @@ export const fetchLimitPools = (client: LimitSubgraph) => {
                   orderDirection: desc
                 ) {
                     id
+                    poolType
                     epoch
                     token0{
                         id
@@ -692,6 +723,7 @@ export const fetchRangePools = (client: LimitSubgraph) => {
             query($id: String) {
                 limitPools(id: $id, orderBy: totalValueLockedUsd, orderDirection: desc) {
                     id
+                    poolType
                     token0{
                         id
                         name
@@ -763,6 +795,7 @@ export const fetchRangePositions = (client: LimitSubgraph, address: string) => {
             liquidity
             pool {
               id
+              poolType
               token0{
                   id
                   name
@@ -993,7 +1026,42 @@ export const fetchUserVFinPositions = (client: LimitSubgraph, ownerAddress: stri
         resolve(err);
       });
   });
-}
+};
+
+export const fetchSeason1Rewards = (client: LimitSubgraph, userAddress: string) => {
+  return new Promise(function (resolve) {
+    const poolsQuery = `
+    { 
+      userSeasonRewards(
+        first: 1
+        where: {id:"${userAddress.toLowerCase()}"}
+      ) {
+        volumeTradedUsd
+        nonWhitelistedFeesUsd
+        stakingPoints
+        whitelistedFeesUsd
+      }
+      totalSeasonRewards(
+        first: 1
+      ) {
+        volumeTradedUsd
+        nonWhitelistedFeesUsd
+        stakingPoints
+        whitelistedFeesUsd
+      }
+    }
+  `;
+    client
+      ?.query({ query: gql(poolsQuery) })
+      .then((data) => {
+        resolve(data);
+        /* console.log(data) */
+      })
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+};
 
 export const fetchUserBonds = (marketId: string, recipient: string, subgraphUrl: string) => {
   return new Promise(function (resolve) {
@@ -1046,7 +1114,7 @@ export const fetchUserBonds = (marketId: string, recipient: string, subgraphUrl:
         resolve(err);
       });
   });
-}
+};
 
 export const fetchBondMarket = (marketId: string, subgraphUrl: string) => {
   return new Promise(function (resolve) {
@@ -1139,4 +1207,4 @@ export const fetchBondMarket = (marketId: string, subgraphUrl: string) => {
         resolve(err);
       });
   });
-}
+};

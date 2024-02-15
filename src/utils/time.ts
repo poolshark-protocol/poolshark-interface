@@ -17,7 +17,18 @@ export function timeDifference(unixTimestamp: number): string {
   
     const minutes = Math.floor(difference / (1000 * 60));
   
-    return `${days}d,${hours}h,${minutes}m`;
+    // Construct the return string conditionally to exclude 0 values
+    let timeString = '';
+    if (days > 0) timeString += `${days}d,`;
+    if (hours > 0) timeString += `${hours}h,`;
+    if (minutes >= 0) timeString += `${minutes}m`;
+  
+    // Remove trailing comma if exists
+    if (timeString.endsWith(',')) {
+        timeString = timeString.slice(0, -1);
+    }
+  
+    return timeString;
   }
 
 export function convertTimestampToDateFormat(timestampInSeconds: number): string {

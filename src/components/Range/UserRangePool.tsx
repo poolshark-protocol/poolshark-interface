@@ -13,10 +13,11 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { formatUsdValue } from "../../utils/math/valueMath";
 
 export default function UserRangePool({ rangePosition, href, isModal }) {
-  const [limitSubgraph, coverSubgraph, logoMap] = useConfigStore((state) => [
+  const [limitSubgraph, coverSubgraph, logoMap, chainId] = useConfigStore((state) => [
     state.limitSubgraph,
     state.coverSubgraph,
     state.logoMap,
+    state.chainId,
   ]);
 
   const [
@@ -100,14 +101,17 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     const pool = await getRangePoolFromFactory(
       limitSubgraph,
       tokenInNew.address,
-      tokenOutNew.address
+      tokenOutNew.address,
+      rangePosition.poolType
     );
     if (pool && pool["data"] && pool["data"]["limitPools"]) {
       const dataLength = pool["data"]["limitPools"].length;
       for (let i = 0; i < dataLength; i++) {
         if (
           pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] ==
-          rangePosition.pool.feeTier.feeAmount
+          rangePosition.pool.feeTier.feeAmount &&
+          pool["data"]["limitPools"][i]["poolType"] ==
+          rangePosition.poolType
         ) {
           const poolData = pool["data"]["limitPools"][i];
           setRangePoolData(poolData);
@@ -235,6 +239,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
         id: rangePosition.id,
         feeTier: rangePosition.pool.feeTier.feeAmount,
         state: router.pathname.includes("/cover") && "range-cover",
+        chainId: chainId
       },
     });
   }

@@ -21,7 +21,6 @@ export const getSwapPools = async (
       tokenIn.address,
       tokenOut.address
     );
-    console.log("limitPools", limitPools);
     const data = limitPools["data"];
     if (data && data["limitPools"]?.length > 0) {
       const allPools = data["limitPools"];

@@ -158,7 +158,7 @@ export default function Trade() {
         limitSubgraph
       );
     }
-  }, [tokenIn.address, tokenOut.address, tokenIn.native]);
+  }, [tokenIn.address]);
 
   useEffect(() => {
     if (
@@ -171,7 +171,7 @@ export default function Trade() {
         limitSubgraph
       );
     }
-  }, [tokenIn.address, tokenOut.address, tokenIn.native]);
+  }, [tokenOut.address]);
 
   ////////////////////////////////Filled Amount
   const { data: filledAmountList } = useContractRead({
@@ -214,7 +214,7 @@ export default function Trade() {
     if (address) {
       const chainConstants = chainProperties[networkName]
         ? chainProperties[networkName]
-        : chainProperties["arbitrum"];
+        : chainProperties["arbitrum-one"];
       setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
       getUserLimitPositionData();
       setNeedsRefetch(false);
@@ -229,10 +229,12 @@ export default function Trade() {
 
   async function getUserLimitPositionData() {
     try {
+
       const data = await fetchLimitPositions(
         limitSubgraph,
         address?.toLowerCase()
       );
+      console.log('getting limit data', data)
       if (data["data"]) {
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
@@ -288,7 +290,6 @@ export default function Trade() {
 
   ////////////////////////////////Balances
 
-
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.native ? undefined : tokenIn.address,
@@ -302,7 +303,6 @@ export default function Trade() {
       }, 5000);
     },
   });
-
 
   const { data: tokenOutBal } = useBalance({
     address: address,
@@ -337,22 +337,23 @@ export default function Trade() {
 
   ////////////////////////////////Allowances
 
-  const { data: allowanceInRouter, refetch: allowanceInRefetch } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, getRouterAddress(networkName)],
-    chainId: chainId,
-    watch: needsAllowanceIn,
-    enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
-    onError(error) {
-      console.log("Error allowance", error);
-    },
-    onSuccess(data) {
-      setNeedsAllowanceIn(false);
-      // console.log("Success allowance", tokenIn.symbol, tokenIn.userRouterAllowance?.gte(amountIn));
-    },
-  });
+  const { data: allowanceInRouter, refetch: allowanceInRefetch } =
+    useContractRead({
+      address: tokenIn.address,
+      abi: erc20ABI,
+      functionName: "allowance",
+      args: [address, getRouterAddress(networkName)],
+      chainId: chainId,
+      watch: needsAllowanceIn,
+      enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
+      onError(error) {
+        console.log("Error allowance", error);
+      },
+      onSuccess(data) {
+        setNeedsAllowanceIn(false);
+        // console.log("Success allowance", tokenIn.symbol, tokenIn.userRouterAllowance?.gte(amountIn));
+      },
+    });
 
   useEffect(() => {
     if (allowanceInRouter) {
@@ -460,28 +461,29 @@ export default function Trade() {
                 </th>
               </tr>
             </thead>
-            {allLimitPositions.length === 0 ? (
-              <tbody>
-                <tr>
-                  <td className="text-grey1 text-xs w-full  py-10 text-center col-span-5">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      className="w-10 py-4 mx-auto"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Your limit orders will appear here.
-                  </td>
-                </tr>
-              </tbody>
-            ) : activeOrdersSelected ? (
-              <tbody className="divide-y divide-grey/70">
+            {activeOrdersSelected ? (
+              allLimitPositions.length === 0 ? (
+                <tbody>
+                  <tr>
+                    <td className="text-grey1 text-xs w-full  py-10 text-center col-span-5">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-10 py-4 mx-auto"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Your limit orders will appear here.
+                    </td>
+                  </tr>
+                </tbody>
+              ) : 
+              (<tbody className="divide-y divide-grey/70">
                 {allLimitPositions.map((allLimitPosition, index) => {
                   if (allLimitPosition.id != undefined) {
                     return (
@@ -504,7 +506,7 @@ export default function Trade() {
                     );
                   }
                 })}
-              </tbody>
+              </tbody>)
             ) : (
               <tbody className="divide-y divide-grey/70">
                 {allHistoricalOrders.map((allHistoricalOrder, index) => {
@@ -518,7 +520,7 @@ export default function Trade() {
                           <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={allHistoricalOrder.tokenIn.logoURI}
+                              src={logoMap[allHistoricalOrder.tokenIn.id]}
                             />
                             {parseFloat(allHistoricalOrder.amountIn).toFixed(
                               3
@@ -531,7 +533,7 @@ export default function Trade() {
                           <div className="flex items-center text-xs text-white gap-x-2 text-left">
                             <img
                               className="w-[23px] h-[23px]"
-                              src={allHistoricalOrder.tokenOut.logoURI}
+                              src={logoMap[allHistoricalOrder.tokenOut.id]}
                             />
                             {parseFloat(allHistoricalOrder.amountOut).toFixed(
                               3
@@ -556,18 +558,16 @@ export default function Trade() {
                         </td>
                         <td className="md:table-cell hidden">
                           <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
-                            <span className="z-50 px-3">
-                              {(100).toFixed(2)}% Filled
-                            </span>
-                            <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
+                            <span className="z-50 px-3">100% Filled</span>
+                            <div className="h-full bg-grey/60 w-full absolute left-0" />
                           </div>
                         </td>
                         <td className="text-grey1 text-left pl-3 text-xs md:table-cell hidden">
                           {timeDifference(
                             allHistoricalOrder.completedAtTimestamp
-                          )}
+                          )}{" "}
+                          ago
                         </td>
-                        <td className="w-[39px] h-1 md:table-cell hidden"></td>
                       </tr>
                     );
                   }

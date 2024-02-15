@@ -10,6 +10,7 @@ import CoinListItem from "./CoinListItem";
 import { useAccount, useToken } from "wagmi";
 import { useConfigStore } from "../hooks/useConfigStore";
 import { defaultTokenLogo, logoMapKey } from "../utils/tokens";
+import { isAddress } from "@ethersproject/address";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
@@ -17,18 +18,6 @@ export default function SelectToken(props) {
   const [customInput, setCustomInput] = useState("");
   const [tokenInfo, setTokenInfo] = useState(undefined);
 
-  const isAddress = (input: string) => {
-    // validate address
-    const tokenAddressRegex = /^0x[a-fA-F0-9]{40}$/;
-    if (
-      customInput.match(tokenAddressRegex)?.length == 1 &&
-      customInput.length == 42
-    ) {
-      // if not in listed tokens or search tokens we need to fetch data from the chain
-      return true;
-    }
-    return false;
-  };
 
   const [
     chainId,
