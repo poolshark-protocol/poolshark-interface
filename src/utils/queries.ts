@@ -202,7 +202,6 @@ export const getLimitPoolFromFactory = (
               id
               poolType
               epoch
-              poolType
               token0{
                   id
                   name
@@ -247,7 +246,7 @@ export const getLimitPoolFromFactory = (
       : `
       {
           limitPools(
-            where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}", poolType:"${poolTypeId}"}},
+            where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}, poolType:"${poolTypeId}"},
             orderBy: poolLiquidity,
             orderDirection: desc
           ) {

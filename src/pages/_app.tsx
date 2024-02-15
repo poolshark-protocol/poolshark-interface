@@ -145,7 +145,7 @@ function MyApp({ Component, pageProps }) {
     const networkName = supportedNetworkNames[name] ?? "unknownNetwork";
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
-      : chainProperties["arbitrum"];
+      : chainProperties["arbitrum-one"];
     setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
     setCoverSubgraph(chainConstants["coverSubgraphUrl"]);
     setCoverFactoryAddress(chainConstants["coverPoolFactory"]);
