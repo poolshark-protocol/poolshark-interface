@@ -230,7 +230,10 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
         tokenInNew,
         tokenOutNew,
         rangePosition.pool.feeTier.feeAmount,
-        limitSubgraph
+        limitSubgraph,
+        undefined,
+        undefined,
+        rangePosition.poolType
       );
     }
     router.push({

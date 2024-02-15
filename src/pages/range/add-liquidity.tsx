@@ -25,7 +25,7 @@ import { chainProperties } from "../../utils/chains";
 import router from "next/router";
 import { inputHandler, parseUnits } from "../../utils/math/valueMath";
 import SelectToken from "../../components/SelectToken";
-import { feeTierMap, feeTiers } from "../../utils/pools";
+import { feeTierMap, feeTiers, limitPoolTypeIds } from "../../utils/pools";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { fetchRangePools } from "../../utils/queries";
 import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButton";
@@ -208,7 +208,10 @@ export default function AddLiquidity({}) {
           originalTokenIn,
           originalTokenOut,
           parseInt(pool.feeTier.feeAmount),
-          limitSubgraph
+          limitSubgraph,
+          undefined,
+          undefined,
+          limitPoolTypeIds["constant-product-1.1"]
         );
       }
       setIsLoading(false);
@@ -282,7 +285,10 @@ export default function AddLiquidity({}) {
             originalTokenIn,
             originalTokenOut,
             feeAmount,
-            limitSubgraph
+            limitSubgraph,
+            undefined,
+            undefined,
+            limitPoolTypeIds["constant-product-1.1"]
           );
         } else if (
           router.query.poolId == ZERO_ADDRESS &&
@@ -324,10 +330,10 @@ export default function AddLiquidity({}) {
             },
           });
         } else {
-          setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
+          setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph, undefined, undefined, limitPoolTypeIds["constant-product-1.1"]);
         }
       } else {
-        setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
+        setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph, undefined, undefined, limitPoolTypeIds["constant-product-1.1"]);
       }
     }
   }
