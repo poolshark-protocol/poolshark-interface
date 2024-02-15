@@ -174,6 +174,9 @@ export const chainProperties = {
       subgraphUrl:
         "https://api.thegraph.com/subgraphs/name/bond-protocol/bond-protocol-arbitrum-mainnet",
     },
+    whitelistedPools: [
+      '0x7b47619045ae93f9311d0562a43c244c42bfe485' // FIN-WETH 0.1%
+    ],
   },
   "scroll": {
     chainName: "Scroll Mainnet",
