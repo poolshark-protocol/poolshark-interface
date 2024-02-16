@@ -149,7 +149,6 @@ export default function AddLiquidity({}) {
     setDisplay: setDisplayOut,
     display: displayOut,
   } = useInputBox();
-  const [showTooltip, setShowTooltip] = useState(false);
   const [amountInSetLast, setAmountInSetLast] = useState(true);
   const [amountInDisabled, setAmountInDisabled] = useState(false);
   const [amountOutDisabled, setAmountOutDisabled] = useState(false);
@@ -163,7 +162,7 @@ export default function AddLiquidity({}) {
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address != ZERO_ADDRESS) {
       setPairSelected(true);
       if (rangePoolData.feeTier != undefined) {
-        updatePools(parseInt(rangePoolData.feeTier.feeAmount));
+        fetchNewPoolFromTokens();
       }
     } else {
       setPairSelected(false);
@@ -176,7 +175,7 @@ export default function AddLiquidity({}) {
       !isNaN(parseInt(router.query.feeTier.toString())) &&
       rangePoolData.feeTier == undefined
     ) {
-      updatePools(parseInt(router.query.feeTier.toString()));
+      fetchPoolFromRouter(parseInt(router.query.feeTier.toString()));
     }
   }, [router.query.feeTier]);
 
@@ -252,121 +251,88 @@ export default function AddLiquidity({}) {
     }
   }, [tokenOut.address]);
 
-  async function updatePools(feeAmount: number) {
-    /// @notice - this should filter by the poolId in the actual query
+  async function fetchPoolFromRouter(feeAmount) {
     const data = await fetchRangePools(limitSubgraph);
     if (data["data"]) {
       const pools = data["data"].limitPools;
-      //try to get the pool from routing params
+
       var pool = pools.find(
         (pool) =>
           pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
       );
-      console.log("rangePoolData", rangePoolData);
-      if (
-        router.query.feeTier &&
-        !isNaN(parseInt(router.query.feeTier.toString())) &&
-        rangePoolData.feeTier == undefined
-      ) {
-        console.log("1");
-        //after changing to a non existing pool with the same tokens -> price range keeps there
-
-        //after changing to  different tokens with no existing pools -> price range resets to 0
-
-        //after changing to different tokens with existing pools -> should land on the existing pool with the new price ranges
-
-        //if initial pool is non existing -> price range initiates at 0
-
-        if (router.query.poolId != ZERO_ADDRESS && pool != undefined) {
-          console.log("2");
-          const originalTokenIn = {
-            name: pool.token0.symbol,
-            address: pool.token0.id,
-            symbol: pool.token0.symbol,
-            decimals: pool.token0.decimals,
-            userBalance: pool.token0.balance,
-            callId: 0,
-          };
-          const originalTokenOut = {
-            name: pool.token1.symbol,
-            address: pool.token1.id,
-            symbol: pool.token1.symbol,
-            decimals: pool.token1.decimals,
-            userBalance: pool.token1.balance,
-            callId: 1,
-          };
-          setTokenIn(originalTokenOut, originalTokenIn, "0", true);
-          setTokenOut(originalTokenIn, originalTokenOut, "0", false);
-          setRangePoolFromFeeTier(
-            originalTokenIn,
-            originalTokenOut,
-            feeAmount,
-            limitSubgraph,
-            undefined,
-            undefined,
-            limitPoolTypeIds["constant-product-1.1"]
-          );
-        } else if (
-          router.query.poolId == ZERO_ADDRESS &&
-          isAddress(router.query.tokenIn?.toString()) &&
-          isAddress(router.query.tokenOut?.toString()) &&
-          !isNaN(parseInt(router.query.chainId.toString())) &&
-          parseInt(router.query?.chainId.toString()) == chainId
-        ) {
-          console.log("3");
-          if (
-            tokenIn.address != router.query.tokenIn ||
-            tokenOut.address != router.query.tokenOut
-          ) {
-            const tokenInAddress = router.query.tokenIn?.toString();
-            const tokenOutAddress = router.query.tokenOut?.toString();
-            const routerTokenIn = searchtokenList.find(
-              (token) =>
-                token.address.toLowerCase() == tokenInAddress.toLowerCase() &&
-                (token.native?.toString() == router.query.tokenInNative ||
-                  token.native == undefined)
-            );
-            const routerTokenOut = searchtokenList.find(
-              (token) =>
-                token.address.toLowerCase() == tokenOutAddress.toLowerCase() &&
-                (token.native?.toString() == router.query.tokenOutNative ||
-                  token.native == undefined)
-            );
-            setTokenIn(routerTokenOut, routerTokenIn, "0", true);
-            setTokenOut(routerTokenIn, routerTokenOut, "0", false);
-          }
-          setRangePoolData({
-            ...rangePoolData,
-            feeTier: {
-              ...rangePoolData.feeTier,
-              feeAmount: feeAmount,
-              tickSpacing: feeTierMap[feeAmount].tickSpacing,
-            },
-          });
-        } else {
-          setRangePoolFromFeeTier(
-            tokenIn,
-            tokenOut,
-            feeAmount,
-            limitSubgraph,
-            undefined,
-            undefined,
-            limitPoolTypeIds["constant-product-1.1"]
-          );
-        }
-      } else {
+      //if pool exists
+      if (pool) {
+        const originalTokenIn = {
+          name: pool.token0.symbol,
+          address: pool.token0.id,
+          symbol: pool.token0.symbol,
+          decimals: pool.token0.decimals,
+          userBalance: pool.token0.balance,
+          callId: 0,
+        };
+        const originalTokenOut = {
+          name: pool.token1.symbol,
+          address: pool.token1.id,
+          symbol: pool.token1.symbol,
+          decimals: pool.token1.decimals,
+          userBalance: pool.token1.balance,
+          callId: 1,
+        };
+        setTokenIn(originalTokenOut, originalTokenIn, "0", true);
+        setTokenOut(originalTokenIn, originalTokenOut, "0", false);
         setRangePoolFromFeeTier(
-          tokenIn,
-          tokenOut,
+          originalTokenIn,
+          originalTokenOut,
           feeAmount,
           limitSubgraph,
           undefined,
           undefined,
           limitPoolTypeIds["constant-product-1.1"]
         );
+      } else {
+        const tokenInAddress = router.query.tokenIn?.toString();
+        const tokenOutAddress = router.query.tokenOut?.toString();
+        const routerTokenIn = searchtokenList.find(
+          (token) =>
+            token.address.toLowerCase() == tokenInAddress.toLowerCase() &&
+            (token.native?.toString() == router.query.tokenInNative ||
+              token.native == undefined)
+        );
+        const routerTokenOut = searchtokenList.find(
+          (token) =>
+            token.address.toLowerCase() == tokenOutAddress.toLowerCase() &&
+            (token.native?.toString() == router.query.tokenOutNative ||
+              token.native == undefined)
+        );
+        setTokenIn(routerTokenOut, routerTokenIn, "0", true);
+        setTokenOut(routerTokenIn, routerTokenOut, "0", false);
       }
     }
   }
+
+  async function fetchNewPoolFromTokens() {
+    const data = await fetchRangePools(limitSubgraph);
+    if (data["data"]) {
+      const pools = data["data"].limitPools;
+    }
+    //after changing to different tokens with existing pools -> should land on the existing pool with the new price ranges
+    //after changing to different tokens with no existing pools -> price range resets to 0
+  }
+
+  function fetchPoolSameTokensDifferentFeeTier(feeAmount: number) {
+    //after changing to a non existing pool with the same tokens -> price range keeps there
+    setRangePoolFromFeeTier(
+      tokenIn,
+      tokenOut,
+      feeAmount,
+      limitSubgraph,
+      undefined,
+      undefined,
+      limitPoolTypeIds["constant-product-1.1"]
+    );
+  }
+
+  //if initial pool is non existing -> price range initiates at 0
 
   useEffect(() => {
     if (!manualRange) {
@@ -387,7 +353,7 @@ export default function AddLiquidity({}) {
   //sames as updatePools but triggered from the html
   const handleManualFeeTierChange = async (feeAmount: number) => {
     setManualRange(false);
-    updatePools(feeAmount);
+    fetchPoolSameTokensDifferentFeeTier(feeAmount);
     setRangePoolData({
       ...rangePoolData,
       feeTier: {
