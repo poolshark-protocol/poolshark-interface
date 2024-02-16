@@ -191,33 +191,37 @@ export default function AddLiquidity({}) {
       ) {
         if (!chainSwitched) setChainSwitched(true);
         const pool = data["data"].limitPools[0];
-        const originalTokenIn = {
-          name: pool.token0.symbol,
-          address: pool.token0.id,
-          symbol: pool.token0.symbol,
-          decimals: pool.token0.decimals,
-          userBalance: pool.token0.balance,
-          callId: 0,
-        };
-        const originalTokenOut = {
-          name: pool.token1.symbol,
-          address: pool.token1.id,
-          symbol: pool.token1.symbol,
-          decimals: pool.token1.decimals,
-          userBalance: pool.token1.balance,
-          callId: 1,
-        };
-        setTokenIn(originalTokenOut, originalTokenIn, "0", true);
-        setTokenOut(originalTokenIn, originalTokenOut, "0", false);
-        setRangePoolFromFeeTier(
-          originalTokenIn,
-          originalTokenOut,
-          parseInt(pool.feeTier.feeAmount),
-          limitSubgraph,
-          undefined,
-          undefined,
-          limitPoolTypeIds["constant-product-1.1"]
-        );
+        if (pool) {
+          const originalTokenIn = {
+            name: pool.token0.symbol,
+            address: pool.token0.id,
+            symbol: pool.token0.symbol,
+            decimals: pool.token0.decimals,
+            userBalance: pool.token0.balance,
+            callId: 0,
+          };
+          const originalTokenOut = {
+            name: pool.token1.symbol,
+            address: pool.token1.id,
+            symbol: pool.token1.symbol,
+            decimals: pool.token1.decimals,
+            userBalance: pool.token1.balance,
+            callId: 1,
+          };
+          setTokenIn(originalTokenOut, originalTokenIn, "0", true);
+          setTokenOut(originalTokenIn, originalTokenOut, "0", false);
+          setRangePoolFromFeeTier(
+            originalTokenIn,
+            originalTokenOut,
+            parseInt(pool.feeTier.feeAmount),
+            limitSubgraph,
+            undefined,
+            undefined,
+            limitPoolTypeIds["constant-product-1.1"]
+          );
+        } else {
+          router.push("/range");
+        }
       }
       setIsLoading(false);
     };
@@ -303,7 +307,7 @@ export default function AddLiquidity({}) {
     }
   }
 
-  function fetchNewPoolFromTokens() {
+  async function fetchNewPoolFromTokens() {
     //after changing to different tokens with existing pools -> should land on the existing pool with the new price ranges
     //after changing to different tokens with no existing pools -> price range resets to 0
     console.log("fetching new pool from tokens");
@@ -316,6 +320,7 @@ export default function AddLiquidity({}) {
       undefined,
       limitPoolTypeIds["constant-product-1.1"]
     );
+    console.log("rangePoolData.id", rangePoolData.id);
     if (rangePoolData.id == ZERO_ADDRESS) {
       setRangePoolData({
         ...rangePoolData,
@@ -344,6 +349,7 @@ export default function AddLiquidity({}) {
   useEffect(() => {
     if (!manualRange && rangePoolData.poolPrice) {
       console.log("setting default range");
+      console.log("pool price", rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
       setDefaultRange(
         tokenIn,
@@ -399,7 +405,7 @@ export default function AddLiquidity({}) {
       setMinInput("");
       setMaxInput("");
     }
-  }, [rangePoolData?.poolPrice]);
+  }, [rangePoolData?.poolPrice, rangePoolData?.id]);
 
   ////////////////////////////////Token Prices
 
