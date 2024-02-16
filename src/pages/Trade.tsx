@@ -344,7 +344,7 @@ export default function Trade() {
       functionName: "allowance",
       args: [address, getRouterAddress(networkName)],
       chainId: chainId,
-      watch: needsAllowanceIn,
+      watch: true,
       enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
       onError(error) {
         console.log("Error allowance", error);
