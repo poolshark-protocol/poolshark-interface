@@ -1,3 +1,4 @@
+import { limitPoolTypeIds } from "./pools";
 import {
   getLimitTickIfNotZeroForOne,
   getLimitTickIfZeroForOne,
@@ -131,13 +132,26 @@ export const getClaimTick = async (
   return claimTick;
 };
 
-export function mapUserRangePositions(rangePositions) {
+export function mapUserRangePositions(
+  rangePositions,
+  setNumLegacyPositions?: any,
+  resetNumLegacyPositions?: any,
+  setNumCurrentPositions?: any,
+  resetNumCurrentPositions?: any,
+) {
   const mappedRangePositions = [];
+  if (resetNumLegacyPositions) {
+    resetNumLegacyPositions()
+  }
+  if (resetNumCurrentPositions) {
+    resetNumCurrentPositions()
+  }
   rangePositions?.map((rangePosition) => {
     const rangePositionData = {
       id: rangePosition.id,
       positionId: rangePosition.positionId,
       poolId: rangePosition.pool.id,
+      poolType: Number(rangePosition.pool.poolType),
       staked: rangePosition.staked,
       tokenZero: rangePosition.pool.token0,
       valueTokenZero: rangePosition.pool.token0.usdPrice,
@@ -161,6 +175,12 @@ export function mapUserRangePositions(rangePositions) {
       volumeEth: (parseFloat(rangePosition.pool.volumeEth) / 1).toFixed(2),
       userOwnerAddress: rangePosition.owner.replace(/"|'/g, ""),
     };
+    if (setNumLegacyPositions && rangePositionData.poolType != limitPoolTypeIds["constant-product-1.1"]) {
+      setNumLegacyPositions()
+    }
+    if (setNumCurrentPositions && rangePositionData.poolType == limitPoolTypeIds["constant-product-1.1"]) {
+      setNumCurrentPositions()
+    }
     mappedRangePositions.push(rangePositionData);
   });
   return mappedRangePositions;
@@ -267,6 +287,7 @@ export function mapUserLimitPositions(limitPositions) {
       id: limitPosition.id,
       positionId: limitPosition.positionId,
       pool: limitPosition.pool,
+      poolType: Number(limitPosition.pool.poolType),
       poolId: limitPosition.pool.id,
       amountIn: limitPosition.amountIn,
       amountFilled: limitPosition.amountFilled,
