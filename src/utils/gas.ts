@@ -113,7 +113,9 @@ export const gasEstimateSwap = async (
       .connect(signer)
       .estimateGas.multiSwapSplit(
         poolAddresses,
-        swapParams,
+        swapParams[0],
+        BN_ZERO,
+        1897483712,
         {
           value: getSwapRouterButtonMsgValue(
             tokenIn.native,
