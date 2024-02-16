@@ -84,16 +84,21 @@ export const gasEstimateSwap = async (
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
   amountIn: BigNumber,
+  amountOut: BigNumber,
   signer: Signer,
   isConnected: boolean,
   setGasFee,
   setGasLimit,
 ): Promise<void> => {
   try {
-    
     if (poolAddresses?.length == 0 || !signer?.provider || swapParams?.length == 0) {
       setGasFee("$0.00");
       setGasLimit(BN_ZERO);
+      return
+    }
+    // check for params and input mismatch
+    if (swapParams[0].exactIn && !swapParams[0].amount.eq(amountIn) || 
+        !swapParams[0].exactIn && !swapParams[0].amount.eq(amountOut)) {
       return
     }
     const ethUsdQuery = await fetchEthPrice();
@@ -138,8 +143,9 @@ export const gasEstimateSwap = async (
     });
     setGasFee(formattedPrice);
     setGasLimit(gasUnits);
+    console.log('swap gas estimate', gasUnits.toString())
   } catch (error) {
-    console.log('swap gas error', swapParams, error)
+    console.log('swap gas error', swapParams[0].amount.toString(), amountIn.toString(), error)
     setGasFee("$0.00");
     setGasLimit(BN_ZERO);
   }
