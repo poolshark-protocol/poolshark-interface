@@ -194,7 +194,7 @@ export const chainProperties = {
     daiAddress: "0xcA77eB3fEFe3725Dc33bccB54eDEFc3D9f764f97" as `0x${string}`,
     finAddress: "0x66864e3954dac74b9377ef25e4b47ca47423688e" as `0x${string}`,
     routerAddress:
-      "0x895e1c476130ce9e1b19e01be8801f19122a958c" as `0x${string}`,
+      "0x5abbbdd87ab3578816c0411151b9e02713181541" as `0x${string}`,
     rangeStakerAddress:
       "0xebf57cb31ed38e6ccb53fb71ba246ea549c42e51" as `0x${string}`,
     coverPoolFactory:
