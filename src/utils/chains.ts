@@ -159,7 +159,7 @@ export const chainProperties = {
     coverSubgraphUrl:
       "",
     limitSubgraphUrl:
-      "https://arbitrum-mainnet.graph-eu.p2pify.com/27c3c2867e193dcf17ca262f64efe2a4/limit-arbitrum-redeploy",
+      "https://arbitrum-mainnet.graph-eu.p2pify.com/47478218b2f45b5073b1ff2cd5483700/arbitrum-limit-v1_1",
     bondProtocol: {
       auctioneerAddress: "0xf7f9a96cdbfefd70bda14a8f30ec503b16bce9b1",
       tellerAddress: "0x007f7735baf391e207e3aa380bb53c4bd9a5fed6",
@@ -174,6 +174,9 @@ export const chainProperties = {
       subgraphUrl:
         "https://api.thegraph.com/subgraphs/name/bond-protocol/bond-protocol-arbitrum-mainnet",
     },
+    whitelistedPools: [
+      '0x7b47619045ae93f9311d0562a43c244c42bfe485' // FIN-WETH 0.3%
+    ],
   },
   "scroll": {
     chainName: "Scroll Mainnet",
