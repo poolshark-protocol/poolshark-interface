@@ -91,15 +91,16 @@ export const gasEstimateSwap = async (
 ): Promise<void> => {
   try {
     
-    if (poolAddresses?.length == 0 || !signer.provider) {
+    if (poolAddresses?.length == 0 || !signer?.provider || swapParams?.length == 0) {
       setGasFee("$0.00");
       setGasLimit(BN_ZERO);
+      return
     }
     const ethUsdQuery = await fetchEthPrice();
     const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     let gasUnits: BigNumber;
-    if (poolAddresses?.length == 0 || !signer.provider) {
+    if (poolAddresses?.length == 0 || !signer.provider || swapParams?.length == 0) {
       setGasFee("$0.00");
       setGasLimit(BN_ZERO);
     }
@@ -125,7 +126,7 @@ export const gasEstimateSwap = async (
         }
       );
     } else {
-      gasUnits = BigNumber.from(1000000);
+      return
     }
     const gasPrice = await signer.provider.getGasPrice();
     const networkFeeWei = gasPrice.mul(gasUnits);
@@ -136,10 +137,11 @@ export const gasEstimateSwap = async (
       currency: "USD",
     });
     setGasFee(formattedPrice);
-    setGasLimit(gasUnits.mul(200).div(100));
+    setGasLimit(gasUnits);
   } catch (error) {
+    console.log('swap gas error', swapParams, error)
     setGasFee("$0.00");
-    setGasLimit(BigNumber.from(1000000));
+    setGasLimit(BN_ZERO);
   }
 };
 
@@ -157,8 +159,6 @@ export const gasEstimateMintLimit = async (
   networkName: string,
 ): Promise<void> => {
   try {
-    
-
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
     if (!rangePoolRoute || 
