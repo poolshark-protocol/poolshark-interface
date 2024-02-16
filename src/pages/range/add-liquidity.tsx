@@ -310,6 +310,12 @@ export default function AddLiquidity({}) {
   async function fetchNewPoolFromTokens() {
     //after changing to different tokens with existing pools -> should land on the existing pool with the new price ranges
     //after changing to different tokens with no existing pools -> price range resets to 0
+    setRangePoolData({
+      ...rangePoolData,
+      liquitidy: undefined,
+      poolPrice: undefined,
+      tickAtPrice: undefined,
+    });
     console.log("fetching new pool from tokens");
     setRangePoolFromFeeTier(
       tokenIn,
@@ -320,15 +326,6 @@ export default function AddLiquidity({}) {
       undefined,
       limitPoolTypeIds["constant-product-1.1"]
     );
-    console.log("rangePoolData.id", rangePoolData.id);
-    if (rangePoolData.id == ZERO_ADDRESS) {
-      setRangePoolData({
-        ...rangePoolData,
-        liquitidy: undefined,
-        poolPrice: undefined,
-        tickAtPrice: undefined,
-      });
-    }
   }
 
   function fetchPoolSameTokensDifferentFeeTier(feeAmount: number) {
@@ -345,11 +342,12 @@ export default function AddLiquidity({}) {
     );
   }
 
-  //if initial pool is non existing -> price range initiates at 0
+  //this sets the default position price range
   useEffect(() => {
-    if (!manualRange && rangePoolData.poolPrice) {
+    console.log("rangePoolData", rangePoolData);
+    if (rangePoolData.poolPrice) {
       console.log("setting default range");
-      console.log("pool price", rangePoolData.poolPrice);
+      const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
       setDefaultRange(
         tokenIn,
@@ -361,8 +359,16 @@ export default function AddLiquidity({}) {
         setMaxInput,
         rangePoolData?.id
       );
+      setRangePrice(
+        TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut)
+      );
+      setRangeSqrtPrice(sqrtPrice);
+    } else {
+      console.log("no pool price");
+      setMinInput("");
+      setMaxInput("");
     }
-  }, [manualRange, rangePoolData?.id]);
+  }, [manualRange, rangePoolData]);
 
   //sames as updatePools but triggered from the html
   const handleManualFeeTierChange = async (feeAmount: number) => {
@@ -377,35 +383,6 @@ export default function AddLiquidity({}) {
       },
     });
   };
-
-  //this sets the default position price range
-  useEffect(() => {
-    if (rangePoolData.poolPrice) {
-      console.log("setting default range");
-      console.log("pool price", rangePoolData.poolPrice);
-      const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
-      const tickAtPrice = rangePoolData.tickAtPrice;
-      if (rangePoolAddress != ZERO_ADDRESS && rangePrice == undefined) {
-        setDefaultRange(
-          tokenIn,
-          tokenOut,
-          networkName,
-          priceOrder,
-          tickAtPrice,
-          setMinInput,
-          setMaxInput
-        );
-      }
-      setRangePrice(
-        TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut)
-      );
-      setRangeSqrtPrice(sqrtPrice);
-    } else {
-      console.log("no pool price");
-      setMinInput("");
-      setMaxInput("");
-    }
-  }, [rangePoolData?.poolPrice, rangePoolData?.id]);
 
   ////////////////////////////////Token Prices
 
