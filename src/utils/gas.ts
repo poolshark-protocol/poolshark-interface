@@ -100,7 +100,7 @@ export const gasEstimateSwap = async (
     const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     let gasUnits: BigNumber;
-    if (poolAddresses?.length == 0 || !signer.provider) {
+    if (poolAddresses?.length == 0 || !signer.provider || swapParams?.length == 0) {
       setGasFee("$0.00");
       setGasLimit(BN_ZERO);
     }
@@ -140,6 +140,8 @@ export const gasEstimateSwap = async (
     setGasLimit(gasUnits);
   } catch (error) {
     console.log('swap gas error', swapParams, error)
+    setGasFee("$0.00");
+    setGasLimit(BN_ZERO);
   }
 };
 
