@@ -18,6 +18,7 @@ import {
   getLimitTokenUsdPrice,
   logoMapKey,
 } from "../../utils/tokens";
+import { InformationCircleIcon } from "@heroicons/react/20/solid";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
@@ -1380,9 +1381,31 @@ export default function AddLiquidity({}) {
               />{" "}
               STAKE RANGE POSITION
             </label>
-            <span className="text-green-500/40 underline text-sm hidden">
-              How does it work?
-            </span>
+            <TooltipProvider>
+                <Tooltip delayDuration={100}>
+                  <TooltipTrigger>
+                    <div>
+                      <span className="text-main2 flex items-center justify-end gap-x-3">
+                        <div className="flex items-center gap-x-1.5  text-green-600 text-xs">
+                          <InformationCircleIcon className="w-4" /> 
+                          Info
+                        </div>
+                      </span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-44 py-3">
+                    <div className="flex items-center flex-col gap-y-1 w-full">
+                      <div className="flex justify-between items-center w-full text-left">
+                        <div className="flex items-center gap-x-1">
+                          <span className="text-grey3 "> Staking this position will allow you to earn oFIN</span>
+                        
+                      </div>
+                      </div>
+
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
           </div>
         </div>
         <div className="bg-dark mt-8"></div>
