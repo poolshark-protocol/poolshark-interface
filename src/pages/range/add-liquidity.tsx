@@ -1353,10 +1353,10 @@ export default function AddLiquidity({}) {
               >
                 <h1 className="flex items-center gap-x-2 ">
                   {feeTier.tier} FEE
-                  {((chainId === 42161 && tokenIn.symbol === "WETH" && tokenOut.symbol === "FIN" && feeTier.tier === "0.3%") ||
-                    (chainId === 34443 && tokenIn.symbol === "USDC" && tokenOut.symbol === "USDT" && feeTier.tier === "0.1%") ||
-                    (chainId === 34443 && tokenIn.symbol === "WETH" && tokenOut.symbol === "USDC" && feeTier.tier === "0.1%") ||
-                    (chainId === 34443 && tokenIn.symbol === "WETH" && tokenOut.symbol === "USDT" && feeTier.tier === "0.1%")) && (
+                  {((chainId === 42161 && rangePoolAddress === "0x7b47619045ae93f9311d0562a43c244c42bfe485" && feeTier.tier === "0.3%") ||
+                    (chainId === 34443 && rangePoolAddress === "0xfc16003afdff37580c9de7deeeb87f9c65b6908a" && feeTier.tier === "0.1%") ||
+                    (chainId === 34443 && rangePoolAddress === "0xc20b141edd79f912897651eba9a2bca6b17dc7f1" && feeTier.tier === "0.1%") ||
+                    (chainId === 34443 && rangePoolAddress === "0x7efec766f18d4b79abf5b550bfe59a1bffb37d95" && feeTier.tier === "0.1%")) && (
                         <SparklesIcon className="text-main2 w-[16px]" />
                       )}
                 </h1>
