@@ -343,6 +343,37 @@ export const poolsharkRouterABI = [
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "tgePool",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "staker",
+        "type": "address"
+      }
+    ],
+    "name": "deployTge",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ethAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "limitPoolFactory",
     "outputs": [
@@ -373,7 +404,30 @@ export const poolsharkRouterABI = [
         "type": "bytes"
       }
     ],
-    "name": "limitPoolMintCallback",
+    "name": "limitPoolMintLimitCallback",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "int256",
+        "name": "amount0Delta",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "amount1Delta",
+        "type": "int256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "limitPoolMintRangeCallback",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -790,9 +844,19 @@ export const poolsharkRouterABI = [
             "type": "bytes"
           }
         ],
-        "internalType": "struct PoolsharkStructs.SwapParams[]",
+        "internalType": "struct PoolsharkStructs.SwapParams",
         "name": "params",
-        "type": "tuple[]"
+        "type": "tuple"
+      },
+      {
+        "internalType": "uint160",
+        "name": "exchangeRateLimit",
+        "type": "uint160"
+      },
+      {
+        "internalType": "uint32",
+        "name": "deadline",
+        "type": "uint32"
       }
     ],
     "name": "multiSwapSplit",
