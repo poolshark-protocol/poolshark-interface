@@ -44,6 +44,7 @@ import {
 import { Checkbox } from "../../components/ui/checkbox";
 import { isAddress } from "ethers/lib/utils.js";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/20/solid";
+import { convertTimestampToDateFormat } from "../../utils/time";
 
 export default function AddLiquidity({}) {
   const [
@@ -225,43 +226,18 @@ export default function AddLiquidity({}) {
 
   const [manualRange, setManualRange] = useState(false);
 
-  useEffect(() => {
-    if (
-      tokenIn.address != ZERO_ADDRESS &&
-      (rangePoolData?.id == ZERO_ADDRESS || rangePoolData?.id == undefined)
-    ) {
-      getLimitTokenUsdPrice(
-        tokenIn.address,
-        setTokenInRangeUSDPrice,
-        limitSubgraph
-      );
-    }
-  }, [tokenIn.address]);
-
-  useEffect(() => {
-    if (
-      tokenOut.address != ZERO_ADDRESS &&
-      (rangePoolData?.id == ZERO_ADDRESS || rangePoolData?.id == undefined)
-    ) {
-      getLimitTokenUsdPrice(
-        tokenOut.address,
-        setTokenOutRangeUSDPrice,
-        limitSubgraph
-      );
-    }
-  }, [tokenOut.address]);
-
   async function fetchPoolFromRouter(feeAmount) {
+    console.log("fetching pool from router");
     const data = await fetchRangePools(limitSubgraph);
     if (data["data"]) {
       const pools = data["data"].limitPools;
-
       var pool = pools.find(
         (pool) =>
           pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
       );
       //if pool exists
       if (pool) {
+        console.log("pool found");
         const originalTokenIn = {
           name: pool.token0.symbol,
           address: pool.token0.id,
@@ -290,6 +266,8 @@ export default function AddLiquidity({}) {
           limitPoolTypeIds["constant-product-1.1"]
         );
       } else {
+        console.log("pool not found");
+        console.log("router.query", router.query);
         const tokenInAddress = router.query.tokenIn?.toString();
         const tokenOutAddress = router.query.tokenOut?.toString();
         const routerTokenIn = searchtokenList.find(
@@ -306,20 +284,50 @@ export default function AddLiquidity({}) {
         );
         setTokenIn(routerTokenOut, routerTokenIn, "0", true);
         setTokenOut(routerTokenIn, routerTokenOut, "0", false);
+        setRangePoolFromFeeTier(
+          tokenIn,
+          tokenOut,
+          feeAmount,
+          limitSubgraph,
+          undefined,
+          undefined,
+          limitPoolTypeIds["constant-product-1.1"]
+        );
+        setRangePoolData({
+          ...rangePoolData,
+          liquitidy: undefined,
+          poolPrice: undefined,
+          tickAtPrice: undefined,
+        });
       }
     }
   }
 
-  async function fetchNewPoolFromTokens() {
-    const data = await fetchRangePools(limitSubgraph);
-    if (data["data"]) {
-      const pools = data["data"].limitPools;
-    }
+  function fetchNewPoolFromTokens() {
     //after changing to different tokens with existing pools -> should land on the existing pool with the new price ranges
     //after changing to different tokens with no existing pools -> price range resets to 0
+    console.log("fetching new pool from tokens");
+    setRangePoolFromFeeTier(
+      tokenIn,
+      tokenOut,
+      3000,
+      limitSubgraph,
+      undefined,
+      undefined,
+      limitPoolTypeIds["constant-product-1.1"]
+    );
+    if (rangePoolData.id == ZERO_ADDRESS) {
+      setRangePoolData({
+        ...rangePoolData,
+        liquitidy: undefined,
+        poolPrice: undefined,
+        tickAtPrice: undefined,
+      });
+    }
   }
 
   function fetchPoolSameTokensDifferentFeeTier(feeAmount: number) {
+    console.log("fetching pool same tokens different fee tier");
     //after changing to a non existing pool with the same tokens -> price range keeps there
     setRangePoolFromFeeTier(
       tokenIn,
@@ -333,9 +341,9 @@ export default function AddLiquidity({}) {
   }
 
   //if initial pool is non existing -> price range initiates at 0
-
   useEffect(() => {
-    if (!manualRange) {
+    if (!manualRange && rangePoolData.poolPrice) {
+      console.log("setting default range");
       const tickAtPrice = rangePoolData.tickAtPrice;
       setDefaultRange(
         tokenIn,
@@ -367,6 +375,8 @@ export default function AddLiquidity({}) {
   //this sets the default position price range
   useEffect(() => {
     if (rangePoolData.poolPrice) {
+      console.log("setting default range");
+      console.log("pool price", rangePoolData.poolPrice);
       const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
       if (rangePoolAddress != ZERO_ADDRESS && rangePrice == undefined) {
@@ -384,12 +394,40 @@ export default function AddLiquidity({}) {
         TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut)
       );
       setRangeSqrtPrice(sqrtPrice);
+    } else {
+      console.log("no pool price");
+      setMinInput("");
+      setMaxInput("");
     }
-  }, [
-    rangePoolData?.feeTier,
-    rangePoolData?.poolPrice,
-    rangePoolData?.tickAtPrice,
-  ]);
+  }, [rangePoolData?.poolPrice]);
+
+  ////////////////////////////////Token Prices
+
+  useEffect(() => {
+    if (
+      tokenIn.address != ZERO_ADDRESS &&
+      (rangePoolData?.id == ZERO_ADDRESS || rangePoolData?.id == undefined)
+    ) {
+      getLimitTokenUsdPrice(
+        tokenIn.address,
+        setTokenInRangeUSDPrice,
+        limitSubgraph
+      );
+    }
+  }, [tokenIn.address]);
+
+  useEffect(() => {
+    if (
+      tokenOut.address != ZERO_ADDRESS &&
+      (rangePoolData?.id == ZERO_ADDRESS || rangePoolData?.id == undefined)
+    ) {
+      getLimitTokenUsdPrice(
+        tokenOut.address,
+        setTokenOutRangeUSDPrice,
+        limitSubgraph
+      );
+    }
+  }, [tokenOut.address]);
 
   ////////////////////////////////Allowances
   const { data: allowanceInRange, refetch: refetchAllowanceIn } =

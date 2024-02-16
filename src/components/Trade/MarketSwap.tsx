@@ -6,7 +6,11 @@ import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import SelectToken from "../SelectToken";
-import { inputHandler, numFormat, parseUnits } from "../../utils/math/valueMath";
+import {
+  inputHandler,
+  numFormat,
+  parseUnits,
+} from "../../utils/math/valueMath";
 import { getSwapPools } from "../../utils/pools";
 import { QuoteParams, SwapParams } from "../../utils/types";
 import { TickMath, maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
@@ -16,7 +20,7 @@ import Range from "../Icons/RangeIcon";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
 import SwapRouterButton from "../Buttons/SwapRouterButton";
-import { chainProperties } from "../../utils/chains";
+import { chainProperties, defaultNetwork } from "../../utils/chains";
 import { gasEstimateSwap, gasEstimateWethCall } from "../../utils/gas";
 import JSBI from "jsbi";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
@@ -34,7 +38,7 @@ export default function MarketSwap() {
       state.networkName,
       state.limitSubgraph,
       state.setLimitSubgraph,
-      state.logoMap
+      state.logoMap,
     ]);
 
   //CONFIG STORE
@@ -125,11 +129,11 @@ export default function MarketSwap() {
   const router = useRouter();
 
   useEffect(() => {
-    if(limitTabSelected) return
-    setDisplayIn('')
-    setAmountIn(BN_ZERO)
-    setDisplayOut('')
-    setAmountOut(BN_ZERO)
+    if (limitTabSelected) return;
+    setDisplayIn("");
+    setAmountIn(BN_ZERO);
+    setDisplayOut("");
+    setAmountOut(BN_ZERO);
   }, [limitTabSelected]);
 
   /////////////////////////////Fetch Pools
@@ -149,15 +153,14 @@ export default function MarketSwap() {
           setTokenInTradeUSDPrice,
           setTokenOutTradeUSDPrice,
           setTradePoolPrice,
-          setTradePoolLiquidity,
+          setTradePoolLiquidity
         );
       }
-    }, 
-    quoteRefetchDelay);
-   
+    }, quoteRefetchDelay);
+
     // Clear the interval when the component unmounts
     return () => clearInterval(interval);
-   }, [exactIn ? amountIn : amountOut, tradePoolData?.id]);
+  }, [exactIn ? amountIn : amountOut, tradePoolData?.id]);
 
   //can go to utils
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
@@ -301,42 +304,54 @@ export default function MarketSwap() {
 
   useEffect(() => {
     if (poolQuotes && poolQuotes[0]) {
-      if (poolQuotes[0].amountIn?.gt(BN_ZERO) && poolQuotes[0].amountOut?.gt(BN_ZERO)) {
+      if (
+        poolQuotes[0].amountIn?.gt(BN_ZERO) &&
+        poolQuotes[0].amountOut?.gt(BN_ZERO)
+      ) {
         if (exactIn) {
           setAmountOut(poolQuotes[0].amountOut);
           setDisplayOut(
-            numFormat(parseFloat(
-              ethers.utils.formatUnits(
-                poolQuotes[0].amountOut.toString(),
-                tokenOut.decimals
-              )
-            ), 5)
+            numFormat(
+              parseFloat(
+                ethers.utils.formatUnits(
+                  poolQuotes[0].amountOut.toString(),
+                  tokenOut.decimals
+                )
+              ),
+              5
+            )
           );
         } else {
           // add up amount outs
           // set amount out if less than current
-          let amountOutTotal: BigNumber = BN_ZERO
+          let amountOutTotal: BigNumber = BN_ZERO;
           for (let i = 0; poolQuotes[i] != undefined; i++) {
-            amountOutTotal = amountOutTotal.add(poolQuotes[i]?.amountOut)
+            amountOutTotal = amountOutTotal.add(poolQuotes[i]?.amountOut);
           }
           setAmountIn(poolQuotes[0].amountIn);
           setDisplayIn(
-            numFormat(parseFloat(
-              ethers.utils.formatUnits(
-                poolQuotes[0].amountIn.toString(),
-                tokenIn.decimals
-              )
-            ), 5)
+            numFormat(
+              parseFloat(
+                ethers.utils.formatUnits(
+                  poolQuotes[0].amountIn.toString(),
+                  tokenIn.decimals
+                )
+              ),
+              5
+            )
           );
           if (amountOutTotal.lt(amountOut)) {
-            setAmountOut(amountOutTotal)
+            setAmountOut(amountOutTotal);
             setDisplayOut(
-              numFormat(parseFloat(
-                ethers.utils.formatUnits(
-                  amountOutTotal.toString(),
-                  tokenOut.decimals
-                )
-              ), 5)
+              numFormat(
+                parseFloat(
+                  ethers.utils.formatUnits(
+                    amountOutTotal.toString(),
+                    tokenOut.decimals
+                  )
+                ),
+                5
+              )
             );
           }
         }
@@ -344,19 +359,19 @@ export default function MarketSwap() {
       } else {
         if (exactIn) {
           setAmountOut(BN_ZERO);
-          setDisplayOut('');
+          setDisplayOut("");
         } else {
           setAmountIn(BN_ZERO);
-          setDisplayIn('');
+          setDisplayIn("");
         }
-      }  
+      }
     } else if (poolQuotes != undefined) {
       if (exactIn) {
         setAmountOut(BN_ZERO);
-        setDisplayOut('');
+        setDisplayOut("");
       } else {
         setAmountIn(BN_ZERO);
-        setDisplayIn('');
+        setDisplayIn("");
       }
     }
   }, [poolQuotes, quoteParams, tradeSlippage]);
@@ -387,15 +402,10 @@ export default function MarketSwap() {
               tokenOut
             )
           );
-          let priceDiff = Math.abs(
-                              basePrice - currentPrice
-                          ) * 100 / currentPrice
-          if (priceDiff < 0 || priceDiff > 100) priceDiff = 100
-          setPriceImpact(
-            (priceDiff).toFixed(
-              2
-            )
-          );
+          let priceDiff =
+            (Math.abs(basePrice - currentPrice) * 100) / currentPrice;
+          if (priceDiff < 0 || priceDiff > 100) priceDiff = 100;
+          setPriceImpact(priceDiff.toFixed(2));
         }
         const priceDiff = basePrice * (parseFloat(tradeSlippage) / 100);
         const limitPrice =
@@ -480,7 +490,7 @@ export default function MarketSwap() {
         signer,
         isConnected,
         setSwapGasFee,
-        setSwapGasLimit,
+        setSwapGasLimit
       );
     } else {
       setSwapGasLimit(BN_ZERO);
@@ -530,12 +540,15 @@ export default function MarketSwap() {
               }`}
             >
               {pairSelected
-                ? numFormat(parseFloat(
-                    ethers.utils.formatUnits(
-                      amountOut ?? BN_ZERO,
-                      tokenOut.decimals
-                    )
-                  ), 5)
+                ? numFormat(
+                    parseFloat(
+                      ethers.utils.formatUnits(
+                        amountOut ?? BN_ZERO,
+                        tokenOut.decimals
+                      )
+                    ),
+                    5
+                  )
                 : "Select Token"}
             </div>
           </div>
@@ -563,8 +576,9 @@ export default function MarketSwap() {
                   ethers.utils.formatUnits(amountOut, tokenOut.decimals)
                 ) *
                   (100 - parseFloat(tradeSlippage))) /
-                100
-                , 5)}
+                  100,
+                5
+              )}
             </div>
           </div>
 
@@ -634,15 +648,16 @@ export default function MarketSwap() {
           </div>
         </div>
       </div>
-      <div 
-      onClick={() => {
-        switchDirection(
-          exactIn,
-          exactIn ? displayIn : displayOut,
-          exactIn ? setAmountIn : setAmountOut
-        );
-      }}
-      className="flex items-center justify-center w-full pt-10 pb-3">
+      <div
+        onClick={() => {
+          switchDirection(
+            exactIn,
+            exactIn ? displayIn : displayOut,
+            exactIn ? setAmountIn : setAmountOut
+          );
+        }}
+        className="flex items-center justify-center w-full pt-10 pb-3"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -663,8 +678,7 @@ export default function MarketSwap() {
         <div className="flex items-end justify-between text-[11px] text-grey1">
           <span>
             $
-            {!isNaN(tokenOut.decimals) &&
-            !isNaN(tokenOut.USDPrice) ? (
+            {!isNaN(tokenOut.decimals) && !isNaN(tokenOut.USDPrice) ? (
               (
                 (!isNaN(parseFloat(displayOut)) ? parseFloat(displayOut) : 0) *
                 (tokenOut.USDPrice ?? 0)
@@ -676,18 +690,16 @@ export default function MarketSwap() {
           <span>
             {tokenOut?.address != ZERO_ADDRESS ? (
               "Balance: " +
-              (!isNaN(tokenOut?.userBalance) && tokenOut.userBalance > 0 ? numFormat(tokenOut.userBalance, 5) : "0.00")
+              (!isNaN(tokenOut?.userBalance) && tokenOut.userBalance > 0
+                ? numFormat(tokenOut.userBalance, 5)
+                : "0.00")
             ) : (
               <></>
             )}
           </span>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-          {
-            <div>
-              {inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)}
-            </div>
-          }
+          {<div>{inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)}</div>}
           <div className="flex items-center gap-x-2">
             <SelectToken
               key={"out"}
@@ -751,7 +763,7 @@ export default function MarketSwap() {
                   query: {
                     feeTier: "3000",
                     poolId: ZERO_ADDRESS,
-                    tokenIn:  tokenIn.address, 
+                    tokenIn: tokenIn.address,
                     tokenInNative: tokenIn.native,
                     tokenOut: tokenOut.address,
                     tokenOutNative: tokenOut.native,
@@ -782,6 +794,11 @@ export default function MarketSwap() {
                   query: {
                     feeTier: "3000",
                     poolId: ZERO_ADDRESS,
+                    tokenIn: tokenIn.address,
+                    tokenInNative: tokenIn.native,
+                    tokenOut: tokenOut.address,
+                    tokenOutNative: tokenOut.native,
+                    chainId: chainId,
                   },
                 });
               }}
@@ -816,7 +833,7 @@ export default function MarketSwap() {
                 disabled={
                   tradeButton.disabled ||
                   (needsAllowanceIn && !tokenIn.native) ||
-                  swapGasLimit.lt(BigNumber.from('100000'))
+                  swapGasLimit.lt(BigNumber.from("100000"))
                 }
                 routerAddress={getRouterAddress(networkName)}
                 amountIn={amountIn}

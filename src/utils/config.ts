@@ -122,10 +122,10 @@ export const setDefaultRange = (
 	setMaxInput: any,
 	poolAddress?: string
 ) => {
-	console.log('setting new default range', poolAddress, isStablePool(poolAddress, networkName))
+	//console.log('setting new default range', poolAddress, isStablePool(poolAddress, networkName))
 	if (isStablePair(tokenIn, tokenOut, networkName) ||
 		(poolAddress != undefined && isStablePool(poolAddress, networkName))) {
-		console.log('stable pair')
+		//console.log('stable pair')
 		setMinInput(
 		invertPrice(
 			priceOrder == (tokenIn.callId == 0) ? "0.98" : "1.02",
@@ -139,7 +139,7 @@ export const setDefaultRange = (
 		)
 		);
 	} else {
-		console.log('non stable pair')
+		//console.log('non stable pair')
 		setMinInput(
 			invertPrice(
 				TickMath.getPriceStringAtTick(
