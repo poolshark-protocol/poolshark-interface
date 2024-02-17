@@ -142,7 +142,7 @@ export const gasEstimateSwap = async (
       currency: "USD",
     });
     setGasFee(formattedPrice);
-    setGasLimit(gasUnits);
+    setGasLimit(gasUnits.mul(110).div(100));
     console.log('swap gas estimate', gasUnits.toString())
   } catch (error) {
     console.log('swap gas error', swapParams[0].amount.toString(), amountIn.toString(), error)
