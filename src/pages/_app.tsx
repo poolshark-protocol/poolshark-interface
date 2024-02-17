@@ -28,7 +28,7 @@ import Safary from "../components/script";
 import { Toaster } from "sonner";
 
 const { chains, provider } = configureChains(
-  [arbitrum, arbitrumSepolia, scroll, mode],
+  [mode, arbitrum, scroll, arbitrumSepolia],
   [
     jsonRpcProvider({
       rpc: (chain) => ({
@@ -167,7 +167,7 @@ function MyApp({ Component, pageProps }) {
       <Safary />
       <Toaster richColors theme="dark" />
       <WagmiConfig client={wagmiClient}>
-        <RainbowKitProvider chains={chains} initialChain={arbitrum}>
+        <RainbowKitProvider chains={chains} initialChain={mode}>
           {/* <ApolloProvider client={apolloClient}> */}
           <>
             {_isConnected && !tosAccepted && (
