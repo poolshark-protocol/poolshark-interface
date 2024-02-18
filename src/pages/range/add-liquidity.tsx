@@ -1353,7 +1353,9 @@ export default function AddLiquidity({}) {
               >
                 <h1 className="flex items-center gap-x-2 ">
                   {feeTier.tier} FEE
-                  {((chainId === 42161 && rangePoolAddress === "0x7b47619045ae93f9311d0562a43c244c42bfe485" && feeTier.tier === "0.3%") ||
+                  {(
+                    (chainId === 42161 && rangePoolAddress === "0x7b47619045ae93f9311d0562a43c244c42bfe485" && feeTier.tier === "0.3%") ||
+                    (chainId === 534352 && rangePoolAddress === "0xb14917888ba92937be3d89094f83a62904ebc9dd" && feeTier.tier === "0.1%") ||
                     (chainId === 34443 && rangePoolAddress === "0xfc16003afdff37580c9de7deeeb87f9c65b6908a" && feeTier.tier === "0.1%") ||
                     (chainId === 34443 && rangePoolAddress === "0xc20b141edd79f912897651eba9a2bca6b17dc7f1" && feeTier.tier === "0.1%") ||
                     (chainId === 34443 && rangePoolAddress === "0x7efec766f18d4b79abf5b550bfe59a1bffb37d95" && feeTier.tier === "0.1%")) && (

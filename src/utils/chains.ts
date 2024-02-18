@@ -202,7 +202,10 @@ export const chainProperties = {
     coverSubgraphUrl:
       "",
     limitSubgraphUrl:
-      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-scroll/0.1.2/gn",
+      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-scroll/0.2.5/gn",
+    whitelistedPools: [
+      "0xb14917888ba92937be3d89094f83a62904ebc9dd", // ETH-USDT 0.1%
+    ],
   },
   "mode": {
     chainName: "Mode Network",
