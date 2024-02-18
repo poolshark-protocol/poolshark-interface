@@ -313,6 +313,12 @@ export default function MarketSwap() {
             ), 5)
           );
         } else {
+          // add up amount outs
+          // set amount out if less than current
+          let amountOutTotal: BigNumber = BN_ZERO
+          for (let i = 0; poolQuotes[i] != undefined; i++) {
+            amountOutTotal = amountOutTotal.add(poolQuotes[i]?.amountOut)
+          }
           setAmountIn(poolQuotes[0].amountIn);
           setDisplayIn(
             numFormat(parseFloat(
@@ -322,6 +328,17 @@ export default function MarketSwap() {
               )
             ), 5)
           );
+          if (amountOutTotal.lt(amountOut)) {
+            setAmountOut(amountOutTotal)
+            setDisplayOut(
+              numFormat(parseFloat(
+                ethers.utils.formatUnits(
+                  amountOutTotal.toString(),
+                  tokenOut.decimals
+                )
+              ), 5)
+            );
+          }
         }
         updateSwapParams(poolQuotes);
       } else {
@@ -460,6 +477,7 @@ export default function MarketSwap() {
         tokenIn,
         tokenOut,
         amountIn,
+        amountOut,
         signer,
         isConnected,
         setSwapGasFee,

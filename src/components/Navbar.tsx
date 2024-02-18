@@ -101,7 +101,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
               ) : (
                 <></>
               )}
-              {chainId === 34443 || chainId == supportedChainIds["scroll"] ? (
+              {chainId === 34443 || chainId === 42161 || chainId === supportedChainIds["scroll"] ? (
                 <Link href="/earn">
                   <div
                     className={
@@ -199,7 +199,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
             ) : (
               <></>
             )}
-            {chainId === 34443 ? (
+            {chainId === 34443 || chainId === 42161 || chainId === supportedChainIds["scroll"] ? (
               <Link href="/earn">
                 <div
                   className={

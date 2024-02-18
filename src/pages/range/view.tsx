@@ -151,7 +151,10 @@ export default function ViewRange() {
       tokenIn,
       tokenOut,
       router.query.feeTier,
-      limitSubgraph
+      limitSubgraph,
+      undefined,
+      undefined,
+      rangePositionData.poolType
     );
   }, [router.query.feeTier]);
 
@@ -227,6 +230,7 @@ export default function ViewRange() {
           data["data"].rangePositions
         );
         setAllRangePositions(mappedPositions);
+
         const positionId = rangePositionData.id ?? router.query.id;
         const position = mappedPositions.find(
           (position) => position.id == positionId
@@ -253,7 +257,10 @@ export default function ViewRange() {
             tokenInNew,
             tokenOutNew,
             position.pool.feeTier.feeAmount,
-            limitSubgraph
+            limitSubgraph,
+            undefined,
+            undefined,
+            position.poolType
           );
         }
       }

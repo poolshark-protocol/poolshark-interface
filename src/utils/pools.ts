@@ -13,13 +13,16 @@ export const getSwapPools = async (
   setTokenInTradeUSDPrice,
   setTokenOutTradeUSDPrice,
   setSwapPoolPrice?,
-  setSwapPoolLiquidity?
+  setSwapPoolLiquidity?,
+  poolTypeId?: number,
+  setSelectedFeeTier?: any,
 ) => {
   try {
     const limitPools = await getLimitPoolFromFactory(
       client,
       tokenIn.address,
-      tokenOut.address
+      tokenOut.address,
+      poolTypeId
     );
     const data = limitPools["data"];
     if (data && data["limitPools"]?.length > 0) {
@@ -30,6 +33,8 @@ export const getSwapPools = async (
           ? prev
           : current
       );
+      if (setSelectedFeeTier)
+        setSelectedFeeTier(selectedPool.feeTier.feeAmount)
       if (swapPoolData?.id != selectedPool.id) {
         setSwapPoolData(selectedPool);
       } else {
@@ -65,13 +70,15 @@ export const getLimitPoolForFeeTier = async (
   client: LimitSubgraph,
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
-  feeTier: number
+  feeTier: number,
+  poolTypeId?: number
 ) => {
   try {
     const limitPools = await getLimitPoolFromFactory(
       client,
       tokenIn.address,
-      tokenOut.address
+      tokenOut.address,
+      poolTypeId
     );
     const data = limitPools["data"];
     if (data && data["limitPools"]?.length > 0) {
@@ -181,11 +188,11 @@ export const volatilityTiers = [
 ];
 
 export const limitPoolTypeIds = {
-  "constant-product": 0,
+  "constant-product-1.1": 2,
 };
 
 export const coverPoolTypes = {
-  "constant-product": {
+  "constant-product-1.1": {
     poolshark: formatBytes32String("PSHARK-CPROD"),
   },
 };

@@ -16,6 +16,8 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 import { Checkbox } from "../../components/ui/checkbox";
 import { isWhitelistedPool } from "../../utils/config";
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/20/solid";
+import { limitPoolTypeIds } from "../../utils/pools";
 
 export default function Range() {
   const { address, isDisconnected } = useAccount();
@@ -26,6 +28,8 @@ export default function Range() {
   const [isPositionsLoading, setIsPositionsLoading] = useState(false);
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
   const [lowTVLHidden, setLowTVLHidden] = useState(true);
+  const [sort, setSort] = useState("TVL");
+  const [poolType, setPoolType] = useState("Current");
 
   const [
     chainId,
@@ -50,6 +54,12 @@ export default function Range() {
     needsRefetch,
     setNeedsRefetch,
     resetRangeLimitParams,
+    numLegacyPositions,
+    numCurrentPositions,
+    setNumLegacyPositions,
+    resetNumLegacyPositions,
+    setNumCurrentPositions,
+    resetNumCurrentPositions,
   ] = useRangeLimitStore((state) => [
     state.setTokenIn,
     state.setTokenOut,
@@ -57,6 +67,12 @@ export default function Range() {
     state.needsRefetch,
     state.setNeedsRefetch,
     state.resetRangeLimitParams,
+    state.numLegacyPositions,
+    state.numCurrentPositions,
+    state.setNumLegacyPositions,
+    state.resetNumLegacyPositions,
+    state.setNumCurrentPositions,
+    state.resetNumCurrentPositions,
   ]);
 
   const router = useRouter();
@@ -78,8 +94,8 @@ export default function Range() {
 
   useEffect(() => {
     if (address) {
-      const chainConstants = chainProperties[networkName] 
-                              ?? chainProperties["arbitrum"]
+      const chainConstants =
+        chainProperties[networkName] ?? chainProperties["arbitrum"];
       if (chainConstants["limitSubgraphUrl"]) {
         setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
         getUserRangePositionData();
@@ -97,10 +113,17 @@ export default function Range() {
   async function getUserRangePositionData() {
     try {
       setIsPositionsLoading(true);
+      resetNumLegacyPositions();
       const data = await fetchRangePositions(limitSubgraph, address);
       if (data["data"].rangePositions) {
         setAllRangePositions(
-          mapUserRangePositions(data["data"].rangePositions)
+          mapUserRangePositions(
+            data["data"].rangePositions,
+            setNumLegacyPositions,
+            resetNumLegacyPositions,
+            setNumCurrentPositions,
+            resetNumCurrentPositions
+          )
         );
         setIsPositionsLoading(false);
       }
@@ -120,8 +143,8 @@ export default function Range() {
     <div className="min-h-screen bg-black">
       <Navbar />
       <div className="container mx-auto my-8 px-3 md:px-0 pb-32">
-        <div className="flex lg:flex-row flex-col gap-x-8 gap-y-5 justify-between">
-          <div className="p-7 lg:h-[300px] w-full lg:w-[60%] flex flex-col justify-between bg-cover bg-[url('/static/images/bg/shark1.png')]">
+        <div className="flex lg:flex-row items-start flex-col gap-x-8 gap-y-5 justify-between">
+          <div className="p-7 xl:h-[300px] lg:h-[400px] w-full lg:w-[60%] flex flex-col justify-between bg-cover bg-[url('/static/images/bg/shark1.png')]">
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">
                 BECOME A LIQUIDITY PROVIDER AND EARN FEES
@@ -146,7 +169,6 @@ export default function Range() {
               onClick={() => {
                 resetRangeLimitParams(chainId);
                 if (allRangePools?.length > 0) {
-                  console.log(allRangePools[0]);
                   const tokenIn = {
                     name: allRangePools[0].tokenZero.symbol,
                     address: allRangePools[0].tokenZero.id,
@@ -167,7 +189,10 @@ export default function Range() {
                     tokenIn,
                     tokenOut,
                     allRangePools[0].feeTier.toString(),
-                    limitSubgraph
+                    limitSubgraph,
+                    undefined,
+                    undefined,
+                    limitPoolTypeIds["constant-product-1.1"]
                   );
                   router.push({
                     pathname: "/range/add-liquidity",
@@ -179,13 +204,13 @@ export default function Range() {
                   });
                 }
               }}
-              className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
+              className="px-12 mt-5 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
                 hover:opacity-80"
             >
               CREATE RANGE POSITION
             </button>
           </div>
-          <div className="lg:h-[300px] h-full w-full lg:w-[80%] xl:w-[40%] border border-grey p-7 flex flex-col justify-between">
+          <div className="xl:h-[300px] lg:h-[400px] h-full w-full lg:w-[40%] xl:w-[40%] border border-grey p-7 flex flex-col justify-between">
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">How it works</h1>
               <p className="text-sm text-grey3 font-light">
@@ -226,9 +251,36 @@ export default function Range() {
             />
           </div>
           <div className="p-6 bg-dark border border-grey rounded-[4px]">
-            <div className="text-white flex items-center text-sm gap-x-3">
-              <UserIcon />
-              <h1>YOUR POSITIONS</h1>
+            <div className="flex md:flex-row flex-col md:items-center gap-y-2 justify-between">
+              <div className="text-white flex items-center text-sm gap-x-3">
+                <UserIcon />
+                <h1>YOUR POSITIONS</h1>
+              </div>
+              <div className="bg-black flex items-center p-1 text-sm rounded-[2px]">
+                <button
+                  onClick={() => setPoolType("Current")}
+                  className={`w-full justify-center rounded-[2px] py-1.5 px-7 border ${
+                    poolType === "Current"
+                      ? "bg-main1 text-white border-main "
+                      : "border-black text-grey1"
+                  }`}
+                >
+                  CURRENT
+                </button>
+                <button
+                  onClick={() => setPoolType("Legacy")}
+                  className={`w-full items-center gap-x-2 flex justify-center rounded-[2px] py-1.5 px-5 border ${
+                    poolType === "Legacy"
+                      ? "bg-main1 text-white border-main "
+                      : "border-black text-grey1"
+                  }`}
+                >
+                  LEGACY{" "}
+                  <span className="text-xs bg-main1 rounded-full flex items-center justify-center w-6 h-6 text-main2">
+                    {numLegacyPositions}
+                  </span>
+                </button>
+              </div>
             </div>
             <div>
               {isPositionsLoading ? (
@@ -250,7 +302,19 @@ export default function Range() {
                     </div>
                   </div>
                 </div>
-              ) : isDisconnected || allRangePositions.length === 0 ? (
+              ) : isDisconnected ||
+                (poolType === "Legacy" &&
+                  !allRangePositions.some(
+                    (position) =>
+                      position.poolType !=
+                      String(limitPoolTypeIds["constant-product-1.1"])
+                  )) ||
+                (poolType === "Current" &&
+                  !allRangePositions.some(
+                    (position) =>
+                      position.poolType ==
+                      String(limitPoolTypeIds["constant-product-1.1"])
+                  )) ? (
                 <div className="text-grey1 text-xs  py-10 text-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -310,14 +374,35 @@ export default function Range() {
                             ) != undefined ||
                             searchTerm === "")
                         ) {
-                          return (
-                            <UserRangePool
-                              key={allRangePosition.id}
-                              rangePosition={allRangePosition}
-                              href={"/range/view"}
-                              isModal={false}
-                            />
-                          );
+                          if (poolType === "Current") {
+                            if (
+                              allRangePosition.poolType ==
+                              String(limitPoolTypeIds["constant-product-1.1"])
+                            ) {
+                              return (
+                                <UserRangePool
+                                  key={allRangePosition.id}
+                                  rangePosition={allRangePosition}
+                                  href={"/range/view"}
+                                  isModal={false}
+                                />
+                              );
+                            }
+                          } else if (poolType === "Legacy") {
+                            if (
+                              allRangePosition.poolType !=
+                              String(limitPoolTypeIds["constant-product-1.1"])
+                            ) {
+                              return (
+                                <UserRangePool
+                                  key={allRangePosition.id}
+                                  rangePosition={allRangePosition}
+                                  href={"/range/view"}
+                                  isModal={false}
+                                />
+                              );
+                            }
+                          }
                         }
                       })}
                     </div>
@@ -359,18 +444,52 @@ export default function Range() {
                   <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
                     <div className="text-left">Pool Name</div>
                     <div className="grid md:grid-cols-4 grid-cols-1 mr-4">
-                      <span className="text-right md:table-cell hidden">
-                        Volume
-                      </span>
-                      <span className="text-right md:table-cell hidden">
-                        TVL
-                      </span>
-                      <span className="text-right md:table-cell hidden">
-                        Fees
-                      </span>
-                      <span className="text-right md:table-cell hidden">
-                        
-                      </span>
+                      <button
+                        className="text-right md:table-cell  hidden"
+                        onClick={() => setSort("Volume")}
+                      >
+                        <span
+                          className={`flex justify-end gap-x-2 ${
+                            sort === "Volume" && "text-white"
+                          }`}
+                        >
+                          {sort === "Volume" && (
+                            <ChevronDownIcon className="w-4" />
+                          )}
+                          Volume
+                        </span>
+                      </button>
+                      <button
+                        className="text-right md:table-cell hidden"
+                        onClick={() => setSort("TVL")}
+                      >
+                        <span
+                          className={`flex justify-end gap-x-2 ${
+                            sort === "TVL" && "text-white"
+                          }`}
+                        >
+                          {sort === "TVL" && (
+                            <ChevronDownIcon className="w-4" />
+                          )}
+                          TVL
+                        </span>
+                      </button>
+                      <button
+                        className="text-right md:table-cell hidden"
+                        onClick={() => setSort("Fees")}
+                      >
+                        <span
+                          className={`flex justify-end gap-x-2 ${
+                            sort === "Fees" && "text-white"
+                          }`}
+                        >
+                          {sort === "Fees" && (
+                            <ChevronDownIcon className="w-4" />
+                          )}
+                          Fees
+                        </span>
+                      </button>
+                      <span className="text-right md:table-cell hidden"></span>
                     </div>
                   </div>
                   {isPoolsLoading
@@ -382,9 +501,24 @@ export default function Range() {
                       ))
                     : allRangePools
                         .filter((allRangePool) =>
-                          lowTVLHidden ? allRangePool.tvlUsd > "1.00" : true
+                          lowTVLHidden
+                            ? parseFloat(allRangePool.tvlUsd) > 1.0
+                            : true
                         )
-                        .sort((a, b) => (isWhitelistedPool(b, networkName) ? 1 : -1))
+                        .sort((a, b) => {
+                          if (sort === "Volume") {
+                            return (
+                              parseFloat(b.volumeUsd) - parseFloat(a.volumeUsd)
+                            );
+                          } else if (sort === "Fees") {
+                            return (
+                              parseFloat(b.feesUsd) - parseFloat(a.feesUsd)
+                            );
+                          } else if (sort === "TVL") {
+                            return parseFloat(b.tvlUsd) - parseFloat(a.tvlUsd);
+                          }
+                          return 0;
+                        })
                         .map((allRangePool) => {
                           if (
                             allRangePool.tokenZero.name.toLowerCase() ===
