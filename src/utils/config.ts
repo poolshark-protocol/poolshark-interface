@@ -91,7 +91,7 @@ export const isStablePair = (tokenIn: any, tokenOut: any, networkName: string): 
 		return false
 	} else if (chainProperties[networkName]?.usdStables) {
 		const usdStables: string[] = chainProperties[networkName]?.usdStables
-		if (usdStables.indexOf(tokenIn?.address) != -1 && usdStables.indexOf(tokenOut?.address) != -1) {
+		if (usdStables.indexOf(tokenIn?.address?.toLowerCase()) != -1 && usdStables.indexOf(tokenOut?.address?.toLowerCase()) != -1) {
 			return true
 		}
 		return false
