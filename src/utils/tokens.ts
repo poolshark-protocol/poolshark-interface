@@ -110,7 +110,7 @@ export const fetchListedTokenBalances = async (
   const alchemy = new Alchemy(config);
   let ethBalance: BigNumber;
   try {
-    ethBalance = await alchemy.core.getBalance(address);
+    // ethBalance = await alchemy.core.getBalance(address);
   } catch (e) {
     console.log('Alchemy SDK Error:', e)
     // early return - update balances on next fetch
@@ -122,13 +122,13 @@ export const fetchListedTokenBalances = async (
   const searchIndex = search_tokens.findIndex(
     (x) => x.native == true
   );
-  if (listedIndex != -1) {
+  if (listedIndex != -1 && ethBalance) {
     listed_tokens[listedIndex].balance = numStringFormat(ethers.utils.formatUnits(
       ethBalance,
       listed_tokens[listedIndex].decimals
     ), 5);
   }
-  if (searchIndex != -1) {
+  if (searchIndex != -1 && ethBalance) {
     search_tokens[searchIndex].balance = numStringFormat(ethers.utils.formatUnits(
       ethBalance,
       search_tokens[searchIndex].decimals
@@ -136,14 +136,14 @@ export const fetchListedTokenBalances = async (
   }
   let tokenBalances;
   try {
-    tokenBalances = await alchemy.core.getTokenBalances(address);
+    // tokenBalances = await alchemy.core.getTokenBalances(address);
   } catch (e) {
     console.log('Alchemy SDK Error:', e)
     // early return - update balances on next fetch
     return
   }
-  if (tokenBalances.tokenBalances.length != 0) {
-    tokenBalances.tokenBalances.forEach((token) => {
+  if (tokenBalances?.tokenBalances?.length != 0) {
+    tokenBalances?.tokenBalances?.forEach((token) => {
       // @dev - the zero index will ALWAYS be the native token
       const listedIndex = listed_tokens.findIndex(
         (x) =>
