@@ -177,6 +177,9 @@ export const chainProperties = {
     whitelistedPools: [
       '0x7b47619045ae93f9311d0562a43c244c42bfe485' // FIN-WETH 0.3%
     ],
+    whitelistedPairs: [
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1-0x903ca00944d0b51e50d9f4fc96167c89f211542a-0.3%',
+    ],
     season0Rewards: {
       block1: {
         whitelistedFeesUsd: 40000
@@ -210,6 +213,9 @@ export const chainProperties = {
       "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-scroll/0.2.5/gn",
     whitelistedPools: [
       "0xb14917888ba92937be3d89094f83a62904ebc9dd", // ETH-USDT 0.1%
+    ],
+    whitelistedPairs: [
+      '0x5300000000000000000000000000000000000004-0xf55BEC9cafDbE8730f096Aa55dad6D22d44099Df-0.1%',
     ],
     season0Rewards: {
       block1: {
