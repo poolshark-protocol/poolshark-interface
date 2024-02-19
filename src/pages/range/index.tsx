@@ -16,6 +16,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 import { Checkbox } from "../../components/ui/checkbox";
 import { isWhitelistedPool } from "../../utils/config";
+import Analytics from "../../components/Modals/Range/Analytics";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/20/solid";
 import { limitPoolTypeIds } from "../../utils/pools";
 
@@ -28,6 +29,7 @@ export default function Range() {
   const [isPositionsLoading, setIsPositionsLoading] = useState(false);
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
   const [lowTVLHidden, setLowTVLHidden] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [sort, setSort] = useState("TVL");
   const [poolType, setPoolType] = useState("Current");
 
@@ -236,6 +238,39 @@ export default function Range() {
               <InfoIcon />
               Read More
             </a>
+            <button
+              onClick={() => setIsOpen(true)}
+              className="bg-dark px-5 flex items-center justify-center gap-x-2 border-grey rounded-[4px] border mt-2 text-grey3 text-xs py-2"
+            >
+              <svg
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M18 9C18.5523 9 19 9.44772 19 10V20C19 20.5523 18.5523 21 18 21C17.4477 21 17 20.5523 17 20V10C17 9.44772 17.4477 9 18 9Z"
+                  fill="currentColor"
+                />
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M6 13C6.55228 13 7 13.4477 7 14V20C7 20.5523 6.55228 21 6 21C5.44772 21 5 20.5523 5 20V14C5 13.4477 5.44772 13 6 13Z"
+                  fill="currentColor"
+                />
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M12 3C12.5523 3 13 3.44772 13 4V20C13 20.5523 12.5523 21 12 21C11.4477 21 11 20.5523 11 20V4C11 3.44772 11.4477 3 12 3Z"
+                  fill="currentColor"
+                />
+              </svg>
+              View Analytics
+            </button>
+            <Analytics isOpen={isOpen} setIsOpen={setIsOpen} />
           </div>
         </div>
         <div className="flex flex-col gap-y-4 mt-9">
