@@ -25,7 +25,7 @@ function ChainImage({ chainId }) {
         return (
             <img
                 style={{ width: 17, height: 17 }}
-                src="https://raw.githubusercontent.com/mode-network/brandkit/main/Assets/Round/Mode%20round%20white.svg"
+                src="/static/images/mode_icon.svg"
                 className={`aspect-square ${
                     chainId === 534351 && "saturate-0"
                 }`}

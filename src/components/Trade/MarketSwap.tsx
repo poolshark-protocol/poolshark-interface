@@ -487,6 +487,7 @@ export default function MarketSwap() {
         tokenIn,
         tokenOut,
         amountIn,
+        amountOut,
         signer,
         isConnected,
         setSwapGasFee,

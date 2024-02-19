@@ -18,6 +18,7 @@ import {
   getLimitTokenUsdPrice,
   logoMapKey,
 } from "../../utils/tokens";
+import { InformationCircleIcon } from "@heroicons/react/20/solid";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
@@ -43,8 +44,10 @@ import {
 } from "../../components/ui/tooltip";
 import { Checkbox } from "../../components/ui/checkbox";
 import { isAddress } from "ethers/lib/utils.js";
-import { ArrowTopRightOnSquareIcon } from "@heroicons/react/20/solid";
-import { convertTimestampToDateFormat } from "../../utils/time";
+import {
+  ArrowTopRightOnSquareIcon,
+  SparklesIcon,
+} from "@heroicons/react/20/solid";
 
 export default function AddLiquidity({}) {
   const [
@@ -1335,7 +1338,18 @@ export default function AddLiquidity({}) {
                     : "border border-grey"
                 }`}
               >
-                <h1>{feeTier.tier} FEE</h1>
+                <h1 className="flex items-center gap-x-2 ">
+                  {feeTier.tier} FEE
+                  {(
+                    (chainId === 42161 && rangePoolAddress === "0x7b47619045ae93f9311d0562a43c244c42bfe485" && feeTier.tier === "0.3%") ||
+                    (chainId === 534352 && rangePoolAddress === "0xb14917888ba92937be3d89094f83a62904ebc9dd" && feeTier.tier === "0.1%") ||
+                    (chainId === 34443 && rangePoolAddress === "0xfc16003afdff37580c9de7deeeb87f9c65b6908a" && feeTier.tier === "0.1%") ||
+                    (chainId === 34443 && rangePoolAddress === "0xc20b141edd79f912897651eba9a2bca6b17dc7f1" && feeTier.tier === "0.1%") ||
+                    (chainId === 34443 && rangePoolAddress === "0x7efec766f18d4b79abf5b550bfe59a1bffb37d95" && feeTier.tier === "0.1%")) && (
+                        <SparklesIcon className="text-main2 w-[16px]" />
+                      )}
+                </h1>
+
                 <h2 className="text-[11px] uppercase text-grey1 mt-2">
                   {feeTier.text}
                 </h2>
@@ -1356,9 +1370,31 @@ export default function AddLiquidity({}) {
               />{" "}
               STAKE RANGE POSITION
             </label>
-            <span className="text-green-500/40 underline text-sm hidden">
-              How does it work?
-            </span>
+            <TooltipProvider>
+                <Tooltip delayDuration={100}>
+                  <TooltipTrigger>
+                    <div>
+                      <span className="text-main2 flex items-center justify-end gap-x-3">
+                        <div className="flex items-center gap-x-1.5  text-green-600 text-xs">
+                          <InformationCircleIcon className="w-4" /> 
+                          Info
+                        </div>
+                      </span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-44 py-3">
+                    <div className="flex items-center flex-col gap-y-1 w-full">
+                      <div className="flex justify-between items-center w-full text-left">
+                        <div className="flex items-center gap-x-1">
+                          <span className="text-grey3 "> Staking this position will allow you to earn oFIN</span>
+                        
+                      </div>
+                      </div>
+
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
           </div>
         </div>
         <div className="bg-dark mt-8"></div>
