@@ -177,6 +177,11 @@ export const chainProperties = {
     whitelistedPools: [
       '0x7b47619045ae93f9311d0562a43c244c42bfe485' // FIN-WETH 0.3%
     ],
+    season0Rewards: {
+      block1: {
+        whitelistedFeesUsd: 40000
+      }
+    },
   },
   "scroll": {
     chainName: "Scroll Mainnet",
@@ -202,7 +207,15 @@ export const chainProperties = {
     coverSubgraphUrl:
       "",
     limitSubgraphUrl:
-      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-scroll/0.1.2/gn",
+      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-scroll/0.2.5/gn",
+    whitelistedPools: [
+      "0xb14917888ba92937be3d89094f83a62904ebc9dd", // ETH-USDT 0.1%
+    ],
+    season0Rewards: {
+      block1: {
+        whitelistedFeesUsd: 20000
+      }
+    },
   },
   "mode": {
     chainName: "Mode Network",
@@ -242,5 +255,10 @@ export const chainProperties = {
     stablePools: [
       '0x7efec766f18d4b79abf5b550bfe59a1bffb37d95' // USDC-USDT 0.1%
     ],
+    season0Rewards: {
+      block1: {
+        whitelistedFeesUsd: 60000
+      }
+    },
   },
 };
