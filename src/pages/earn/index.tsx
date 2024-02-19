@@ -8,6 +8,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { useEffect } from "react";
 import { fetchSeason1Rewards } from "../../utils/queries";
 import { useEarnStore } from "../../hooks/useEarnStore";
+import { chainProperties } from "../../utils/chains";
 
 export default function Earn() {
 
@@ -57,47 +58,25 @@ export default function Earn() {
 
   useEffect(() => {
     if (isConnected) {
-      if (userSeason1Points) {
+      if (userSeason1Points && 
+            chainProperties[networkName]?.season0Rewards) {
+        const totalSeason0Rewards = chainProperties[networkName]
+                                        ?.season0Rewards?.block1?.whitelistedFeesUsd
         const userFINRewards = {
           whitelistedFeesUsd:
             userSeason1Points.whitelistedFeesUsd > 0
-            ? totalSeason1FIN.whitelistedFeesUsd
-              * userSeason1Points.whitelistedFeesUsd 
+            ? (totalSeason0Rewards ?? 0)
+              * userSeason1Points.whitelistedFeesUsd
               / totalSeason1Points.whitelistedFeesUsd
             : 0,
-          nonWhitelistedFeesUsd:
-            userSeason1Points.nonWhitelistedFeesUsd > 0
-            ? totalSeason1FIN.nonWhitelistedFeesUsd
-              * userSeason1Points.nonWhitelistedFeesUsd 
-              / totalSeason1Points.nonWhitelistedFeesUsd
-            : 0,
-          stakingPoints:
-            userSeason1Points.stakingPoints > 0
-            ? totalSeason1FIN.stakingPoints
-            * userSeason1Points.stakingPoints 
-            / totalSeason1Points.stakingPoints
-            : 0,
-          volumeTradedUsd:
-            userSeason1Points.volumeTradedUsd > 0
-            ? totalSeason1FIN.volumeTradedUsd
-            * userSeason1Points.volumeTradedUsd 
-            / totalSeason1Points.volumeTradedUsd
-            : 0,
         }
-        console.log('lp rewards:', userFINRewards.whitelistedFeesUsd + userFINRewards.nonWhitelistedFeesUsd)
         setUserSeason1FIN(userFINRewards)
         setUserSeason1FINTotal(
           userFINRewards.whitelistedFeesUsd
-          + userFINRewards.nonWhitelistedFeesUsd
-          + userFINRewards.stakingPoints
-          + userFINRewards.volumeTradedUsd
         )
       } else {
         const userFINRewards = {
           whitelistedFeesUsd: 0,
-          nonWhitelistedFeesUsd: 0,
-          stakingPoints: 0,
-          volumeTradedUsd: 0,
         }
         setUserSeason1FIN(userFINRewards)
         setUserSeason1FINTotal(0)
@@ -110,22 +89,20 @@ export default function Earn() {
 
   useEffect(() => {
     if (isConnected) {
-
       updateSeasonRewards()
     }
   }, [
-    address
+    address,
+    limitSubgraph
   ]);
 
   async function updateSeasonRewards() {
-    console.log('fetch rewards for address:', address)
     const data = await fetchSeason1Rewards(limitSubgraph, address);
     if (data["data"]) {
       if (data["data"].totalSeasonRewards?.length == 1) {
         setTotalSeason1Points(data["data"].totalSeasonRewards[0])
       }
       if (data["data"].userSeasonRewards?.length == 1) {
-        console.log('user season rewards', data["data"].userSeasonRewards)
         setUserSeason1Points(data["data"].userSeasonRewards[0])
       } else {
         setUserSeason1Points(undefined)

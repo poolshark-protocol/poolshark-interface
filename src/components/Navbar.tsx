@@ -2,10 +2,8 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link";
 import { ConnectWalletButton } from "./Buttons/ConnectWalletButton";
-import { useEffect, useState } from "react";
 import Trade from "./Icons/TradeIcon";
 import Range from "./Icons/RangeIcon";
-import Cover from "./Icons/CoverIcon";
 import { useConfigStore } from "../hooks/useConfigStore";
 
 interface NavOptions {
@@ -100,7 +98,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
               ) : (
                 <></>
               )}
-              {chainId === 34443 || chainId === 42161 ? (
+              {chainId === 34443 || chainId === 42161 || chainId === 534352 ? (
                 <Link href="/earn">
                   <div
                     className={
@@ -198,7 +196,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
             ) : (
               <></>
             )}
-            {chainId === 34443 || chainId === 42161 ? (
+            {chainId === 34443 || chainId === 42161 || chainId === 534352 ? (
               <Link href="/earn">
                 <div
                   className={
