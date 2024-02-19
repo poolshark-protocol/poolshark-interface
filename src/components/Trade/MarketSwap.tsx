@@ -745,9 +745,9 @@ export default function MarketSwap() {
         </div>
       </div>
       {parseFloat(priceImpact) > 5 && (
-        <div className="flex justify-between px-5 rounded-[4px] w-full items-center text-xs py-2 border-red-500/20 bg-red-500/10 border mb-4">
+        <div className={`flex justify-between px-5 rounded-[4px] w-full border items-center text-xs py-2  mb-4 ${parseFloat(priceImpact) < 10 ? " border-yellow-500/20 bg-yellow-500/10" : "border-red-500/20 bg-red-500/10 "}`}>
           Price Impact Warning
-          <span className="text-red-500">{priceImpact} %</span>
+          <span className={`${parseFloat(priceImpact) < 10 ? "text-yellow-500" : "text-red-500"}`}>{priceImpact} %</span>
         </div>
       )}
       {tokenIn.address != ZERO_ADDRESS &&
