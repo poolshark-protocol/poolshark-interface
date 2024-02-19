@@ -231,7 +231,6 @@ export default function AddLiquidity({}) {
   const [manualRange, setManualRange] = useState(false);
 
   async function fetchPoolFromRouter(feeAmount) {
-    console.log("fetching pool from router");
     const data = await fetchRangePools(limitSubgraph);
     if (data["data"]) {
       const pools = data["data"].limitPools;
@@ -241,7 +240,6 @@ export default function AddLiquidity({}) {
       );
       //if pool exists
       if (pool) {
-        console.log("pool found");
         const originalTokenIn = {
           name: pool.token0.symbol,
           address: pool.token0.id,
@@ -270,8 +268,6 @@ export default function AddLiquidity({}) {
           limitPoolTypeIds["constant-product-1.1"]
         );
       } else {
-        console.log("pool not found");
-        console.log("router.query", router.query);
         const tokenInAddress = router.query.tokenIn?.toString();
         const tokenOutAddress = router.query.tokenOut?.toString();
         const routerTokenIn = searchtokenList.find(
@@ -316,7 +312,6 @@ export default function AddLiquidity({}) {
       poolPrice: undefined,
       tickAtPrice: undefined,
     });
-    console.log("fetching new pool from tokens");
     setRangePoolFromFeeTier(
       tokenIn,
       tokenOut,
@@ -329,7 +324,6 @@ export default function AddLiquidity({}) {
   }
 
   function fetchPoolSameTokensDifferentFeeTier(feeAmount: number) {
-    console.log("fetching pool same tokens different fee tier");
     //after changing to a non existing pool with the same tokens -> price range keeps there
     setRangePoolFromFeeTier(
       tokenIn,
@@ -344,9 +338,7 @@ export default function AddLiquidity({}) {
 
   //this sets the default position price range
   useEffect(() => {
-    console.log("rangePoolData", rangePoolData);
     if (rangePoolData.poolPrice) {
-      console.log("setting default range");
       const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
       setDefaultRange(
@@ -364,7 +356,6 @@ export default function AddLiquidity({}) {
       );
       setRangeSqrtPrice(sqrtPrice);
     } else {
-      console.log("no pool price");
       setMinInput("");
       setMaxInput("");
     }
