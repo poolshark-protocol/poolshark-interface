@@ -2,12 +2,9 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link";
 import { ConnectWalletButton } from "./Buttons/ConnectWalletButton";
-import { useEffect, useState } from "react";
 import Trade from "./Icons/TradeIcon";
 import Range from "./Icons/RangeIcon";
-import Cover from "./Icons/CoverIcon";
 import { useConfigStore } from "../hooks/useConfigStore";
-import { supportedChainIds } from "../utils/chains";
 
 interface NavOptions {
   create?: boolean;
