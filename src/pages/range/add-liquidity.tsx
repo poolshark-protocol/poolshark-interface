@@ -275,13 +275,13 @@ export default function AddLiquidity({}) {
         const tokenOutAddress = router.query.tokenOut?.toString();
         const routerTokenIn = searchtokenList.find(
           (token) =>
-            token.address.toLowerCase() == tokenInAddress.toLowerCase() &&
+            token.address?.toLowerCase() == tokenInAddress?.toLowerCase() &&
             (token.native?.toString() == router.query.tokenInNative ||
               token.native == undefined)
         );
         const routerTokenOut = searchtokenList.find(
           (token) =>
-            token.address.toLowerCase() == tokenOutAddress.toLowerCase() &&
+            token.address?.toLowerCase() == tokenOutAddress?.toLowerCase() &&
             (token.native?.toString() == router.query.tokenOutNative ||
               token.native == undefined)
         );
@@ -1340,14 +1340,28 @@ export default function AddLiquidity({}) {
               >
                 <h1 className="flex items-center gap-x-2 ">
                   {feeTier.tier} FEE
-                  {(
-                    (chainId === 42161 && rangePoolAddress === "0x7b47619045ae93f9311d0562a43c244c42bfe485" && feeTier.tier === "0.3%") ||
-                    (chainId === 534352 && rangePoolAddress === "0xb14917888ba92937be3d89094f83a62904ebc9dd" && feeTier.tier === "0.1%") ||
-                    (chainId === 34443 && rangePoolAddress === "0xfc16003afdff37580c9de7deeeb87f9c65b6908a" && feeTier.tier === "0.1%") ||
-                    (chainId === 34443 && rangePoolAddress === "0xc20b141edd79f912897651eba9a2bca6b17dc7f1" && feeTier.tier === "0.1%") ||
-                    (chainId === 34443 && rangePoolAddress === "0x7efec766f18d4b79abf5b550bfe59a1bffb37d95" && feeTier.tier === "0.1%")) && (
-                        <SparklesIcon className="text-main2 w-[16px]" />
-                      )}
+                  {((chainId === 42161 &&
+                    rangePoolAddress ===
+                      "0x7b47619045ae93f9311d0562a43c244c42bfe485" &&
+                    feeTier.tier === "0.3%") ||
+                    (chainId === 534352 &&
+                      rangePoolAddress ===
+                        "0xb14917888ba92937be3d89094f83a62904ebc9dd" &&
+                      feeTier.tier === "0.1%") ||
+                    (chainId === 34443 &&
+                      rangePoolAddress ===
+                        "0xfc16003afdff37580c9de7deeeb87f9c65b6908a" &&
+                      feeTier.tier === "0.1%") ||
+                    (chainId === 34443 &&
+                      rangePoolAddress ===
+                        "0xc20b141edd79f912897651eba9a2bca6b17dc7f1" &&
+                      feeTier.tier === "0.1%") ||
+                    (chainId === 34443 &&
+                      rangePoolAddress ===
+                        "0x7efec766f18d4b79abf5b550bfe59a1bffb37d95" &&
+                      feeTier.tier === "0.1%")) && (
+                    <SparklesIcon className="text-main2 w-[16px]" />
+                  )}
                 </h1>
 
                 <h2 className="text-[11px] uppercase text-grey1 mt-2">
@@ -1371,30 +1385,31 @@ export default function AddLiquidity({}) {
               STAKE RANGE POSITION
             </label>
             <TooltipProvider>
-                <Tooltip delayDuration={100}>
-                  <TooltipTrigger>
-                    <div>
-                      <span className="text-main2 flex items-center justify-end gap-x-3">
-                        <div className="flex items-center gap-x-1.5  text-green-600 text-xs">
-                          <InformationCircleIcon className="w-4" /> 
-                          Info
-                        </div>
-                      </span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-44 py-3">
-                    <div className="flex items-center flex-col gap-y-1 w-full">
-                      <div className="flex justify-between items-center w-full text-left">
-                        <div className="flex items-center gap-x-1">
-                          <span className="text-grey3 "> Staking this position will allow you to earn oFIN</span>
-                        
+              <Tooltip delayDuration={100}>
+                <TooltipTrigger>
+                  <div>
+                    <span className="text-main2 flex items-center justify-end gap-x-3">
+                      <div className="flex items-center gap-x-1.5  text-green-600 text-xs">
+                        <InformationCircleIcon className="w-4" />
+                        Info
                       </div>
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-44 py-3">
+                  <div className="flex items-center flex-col gap-y-1 w-full">
+                    <div className="flex justify-between items-center w-full text-left">
+                      <div className="flex items-center gap-x-1">
+                        <span className="text-grey3 ">
+                          {" "}
+                          Staking this position will allow you to earn oFIN
+                        </span>
                       </div>
-
                     </div>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
         <div className="bg-dark mt-8"></div>
