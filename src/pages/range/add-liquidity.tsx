@@ -309,6 +309,7 @@ export default function AddLiquidity({}) {
   async function fetchNewPoolFromTokens() {
     //after changing to different tokens with existing pools -> should land on the existing pool with the new price ranges
     //after changing to different tokens with no existing pools -> price range resets to 0
+    const currentFeeTier = rangePoolData.feeTier?.feeAmount;
     setRangePoolData({
       ...rangePoolData,
       liquitidy: undefined,
@@ -318,7 +319,7 @@ export default function AddLiquidity({}) {
     setRangePoolFromFeeTier(
       tokenIn,
       tokenOut,
-      3000,
+      currentFeeTier ?? 3000,
       limitSubgraph,
       undefined,
       undefined,
