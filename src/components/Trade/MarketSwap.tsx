@@ -134,6 +134,7 @@ export default function MarketSwap() {
     setAmountIn(BN_ZERO);
     setDisplayOut("");
     setAmountOut(BN_ZERO);
+    setPriceImpact("0.00")
   }, [limitTabSelected]);
 
   /////////////////////////////Fetch Pools
@@ -226,6 +227,7 @@ export default function MarketSwap() {
           updatePools(bnValue, true);
         }
       } else {
+        setPriceImpact("0.00");
         setDisplayOut("");
         setAmountOut(BN_ZERO);
       }
@@ -238,6 +240,7 @@ export default function MarketSwap() {
           updatePools(bnValue, false);
         }
       } else {
+        setPriceImpact("0.00");
         setDisplayIn("");
         setAmountIn(BN_ZERO);
       }
@@ -253,6 +256,7 @@ export default function MarketSwap() {
         setDisplayIn(value);
         setDisplayOut("");
         setAmountIn(bnValue);
+        setPriceImpact("0.00");
       } else if (!bnValue.eq(amountIn)) {
         setDisplayIn(value);
         setAmountIn(bnValue);
@@ -261,6 +265,7 @@ export default function MarketSwap() {
         setDisplayIn(value);
         if (bnValue.eq(BN_ZERO)) {
           setDisplayOut("");
+          setPriceImpact("0.00");
         }
       }
       setExactIn(true);
@@ -270,6 +275,7 @@ export default function MarketSwap() {
         setDisplayOut(value);
         setDisplayIn("");
         setAmountOut(bnValue);
+        setPriceImpact("0.00");
       } else if (!bnValue.eq(amountOut)) {
         setDisplayOut(value);
         setAmountOut(bnValue);
@@ -278,6 +284,7 @@ export default function MarketSwap() {
         setDisplayOut(value);
         if (bnValue.eq(BN_ZERO)) {
           setDisplayIn("");
+          setPriceImpact("0.00");
         }
       }
       setExactIn(false);
@@ -619,7 +626,7 @@ export default function MarketSwap() {
         <div className="flex items-end justify-between mt-2 mb-3">
           {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox)}
           <div className="flex items-center gap-x-2">
-            {isConnected && stateChainName === networkName ? (
+            {isConnected ? (
               <button
                 onClick={() => {
                   handleInputBox({
@@ -702,6 +709,21 @@ export default function MarketSwap() {
         <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
           {<div>{inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)}</div>}
           <div className="flex items-center gap-x-2">
+          {isConnected ? (
+              <button
+                onClick={() => {
+                  handleInputBox({
+                    target: {
+                      value: tokenOut.userBalance.toString(),
+                      name: "tokenOut",
+                    },
+                  });
+                }}
+                className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
+              >
+                MAX
+              </button>
+            ) : null}
             <SelectToken
               key={"out"}
               type="out"
@@ -717,7 +739,7 @@ export default function MarketSwap() {
           </div>
         </div>
       </div>
-      <div className="py-4">
+      <div className="py-2">
         <div
           className="flex px-2 cursor-pointer py-2 rounded-[4px]"
           onClick={() => setExpanded(!expanded)}
@@ -744,6 +766,12 @@ export default function MarketSwap() {
           <Option />
         </div>
       </div>
+      {parseFloat(priceImpact) > 5 && (
+        <div className={`flex justify-between px-5 rounded-[4px] w-full border items-center text-xs py-2  mb-4 ${parseFloat(priceImpact) < 10 ? " border-yellow-500/20 bg-yellow-500/10" : "border-red-500/20 bg-red-500/10 "}`}>
+          Price Impact Warning
+          <span className={`${parseFloat(priceImpact) < 10 ? "text-yellow-500" : "text-red-500"}`}>{priceImpact} %</span>
+        </div>
+      )}
       {tokenIn.address != ZERO_ADDRESS &&
       tokenOut.address != ZERO_ADDRESS &&
       tradePoolData?.id == ZERO_ADDRESS &&
