@@ -13,7 +13,7 @@ import { gasEstimateMintLimit } from "../../../utils/gas";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { parseUnits } from "../../../utils/math/valueMath";
-import { getLogoURI } from "../../../utils/tokens";
+import { getLogoURI, logoMapKey } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
@@ -230,7 +230,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                         </button>
                       ) : null}
                       <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                        <img height="28" width="25" src={tokenIn.logoURI} />
+                        <img height="28" width="25" src={logoMap[logoMapKey(tokenIn)]} />
                         {tokenIn.symbol}
                       </div>
                     </div>
