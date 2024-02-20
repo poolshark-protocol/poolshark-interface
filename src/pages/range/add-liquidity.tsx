@@ -349,7 +349,7 @@ export default function AddLiquidity({}) {
         tokenIn,
         tokenOut,
         networkName,
-        priceOrder,
+        priceOrder == (tokenIn.callId == 0),
         tickAtPrice,
         setMinInput,
         setMaxInput,
@@ -717,21 +717,21 @@ export default function AddLiquidity({}) {
     ) {
       const priceLower = invertPrice(
         roundPrice(
-          priceOrder ? minInput : maxInput,
+          priceOrder == (tokenIn.callId == 0) ? minInput : maxInput,
           tokenIn,
           tokenOut,
           rangePoolData.feeTier?.tickSpacing ?? 30
         ),
-        priceOrder
+        priceOrder == (tokenIn.callId == 0)
       );
       const priceUpper = invertPrice(
         roundPrice(
-          priceOrder ? maxInput : minInput,
+          priceOrder == (tokenIn.callId == 0) ? maxInput : minInput,
           tokenIn,
           tokenOut,
           rangePoolData.feeTier?.tickSpacing ?? 30
         ),
-        priceOrder
+        priceOrder == (tokenIn.callId == 0)
       );
       setLowerPrice(priceLower);
       setUpperPrice(priceUpper);
@@ -752,13 +752,13 @@ export default function AddLiquidity({}) {
       setRangePoolData({
         poolPrice: String(
           TickMath.getSqrtPriceAtPriceString(
-            invertPrice(startPrice, priceOrder),
+            invertPrice(startPrice, priceOrder == (tokenIn.callId == 0)),
             tokenIn,
             tokenOut
           )
         ),
         tickAtPrice: TickMath.getTickAtPriceString(
-          invertPrice(startPrice, priceOrder),
+          invertPrice(startPrice, priceOrder == (tokenIn.callId == 0)),
           tokenIn,
           tokenOut
         ),
