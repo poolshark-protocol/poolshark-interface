@@ -108,6 +108,7 @@ export default function RangePool({ rangePool, href }) {
                           {isWhitelistedPool(rangePool, networkName) && (
                           <SparklesIcon className="w-[18px]" />
                           )}
+                          <span className={isWhitelistedPool(rangePool, networkName) ? "text-main2" : "text-white"}>9.45%</span>
                         </div>
                       </span>
                     </div>
