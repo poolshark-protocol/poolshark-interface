@@ -868,7 +868,7 @@ export default function LimitSwap() {
         <div className="flex items-end justify-between mt-2 mb-3">
           {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox)}
           <div className="flex items-center gap-x-2">
-            {isConnected && stateChainName === networkName ? (
+            {isConnected ? (
               <button
                 onClick={() => {
                   handleInputBox({
@@ -955,6 +955,21 @@ export default function LimitSwap() {
             </div>
           }
           <div className="flex items-center gap-x-2">
+          {isConnected ? (
+              <button
+                onClick={() => {
+                  handleInputBox({
+                    target: {
+                      value: tokenOut.userBalance.toString(),
+                      name: "tokenOut",
+                    },
+                  });
+                }}
+                className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
+              >
+                MAX
+              </button>
+            ) : null}
             <SelectToken
               key={"out"}
               type="out"
