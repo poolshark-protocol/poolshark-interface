@@ -13,7 +13,7 @@ import { gasEstimateMintLimit } from "../../../utils/gas";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { parseUnits } from "../../../utils/math/valueMath";
-import { getLogoURI } from "../../../utils/tokens";
+import { getLogoURI, logoMapKey } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
