@@ -103,6 +103,8 @@ export default function AddLiquidity({}) {
     setStakeFlag,
     chainSwitched,
     setChainSwitched,
+    manualRange,
+    setManualRange,
   ] = useRangeLimitStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
@@ -140,6 +142,8 @@ export default function AddLiquidity({}) {
     state.setStakeFlag,
     state.chainSwitched,
     state.setChainSwitched,
+    state.manualRange,
+    state.setManualRange,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -184,6 +188,7 @@ export default function AddLiquidity({}) {
   }, [router.query.feeTier]);
 
   useEffect(() => {
+    setManualRange(false)
     const fetchPool = async () => {
       const data = await fetchRangePools(limitSubgraph);
       if (
@@ -231,7 +236,7 @@ export default function AddLiquidity({}) {
     fetchPool();
   }, [chainId]);
 
-  const [manualRange, setManualRange] = useState(false);
+
 
   async function fetchPoolFromRouter(feeAmount) {
     const data = await fetchRangePools(limitSubgraph);
@@ -342,6 +347,7 @@ export default function AddLiquidity({}) {
 
   //this sets the default position price range
   useEffect(() => {
+    if (manualRange) return
     if (rangePoolData.poolPrice) {
       const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;

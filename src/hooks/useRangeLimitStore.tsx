@@ -82,6 +82,7 @@ type RangeLimitState = {
   chainSwitched: boolean;
   numLegacyPositions: number;
   numCurrentPositions: number;
+  manualRange: boolean;
 };
 
 type RangeLimitAction = {
@@ -172,6 +173,7 @@ type RangeLimitAction = {
   resetNumLegacyPositions: () => void;
   setNumCurrentPositions: () => void;
   resetNumCurrentPositions: () => void;
+  setManualRange: (manualRange: boolean) => void;
 };
 
 const initialRangeLimitState: RangeLimitState = {
@@ -266,6 +268,7 @@ const initialRangeLimitState: RangeLimitState = {
   chainSwitched: false,
   numLegacyPositions: 0,
   numCurrentPositions: 0,
+  manualRange: false,
 };
 
 export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
@@ -315,6 +318,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     chainSwitched: initialRangeLimitState.chainSwitched,
     numLegacyPositions: initialRangeLimitState.numLegacyPositions,
     numCurrentPositions: initialRangeLimitState.numCurrentPositions,
+    manualRange: initialRangeLimitState.manualRange,
     //actions
     setPairSelected: (pairSelected: boolean) => {
       set(() => ({
@@ -917,6 +921,11 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     resetNumCurrentPositions: () => {
       set(() => ({
         numCurrentPositions: 0,
+      }));
+    },
+    setManualRange: (manualRange: boolean) => {
+      set(() => ({
+        manualRange: manualRange,
       }));
     },
     setStakeFlag: (stakeFlag: boolean) => {
