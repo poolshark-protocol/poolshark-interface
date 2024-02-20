@@ -134,6 +134,7 @@ export default function MarketSwap() {
     setAmountIn(BN_ZERO);
     setDisplayOut("");
     setAmountOut(BN_ZERO);
+    setPriceImpact("0.00")
   }, [limitTabSelected]);
 
   /////////////////////////////Fetch Pools
@@ -226,6 +227,7 @@ export default function MarketSwap() {
           updatePools(bnValue, true);
         }
       } else {
+        setPriceImpact("0.00");
         setDisplayOut("");
         setAmountOut(BN_ZERO);
       }
@@ -238,6 +240,7 @@ export default function MarketSwap() {
           updatePools(bnValue, false);
         }
       } else {
+        setPriceImpact("0.00");
         setDisplayIn("");
         setAmountIn(BN_ZERO);
       }
@@ -253,6 +256,7 @@ export default function MarketSwap() {
         setDisplayIn(value);
         setDisplayOut("");
         setAmountIn(bnValue);
+        setPriceImpact("0.00");
       } else if (!bnValue.eq(amountIn)) {
         setDisplayIn(value);
         setAmountIn(bnValue);
@@ -261,6 +265,7 @@ export default function MarketSwap() {
         setDisplayIn(value);
         if (bnValue.eq(BN_ZERO)) {
           setDisplayOut("");
+          setPriceImpact("0.00");
         }
       }
       setExactIn(true);
@@ -270,6 +275,7 @@ export default function MarketSwap() {
         setDisplayOut(value);
         setDisplayIn("");
         setAmountOut(bnValue);
+        setPriceImpact("0.00");
       } else if (!bnValue.eq(amountOut)) {
         setDisplayOut(value);
         setAmountOut(bnValue);
@@ -278,6 +284,7 @@ export default function MarketSwap() {
         setDisplayOut(value);
         if (bnValue.eq(BN_ZERO)) {
           setDisplayIn("");
+          setPriceImpact("0.00");
         }
       }
       setExactIn(false);
