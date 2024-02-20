@@ -6,7 +6,11 @@ import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import SelectToken from "../SelectToken";
-import { inputHandler, numFormat, parseUnits } from "../../utils/math/valueMath";
+import {
+  inputHandler,
+  numFormat,
+  parseUnits,
+} from "../../utils/math/valueMath";
 import { getSwapPools } from "../../utils/pools";
 import { QuoteParams, SwapParams } from "../../utils/types";
 import { TickMath, maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
@@ -34,7 +38,7 @@ export default function MarketSwap() {
       state.networkName,
       state.limitSubgraph,
       state.setLimitSubgraph,
-      state.logoMap
+      state.logoMap,
     ]);
 
   //CONFIG STORE
@@ -125,11 +129,12 @@ export default function MarketSwap() {
   const router = useRouter();
 
   useEffect(() => {
-    if(limitTabSelected) return
-    setDisplayIn('')
-    setAmountIn(BN_ZERO)
-    setDisplayOut('')
-    setAmountOut(BN_ZERO)
+    if (limitTabSelected) return;
+    setDisplayIn("");
+    setAmountIn(BN_ZERO);
+    setDisplayOut("");
+    setAmountOut(BN_ZERO);
+    setPriceImpact("0.00")
   }, [limitTabSelected]);
 
   /////////////////////////////Fetch Pools
@@ -149,15 +154,14 @@ export default function MarketSwap() {
           setTokenInTradeUSDPrice,
           setTokenOutTradeUSDPrice,
           setTradePoolPrice,
-          setTradePoolLiquidity,
+          setTradePoolLiquidity
         );
       }
-    }, 
-    quoteRefetchDelay);
-   
+    }, quoteRefetchDelay);
+
     // Clear the interval when the component unmounts
     return () => clearInterval(interval);
-   }, [exactIn ? amountIn : amountOut, tradePoolData?.id]);
+  }, [exactIn ? amountIn : amountOut, tradePoolData?.id]);
 
   //can go to utils
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
@@ -223,6 +227,7 @@ export default function MarketSwap() {
           updatePools(bnValue, true);
         }
       } else {
+        setPriceImpact("0.00");
         setDisplayOut("");
         setAmountOut(BN_ZERO);
       }
@@ -235,6 +240,7 @@ export default function MarketSwap() {
           updatePools(bnValue, false);
         }
       } else {
+        setPriceImpact("0.00");
         setDisplayIn("");
         setAmountIn(BN_ZERO);
       }
@@ -250,6 +256,7 @@ export default function MarketSwap() {
         setDisplayIn(value);
         setDisplayOut("");
         setAmountIn(bnValue);
+        setPriceImpact("0.00");
       } else if (!bnValue.eq(amountIn)) {
         setDisplayIn(value);
         setAmountIn(bnValue);
@@ -258,6 +265,7 @@ export default function MarketSwap() {
         setDisplayIn(value);
         if (bnValue.eq(BN_ZERO)) {
           setDisplayOut("");
+          setPriceImpact("0.00");
         }
       }
       setExactIn(true);
@@ -267,6 +275,7 @@ export default function MarketSwap() {
         setDisplayOut(value);
         setDisplayIn("");
         setAmountOut(bnValue);
+        setPriceImpact("0.00");
       } else if (!bnValue.eq(amountOut)) {
         setDisplayOut(value);
         setAmountOut(bnValue);
@@ -275,6 +284,7 @@ export default function MarketSwap() {
         setDisplayOut(value);
         if (bnValue.eq(BN_ZERO)) {
           setDisplayIn("");
+          setPriceImpact("0.00");
         }
       }
       setExactIn(false);
@@ -301,42 +311,54 @@ export default function MarketSwap() {
 
   useEffect(() => {
     if (poolQuotes && poolQuotes[0]) {
-      if (poolQuotes[0].amountIn?.gt(BN_ZERO) && poolQuotes[0].amountOut?.gt(BN_ZERO)) {
+      if (
+        poolQuotes[0].amountIn?.gt(BN_ZERO) &&
+        poolQuotes[0].amountOut?.gt(BN_ZERO)
+      ) {
         if (exactIn) {
           setAmountOut(poolQuotes[0].amountOut);
           setDisplayOut(
-            numFormat(parseFloat(
-              ethers.utils.formatUnits(
-                poolQuotes[0].amountOut.toString(),
-                tokenOut.decimals
-              )
-            ), 5)
+            numFormat(
+              parseFloat(
+                ethers.utils.formatUnits(
+                  poolQuotes[0].amountOut.toString(),
+                  tokenOut.decimals
+                )
+              ),
+              5
+            )
           );
         } else {
           // add up amount outs
           // set amount out if less than current
-          let amountOutTotal: BigNumber = BN_ZERO
+          let amountOutTotal: BigNumber = BN_ZERO;
           for (let i = 0; poolQuotes[i] != undefined; i++) {
-            amountOutTotal = amountOutTotal.add(poolQuotes[i]?.amountOut)
+            amountOutTotal = amountOutTotal.add(poolQuotes[i]?.amountOut);
           }
           setAmountIn(poolQuotes[0].amountIn);
           setDisplayIn(
-            numFormat(parseFloat(
-              ethers.utils.formatUnits(
-                poolQuotes[0].amountIn.toString(),
-                tokenIn.decimals
-              )
-            ), 5)
+            numFormat(
+              parseFloat(
+                ethers.utils.formatUnits(
+                  poolQuotes[0].amountIn.toString(),
+                  tokenIn.decimals
+                )
+              ),
+              5
+            )
           );
           if (amountOutTotal.lt(amountOut)) {
-            setAmountOut(amountOutTotal)
+            setAmountOut(amountOutTotal);
             setDisplayOut(
-              numFormat(parseFloat(
-                ethers.utils.formatUnits(
-                  amountOutTotal.toString(),
-                  tokenOut.decimals
-                )
-              ), 5)
+              numFormat(
+                parseFloat(
+                  ethers.utils.formatUnits(
+                    amountOutTotal.toString(),
+                    tokenOut.decimals
+                  )
+                ),
+                5
+              )
             );
           }
         }
@@ -344,19 +366,19 @@ export default function MarketSwap() {
       } else {
         if (exactIn) {
           setAmountOut(BN_ZERO);
-          setDisplayOut('');
+          setDisplayOut("");
         } else {
           setAmountIn(BN_ZERO);
-          setDisplayIn('');
+          setDisplayIn("");
         }
-      }  
+      }
     } else if (poolQuotes != undefined) {
       if (exactIn) {
         setAmountOut(BN_ZERO);
-        setDisplayOut('');
+        setDisplayOut("");
       } else {
         setAmountIn(BN_ZERO);
-        setDisplayIn('');
+        setDisplayIn("");
       }
     }
   }, [poolQuotes, quoteParams, tradeSlippage]);
@@ -387,15 +409,10 @@ export default function MarketSwap() {
               tokenOut
             )
           );
-          let priceDiff = Math.abs(
-                              basePrice - currentPrice
-                          ) * 100 / currentPrice
-          if (priceDiff < 0 || priceDiff > 100) priceDiff = 100
-          setPriceImpact(
-            (priceDiff).toFixed(
-              2
-            )
-          );
+          let priceDiff =
+            (Math.abs(basePrice - currentPrice) * 100) / currentPrice;
+          if (priceDiff < 0 || priceDiff > 100) priceDiff = 100;
+          setPriceImpact(priceDiff.toFixed(2));
         }
         const priceDiff = basePrice * (parseFloat(tradeSlippage) / 100);
         const limitPrice =
@@ -481,7 +498,7 @@ export default function MarketSwap() {
         signer,
         isConnected,
         setSwapGasFee,
-        setSwapGasLimit,
+        setSwapGasLimit
       );
     } else {
       setSwapGasLimit(BN_ZERO);
@@ -531,12 +548,15 @@ export default function MarketSwap() {
               }`}
             >
               {pairSelected
-                ? numFormat(parseFloat(
-                    ethers.utils.formatUnits(
-                      amountOut ?? BN_ZERO,
-                      tokenOut.decimals
-                    )
-                  ), 5)
+                ? numFormat(
+                    parseFloat(
+                      ethers.utils.formatUnits(
+                        amountOut ?? BN_ZERO,
+                        tokenOut.decimals
+                      )
+                    ),
+                    5
+                  )
                 : "Select Token"}
             </div>
           </div>
@@ -564,8 +584,9 @@ export default function MarketSwap() {
                   ethers.utils.formatUnits(amountOut, tokenOut.decimals)
                 ) *
                   (100 - parseFloat(tradeSlippage))) /
-                100
-                , 5)}
+                  100,
+                5
+              )}
             </div>
           </div>
 
@@ -605,7 +626,7 @@ export default function MarketSwap() {
         <div className="flex items-end justify-between mt-2 mb-3">
           {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox)}
           <div className="flex items-center gap-x-2">
-            {isConnected && stateChainName === networkName ? (
+            {isConnected ? (
               <button
                 onClick={() => {
                   handleInputBox({
@@ -635,15 +656,16 @@ export default function MarketSwap() {
           </div>
         </div>
       </div>
-      <div 
-      onClick={() => {
-        switchDirection(
-          exactIn,
-          exactIn ? displayIn : displayOut,
-          exactIn ? setAmountIn : setAmountOut
-        );
-      }}
-      className="flex items-center justify-center w-full pt-10 pb-3">
+      <div
+        onClick={() => {
+          switchDirection(
+            exactIn,
+            exactIn ? displayIn : displayOut,
+            exactIn ? setAmountIn : setAmountOut
+          );
+        }}
+        className="flex items-center justify-center w-full pt-10 pb-3"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -664,8 +686,7 @@ export default function MarketSwap() {
         <div className="flex items-end justify-between text-[11px] text-grey1">
           <span>
             $
-            {!isNaN(tokenOut.decimals) &&
-            !isNaN(tokenOut.USDPrice) ? (
+            {!isNaN(tokenOut.decimals) && !isNaN(tokenOut.USDPrice) ? (
               (
                 (!isNaN(parseFloat(displayOut)) ? parseFloat(displayOut) : 0) *
                 (tokenOut.USDPrice ?? 0)
@@ -677,19 +698,32 @@ export default function MarketSwap() {
           <span>
             {tokenOut?.address != ZERO_ADDRESS ? (
               "Balance: " +
-              (!isNaN(tokenOut?.userBalance) && tokenOut.userBalance > 0 ? numFormat(tokenOut.userBalance, 5) : "0.00")
+              (!isNaN(tokenOut?.userBalance) && tokenOut.userBalance > 0
+                ? numFormat(tokenOut.userBalance, 5)
+                : "0.00")
             ) : (
               <></>
             )}
           </span>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-          {
-            <div>
-              {inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)}
-            </div>
-          }
+          {<div>{inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)}</div>}
           <div className="flex items-center gap-x-2">
+          {isConnected ? (
+              <button
+                onClick={() => {
+                  handleInputBox({
+                    target: {
+                      value: tokenOut.userBalance.toString(),
+                      name: "tokenOut",
+                    },
+                  });
+                }}
+                className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
+              >
+                MAX
+              </button>
+            ) : null}
             <SelectToken
               key={"out"}
               type="out"
@@ -705,7 +739,7 @@ export default function MarketSwap() {
           </div>
         </div>
       </div>
-      <div className="py-4">
+      <div className="py-2">
         <div
           className="flex px-2 cursor-pointer py-2 rounded-[4px]"
           onClick={() => setExpanded(!expanded)}
@@ -732,6 +766,12 @@ export default function MarketSwap() {
           <Option />
         </div>
       </div>
+      {parseFloat(priceImpact) > 5 && (
+        <div className={`flex justify-between px-5 rounded-[4px] w-full border items-center text-xs py-2  mb-4 ${parseFloat(priceImpact) < 10 ? " border-yellow-500/20 bg-yellow-500/10" : "border-red-500/20 bg-red-500/10 "}`}>
+          Price Impact Warning
+          <span className={`${parseFloat(priceImpact) < 10 ? "text-yellow-500" : "text-red-500"}`}>{priceImpact} %</span>
+        </div>
+      )}
       {tokenIn.address != ZERO_ADDRESS &&
       tokenOut.address != ZERO_ADDRESS &&
       tradePoolData?.id == ZERO_ADDRESS &&
@@ -752,7 +792,7 @@ export default function MarketSwap() {
                   query: {
                     feeTier: "3000",
                     poolId: ZERO_ADDRESS,
-                    tokenIn:  tokenIn.address, 
+                    tokenIn: tokenIn.address,
                     tokenInNative: tokenIn.native,
                     tokenOut: tokenOut.address,
                     tokenOutNative: tokenOut.native,
@@ -817,7 +857,7 @@ export default function MarketSwap() {
                 disabled={
                   tradeButton.disabled ||
                   (needsAllowanceIn && !tokenIn.native) ||
-                  swapGasLimit.lt(BigNumber.from('100000'))
+                  swapGasLimit.lt(BigNumber.from("100000"))
                 }
                 routerAddress={getRouterAddress(networkName)}
                 amountIn={amountIn}

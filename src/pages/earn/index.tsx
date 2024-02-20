@@ -218,7 +218,7 @@ export default function Earn() {
           </div>
           <div className="p-5 border border-grey bg-dark">
           <div className="uppercase">
-            Vesting 
+            Rewards Schedule
           </div>
           <div className="flex flex-col gap-y-1 mt-6 mb-5 px-5">
                   <div className="flex items-center mb-2">
