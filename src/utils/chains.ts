@@ -159,7 +159,7 @@ export const chainProperties = {
     coverSubgraphUrl:
       "",
     limitSubgraphUrl:
-      "https://arbitrum-mainnet.graph-eu.p2pify.com/47478218b2f45b5073b1ff2cd5483700/arbitrum-limit-v1_1",
+      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-arbitrum-season0-block1/0.2.6/gn",
     bondProtocol: {
       auctioneerAddress: "0xf7f9a96cdbfefd70bda14a8f30ec503b16bce9b1",
       tellerAddress: "0x007f7735baf391e207e3aa380bb53c4bd9a5fed6",
