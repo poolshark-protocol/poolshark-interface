@@ -95,7 +95,7 @@ export default function Range() {
   useEffect(() => {
     if (address) {
       const chainConstants =
-        chainProperties[networkName] ?? chainProperties["arbitrum"];
+        chainProperties[networkName] ?? chainProperties["arbitrum-one"];
       if (chainConstants["limitSubgraphUrl"]) {
         setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
         getUserRangePositionData();

@@ -37,6 +37,16 @@ export default function RangePool({ rangePool, href }) {
 
   const router = useRouter();
 
+  // add up last 24 hours worth of fees
+  // * 365 / TVL = Fee APY
+  
+  // assume $1 oFIN strike price
+  // fetch USD price of FIN
+  // calculate difference
+  // calculate current oFIN allo for the pool
+  // % of whitelisted fees * total oFIN (e.g. 40000)
+  // * $ per oFIN (e.g. $1) * 12 / TVL in pool
+
   const chooseRangePool = () => {
     resetMintParams();
     resetPoolData();
