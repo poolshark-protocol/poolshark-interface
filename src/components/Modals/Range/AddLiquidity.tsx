@@ -11,7 +11,7 @@ import {
 } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import RangeAddLiqButton from "../../Buttons/RangeAddLiqButton";
-import { BN_ZERO, ZERO } from "../../../utils/math/constants";
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../../utils/math/constants";
 import { TickMath } from "../../../utils/math/tickMath";
 import { ethers, BigNumber } from "ethers";
 import JSBI from "jsbi";
@@ -516,7 +516,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         amountInDisabled
                       )}
                       <div className="flex items-center gap-x-2">
-                        {isConnected && stateChainName === networkName ? (
+                        {isConnected && stateChainName === networkName && tokenIn.address != ZERO_ADDRESS ? (
                           <button
                             onClick={() => {
                               handleInput1({
@@ -566,7 +566,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         )}
                       </span>
                       <div className="flex items-center gap-x-2">
-                        {isConnected && stateChainName === networkName ? (
+                        {isConnected && stateChainName === networkName && tokenOut.address != ZERO_ADDRESS ? (
                           <button
                             onClick={() => {
                               handleInput1({
