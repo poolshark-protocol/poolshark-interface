@@ -87,7 +87,7 @@ export const isWhitelistedPool = (rangePool: any, networkName: string): boolean 
 }
 
 export const isWhitelistedPair = (tokenIn: any, tokenOut: any, feeTier: string, networkName: string): boolean => {
-	if (!tokenIn?.address || !tokenOut?.address || !tokenIn?.callId || !tokenOut?.callId) {
+	if (!(tokenIn?.address) || !(tokenOut?.address)) {
 		return false
 	} else if (chainProperties[networkName]?.whitelistedPairs) {
 		const whitelistedPairs: string[] = chainProperties[networkName].whitelistedPairs;
