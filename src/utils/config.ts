@@ -86,6 +86,22 @@ export const isWhitelistedPool = (rangePool: any, networkName: string): boolean 
 	return false
 }
 
+export const isWhitelistedPair = (tokenIn: any, tokenOut: any, feeTier: string, networkName: string): boolean => {
+	if (!(tokenIn?.address) || !(tokenOut?.address)) {
+		return false
+	} else if (chainProperties[networkName]?.whitelistedPairs) {
+		const whitelistedPairs: string[] = chainProperties[networkName].whitelistedPairs;
+		const token0Address = tokenIn.callId == 0 ? tokenIn.address : tokenOut.address
+		const token1Address = tokenIn.callId == 0 ? tokenOut.address : tokenIn.address
+		const pairString = token0Address + '-' + token1Address + '-' + feeTier
+		if (whitelistedPairs.indexOf(pairString) != -1) {
+			return true
+		}
+		return false
+	}
+	return false
+}
+
 export const isStablePair = (tokenIn: any, tokenOut: any, networkName: string): boolean => {
 	if (!tokenIn?.address || !tokenOut?.address) {
 		return false
