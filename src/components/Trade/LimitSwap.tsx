@@ -868,7 +868,7 @@ export default function LimitSwap() {
         <div className="flex items-end justify-between mt-2 mb-3">
           {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox)}
           <div className="flex items-center gap-x-2">
-            {isConnected ? (
+            {isConnected && tokenIn.address != ZERO_ADDRESS  ? (
               <button
                 onClick={() => {
                   handleInputBox({
@@ -955,7 +955,7 @@ export default function LimitSwap() {
             </div>
           }
           <div className="flex items-center gap-x-2">
-          {isConnected ? (
+          {isConnected && tokenOut.address != ZERO_ADDRESS ? (
               <button
                 onClick={() => {
                   handleInputBox({
