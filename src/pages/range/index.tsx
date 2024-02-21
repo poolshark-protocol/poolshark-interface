@@ -489,7 +489,21 @@ export default function Range() {
                           Fees
                         </span>
                       </button>
-                      <span className="text-right md:table-cell hidden"></span>
+                      <button
+                        className="text-right md:table-cell hidden"
+                        onClick={() => setSort("APY")}
+                      >
+                        <span
+                          className={`flex justify-end gap-x-2 ${
+                            sort === "APY" && "text-white"
+                          }`}
+                        >
+                          {sort === "APY" && (
+                            <ChevronDownIcon className="w-4" />
+                          )}
+                          APY
+                        </span>
+                      </button>
                     </div>
                   </div>
                   {isPoolsLoading

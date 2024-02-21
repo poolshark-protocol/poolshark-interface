@@ -12,12 +12,14 @@ import {
 import { isWhitelistedPool } from "../../utils/config";
 
 export default function RangePool({ rangePool, href }) {
-  const [limitSubgraph, logoMap, chainId, networkName] = useConfigStore((state) => [
-    state.limitSubgraph,
-    state.logoMap,
-    state.chainId,
-    state.networkName,
-  ]);
+  const [limitSubgraph, logoMap, chainId, networkName] = useConfigStore(
+    (state) => [
+      state.limitSubgraph,
+      state.logoMap,
+      state.chainId,
+      state.networkName,
+    ]
+  );
 
   const [
     setRangeTokenIn,
@@ -97,36 +99,63 @@ export default function RangePool({ rangePool, href }) {
             <div className="text-right md:block hidden text-white text-xs">
               <span>${formatUsdValue(rangePool.feesUsd)} </span>
             </div>
-            <div className="text-right text-white text-xs flex items-center justify-end">
+            <div className="text-right text-white text-xs flex items-center md:justify-end justify-between">
+              <span className="md:hidden">APY</span>
+              {isWhitelistedPool(rangePool, networkName) ? (
               <TooltipProvider>
                 <Tooltip delayDuration={100}>
                   <TooltipTrigger>
                     <div>
                       <span className="text-main2 flex items-center justify-end gap-x-3">
                         <div className="flex items-center gap-x-1.5">
-                          <InformationCircleIcon className="w-4 text-grey" /> 
-                          {isWhitelistedPool(rangePool, networkName) && (
-                          <SparklesIcon className="w-[18px]" />
-                          )}
-                          <span className={isWhitelistedPool(rangePool, networkName) ? "text-main2" : "text-white"}>9.45%</span>
+                          <InformationCircleIcon className="w-4 text-grey" />
+                            <SparklesIcon className="w-[18px]" />
+                          <span
+                            className="text-main2"
+                          >
+                            9.45%
+                          </span>
                         </div>
                       </span>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3">
+                  <TooltipContent onClick={(e) => e.stopPropagation()} className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3 cursor-default">
                     <div className="flex items-center flex-col gap-y-1 w-full">
-                      <div className="flex justify-between items-center w-full text-left">
-                        <div className="flex items-center gap-x-1">
-                        {isWhitelistedPool(rangePool, networkName) ? (
-                          <span className="text-grey3 "> This pool has been incentivised with <span className="text-white">60k oFIN</span></span>
-                          ) : ( <span className="text-grey3 "> This pool is not being incentivised with oFIN</span>)}</div>
-                        
-                      </div>
+                      <div className="flex flex-col items-start ">
+                      <span className="text-grey2 text-xs">oFIN Strike Price</span>
 
+                     <div className="relative">
+                      <span className="absolute left-3 top-[16.5px] text-grey1">$</span>
+                     <input className="w-full bg-black border border-grey py-2 pl-6 outline-none rounded-[4px] my-2" value={2.5}  />
+                     </div>
+                      </div>
+                      <div className="w-full h-[1px] bg-grey"/>
+                      
+                        <div className="flex justify-between items-center w-full mt-2">
+                          <span className="text-grey2">oFIN</span>
+                          {/* TODO: use 24h fees for Fee APY */}
+                          <span className="text-main2 flex items-center gap-x-1">
+                            5%
+                          </span>
+                        </div>
+                      <div className="flex justify-between items-center w-full">
+                        <span className="text-grey2">Fee APY</span>
+                        {/* TODO: use 24h fees for Fee APY */}
+                        <span className="text-right">
+                          {getFeeApy(rangePool)}%
+                        </span>
+                      </div>
                     </div>
                   </TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
+              </TooltipProvider>) :
+              (
+                <span className="text-white flex items-center justify-end gap-x-3">
+                        <div className="flex items-center gap-x-1.5">
+                            9.45%
+                        </div>
+                      </span>
+              )}
             </div>
           </div>
         </div>
