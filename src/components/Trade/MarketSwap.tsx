@@ -334,19 +334,19 @@ export default function MarketSwap() {
           // set amount out if less than current
           let amountOutTotal: BigNumber = BN_ZERO;
           for (let i = 0; poolQuotes[i] != undefined; i++) {
-            // select the one with the best exchange rate
-            amountOutTotal = amountOutTotal.add(poolQuotes[i]?.amountOut);
-            console.log('looping pool quotes', i, poolQuotes[i])
+            // copy to sorted array
             poolQuotesSorted[i] = poolQuotes[i]
+            amountOutTotal = amountOutTotal.add(poolQuotes[i]?.amountOut);
+
           }
           // sort by exchange rate
           poolQuotesSorted = poolQuotesSorted.sort((n1, n2) => {
             const exchangeRate1 = n1.amountOut.mul(Q96_BI).div(n1.amountIn)
             const exchangeRate2 = n2.amountOut.mul(Q96_BI).div(n2.amountIn)
-            if (exchangeRate1.gte(exchangeRate2)) {
+            if (exchangeRate1.lt(exchangeRate2)) {
                 return  1;
             }
-            if (exchangeRate1.lt(exchangeRate2)) {
+            if (exchangeRate1.gte(exchangeRate2)) {
                 return -1;
             }
             return  0;
@@ -361,8 +361,6 @@ export default function MarketSwap() {
             }
             return  0;
           });
-          console.log('sorted pool quotes', poolQuotes, poolQuotesSorted)
-          console.log('first element', poolQuotesSorted[0].amountIn.toString(), poolQuotesSorted[0].amountOut.toString())
           setAmountIn(poolQuotesSorted[0].amountIn);
           setDisplayIn(
             numFormat(
