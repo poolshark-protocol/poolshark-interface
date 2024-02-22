@@ -23,6 +23,13 @@ export type QuoteParams = {
   zeroForOne: boolean;
 }
 
+export type QuoteResults = {
+  amountIn: BigNumber;
+  amountOut: BigNumber;
+  pool: string;
+  priceAfter: BigNumber;
+}
+
 export type SwapParams = {
   to: string;
   priceLimit: BigNumber;
