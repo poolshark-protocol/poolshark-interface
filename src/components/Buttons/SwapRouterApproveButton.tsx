@@ -47,6 +47,7 @@ export default function SwapRouterApproveButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
+      console.log("onSuccess");
       toast.success("Your transaction was successful", {
         id: toastId,
         action: {
@@ -63,6 +64,7 @@ export default function SwapRouterApproveButton({
       setNeedsAllowanceInLimit(true);
     },
     onError() {
+      console.log("onError");
       toast.error("Your transaction failed", {
         id: toastId,
         action: {
@@ -80,6 +82,7 @@ export default function SwapRouterApproveButton({
 
   useEffect(() => {
     if (isLoading) {
+      console.log("loading");
       loadingSetter(true);
       const newToastId = toast.loading(
         "Your transaction is being confirmed...",
@@ -96,6 +99,9 @@ export default function SwapRouterApproveButton({
       );
       newToastId;
       setToastId(newToastId);
+    }else{
+      console.log("not loading");
+      loadingSetter(false);
     }
   }, [isLoading]);
 

@@ -64,6 +64,7 @@ export default function SwapUnwrapNativeButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
+      console.log("onSuccess");
       toast.success("Your transaction was successful", {
         id: toastId,
         action: {
@@ -82,6 +83,7 @@ export default function SwapUnwrapNativeButton({
       setNeedsBalanceOut(true);
     },
     onError() {
+      console.log("onError");
       toast.error("Your transaction failed", {
         id: toastId,
         action: {
@@ -99,6 +101,7 @@ export default function SwapUnwrapNativeButton({
 
   useEffect(() => {
     if (isLoading) {
+      console.log("isLoading");
       loadingSetter(true);
       const newToastId = toast.loading(
         "Your transaction is being confirmed...",

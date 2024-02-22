@@ -89,6 +89,7 @@ export default function SwapRouterButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
+      console.log("onSuccess");
       toast.success("Your transaction was successful", {
         id: toastId,
         action: {
@@ -107,6 +108,7 @@ export default function SwapRouterButton({
       setNeedsBalanceOut(true);
     },
     onError() {
+      console.log("onError");
       toast.error("Your transaction failed", {
         id: toastId,
         action: {
@@ -140,6 +142,8 @@ export default function SwapRouterButton({
       );
       newToastId;
       setToastId(newToastId);
+    }else{
+      loadingSetter(false);
     }
   }, [isLoading]);
 

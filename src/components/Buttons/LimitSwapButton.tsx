@@ -89,6 +89,7 @@ export default function LimitSwapButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
+      console.log("onSuccess");
       toast.success("Your transaction was successful",{
         id: toastId,
         action: {
@@ -108,6 +109,7 @@ export default function LimitSwapButton({
       closeModal();
     },
     onError() {
+      console.log("onError");
       toast.error("Your transaction failed",{
         id: toastId,
         action: {
@@ -121,6 +123,7 @@ export default function LimitSwapButton({
 
   useEffect(() => {
     if(isLoading) {
+      console.log("loading");
       loadingSetter(true);
       const newToastId = toast.loading("Your transaction is being confirmed...",{
         action: {

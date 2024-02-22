@@ -102,6 +102,7 @@ import { chainProperties } from "../../utils/chains";
     const { isLoading } = useWaitForTransaction({
       hash: data?.hash,
       onSuccess() {
+        console.log("onSuccess");
         toast.success("Your transaction was successful",{
           id: toastId,
           action: {
@@ -119,6 +120,7 @@ import { chainProperties } from "../../utils/chains";
         }, 1000);
       },
       onError() {
+        console.log("onError");
         toast.error("Your transaction failed",{
           id: toastId,
           action: {
@@ -132,6 +134,7 @@ import { chainProperties } from "../../utils/chains";
 
     useEffect(() => {
       if(isLoading) {
+        console.log("loading");
         loadingSetter(true);
         const newToastId = toast.loading("Your transaction is being confirmed...",{
           action: {
