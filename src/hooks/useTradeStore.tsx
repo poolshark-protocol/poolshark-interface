@@ -145,7 +145,7 @@ const initialTradeState: TradeState = {
   wethCall: false,
   //
   tokenIn: {
-    callId: 0,
+    callId: 2,
     name: "Ether",
     symbol: "ETH",
     logoURI:
@@ -159,7 +159,7 @@ const initialTradeState: TradeState = {
   } as tokenSwap,
   //
   tokenOut: {
-    callId: 1,
+    callId: 2,
     name: "Select Token",
     symbol: "Select Token",
     native: false,

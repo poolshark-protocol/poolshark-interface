@@ -393,13 +393,15 @@ export default function Trade() {
     address: router.query.from as `0x${string}`,
     onSuccess() {
       if (tokenInData){
-        setTokenInInfo(tokenInData)
-        setTokenIn(
-          tokenOutData,
-          tokenInData,
-          "0",
-          false,
-        );
+        if (tokenIn.callId == 2) {
+          setTokenInInfo(tokenInData)
+          setTokenIn(
+            tokenOutData,
+            tokenInData,
+            "0",
+            false,
+          );
+        }
       }  
       else refetchTokenInInfo();
     },
@@ -414,13 +416,15 @@ export default function Trade() {
     enabled: true,
     onSuccess() {
       if (tokenOutData){
-        setTokenOutInfo(tokenOutData)
-        setTokenOut(
-          tokenInData,
-          tokenOutData,
-          "0",
-          false
-        );
+        if (tokenOut.callId == 2) {
+          setTokenOutInfo(tokenOutData)
+          setTokenOut(
+            tokenInData,
+            tokenOutData,
+            "0",
+            false
+          );
+        }
       }  
       else refetchTokenOutInfo();
     },
