@@ -33,6 +33,7 @@ import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButto
 import {
   getRouterAddress,
   isStablePair,
+  isWhitelistedPair,
   setDefaultRange,
 } from "../../utils/config";
 import BalanceDisplay from "../../components/Display/BalanceDisplay";
@@ -188,7 +189,7 @@ export default function AddLiquidity({}) {
   }, [router.query.feeTier]);
 
   useEffect(() => {
-    setManualRange(false)
+    setManualRange(false);
     const fetchPool = async () => {
       const data = await fetchRangePools(limitSubgraph);
       if (
@@ -235,8 +236,6 @@ export default function AddLiquidity({}) {
     };
     fetchPool();
   }, [chainId]);
-
-
 
   async function fetchPoolFromRouter(feeAmount) {
     const data = await fetchRangePools(limitSubgraph);
@@ -347,7 +346,7 @@ export default function AddLiquidity({}) {
 
   //this sets the default position price range
   useEffect(() => {
-    if (manualRange) return
+    if (manualRange) return;
     if (rangePoolData.poolPrice) {
       const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
@@ -1347,28 +1346,12 @@ export default function AddLiquidity({}) {
               >
                 <h1 className="flex items-center gap-x-2 ">
                   {feeTier.tier} FEE
-                  {((chainId === 42161 &&
-                    rangePoolAddress ===
-                      "0x7b47619045ae93f9311d0562a43c244c42bfe485" &&
-                    feeTier.tier === "0.3%") ||
-                    (chainId === 534352 &&
-                      rangePoolAddress ===
-                        "0xb14917888ba92937be3d89094f83a62904ebc9dd" &&
-                      feeTier.tier === "0.1%") ||
-                    (chainId === 34443 &&
-                      rangePoolAddress ===
-                        "0xfc16003afdff37580c9de7deeeb87f9c65b6908a" &&
-                      feeTier.tier === "0.1%") ||
-                    (chainId === 34443 &&
-                      rangePoolAddress ===
-                        "0xc20b141edd79f912897651eba9a2bca6b17dc7f1" &&
-                      feeTier.tier === "0.1%") ||
-                    (chainId === 34443 &&
-                      rangePoolAddress ===
-                        "0x7efec766f18d4b79abf5b550bfe59a1bffb37d95" &&
-                      feeTier.tier === "0.1%")) && (
-                    <SparklesIcon className="text-main2 w-[16px]" />
-                  )}
+                  {isWhitelistedPair(
+                    tokenIn,
+                    tokenOut,
+                    feeTier.tier,
+                    networkName
+                  ) && <SparklesIcon className="text-main2 w-[16px]" />}
                 </h1>
 
                 <h2 className="text-[11px] uppercase text-grey1 mt-2">
