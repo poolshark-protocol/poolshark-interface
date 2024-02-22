@@ -147,6 +147,8 @@ export default function Trade() {
     },
   });
 
+  const router = useRouter();
+
   //false order history is selected, true when active orders is selected
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
 
@@ -382,11 +384,6 @@ export default function Trade() {
 
   ///////////////////////
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
-  const router = useRouter();
-
-  const apiKey = "MlFZWF89Bf2bQcGKZY5bFBxUiPDYbdQ4"; // Replace with your actual API key
-  const network = Network.ARB_MAINNET; // Adjust network as needed
 
   const {
     data: tokenInData,
