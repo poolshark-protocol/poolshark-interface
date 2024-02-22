@@ -344,7 +344,7 @@ export default function Trade() {
       functionName: "allowance",
       args: [address, getRouterAddress(networkName)],
       chainId: chainId,
-      watch: needsAllowanceIn,
+      watch: true,
       enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
       onError(error) {
         console.log("Error allowance", error);
@@ -607,7 +607,7 @@ export default function Trade() {
                 leaveTo="opacity-0 scale-95"
               >
                 <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-[4px] bg-black text-white border border-grey text-left align-middle shadow-xl px-5 py-5 transition-all">
-                  <div className="flex items-center justify-between px-2 mb-5">
+                  <div className="flex items-center justify-between px-2 mb-5 w-full">
                     <h1 className="text-lg">Change Slippage</h1>
                     <XMarkIcon
                       onClick={() => setIsSettingsOpen(false)}
@@ -615,7 +615,7 @@ export default function Trade() {
                     />
                   </div>
                   <div className="flex md:flex-row flex-col items-center gap-3">
-                    <div className="relative">
+                    <div className="relative w-full">
                       <input
                         value={tradeSlippage}
                         onChange={(e) =>

@@ -133,7 +133,7 @@ export default function RangePoolPreview() {
             networkName
           )
         : await gasEstimateRangeCreateAndMint(
-            limitPoolTypeIds["constant-product"],
+            limitPoolTypeIds["constant-product-1.1"],
             rangePoolData.feeTier?.feeAmount,
             address,
             BigNumber.from(
@@ -484,7 +484,7 @@ export default function RangePoolPreview() {
                             routerAddress={
                               getRouterAddress(networkName)
                             }
-                            poolTypeId={limitPoolTypeIds["constant-product"]}
+                            poolTypeId={limitPoolTypeIds["constant-product-1.1"]}
                             token0={tokenIn}
                             token1={tokenOut}
                             startPrice={BigNumber.from(

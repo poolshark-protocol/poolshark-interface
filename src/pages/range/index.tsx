@@ -17,6 +17,7 @@ import { chainProperties } from "../../utils/chains";
 import { Checkbox } from "../../components/ui/checkbox";
 import { isWhitelistedPool } from "../../utils/config";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/20/solid";
+import { limitPoolTypeIds } from "../../utils/pools";
 
 export default function Range() {
   const { address, isDisconnected } = useAccount();
@@ -28,6 +29,7 @@ export default function Range() {
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
   const [lowTVLHidden, setLowTVLHidden] = useState(true);
   const [sort, setSort] = useState("TVL");
+  const [poolType, setPoolType] = useState("Current");
 
   const [
     chainId,
@@ -52,6 +54,12 @@ export default function Range() {
     needsRefetch,
     setNeedsRefetch,
     resetRangeLimitParams,
+    numLegacyPositions,
+    numCurrentPositions,
+    setNumLegacyPositions,
+    resetNumLegacyPositions,
+    setNumCurrentPositions,
+    resetNumCurrentPositions,
   ] = useRangeLimitStore((state) => [
     state.setTokenIn,
     state.setTokenOut,
@@ -59,6 +67,12 @@ export default function Range() {
     state.needsRefetch,
     state.setNeedsRefetch,
     state.resetRangeLimitParams,
+    state.numLegacyPositions,
+    state.numCurrentPositions,
+    state.setNumLegacyPositions,
+    state.resetNumLegacyPositions,
+    state.setNumCurrentPositions,
+    state.resetNumCurrentPositions,
   ]);
 
   const router = useRouter();
@@ -99,10 +113,17 @@ export default function Range() {
   async function getUserRangePositionData() {
     try {
       setIsPositionsLoading(true);
+      resetNumLegacyPositions();
       const data = await fetchRangePositions(limitSubgraph, address);
       if (data["data"].rangePositions) {
         setAllRangePositions(
-          mapUserRangePositions(data["data"].rangePositions)
+          mapUserRangePositions(
+            data["data"].rangePositions,
+            setNumLegacyPositions,
+            resetNumLegacyPositions,
+            setNumCurrentPositions,
+            resetNumCurrentPositions
+          )
         );
         setIsPositionsLoading(false);
       }
@@ -118,7 +139,6 @@ export default function Range() {
     setSearchTerm(event.target.value);
   };
 
-  console.log(sort);
   return (
     <div className="min-h-screen bg-black">
       <Navbar />
@@ -149,7 +169,6 @@ export default function Range() {
               onClick={() => {
                 resetRangeLimitParams(chainId);
                 if (allRangePools?.length > 0) {
-                  console.log(allRangePools[0]);
                   const tokenIn = {
                     name: allRangePools[0].tokenZero.symbol,
                     address: allRangePools[0].tokenZero.id,
@@ -171,6 +190,9 @@ export default function Range() {
                     tokenOut,
                     allRangePools[0].feeTier.toString(),
                     limitSubgraph,
+                    undefined,
+                    undefined,
+                    limitPoolTypeIds["constant-product-1.1"]
                   );
                   router.push({
                     pathname: "/range/add-liquidity",
@@ -229,9 +251,36 @@ export default function Range() {
             />
           </div>
           <div className="p-6 bg-dark border border-grey rounded-[4px]">
-            <div className="text-white flex items-center text-sm gap-x-3">
-              <UserIcon />
-              <h1>YOUR POSITIONS</h1>
+            <div className="flex md:flex-row flex-col md:items-center gap-y-2 justify-between">
+              <div className="text-white flex items-center text-sm gap-x-3">
+                <UserIcon />
+                <h1>YOUR POSITIONS</h1>
+              </div>
+              <div className="bg-black flex items-center p-1 text-sm rounded-[2px]">
+                <button
+                  onClick={() => setPoolType("Current")}
+                  className={`w-full justify-center rounded-[2px] py-1.5 px-7 border ${
+                    poolType === "Current"
+                      ? "bg-main1 text-white border-main "
+                      : "border-black text-grey1"
+                  }`}
+                >
+                  CURRENT
+                </button>
+                <button
+                  onClick={() => setPoolType("Legacy")}
+                  className={`w-full items-center gap-x-2 flex justify-center rounded-[2px] py-1.5 px-5 border ${
+                    poolType === "Legacy"
+                      ? "bg-main1 text-white border-main "
+                      : "border-black text-grey1"
+                  }`}
+                >
+                  LEGACY{" "}
+                  <span className="text-xs bg-main1 rounded-full flex items-center justify-center w-6 h-6 text-main2">
+                    {numLegacyPositions}
+                  </span>
+                </button>
+              </div>
             </div>
             <div>
               {isPositionsLoading ? (
@@ -253,7 +302,19 @@ export default function Range() {
                     </div>
                   </div>
                 </div>
-              ) : isDisconnected || allRangePositions.length === 0 ? (
+              ) : isDisconnected ||
+                (poolType === "Legacy" &&
+                  !allRangePositions.some(
+                    (position) =>
+                      position.poolType !=
+                      String(limitPoolTypeIds["constant-product-1.1"])
+                  )) ||
+                (poolType === "Current" &&
+                  !allRangePositions.some(
+                    (position) =>
+                      position.poolType ==
+                      String(limitPoolTypeIds["constant-product-1.1"])
+                  )) ? (
                 <div className="text-grey1 text-xs  py-10 text-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -313,14 +374,35 @@ export default function Range() {
                             ) != undefined ||
                             searchTerm === "")
                         ) {
-                          return (
-                            <UserRangePool
-                              key={allRangePosition.id}
-                              rangePosition={allRangePosition}
-                              href={"/range/view"}
-                              isModal={false}
-                            />
-                          );
+                          if (poolType === "Current") {
+                            if (
+                              allRangePosition.poolType ==
+                              String(limitPoolTypeIds["constant-product-1.1"])
+                            ) {
+                              return (
+                                <UserRangePool
+                                  key={allRangePosition.id}
+                                  rangePosition={allRangePosition}
+                                  href={"/range/view"}
+                                  isModal={false}
+                                />
+                              );
+                            }
+                          } else if (poolType === "Legacy") {
+                            if (
+                              allRangePosition.poolType !=
+                              String(limitPoolTypeIds["constant-product-1.1"])
+                            ) {
+                              return (
+                                <UserRangePool
+                                  key={allRangePosition.id}
+                                  rangePosition={allRangePosition}
+                                  href={"/range/view"}
+                                  isModal={false}
+                                />
+                              );
+                            }
+                          }
                         }
                       })}
                     </div>

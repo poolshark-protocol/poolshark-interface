@@ -6,6 +6,7 @@ import {
 } from "@apollo/client";
 import { BigNumber } from "ethers";
 import { CoverSubgraph, LimitSubgraph } from "./types";
+import { limitPoolTypeIds } from "./pools";
 
 export interface PoolState {
   unlocked: number;
@@ -185,12 +186,13 @@ export const getCoverPoolFromFactory = (
 export const getLimitPoolFromFactory = (
   client: LimitSubgraph,
   tokenA: string,
-  tokenB: string
+  tokenB: string,
+  poolTypeId?: number
 ) => {
   const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
   const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
   return new Promise(function (resolve) {
-    const getPool = `
+    const getPool = poolTypeId == undefined ? `
         {
             limitPools(
               where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}},
@@ -240,7 +242,58 @@ export const getLimitPoolFromFactory = (
               totalValueLockedUsd
             }
           }
-         `;
+         `
+      : `
+      {
+          limitPools(
+            where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}, poolType:"${poolTypeId}"},
+            orderBy: poolLiquidity,
+            orderDirection: desc
+          ) {
+            id
+            poolType
+            epoch
+            token0{
+                id
+                name
+                symbol
+                decimals
+                usdPrice
+            }
+            token1{
+                id
+                name
+                symbol
+                decimals
+                usdPrice
+            }
+            liquidity
+            liquidityGlobal
+            feeTier{
+                id
+                feeAmount
+                tickSpacing
+            }
+            tickSpacing
+            poolPrice
+            pool0Price
+            pool1Price
+            price0
+            price1
+            poolPrice
+            feesEth
+            feesUsd
+            volumeEth
+            volumeToken0
+            volumeToken1
+            volumeUsd
+            totalValueLockedEth
+            totalValueLocked0
+            totalValueLocked1
+            totalValueLockedUsd
+          }
+        }
+       `;
     client
       ?.query({ query: gql(getPool) })
       .then((data) => {
@@ -721,7 +774,7 @@ export const fetchRangePools = (client: LimitSubgraph) => {
   return new Promise(function (resolve) {
     const poolsQuery = `
             query($id: String) {
-                limitPools(id: $id, orderBy: totalValueLockedUsd, orderDirection: desc) {
+                limitPools(id: $id, orderBy: totalValueLockedUsd, orderDirection: desc, where:{poolType: "${limitPoolTypeIds["constant-product-1.1"]}"}) {
                     id
                     poolType
                     token0{

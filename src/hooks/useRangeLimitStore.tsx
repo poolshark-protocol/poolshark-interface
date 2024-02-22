@@ -80,6 +80,8 @@ type RangeLimitState = {
   //Start price for pool creation
   startPrice: string;
   chainSwitched: boolean;
+  numLegacyPositions: number;
+  numCurrentPositions: number;
 };
 
 type RangeLimitAction = {
@@ -166,6 +168,10 @@ type RangeLimitAction = {
   setLimitAddLiqDisabled: (limitAddLiqDisabled: boolean) => void;
   setStakeFlag: (stakeFlag: boolean) => void;
   setChainSwitched: (chainSwitched: boolean) => void;
+  setNumLegacyPositions: () => void;
+  resetNumLegacyPositions: () => void;
+  setNumCurrentPositions: () => void;
+  resetNumCurrentPositions: () => void;
 };
 
 const initialRangeLimitState: RangeLimitState = {
@@ -258,6 +264,8 @@ const initialRangeLimitState: RangeLimitState = {
   currentAmountOut: "0",
   startPrice: "",
   chainSwitched: false,
+  numLegacyPositions: 0,
+  numCurrentPositions: 0,
 };
 
 export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
@@ -305,6 +313,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     startPrice: initialRangeLimitState.startPrice,
     //whether chain was already switched
     chainSwitched: initialRangeLimitState.chainSwitched,
+    numLegacyPositions: initialRangeLimitState.numLegacyPositions,
+    numCurrentPositions: initialRangeLimitState.numCurrentPositions,
     //actions
     setPairSelected: (pairSelected: boolean) => {
       set(() => ({
@@ -875,6 +885,26 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     setChainSwitched: (chainSwitched: boolean) => {
       set(() => ({
         chainSwitched: chainSwitched,
+      }));
+    },
+    setNumLegacyPositions: () => {
+      set((state) => ({
+        numLegacyPositions: state.numLegacyPositions + 1,
+      }));
+    },
+    resetNumLegacyPositions: () => {
+      set(() => ({
+        numLegacyPositions: 0,
+      }));
+    },
+    setNumCurrentPositions: () => {
+      set((state) => ({
+        numCurrentPositions: state.numCurrentPositions + 1,
+      }));
+    },
+    resetNumCurrentPositions: () => {
+      set(() => ({
+        numCurrentPositions: 0,
       }));
     },
     setStakeFlag: (stakeFlag: boolean) => {

@@ -194,7 +194,8 @@ export default function LimitSwap() {
             setTokenInTradeUSDPrice,
             setTokenOutTradeUSDPrice,
             setTradePoolPrice,
-            setTradePoolLiquidity
+            setTradePoolLiquidity,
+            limitPoolTypeIds["constant-product-1.1"]
           );
           setSelectedFeeTier(tradePoolData?.feeTier?.id);
         }
@@ -250,9 +251,12 @@ export default function LimitSwap() {
       tradePoolData,
       setTradePoolData,
       setTokenInTradeUSDPrice,
-      setTokenOutTradeUSDPrice
+      setTokenOutTradeUSDPrice,
+      undefined,
+      undefined,
+      limitPoolTypeIds["constant-product-1.1"],
+      setSelectedFeeTier
     );
-
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
     if (pools) {
@@ -281,7 +285,8 @@ export default function LimitSwap() {
       limitSubgraph,
       tokenIn,
       tokenOut,
-      feeAmount
+      feeAmount,
+      limitPoolTypeIds['constant-product-1.1']
     );
     setSelectedFeeTier(feeAmount.toString());
     setTradePoolData(pool);
@@ -753,7 +758,7 @@ export default function LimitSwap() {
         );
       } else {
         await gasEstimateLimitCreateAndMint(
-          limitPoolTypeIds["constant-product"],
+          limitPoolTypeIds["constant-product-1.1"],
           tradePoolData?.feeTier?.feeAmount ?? 3000,
           address,
           lowerTick,
@@ -863,7 +868,7 @@ export default function LimitSwap() {
         <div className="flex items-end justify-between mt-2 mb-3">
           {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox)}
           <div className="flex items-center gap-x-2">
-            {isConnected && stateChainName === networkName ? (
+            {isConnected && tokenIn.address != ZERO_ADDRESS  ? (
               <button
                 onClick={() => {
                   handleInputBox({
@@ -950,6 +955,21 @@ export default function LimitSwap() {
             </div>
           }
           <div className="flex items-center gap-x-2">
+          {isConnected && tokenOut.address != ZERO_ADDRESS ? (
+              <button
+                onClick={() => {
+                  handleInputBox({
+                    target: {
+                      value: tokenOut.userBalance.toString(),
+                      name: "tokenOut",
+                    },
+                  });
+                }}
+                className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
+              >
+                MAX
+              </button>
+            ) : null}
             <SelectToken
               key={"out"}
               type="out"
@@ -981,7 +1001,7 @@ export default function LimitSwap() {
                 handleManualFeeTierChange(1000);
               }}
             >
-              0.01%
+              0.1%
             </div>
             <div
               className={
@@ -993,7 +1013,7 @@ export default function LimitSwap() {
                 handleManualFeeTierChange(3000);
               }}
             >
-              0.03%
+              0.3%
             </div>
             <div
               className={
@@ -1005,7 +1025,7 @@ export default function LimitSwap() {
                 handleManualFeeTierChange(10000);
               }}
             >
-              0.1%
+              1.0%
             </div>
           </div>
         </div>
@@ -1233,7 +1253,7 @@ export default function LimitSwap() {
               <LimitCreateAndMintButton
                 disabled={mintGasLimit.eq(BN_ZERO) || tradeButton.disabled}
                 routerAddress={getRouterAddress(networkName)}
-                poolTypeId={limitPoolTypeIds["constant-product"]}
+                poolTypeId={limitPoolTypeIds["constant-product-1.1"]}
                 tokenIn={tokenIn}
                 tokenOut={tokenOut}
                 feeTier={tradePoolData?.feeTier?.feeAmount}
