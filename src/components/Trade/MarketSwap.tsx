@@ -4,7 +4,7 @@ import { useAccount, useContractRead, useProvider, useSigner } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
-import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO, Q96_BI, ZERO_ADDRESS } from "../../utils/math/constants";
 import SelectToken from "../SelectToken";
 import {
   inputHandler,
@@ -12,7 +12,7 @@ import {
   parseUnits,
 } from "../../utils/math/valueMath";
 import { getSwapPools } from "../../utils/pools";
-import { QuoteParams, SwapParams } from "../../utils/types";
+import { QuoteParams, SwapParams, QuoteResults } from "../../utils/types";
 import { TickMath, maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
 import { displayPoolPrice } from "../../utils/math/priceMath";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
@@ -310,6 +310,7 @@ export default function MarketSwap() {
   });
 
   useEffect(() => {
+    let poolQuotesSorted: QuoteResults[] = [];
     if (poolQuotes && poolQuotes[0]) {
       if (
         poolQuotes[0].amountIn?.gt(BN_ZERO) &&
@@ -333,14 +334,41 @@ export default function MarketSwap() {
           // set amount out if less than current
           let amountOutTotal: BigNumber = BN_ZERO;
           for (let i = 0; poolQuotes[i] != undefined; i++) {
+            // select the one with the best exchange rate
             amountOutTotal = amountOutTotal.add(poolQuotes[i]?.amountOut);
+            console.log('looping pool quotes', i, poolQuotes[i])
+            poolQuotesSorted[i] = poolQuotes[i]
           }
-          setAmountIn(poolQuotes[0].amountIn);
+          // sort by exchange rate
+          poolQuotesSorted = poolQuotesSorted.sort((n1, n2) => {
+            const exchangeRate1 = n1.amountOut.mul(Q96_BI).div(n1.amountIn)
+            const exchangeRate2 = n2.amountOut.mul(Q96_BI).div(n2.amountIn)
+            if (exchangeRate1.gte(exchangeRate2)) {
+                return  1;
+            }
+            if (exchangeRate1.lt(exchangeRate2)) {
+                return -1;
+            }
+            return  0;
+          });
+          // then sort by most amount out
+          poolQuotesSorted = poolQuotesSorted.sort((n1, n2) => {
+            if (n1.amountOut.lt(n2.amountOut)) {
+                return  1;
+            }
+            if (n1.amountOut.gte(n2.amountOut)) {
+                return -1;
+            }
+            return  0;
+          });
+          console.log('sorted pool quotes', poolQuotes, poolQuotesSorted)
+          console.log('first element', poolQuotesSorted[0].amountIn.toString(), poolQuotesSorted[0].amountOut.toString())
+          setAmountIn(poolQuotesSorted[0].amountIn);
           setDisplayIn(
             numFormat(
               parseFloat(
                 ethers.utils.formatUnits(
-                  poolQuotes[0].amountIn.toString(),
+                  poolQuotesSorted[0].amountIn.toString(),
                   tokenIn.decimals
                 )
               ),
@@ -362,7 +390,7 @@ export default function MarketSwap() {
             );
           }
         }
-        updateSwapParams(poolQuotes);
+        updateSwapParams(poolQuotesSorted.length > 0 ? poolQuotesSorted : poolQuotes);
       } else {
         if (exactIn) {
           setAmountOut(BN_ZERO);
