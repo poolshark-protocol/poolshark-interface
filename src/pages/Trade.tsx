@@ -13,6 +13,13 @@ import { getLimitTokenUsdPrice } from "../utils/tokens";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { fetchLimitPositions } from "../utils/queries";
+import { fetchTokenMetadata } from "../utils/tokens";
+import { fetchTokenDetails } from "../utils/fetchToken";
+import { defaultTokenLogo} from "../utils/tokens";
+import { isAddress } from "ethers/lib/utils.js";
+import { useSwitchNetwork } from "wagmi";
+import { useToken } from "wagmi";
+import { useRouter } from "next/router";
 import {
   getClaimTick,
   mapUserHistoricalOrders,
@@ -28,18 +35,23 @@ import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import inputFilter from "../utils/inputFilter";
 import { getRouterAddress } from "../utils/config";
+import { fetchTokenMetadataWithAlchemy } from '../utils/fetchTokenMetadata';
+import { Network } from "alchemy-sdk";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
   const { data: signer } = useSigner();
 
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap, setDisplayTokenList, setNetworkName, setChainId] =
     useConfigStore((state) => [
       state.chainId,
       state.networkName,
       state.limitSubgraph,
       state.setLimitSubgraph,
       state.logoMap,
+      state.setDisplayTokenList,
+      state.setNetworkName,
+      state.setChainId,
     ]);
 
   const [
@@ -132,6 +144,14 @@ export default function Trade() {
     s.setLimitTabSelected,
   ]);
 
+  const {
+    error: networkError,
+    switchNetwork,
+  } = useSwitchNetwork({
+    onSuccess(data) {
+    },
+  });
+
   //false order history is selected, true when active orders is selected
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
 
@@ -146,6 +166,10 @@ export default function Trade() {
   //log amount in and out
   const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
   const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
+
+
+  const [tokenInInfo, setTokenInInfo] = useState(undefined);
+  const [tokenOutInfo, setTokenOutInfo] = useState(undefined);
 
   useEffect(() => {
     if (
@@ -363,6 +387,86 @@ export default function Trade() {
 
   ///////////////////////
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const router = useRouter();
+
+  const apiKey = "MlFZWF89Bf2bQcGKZY5bFBxUiPDYbdQ4"; // Replace with your actual API key
+  const network = Network.ARB_MAINNET; // Adjust network as needed
+
+  const {
+    data: tokenInData,
+    refetch: refetchTokenInInfo,
+    isLoading: isTokenInLoading
+  } = useToken({
+    address: router.query.from as `0x${string}`,
+    onSuccess() {
+      if (tokenInData){
+        setTokenInInfo(tokenInData)
+        setTokenIn(
+          tokenOutData,
+          tokenInData,
+          "0",
+          false,
+        );
+      }  
+      else refetchTokenInInfo();
+    },
+  });
+
+  const {
+    data: tokenOutData,
+    refetch: refetchTokenOutInfo,
+    isLoading: isTokenOutLoading
+  } = useToken({
+    address: router.query.to as `0x${string}`,
+    enabled: true,
+    onSuccess() {
+      if (tokenOutData){
+        setTokenOutInfo(tokenOutData)
+        setTokenOut(
+          tokenInData,
+          tokenOutData,
+          "0",
+          false
+        );
+      }  
+      else refetchTokenOutInfo();
+    },
+  });
+    
+  useEffect(() => {
+      if (tokenOutInfo === undefined) {
+        refetchTokenOutInfo();
+      } 
+      if (tokenInInfo === undefined) {
+        refetchTokenInInfo();
+      } 
+  }, [router.query.to, tokenOutInfo, router.query.from, tokenInInfo]);
+
+
+  
+
+  useEffect(() => {
+
+    const updateRouter = async () => {
+      if (tokenIn && tokenOut && tokenOut.address !== ZERO_ADDRESS) {
+        router.push({
+          pathname: '/',
+          query: { 
+            chain: chainId, 
+            from: tokenIn.address,
+            to: tokenOut.address
+          },
+        }, undefined, { shallow: true });
+        return true;
+      }
+      return false;
+    }
+    updateRouter()
+    
+  }, [tokenIn.address, tokenOut.address, chainId]);
+
+
 
   return (
     <div className="min-h-[calc(100vh-160px)] w-[48rem] px-3 md:px-0">
