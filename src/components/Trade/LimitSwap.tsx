@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
-import { useAccount, useSigner } from "wagmi";
+import { erc20ABI, useAccount, useContractRead, useSigner } from "wagmi";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
 import LimitSwapButton from "../Buttons/LimitSwapButton";
@@ -103,6 +103,7 @@ export default function LimitSwap() {
     setLimitPriceOrder,
     setNeedsPairUpdate,
     setNeedsSetAmounts,
+    setTokenInTradeAllowance,
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
@@ -140,6 +141,7 @@ export default function LimitSwap() {
     s.setLimitPriceOrder,
     s.setNeedsPairUpdate,
     s.setNeedsSetAmounts,
+    s.setTokenInTradeAllowance,
   ]);
 
   const {
@@ -160,6 +162,32 @@ export default function LimitSwap() {
   const [priceRangeSelected, setPriceRangeSelected] = useState(false);
 
   const [swapParams, setSwapParams] = useState<any[]>([]);
+
+  ////////////////////////////////Allowances
+
+  const { data: allowanceInRouter, refetch: allowanceInRefetch } =
+    useContractRead({
+      address: tokenIn.address,
+      abi: erc20ABI,
+      functionName: "allowance",
+      args: [address, getRouterAddress(networkName)],
+      chainId: chainId,
+      watch: true,
+      enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
+      onError(error) {
+        console.log("Error allowance", error);
+      },
+      onSuccess(data) {
+        setNeedsAllowanceIn(false);
+        // console.log("Success allowance", tokenIn.symbol, tokenIn.userRouterAllowance?.gte(amountIn));
+      },
+    });
+
+  useEffect(() => {
+    if (allowanceInRouter) {
+      setTokenInTradeAllowance(allowanceInRouter);
+    }
+  }, [allowanceInRouter]);
 
   /////////////////////////////Fetch Pools
   const [availablePools, setAvailablePools] = useState(undefined);
@@ -286,7 +314,7 @@ export default function LimitSwap() {
       tokenIn,
       tokenOut,
       feeAmount,
-      limitPoolTypeIds['constant-product-1.1']
+      limitPoolTypeIds["constant-product-1.1"]
     );
     setSelectedFeeTier(feeAmount.toString());
     setTradePoolData(pool);
@@ -868,7 +896,7 @@ export default function LimitSwap() {
         <div className="flex items-end justify-between mt-2 mb-3">
           {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox)}
           <div className="flex items-center gap-x-2">
-            {isConnected && tokenIn.address != ZERO_ADDRESS  ? (
+            {isConnected && tokenIn.address != ZERO_ADDRESS ? (
               <button
                 onClick={() => {
                   handleInputBox({
@@ -898,15 +926,16 @@ export default function LimitSwap() {
           </div>
         </div>
       </div>
-      <div 
-      onClick={() => {
-        switchDirection(
-          exactIn,
-          exactIn ? displayIn : displayOut,
-          exactIn ? setAmountIn : setAmountOut
-        );
-      }}
-      className="flex items-center justify-center w-full pt-10 pb-3">
+      <div
+        onClick={() => {
+          switchDirection(
+            exactIn,
+            exactIn ? displayIn : displayOut,
+            exactIn ? setAmountIn : setAmountOut
+          );
+        }}
+        className="flex items-center justify-center w-full pt-10 pb-3"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -914,7 +943,6 @@ export default function LimitSwap() {
           strokeWidth="1.5"
           stroke="currentColor"
           className="w-5 cursor-pointer"
-          
         >
           <path
             strokeLinecap="round"
@@ -955,7 +983,7 @@ export default function LimitSwap() {
             </div>
           }
           <div className="flex items-center gap-x-2">
-          {isConnected && tokenOut.address != ZERO_ADDRESS ? (
+            {isConnected && tokenOut.address != ZERO_ADDRESS ? (
               <button
                 onClick={() => {
                   handleInputBox({

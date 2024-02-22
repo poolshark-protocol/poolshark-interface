@@ -335,31 +335,6 @@ export default function Trade() {
     }
   }, [tokenInBal, tokenOutBal]);
 
-  ////////////////////////////////Allowances
-
-  const { data: allowanceInRouter, refetch: allowanceInRefetch } =
-    useContractRead({
-      address: tokenIn.address,
-      abi: erc20ABI,
-      functionName: "allowance",
-      args: [address, getRouterAddress(networkName)],
-      chainId: chainId,
-      watch: true,
-      enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
-      onError(error) {
-        console.log("Error allowance", error);
-      },
-      onSuccess(data) {
-        setNeedsAllowanceIn(false);
-        // console.log("Success allowance", tokenIn.symbol, tokenIn.userRouterAllowance?.gte(amountIn));
-      },
-    });
-
-  useEffect(() => {
-    if (allowanceInRouter) {
-      setTokenInTradeAllowance(allowanceInRouter);
-    }
-  }, [allowanceInRouter]);
 
   ///////////////////////
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);

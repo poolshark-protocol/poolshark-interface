@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
-import { useAccount, useContractRead, useProvider, useSigner } from "wagmi";
+import {
+  erc20ABI,
+  useAccount,
+  useContractRead,
+  useProvider,
+  useSigner,
+} from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
@@ -30,6 +36,7 @@ import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { getRouterAddress } from "../../utils/config";
 import BalanceDisplay from "../Display/BalanceDisplay";
+import Loader from "../Icons/Loader";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -75,6 +82,7 @@ export default function MarketSwap() {
     setNeedsAllowanceIn,
     switchDirection,
     setTradeButtonState,
+    setTokenInTradeAllowance,
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
@@ -103,6 +111,7 @@ export default function MarketSwap() {
     s.setNeedsAllowanceIn,
     s.switchDirection,
     s.setTradeButtonState,
+    s.setTokenInTradeAllowance,
   ]);
 
   const [setRangeTokenIn, setRangeTokenOut] = useRangeLimitStore((state) => [
@@ -136,6 +145,32 @@ export default function MarketSwap() {
     setAmountOut(BN_ZERO);
     setPriceImpact("0.00");
   }, [limitTabSelected]);
+
+  ////////////////////////////////Allowances
+
+  const { data: allowanceInRouter, refetch: allowanceInRefetch } =
+    useContractRead({
+      address: tokenIn.address,
+      abi: erc20ABI,
+      functionName: "allowance",
+      args: [address, getRouterAddress(networkName)],
+      chainId: chainId,
+      watch: true,
+      enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
+      onError(error) {
+        console.log("Error allowance", error);
+      },
+      onSuccess(data) {
+        setNeedsAllowanceIn(false);
+        // console.log("Success allowance", tokenIn.symbol, tokenIn.userRouterAllowance?.gte(amountIn));
+      },
+    });
+
+  useEffect(() => {
+    if (allowanceInRouter) {
+      setTokenInTradeAllowance(allowanceInRouter);
+    }
+  }, [allowanceInRouter]);
 
   /////////////////////////////Fetch Pools
   const [availablePools, setAvailablePools] = useState(undefined);
@@ -605,6 +640,8 @@ export default function MarketSwap() {
     }
   };
 
+  const [txLoading, setTxLoading] = useState(false);
+
   return (
     <div>
       <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
@@ -848,11 +885,11 @@ export default function MarketSwap() {
       )}
       {isDisconnected ? (
         <ConnectWalletButton xl={true} />
-      ) : (
+      ) : !txLoading ? (
         <>
           {
             //range buttons
-            tokenIn.userRouterAllowance?.lt(amountIn) &&
+            allowanceInRouter.lt(amountIn) &&
             !tokenIn.native &&
             pairSelected &&
             amountOut.gt(BN_ZERO) ? (
@@ -905,6 +942,8 @@ export default function MarketSwap() {
             )
           }
         </>
+      ) : (
+        <Loader />
       )}
     </div>
   );
