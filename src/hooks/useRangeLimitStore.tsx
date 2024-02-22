@@ -85,6 +85,7 @@ type RangeLimitState = {
   numCurrentPositions: number;
   whitelistedFeesData: number[];
   whitelistedFeesTotal: number;
+  poolApys: any;
 };
 
 type RangeLimitAction = {
@@ -177,6 +178,8 @@ type RangeLimitAction = {
   resetNumCurrentPositions: () => void;
   setWhitelistedFeesData: (whitelistedFeesData: number[], whitelistedFeesTotal: number) => void;
   resetWhitelistedFeesData: () => void;
+  setPoolApy: (poolAddress: string, apy: number) => void;
+  resetPoolApys: () => void;
 };
 
 const initialRangeLimitState: RangeLimitState = {
@@ -273,6 +276,7 @@ const initialRangeLimitState: RangeLimitState = {
   numCurrentPositions: 0,
   whitelistedFeesData: [],
   whitelistedFeesTotal: 0,
+  poolApys: {},
 };
 
 export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
@@ -324,6 +328,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     numCurrentPositions: initialRangeLimitState.numCurrentPositions,
     whitelistedFeesData: initialRangeLimitState.whitelistedFeesData,
     whitelistedFeesTotal: initialRangeLimitState.whitelistedFeesTotal,
+    poolApys: initialRangeLimitState.poolApys,
     //actions
     setPairSelected: (pairSelected: boolean) => {
       set(() => ({
@@ -926,6 +931,19 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           whitelistedFeesTotal: whitelistedFeesTotal,
         }));
       }
+    },
+    setPoolApy: (poolAddress: string, apy: number) => {
+      set((state) => ({
+        poolApys: {
+          ...state.poolApys,
+          [poolAddress]: apy,
+        }
+      }));
+    },
+    resetPoolApys: () => {
+      set((state) => ({
+        poolApys: {}
+      }));
     },
     resetWhitelistedFeesData: () => {
       set(() => ({

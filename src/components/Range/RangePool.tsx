@@ -34,7 +34,7 @@ export default function RangePool({ rangePool, href }) {
     resetPoolData,
     whitelistedFeesData,
     whitelistedFeesTotal,
-
+    setPoolApy,
   ] = useRangeLimitStore((state) => [
     state.setTokenIn,
     state.setTokenOut,
@@ -43,6 +43,7 @@ export default function RangePool({ rangePool, href }) {
     state.resetPoolData,
     state.whitelistedFeesData,
     state.whitelistedFeesTotal,
+    state.setPoolApy,
   ]);
 
   const router = useRouter();
@@ -76,6 +77,10 @@ export default function RangePool({ rangePool, href }) {
       }
     }
   }, [oFin, oFinRewards, rangePool.tvlUsd, networkName]);
+
+  useEffect(() => {
+    setPoolApy(rangePool.poolId, parseFloat((oFinApy + feeApy).toFixed(2)))
+  }, [oFinApy, feeApy]);
 
   const chooseRangePool = () => {
     resetMintParams();

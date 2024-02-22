@@ -66,7 +66,8 @@ export default function Range() {
     setNumCurrentPositions,
     resetNumCurrentPositions,
     setWhitelistedFeesData,
-    resetWhitelistedFeesData
+    resetWhitelistedFeesData,
+    poolApys,
   ] = useRangeLimitStore((state) => [
     state.setTokenIn,
     state.setTokenOut,
@@ -83,6 +84,7 @@ export default function Range() {
     state.resetNumCurrentPositions,
     state.setWhitelistedFeesData,
     state.resetWhitelistedFeesData,
+    state.poolApys,
   ]);
 
   const router = useRouter();
@@ -91,6 +93,16 @@ export default function Range() {
   useEffect(() => {
     getRangePoolData();
   }, [chainId]);
+
+  useEffect(() => {
+    console.log('pool apy updated',)
+    for (let i = 0; i < allRangePools.length; i++) {
+      if (poolApys[allRangePools[i].poolId]) {
+        allRangePools[i].poolApy = poolApys[allRangePools[i].poolId]
+        setAllRangePools(allRangePools)
+      }
+    }
+  }, [poolApys]);
 
   async function getRangePoolData() {
     setIsPoolsLoading(true);
@@ -554,6 +566,8 @@ export default function Range() {
                             );
                           } else if (sort === "TVL") {
                             return parseFloat(b.tvlUsd) - parseFloat(a.tvlUsd);
+                          } else if (sort === "APY") {
+                            return parseFloat(b.poolApy) - parseFloat(a.poolApy);
                           }
                           return 0;
                         })
