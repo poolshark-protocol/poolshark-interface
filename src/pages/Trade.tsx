@@ -434,10 +434,10 @@ export default function Trade() {
   });
     
   useEffect(() => {
-      if (tokenOutInfo === undefined && router.query?.to) {
+      if (tokenOutInfo === undefined && router.query.to) {
         refetchTokenOutInfo();
       } 
-      if (tokenInInfo === undefined && router.query?.from) {
+      if (tokenInInfo === undefined && router.query.from) {
         refetchTokenInInfo();
       } 
   }, [router.query.to, tokenOutInfo, router.query.from, tokenInInfo]);
