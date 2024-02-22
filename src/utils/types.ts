@@ -71,8 +71,21 @@ export type tokenCover = {
   native: boolean;
 };
 
+export type oFin = {
+  strikeDisplay: string;
+  strikePrice: number;
+  profitUsd: number;
+}
+
+export type RangePool24HData = {
+  volumeUsd: number;
+  feesUsd: number;
+}
+
 export type token = tokenCover | tokenRangeLimit | tokenSwap;
 
 export type LimitSubgraph = ApolloClient<NormalizedCacheObject>;
 
 export type CoverSubgraph = ApolloClient<NormalizedCacheObject>;
+
+export type FinSubgraph = ApolloClient<NormalizedCacheObject>;

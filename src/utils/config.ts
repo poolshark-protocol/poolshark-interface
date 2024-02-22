@@ -86,6 +86,21 @@ export const isWhitelistedPool = (rangePool: any, networkName: string): boolean 
 	return false
 }
 
+export const getWhitelistedIndex = (rangePool: any, networkName: string): number => {
+	if (!rangePool?.poolId) {
+		console.log('percent early return')
+		return -1
+	} else if (chainProperties[networkName]?.whitelistedPools) {
+		const whitelistedPools: string[] = chainProperties[networkName].whitelistedPools
+		if (whitelistedPools.indexOf(rangePool?.poolId) != -1) {
+			return whitelistedPools.indexOf(rangePool?.poolId)
+		}
+		console.log('percent early return', whitelistedPools, networkName, rangePool.poolId)
+		return -1
+	}
+	return -1
+}
+
 export const isWhitelistedPair = (tokenIn: any, tokenOut: any, feeTier: string, networkName: string): boolean => {
 	if (!(tokenIn?.address) || !(tokenOut?.address)) {
 		return false

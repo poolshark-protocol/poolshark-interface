@@ -84,7 +84,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                     <svg
                       stroke="currentColor"
                       fill="currentColor"
-                      stroke-width="0"
+                      strokeWidth="0"
                       viewBox="0 0 512 512"
                       height="1.25em"
                       width="1.25em"
@@ -182,7 +182,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                   <svg
                     stroke="currentColor"
                     fill="currentColor"
-                    stroke-width="0"
+                    strokeWidth="0"
                     viewBox="0 0 512 512"
                     height="1.4em"
                     width="1.4em"

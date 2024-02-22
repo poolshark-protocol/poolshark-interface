@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { LimitSubgraph, token, tokenRangeLimit } from "../utils/types";
+import { LimitSubgraph, RangePool24HData, token, tokenRangeLimit } from "../utils/types";
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import { create } from "zustand";
 import {
@@ -18,6 +18,7 @@ import {
   defaultNetwork,
 } from "../utils/chains";
 import { getUserAllowance, getUserBalance } from "../utils/tokens";
+import { getWhitelistedIndex, isWhitelistedPool } from "../utils/config";
 
 type RangeLimitState = {
   //rangePoolAddress for current token pairs
@@ -82,6 +83,9 @@ type RangeLimitState = {
   chainSwitched: boolean;
   numLegacyPositions: number;
   numCurrentPositions: number;
+  whitelistedFeesData: number[];
+  whitelistedFeesTotal: number;
+  poolApys: any;
 };
 
 type RangeLimitAction = {
@@ -172,6 +176,10 @@ type RangeLimitAction = {
   resetNumLegacyPositions: () => void;
   setNumCurrentPositions: () => void;
   resetNumCurrentPositions: () => void;
+  setWhitelistedFeesData: (whitelistedFeesData: number[], whitelistedFeesTotal: number) => void;
+  resetWhitelistedFeesData: () => void;
+  setPoolApy: (poolAddress: string, apy: number) => void;
+  resetPoolApys: () => void;
 };
 
 const initialRangeLimitState: RangeLimitState = {
@@ -266,6 +274,9 @@ const initialRangeLimitState: RangeLimitState = {
   chainSwitched: false,
   numLegacyPositions: 0,
   numCurrentPositions: 0,
+  whitelistedFeesData: [],
+  whitelistedFeesTotal: 0,
+  poolApys: {},
 };
 
 export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
@@ -315,6 +326,9 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     chainSwitched: initialRangeLimitState.chainSwitched,
     numLegacyPositions: initialRangeLimitState.numLegacyPositions,
     numCurrentPositions: initialRangeLimitState.numCurrentPositions,
+    whitelistedFeesData: initialRangeLimitState.whitelistedFeesData,
+    whitelistedFeesTotal: initialRangeLimitState.whitelistedFeesTotal,
+    poolApys: initialRangeLimitState.poolApys,
     //actions
     setPairSelected: (pairSelected: boolean) => {
       set(() => ({
@@ -851,7 +865,6 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
             pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility &&
             (poolTypeId == undefined || pool["data"]["limitPools"][i]["poolType"] == poolTypeId)
           ) {
-            console.log('pool found')
             set(() => ({
               limitPoolAddress: pool["data"]["limitPools"][i]["id"],
               limitPoolData: pool["data"]["limitPools"][i],
@@ -905,6 +918,37 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     resetNumCurrentPositions: () => {
       set(() => ({
         numCurrentPositions: 0,
+      }));
+    },
+    setWhitelistedFeesData: (whitelistedFeesData: number[], whitelistedFeesTotal: number) => {
+      if (whitelistedFeesData) {
+        set(() => ({
+          whitelistedFeesData: whitelistedFeesData,
+          whitelistedFeesTotal: whitelistedFeesTotal,
+        }));
+      } else if (whitelistedFeesTotal) {
+        set(() => ({
+          whitelistedFeesTotal: whitelistedFeesTotal,
+        }));
+      }
+    },
+    setPoolApy: (poolAddress: string, apy: number) => {
+      set((state) => ({
+        poolApys: {
+          ...state.poolApys,
+          [poolAddress]: apy,
+        }
+      }));
+    },
+    resetPoolApys: () => {
+      set((state) => ({
+        poolApys: {}
+      }));
+    },
+    resetWhitelistedFeesData: () => {
+      set(() => ({
+        whitelistedFeesData: [],
+        whitelistedFeesTotal: 0
       }));
     },
     setStakeFlag: (stakeFlag: boolean) => {
