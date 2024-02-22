@@ -391,6 +391,7 @@ export default function Trade() {
     isLoading: isTokenInLoading
   } = useToken({
     address: router.query.from as `0x${string}`,
+    enabled: router.query.from != undefined,
     onSuccess() {
       if (tokenInData){
         if (tokenIn.callId == 2) {
@@ -403,7 +404,8 @@ export default function Trade() {
           );
         }
       }  
-      else refetchTokenInInfo();
+      else if (router.query.from)
+        refetchTokenInInfo();
     },
   });
 
@@ -413,7 +415,7 @@ export default function Trade() {
     isLoading: isTokenOutLoading
   } = useToken({
     address: router.query.to as `0x${string}`,
-    enabled: true,
+    enabled: router.query.to != undefined,
     onSuccess() {
       if (tokenOutData){
         if (tokenOut.callId == 2) {
@@ -426,15 +428,16 @@ export default function Trade() {
           );
         }
       }  
-      else refetchTokenOutInfo();
+      else if (router.query.to)
+        refetchTokenOutInfo();
     },
   });
     
   useEffect(() => {
-      if (tokenOutInfo === undefined) {
+      if (tokenOutInfo === undefined && router.query.to) {
         refetchTokenOutInfo();
       } 
-      if (tokenInInfo === undefined) {
+      if (tokenInInfo === undefined && router.query.from) {
         refetchTokenInInfo();
       } 
   }, [router.query.to, tokenOutInfo, router.query.from, tokenInInfo]);
