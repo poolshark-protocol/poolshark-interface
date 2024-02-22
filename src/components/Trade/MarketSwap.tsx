@@ -250,8 +250,8 @@ export default function MarketSwap() {
   /////////////////////Double Input Boxes
 
   const handleInputBox = (e) => {
-    if (e.target.name === "tokenIn") {
-      const [value, bnValue] = inputHandler(e, tokenIn);
+    if (e.target.name.startsWith("tokenIn")) {
+      const [value, bnValue] = inputHandler(e, tokenIn, e.target.name.endsWith("Max"));
       if (!pairSelected) {
         setDisplayIn(value);
         setDisplayOut("");
@@ -269,8 +269,8 @@ export default function MarketSwap() {
         }
       }
       setExactIn(true);
-    } else if (e.target.name === "tokenOut") {
-      const [value, bnValue] = inputHandler(e, tokenOut);
+    } else if (e.target.name.startsWith("tokenOut")) {
+      const [value, bnValue] = inputHandler(e, tokenOut, e.target.name.endsWith("Max"));
       if (!pairSelected) {
         setDisplayOut(value);
         setDisplayIn("");
@@ -632,7 +632,7 @@ export default function MarketSwap() {
                   handleInputBox({
                     target: {
                       value: tokenIn.userBalance.toString(),
-                      name: "tokenIn",
+                      name: "tokenInMax",
                     },
                   });
                 }}
@@ -715,7 +715,7 @@ export default function MarketSwap() {
                   handleInputBox({
                     target: {
                       value: tokenOut.userBalance.toString(),
-                      name: "tokenOut",
+                      name: "tokenOutMax",
                     },
                   });
                 }}
