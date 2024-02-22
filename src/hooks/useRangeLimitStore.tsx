@@ -916,10 +916,16 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       }));
     },
     setWhitelistedFeesData: (whitelistedFeesData: number[], whitelistedFeesTotal: number) => {
-      set((state) => ({
-        whitelistedFeesData: whitelistedFeesData,
-        whitelistedFeesTotal: whitelistedFeesTotal,
-      }));
+      if (whitelistedFeesData) {
+        set(() => ({
+          whitelistedFeesData: whitelistedFeesData,
+          whitelistedFeesTotal: whitelistedFeesTotal,
+        }));
+      } else if (whitelistedFeesTotal) {
+        set(() => ({
+          whitelistedFeesTotal: whitelistedFeesTotal,
+        }));
+      }
     },
     resetWhitelistedFeesData: () => {
       set(() => ({

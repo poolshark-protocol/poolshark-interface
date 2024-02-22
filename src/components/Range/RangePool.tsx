@@ -78,10 +78,9 @@ export default function RangePool({ rangePool, href }) {
         const rewardsPercent = whitelistedFeesData[whitelistedIndex] / whitelistedFeesTotal
         const totalOFinRewards = chainProperties[networkName]?.season0Rewards?.block1?.whitelistedFeesUsd ?? 0
         setOFinRewards(rewardsPercent * totalOFinRewards)
-        setFeeApy(parseFloat((whitelistedFeesData[whitelistedIndex] * 365 / rangePool.tvlUsd * 100).toFixed(2)))
       }
     }
-  }, [whitelistedFeesData, whitelistedFeesTotal]);
+  }, [whitelistedFeesData, whitelistedFeesTotal, networkName]);
 
   useEffect(() => {
     setFeeApy(parseFloat((rangePool.feesUsd * 365 / rangePool.tvlUsd * 100).toFixed(2)))
@@ -89,9 +88,14 @@ export default function RangePool({ rangePool, href }) {
 
   useEffect(() => {
     if (isWhitelistedPool(rangePool, networkName)) {
-      setOFinApy(parseFloat((oFin.profitUsd * oFinRewards * 12 / parseFloat(rangePool.tvlUsd) * 100).toFixed(2)))
+      const apy = parseFloat((oFin.profitUsd * oFinRewards * 12 / parseFloat(rangePool.tvlUsd) * 100).toFixed(2))
+      if (apy > 0) {
+        setOFinApy(parseFloat((oFin.profitUsd * oFinRewards * 12 / parseFloat(rangePool.tvlUsd) * 100).toFixed(2)))
+      } else {
+        setOFinApy(0)
+      }
     }
-  }, [oFin, oFinRewards, rangePool.tvlUsd]);
+  }, [oFin, oFinRewards, rangePool.tvlUsd, networkName]);
 
   const chooseRangePool = () => {
     resetMintParams();

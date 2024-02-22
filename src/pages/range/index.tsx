@@ -89,7 +89,6 @@ export default function Range() {
 
   //////////////////////Get Pools Data
   useEffect(() => {
-    resetWhitelistedFeesData();
     getRangePoolData();
   }, [chainId]);
 

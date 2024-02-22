@@ -189,6 +189,7 @@ export function mapUserRangePositions(
 
 export function mapRangePools(rangePools, networkName: string, whitelistedFeesData: number[], setWhitelistedFeesData: any) {
   const mappedRangePools = [];
+  whitelistedFeesData = [];
   rangePools.map((rangePool) => {
     const rangePool24hData = mapRangePool24HourData(rangePool)
     const rangePoolData = {
@@ -209,7 +210,6 @@ export function mapRangePools(rangePools, networkName: string, whitelistedFeesDa
       const whitelistedIndex = getWhitelistedIndex(rangePoolData, networkName)
       if (whitelistedIndex != -1) {
         whitelistedFeesData[whitelistedIndex] = rangePool24hData.feesUsd
-
         let whitelistedFeesTotal = 0;
         for (let i = 0; i< whitelistedFeesData.length; i++) {
           whitelistedFeesTotal += whitelistedFeesData[i]
