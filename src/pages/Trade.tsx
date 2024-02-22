@@ -13,10 +13,6 @@ import { getLimitTokenUsdPrice } from "../utils/tokens";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { fetchLimitPositions } from "../utils/queries";
-import { fetchTokenMetadata } from "../utils/tokens";
-import { fetchTokenDetails } from "../utils/fetchToken";
-import { defaultTokenLogo} from "../utils/tokens";
-import { isAddress } from "ethers/lib/utils.js";
 import { useSwitchNetwork } from "wagmi";
 import { useToken } from "wagmi";
 import { useRouter } from "next/router";
@@ -35,7 +31,6 @@ import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import inputFilter from "../utils/inputFilter";
 import { getRouterAddress } from "../utils/config";
-import { fetchTokenMetadataWithAlchemy } from '../utils/fetchTokenMetadata';
 import { Network } from "alchemy-sdk";
 
 export default function Trade() {
