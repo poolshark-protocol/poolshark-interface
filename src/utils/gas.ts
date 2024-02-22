@@ -84,22 +84,28 @@ export const gasEstimateSwap = async (
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
   amountIn: BigNumber,
+  amountOut: BigNumber,
   signer: Signer,
   isConnected: boolean,
   setGasFee,
   setGasLimit,
 ): Promise<void> => {
   try {
-    
-    if (poolAddresses?.length == 0 || !signer.provider) {
+    if (poolAddresses?.length == 0 || !signer?.provider || swapParams?.length == 0) {
       setGasFee("$0.00");
       setGasLimit(BN_ZERO);
+      return
+    }
+    // check for params and input mismatch
+    if (swapParams[0].exactIn && !swapParams[0].amount.eq(amountIn) || 
+        !swapParams[0].exactIn && !swapParams[0].amount.eq(amountOut)) {
+      return
     }
     const ethUsdQuery = await fetchEthPrice();
     const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     let gasUnits: BigNumber;
-    if (poolAddresses?.length == 0 || !signer.provider) {
+    if (poolAddresses?.length == 0 || !signer.provider || swapParams?.length == 0) {
       setGasFee("$0.00");
       setGasLimit(BN_ZERO);
     }
@@ -113,7 +119,9 @@ export const gasEstimateSwap = async (
       .connect(signer)
       .estimateGas.multiSwapSplit(
         poolAddresses,
-        swapParams,
+        swapParams[0],
+        BN_ZERO,
+        1897483712,
         {
           value: getSwapRouterButtonMsgValue(
             tokenIn.native,
@@ -123,7 +131,7 @@ export const gasEstimateSwap = async (
         }
       );
     } else {
-      gasUnits = BigNumber.from(1000000);
+      return
     }
     const gasPrice = await signer.provider.getGasPrice();
     const networkFeeWei = gasPrice.mul(gasUnits);
@@ -134,10 +142,12 @@ export const gasEstimateSwap = async (
       currency: "USD",
     });
     setGasFee(formattedPrice);
-    setGasLimit(gasUnits.mul(200).div(100));
+    setGasLimit(gasUnits.mul(110).div(100));
+    console.log('swap gas estimate', gasUnits.toString())
   } catch (error) {
+    console.log('swap gas error', swapParams[0].amount.toString(), amountIn.toString(), error)
     setGasFee("$0.00");
-    setGasLimit(BigNumber.from(1000000));
+    setGasLimit(BN_ZERO);
   }
 };
 
@@ -155,8 +165,6 @@ export const gasEstimateMintLimit = async (
   networkName: string,
 ): Promise<void> => {
   try {
-    
-
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
     if (!rangePoolRoute || 
@@ -400,10 +408,15 @@ export const gasEstimateRangeMint = async (
   try {
     if (
       !rangePoolRoute ||
+      !signer ||
       !signer.provider ||
-      (amountIn.eq(BN_ZERO) && amountOut.eq(BN_ZERO)) ||
-      !signer
+      (amountIn.eq(BN_ZERO) && amountOut.eq(BN_ZERO))
     ) {
+      return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
+    }
+    const tokenInBalance = parseUnits(tokenIn.userBalance.toString(), tokenIn.decimals)
+    const tokenOutBalance = parseUnits(tokenOut.userBalance.toString(), tokenOut.decimals)
+    if (amountIn.gt(tokenInBalance) || amountOut.gt(tokenOutBalance)) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     const routerAddress = getRouterAddress(networkName);
@@ -413,6 +426,8 @@ export const gasEstimateRangeMint = async (
       poolsharkRouterABI,
       signer.provider
     );
+    if (amountIn.lt(BN_ZERO)) amountIn = BN_ZERO
+    if (amountOut.lt(BN_ZERO)) amountOut = BN_ZERO
     const gasUnits = await routerContract
       .connect(signer)
       .estimateGas.multiMintRange(
@@ -596,16 +611,15 @@ export const gasEstimateRangeUnstake = async(
   signer
 ): Promise<gasEstimateResult> => {
   try {
-  
-  const provider = signer.provider
   if (
     !rangePoolAddress ||
-    !signer.provider ||
     !signer ||
+    !signer.provider ||
     !positionId
   ) {
     return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
   }
+  const provider = signer?.provider
   const rangeStakerAddress = getRangeStakerAddress(networkName)
   const contract = new ethers.Contract(
     rangeStakerAddress,

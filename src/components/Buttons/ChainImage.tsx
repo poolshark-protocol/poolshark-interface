@@ -21,6 +21,16 @@ function ChainImage({ chainId }) {
                 }`}
             />
         )
+    } else if (chainId == 34443) {
+        return (
+            <img
+                style={{ width: 17, height: 17 }}
+                src="/static/images/mode_icon.svg"
+                className={`aspect-square ${
+                    chainId === 534351 && "saturate-0"
+                }`}
+            />
+        )
     } else {
         return (
             <></>

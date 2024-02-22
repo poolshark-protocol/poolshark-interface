@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { LimitSubgraph, token, tokenRangeLimit } from "../utils/types";
+import { LimitSubgraph, RangePool24HData, token, tokenRangeLimit } from "../utils/types";
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import { create } from "zustand";
 import {
@@ -18,6 +18,7 @@ import {
   defaultNetwork,
 } from "../utils/chains";
 import { getUserAllowance, getUserBalance } from "../utils/tokens";
+import { getWhitelistedIndex, isWhitelistedPool } from "../utils/config";
 
 type RangeLimitState = {
   //rangePoolAddress for current token pairs
@@ -80,6 +81,11 @@ type RangeLimitState = {
   //Start price for pool creation
   startPrice: string;
   chainSwitched: boolean;
+  numLegacyPositions: number;
+  numCurrentPositions: number;
+  whitelistedFeesData: number[];
+  whitelistedFeesTotal: number;
+  poolApys: any;
 };
 
 type RangeLimitAction = {
@@ -134,13 +140,15 @@ type RangeLimitAction = {
     volatility: any,
     client: LimitSubgraph,
     poolPrice?: any,
-    tickAtPrice?: any
+    tickAtPrice?: any,
+    poolTypeId?: any,
   ) => void;
   setLimitPoolFromVolatility: (
     tokenIn: any,
     tokenOut: any,
     volatility: any,
-    client: LimitSubgraph
+    client: LimitSubgraph,
+    poolTypeId?: number,
   ) => void;
   resetRangeLimitParams: (chainId) => void;
   resetMintParams: () => void;
@@ -164,6 +172,14 @@ type RangeLimitAction = {
   setLimitAddLiqDisabled: (limitAddLiqDisabled: boolean) => void;
   setStakeFlag: (stakeFlag: boolean) => void;
   setChainSwitched: (chainSwitched: boolean) => void;
+  setNumLegacyPositions: () => void;
+  resetNumLegacyPositions: () => void;
+  setNumCurrentPositions: () => void;
+  resetNumCurrentPositions: () => void;
+  setWhitelistedFeesData: (whitelistedFeesData: number[], whitelistedFeesTotal: number) => void;
+  resetWhitelistedFeesData: () => void;
+  setPoolApy: (poolAddress: string, apy: number) => void;
+  resetPoolApys: () => void;
 };
 
 const initialRangeLimitState: RangeLimitState = {
@@ -212,7 +228,7 @@ const initialRangeLimitState: RangeLimitState = {
 
     logoURI:
       "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
-    address: chainProperties[defaultNetwork]["wethAddress"],
+    address: ZERO_ADDRESS,
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: BigNumber.from(0),
@@ -232,7 +248,7 @@ const initialRangeLimitState: RangeLimitState = {
 
     logoURI:
       "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
-    address: chainProperties[defaultNetwork]["daiAddress"],
+    address: ZERO_ADDRESS,
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: BigNumber.from(0),
@@ -256,6 +272,11 @@ const initialRangeLimitState: RangeLimitState = {
   currentAmountOut: "0",
   startPrice: "",
   chainSwitched: false,
+  numLegacyPositions: 0,
+  numCurrentPositions: 0,
+  whitelistedFeesData: [],
+  whitelistedFeesTotal: 0,
+  poolApys: {},
 };
 
 export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
@@ -303,6 +324,11 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     startPrice: initialRangeLimitState.startPrice,
     //whether chain was already switched
     chainSwitched: initialRangeLimitState.chainSwitched,
+    numLegacyPositions: initialRangeLimitState.numLegacyPositions,
+    numCurrentPositions: initialRangeLimitState.numCurrentPositions,
+    whitelistedFeesData: initialRangeLimitState.whitelistedFeesData,
+    whitelistedFeesTotal: initialRangeLimitState.whitelistedFeesTotal,
+    poolApys: initialRangeLimitState.poolApys,
     //actions
     setPairSelected: (pairSelected: boolean) => {
       set(() => ({
@@ -784,19 +810,21 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       volatility: any,
       client: LimitSubgraph,
       poolPrice?: any,
-      tickAtPrice?: any
+      tickAtPrice?: any,
+      poolTypeId?: any
     ) => {
       try {
         const pool = await getRangePoolFromFactory(
           client,
           tokenIn.address,
-          tokenOut.address
+          tokenOut.address,
         );
         const dataLength = pool["data"]["limitPools"].length;
         let poolFound = false;
         for (let i = 0; i < dataLength; i++) {
           if (
-            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility &&
+            (poolTypeId == undefined || pool["data"]["limitPools"][i]["poolType"] == poolTypeId)
           ) {
             poolFound = true;
             set(() => ({
@@ -822,7 +850,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       tokenIn,
       tokenOut,
       volatility: any,
-      client: LimitSubgraph
+      client: LimitSubgraph,
+      poolTypeId?: number
     ) => {
       try {
         const pool = await getLimitPoolFromFactory(
@@ -833,7 +862,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         const dataLength = pool["data"]["limitPools"].length;
         for (let i = 0; i < dataLength; i++) {
           if (
-            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility &&
+            (poolTypeId == undefined || pool["data"]["limitPools"][i]["poolType"] == poolTypeId)
           ) {
             set(() => ({
               limitPoolAddress: pool["data"]["limitPools"][i]["id"],
@@ -868,6 +898,57 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     setChainSwitched: (chainSwitched: boolean) => {
       set(() => ({
         chainSwitched: chainSwitched,
+      }));
+    },
+    setNumLegacyPositions: () => {
+      set((state) => ({
+        numLegacyPositions: state.numLegacyPositions + 1,
+      }));
+    },
+    resetNumLegacyPositions: () => {
+      set(() => ({
+        numLegacyPositions: 0,
+      }));
+    },
+    setNumCurrentPositions: () => {
+      set((state) => ({
+        numCurrentPositions: state.numCurrentPositions + 1,
+      }));
+    },
+    resetNumCurrentPositions: () => {
+      set(() => ({
+        numCurrentPositions: 0,
+      }));
+    },
+    setWhitelistedFeesData: (whitelistedFeesData: number[], whitelistedFeesTotal: number) => {
+      if (whitelistedFeesData) {
+        set(() => ({
+          whitelistedFeesData: whitelistedFeesData,
+          whitelistedFeesTotal: whitelistedFeesTotal,
+        }));
+      } else if (whitelistedFeesTotal) {
+        set(() => ({
+          whitelistedFeesTotal: whitelistedFeesTotal,
+        }));
+      }
+    },
+    setPoolApy: (poolAddress: string, apy: number) => {
+      set((state) => ({
+        poolApys: {
+          ...state.poolApys,
+          [poolAddress]: apy,
+        }
+      }));
+    },
+    resetPoolApys: () => {
+      set((state) => ({
+        poolApys: {}
+      }));
+    },
+    resetWhitelistedFeesData: () => {
+      set(() => ({
+        whitelistedFeesData: [],
+        whitelistedFeesTotal: 0
       }));
     },
     setStakeFlag: (stakeFlag: boolean) => {

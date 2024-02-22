@@ -312,7 +312,6 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           amountIn: isAmountIn
             ? parseUnits(amount, newTokenIn.decimals)
             : state.amountIn,
-          // if wethCall
           pairSelected: true,
           needsBalanceIn: true,
           needsAllowanceIn: true,
@@ -615,7 +614,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         decimals: state.tokenOut.decimals,
         USDPrice: state.tokenOut.USDPrice,
         userBalance: state.tokenOut.userBalance,
-        userRouterAllowance: state.tokenOut.userRouterAllowance,
+        userRouterAllowance: state.tokenOut.userRouterAllowance ?? BN_ZERO,
       },
       tokenOut: {
         callId: state.tokenIn.callId,
@@ -627,7 +626,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         decimals: state.tokenIn.decimals,
         USDPrice: state.tokenIn.USDPrice,
         userBalance: state.tokenIn.userBalance,
-        userRouterAllowance: state.tokenIn.userRouterAllowance,
+        userRouterAllowance: state.tokenIn.userRouterAllowance ?? BN_ZERO,
       },
       amountIn: isAmountIn
         ? parseUnits(amount, state.tokenOut.decimals)

@@ -11,7 +11,7 @@ import {
 } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import RangeAddLiqButton from "../../Buttons/RangeAddLiqButton";
-import { BN_ZERO, ZERO } from "../../../utils/math/constants";
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../../utils/math/constants";
 import { TickMath } from "../../../utils/math/tickMath";
 import { ethers, BigNumber } from "ethers";
 import JSBI from "jsbi";
@@ -117,8 +117,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [buttonState, setButtonState] = useState("");
 
   useEffect(() => {
-    setTokenInAmount(BN_ZERO);
-    setTokenOutAmount(BN_ZERO);
+    setTokenInAmount(BN_ZERO)
+    setTokenOutAmount(BN_ZERO)
+    setDisplay("")
+    setDisplay2("")
     setStateChainName(chainIdsToNames[chainId]);
   }, [chainId]);
 
@@ -286,10 +288,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const handleInput1 = (e) => {
     if (e.target.name.startsWith("tokenIn")) {
       const [value, bnValue] = inputHandler(e, tokenIn, e.target.name.endsWith("Max"));
-
       setDisplay(value);
       if (!amountOutDisabled) setAmounts(true, bnValue);
       else {
+        setAmounts(true, bnValue);
         setTokenInAmount(bnValue);
         setDisplay2("");
       }
@@ -298,6 +300,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       setDisplay2(value);
       if (!amountInDisabled) setAmounts(false, bnValue);
       else {
+        setAmounts(false, bnValue);
         setTokenOutAmount(bnValue);
         setDisplay("");
       }
@@ -306,6 +309,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
 
   function setAmounts(amountInSet: boolean, amountSet: BigNumber) {
     try {
+      console.log('set amounts')
       const isToken0 = amountInSet ? tokenIn.callId == 0 : tokenOut.callId == 0;
       const inputBn = amountSet;
       if (amountSet.gt(BN_ZERO)) {
@@ -314,6 +318,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
           JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
           JSBI.lessThan(rangeSqrtPrice, upperSqrtPrice)
         ) {
+        // >0% token0 >0% token1
           liquidity = DyDxMath.getLiquidityForAmounts(
             isToken0 ? rangeSqrtPrice : lowerSqrtPrice,
             isToken0 ? upperSqrtPrice : rangeSqrtPrice,
@@ -322,7 +327,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
             isToken0 ? inputBn : BN_ZERO
           );
         } else if (JSBI.lessThan(rangeSqrtPrice, lowerSqrtPrice)) {
-          // only token0 input allowed
+          // 100% token0
           if (isToken0) {
             liquidity = DyDxMath.getLiquidityForAmounts(
               lowerSqrtPrice,
@@ -335,6 +340,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
             // warn the user the input is invalid
           }
         } else if (JSBI.greaterThanOrEqual(rangeSqrtPrice, upperSqrtPrice)) {
+          // 100% token1
           if (!isToken0) {
             liquidity = DyDxMath.getLiquidityForAmounts(
               lowerSqrtPrice,
@@ -353,7 +359,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
             ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
             : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
           : ZERO;
-        const outputBn = BigNumber.from(String(outputJsbi));
+        let outputBn = BigNumber.from(String(outputJsbi));
+        if (outputBn?.lt(BN_ZERO)) outputBn = BN_ZERO
         // set amount based on inputBn
         if (amountInSet) {
           setTokenInAmount(inputBn);
@@ -406,6 +413,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       updateGasFee();
     }
   }, [
+    tokenIn.userBalance,
+    tokenOut.userBalance,
     tokenIn.userRouterAllowance,
     tokenOut.userRouterAllowance,
     rangeMintParams.tokenInAmount,
@@ -507,7 +516,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         amountInDisabled
                       )}
                       <div className="flex items-center gap-x-2">
-                        {isConnected && stateChainName === networkName ? (
+                        {isConnected && stateChainName === networkName && tokenIn.address != ZERO_ADDRESS ? (
                           <button
                             onClick={() => {
                               handleInput1({
@@ -557,7 +566,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         )}
                       </span>
                       <div className="flex items-center gap-x-2">
-                        {isConnected && stateChainName === networkName ? (
+                        {isConnected && stateChainName === networkName && tokenOut.address != ZERO_ADDRESS ? (
                           <button
                             onClick={() => {
                               handleInput1({

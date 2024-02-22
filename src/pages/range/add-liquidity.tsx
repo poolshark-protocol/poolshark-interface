@@ -18,6 +18,7 @@ import {
   getLimitTokenUsdPrice,
   logoMapKey,
 } from "../../utils/tokens";
+import { InformationCircleIcon } from "@heroicons/react/20/solid";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
@@ -25,11 +26,16 @@ import { chainProperties } from "../../utils/chains";
 import router from "next/router";
 import { inputHandler, parseUnits } from "../../utils/math/valueMath";
 import SelectToken from "../../components/SelectToken";
-import { feeTierMap, feeTiers } from "../../utils/pools";
+import { feeTierMap, feeTiers, limitPoolTypeIds } from "../../utils/pools";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { fetchRangePools } from "../../utils/queries";
 import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButton";
-import { getRouterAddress } from "../../utils/config";
+import {
+  getRouterAddress,
+  isStablePair,
+  isWhitelistedPair,
+  setDefaultRange,
+} from "../../utils/config";
 import BalanceDisplay from "../../components/Display/BalanceDisplay";
 import {
   Tooltip,
@@ -39,6 +45,10 @@ import {
 } from "../../components/ui/tooltip";
 import { Checkbox } from "../../components/ui/checkbox";
 import { isAddress } from "ethers/lib/utils.js";
+import {
+  ArrowTopRightOnSquareIcon,
+  SparklesIcon,
+} from "@heroicons/react/20/solid";
 
 export default function AddLiquidity({}) {
   const [
@@ -155,8 +165,6 @@ export default function AddLiquidity({}) {
   useEffect(() => {
     setManualRange(false);
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address != ZERO_ADDRESS) {
-      refetchAllowanceIn();
-      refetchAllowanceOut();
       setPairSelected(true);
       if (rangePoolData.feeTier != undefined) {
         updatePools(parseInt(rangePoolData.feeTier.feeAmount));
@@ -209,7 +217,10 @@ export default function AddLiquidity({}) {
           originalTokenIn,
           originalTokenOut,
           parseInt(pool.feeTier.feeAmount),
-          limitSubgraph
+          limitSubgraph,
+          undefined,
+          undefined,
+          limitPoolTypeIds["constant-product-1.1"]
         );
       }
       setIsLoading(false);
@@ -283,7 +294,10 @@ export default function AddLiquidity({}) {
             originalTokenIn,
             originalTokenOut,
             feeAmount,
-            limitSubgraph
+            limitSubgraph,
+            undefined,
+            undefined,
+            limitPoolTypeIds["constant-product-1.1"]
           );
         } else if (
           router.query.poolId == ZERO_ADDRESS &&
@@ -325,39 +339,42 @@ export default function AddLiquidity({}) {
             },
           });
         } else {
-          setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
+          setRangePoolFromFeeTier(
+            tokenIn,
+            tokenOut,
+            feeAmount,
+            limitSubgraph,
+            undefined,
+            undefined,
+            limitPoolTypeIds["constant-product-1.1"]
+          );
         }
       } else {
-        setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
+        setRangePoolFromFeeTier(
+          tokenIn,
+          tokenOut,
+          feeAmount,
+          limitSubgraph,
+          undefined,
+          undefined,
+          limitPoolTypeIds["constant-product-1.1"]
+        );
       }
     }
   }
 
   useEffect(() => {
     if (!manualRange) {
-      setMinInput(
-        invertPrice(
-          TickMath.getPriceStringAtTick(
-            priceOrder == (tokenIn.callId == 0)
-              ? rangePoolData.tickAtPrice - 4055
-              : rangePoolData.tickAtPrice - -4055,
-            tokenIn,
-            tokenOut
-          ),
-          priceOrder == (tokenIn.callId == 0)
-        )
-      );
-      setMaxInput(
-        invertPrice(
-          TickMath.getPriceStringAtTick(
-            priceOrder == (tokenIn.callId == 0)
-              ? rangePoolData.tickAtPrice - -4055
-              : rangePoolData.tickAtPrice - 4055,
-            tokenIn,
-            tokenOut
-          ),
-          priceOrder == (tokenIn.callId == 0)
-        )
+      const tickAtPrice = rangePoolData.tickAtPrice;
+      setDefaultRange(
+        tokenIn,
+        tokenOut,
+        networkName,
+        priceOrder,
+        tickAtPrice,
+        setMinInput,
+        setMaxInput,
+        rangePoolData?.id
       );
     }
   }, [manualRange, rangePoolData?.id]);
@@ -378,33 +395,18 @@ export default function AddLiquidity({}) {
 
   //this sets the default position price range
   useEffect(() => {
-    if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
+    if (rangePoolData.poolPrice) {
       const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
       if (rangePoolAddress != ZERO_ADDRESS && rangePrice == undefined) {
-        setMinInput(
-          invertPrice(
-            TickMath.getPriceStringAtTick(
-              priceOrder == (tokenIn.callId == 0)
-                ? tickAtPrice - 7000
-                : tickAtPrice - -7000,
-              tokenIn,
-              tokenOut
-            ),
-            priceOrder == (tokenIn.callId == 0)
-          )
-        );
-        setMaxInput(
-          invertPrice(
-            TickMath.getPriceStringAtTick(
-              priceOrder == (tokenIn.callId == 0)
-                ? tickAtPrice - -7000
-                : tickAtPrice - 7000,
-              tokenIn,
-              tokenOut
-            ),
-            priceOrder == (tokenIn.callId == 0)
-          )
+        setDefaultRange(
+          tokenIn,
+          tokenOut,
+          networkName,
+          priceOrder,
+          tickAtPrice,
+          setMinInput,
+          setMaxInput
         );
       }
       setRangePrice(
@@ -427,13 +429,19 @@ export default function AddLiquidity({}) {
       args: [address, getRouterAddress(networkName)],
       chainId: chainId,
       watch: true,
-      enabled: tokenIn.address != undefined,
+      enabled: tokenIn.address && tokenIn.address != ZERO_ADDRESS,
       onSuccess(data) {
         //console.log("allowance in fetched", allowanceInRange?.toString());
         //setNeedsAllowanceIn(false);
       },
       onError(error) {
-        console.log("Error allowance", error);
+        console.log(
+          "Error tokenIn allowance",
+          address,
+          tokenIn.address,
+          getRouterAddress(networkName),
+          error
+        );
       },
     });
 
@@ -445,12 +453,19 @@ export default function AddLiquidity({}) {
       args: [address, getRouterAddress(networkName)],
       chainId: chainId,
       watch: true,
+      enabled: tokenOut.address && tokenOut.address != ZERO_ADDRESS,
       onSuccess(data) {
         //console.log("allowance out fetched", allowanceOutRange?.toString());
         //setNeedsAllowanceOut(false);
       },
       onError(error) {
-        console.log("Error allowance", error);
+        console.log(
+          "Error tokenOut allowance",
+          address,
+          tokenOut.address,
+          getRouterAddress(networkName),
+          error
+        );
       },
     });
 
@@ -488,7 +503,7 @@ export default function AddLiquidity({}) {
       }, 5000);
     },
     onError(err) {
-      console.log("token out error", err);
+      console.log("token out error", address, tokenOut.address, err);
     },
   });
 
@@ -812,30 +827,36 @@ export default function AddLiquidity({}) {
             {isLoading ? (
               <div className="h-[42.02px] w-[230px] bg-grey/60 animate-pulse rounded-[4px]" />
             ) : (
-              <div className="flex  items-center gap-x-2 bg-dark border border-grey py-2 px-5 rounded-[4px]">
-                <div className="flex items-center">
-                  <img
-                    className="md:w-6 w-6"
-                    src={logoMap[logoMapKey(tokenIn)]}
-                  />
-                  <img
-                    className="md:w-6 w-6 -ml-2"
-                    src={logoMap[logoMapKey(tokenOut)]}
-                  />
+              <a
+                href={`${chainProperties[networkName]["explorerUrl"]}/address/${rangePoolAddress}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <div className="flex  items-center gap-x-2 hover:bg-grey/50 cursor-pointer transition-all bg-dark border border-grey hover:border-grey2 py-2 px-5 rounded-[4px]">
+                  <div className="flex items-center">
+                    <img
+                      className="md:w-6 w-6"
+                      src={logoMap[logoMapKey(tokenIn)]}
+                    />
+                    <img
+                      className="md:w-6 w-6 -ml-2"
+                      src={logoMap[logoMapKey(tokenOut)]}
+                    />
+                  </div>
+                  <span className="text-white text-xs">
+                    {tokenIn.symbol} - {tokenOut.symbol}
+                  </span>
+                  <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
+                    {(
+                      (!isNaN(rangePoolData.feeTier?.feeAmount)
+                        ? rangePoolData.feeTier?.feeAmount
+                        : 0) / 10000
+                    ).toFixed(2)}
+                    %
+                  </span>
+                  <ArrowTopRightOnSquareIcon className="w-4 ml-2" />
                 </div>
-                <span className="text-white text-xs">
-                  {tokenIn.callId == 0 ? tokenIn.symbol : tokenOut.symbol} -{" "}
-                  {tokenIn.callId == 0 ? tokenOut.symbol : tokenIn.symbol}
-                </span>
-                <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {(
-                    (!isNaN(rangePoolData.feeTier?.feeAmount)
-                      ? rangePoolData.feeTier?.feeAmount
-                      : 0) / 10000
-                  ).toFixed(2)}
-                  %
-                </span>
-              </div>
+              </a>
             )}
           </div>
         </div>
@@ -1075,7 +1096,7 @@ export default function AddLiquidity({}) {
                 }}
                 className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
               >
-                COMMON
+                MEDIUM
               </button>
               <button
                 onClick={() => {
@@ -1211,7 +1232,13 @@ export default function AddLiquidity({}) {
                           ).symbol
                         }{" "}
                         ={" "}
-                        {!isNaN(parseFloat(rangePrice))
+                        {!isNaN(parseFloat(rangePrice)) &&
+                        // pool exists
+                        (rangePoolAddress != ZERO_ADDRESS ||
+                          // pool doesn't exist and start price is valid
+                          (rangePoolAddress == ZERO_ADDRESS &&
+                            !isNaN(parseFloat(startPrice)) &&
+                            parseFloat(startPrice) > 0))
                           ? parseFloat(
                               invertPrice(rangePrice, priceOrder)
                             ).toPrecision(5) +
@@ -1220,7 +1247,12 @@ export default function AddLiquidity({}) {
                               ? tokenOut
                               : tokenIn
                             ).symbol
-                          : "?" + " " + tokenOut.symbol}
+                          : "?" +
+                            " " +
+                            (priceOrder == (tokenIn.callId == 0)
+                              ? tokenOut
+                              : tokenIn
+                            ).symbol}
                       </div>
                     </TooltipTrigger>
                     <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3">
@@ -1320,7 +1352,14 @@ export default function AddLiquidity({}) {
                     : "border border-grey"
                 }`}
               >
-                <h1>{feeTier.tier} FEE</h1>
+                <h1 className="flex items-center gap-x-2 ">
+                  {feeTier.tier} FEE
+                  {(
+                    isWhitelistedPair(tokenIn, tokenOut, feeTier.tier, networkName)) && (
+                        <SparklesIcon className="text-main2 w-[16px]" />
+                      )}
+                </h1>
+
                 <h2 className="text-[11px] uppercase text-grey1 mt-2">
                   {feeTier.text}
                 </h2>
@@ -1341,9 +1380,31 @@ export default function AddLiquidity({}) {
               />{" "}
               STAKE RANGE POSITION
             </label>
-            <span className="text-green-500/40 underline text-sm hidden">
-              How does it work?
-            </span>
+            <TooltipProvider>
+                <Tooltip delayDuration={100}>
+                  <TooltipTrigger>
+                    <div>
+                      <span className="text-main2 flex items-center justify-end gap-x-3">
+                        <div className="flex items-center gap-x-1.5  text-green-600 text-xs">
+                          <InformationCircleIcon className="w-4" /> 
+                          Info
+                        </div>
+                      </span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-44 py-3">
+                    <div className="flex items-center flex-col gap-y-1 w-full">
+                      <div className="flex justify-between items-center w-full text-left">
+                        <div className="flex items-center gap-x-1">
+                          <span className="text-grey3 "> Staking this position will allow you to earn oFIN</span>
+                        
+                      </div>
+                      </div>
+
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
           </div>
         </div>
         <div className="bg-dark mt-8"></div>
