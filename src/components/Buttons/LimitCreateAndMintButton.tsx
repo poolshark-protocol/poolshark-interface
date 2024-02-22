@@ -29,6 +29,7 @@ import { chainProperties } from "../../utils/chains";
     zeroForOne,
     closeModal,
     gasLimit,
+    loadingSetter,
   }) {
     const [
       chainId,
@@ -108,6 +109,7 @@ import { chainProperties } from "../../utils/chains";
             onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
           },
         });
+        loadingSetter(false);
         setNeedsBalanceIn(true);
         setNeedsAllowanceIn(true);
         setNeedsSnapshot(true);
@@ -124,11 +126,13 @@ import { chainProperties } from "../../utils/chains";
             onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
           },
         });
+        loadingSetter(false);
       },
     });
 
     useEffect(() => {
       if(isLoading) {
+        loadingSetter(true);
         const newToastId = toast.loading("Your transaction is being confirmed...",{
           action: {
             label: "View",

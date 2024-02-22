@@ -642,6 +642,9 @@ export default function MarketSwap() {
 
   const [txLoading, setTxLoading] = useState(false);
 
+  useEffect(() => {
+  }, [txLoading]);
+
   return (
     <div>
       <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
@@ -899,6 +902,7 @@ export default function MarketSwap() {
                   approveToken={tokenIn.address}
                   tokenSymbol={tokenIn.symbol}
                   amount={amountIn}
+                  loadingSetter={setTxLoading}
                 />
               </div>
             ) : !wethCall ? (
@@ -918,6 +922,8 @@ export default function MarketSwap() {
                 swapParams={swapParams ?? {}}
                 gasLimit={swapGasLimit}
                 resetAfterSwap={resetAfterSwap}
+                loadingSetter={setTxLoading}
+
               />
             ) : tokenIn.native ? (
               <SwapWrapNativeButton
@@ -928,6 +934,8 @@ export default function MarketSwap() {
                 amountIn={amountIn}
                 gasLimit={swapGasLimit}
                 resetAfterSwap={resetAfterSwap}
+                loadingSetter={setTxLoading}
+
               />
             ) : (
               <SwapUnwrapNativeButton
@@ -938,6 +946,8 @@ export default function MarketSwap() {
                 amountIn={amountIn}
                 gasLimit={swapGasLimit}
                 resetAfterSwap={resetAfterSwap}
+                loadingSetter={setTxLoading}
+
               />
             )
           }

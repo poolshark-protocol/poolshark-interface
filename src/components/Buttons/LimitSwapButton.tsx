@@ -26,6 +26,7 @@ export default function LimitSwapButton({
   closeModal,
   gasLimit,
   resetAfterSwap,
+  loadingSetter,
 }) {
   const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
@@ -96,6 +97,7 @@ export default function LimitSwapButton({
         },
       });
       resetAfterSwap();
+      loadingSetter(false);
       setNeedsAllowanceIn(true);
       setNeedsBalanceIn(true);
       setNeedsSnapshot(true);
@@ -113,11 +115,13 @@ export default function LimitSwapButton({
           onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
         },
       });
+      loadingSetter(false);
     },
   });
 
   useEffect(() => {
     if(isLoading) {
+      loadingSetter(true);
       const newToastId = toast.loading("Your transaction is being confirmed...",{
         action: {
           label: "View",

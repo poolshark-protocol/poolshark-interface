@@ -49,6 +49,7 @@ import JSBI from "jsbi";
 import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import BalanceDisplay from "../Display/BalanceDisplay";
 import { getRouterAddress } from "../../utils/config";
+import { Loader } from "lucide-react";
 
 export default function LimitSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -875,6 +876,8 @@ export default function LimitSwap() {
     }
   };
 
+  const [txLoading, setTxLoading] = useState(false);
+
   return (
     <div>
       <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
@@ -1246,9 +1249,9 @@ export default function LimitSwap() {
 
       {isDisconnected ? (
         <ConnectWalletButton xl={true} />
-      ) : (
+      ) : !txLoading ? (
         <>
-          {tokenIn.userRouterAllowance?.lt(amountIn) &&
+          {allowanceInRouter?.lt(amountIn) &&
           !tokenIn.native &&
           pairSelected ? (
             <SwapRouterApproveButton
@@ -1256,6 +1259,7 @@ export default function LimitSwap() {
               approveToken={tokenIn.address}
               tokenSymbol={tokenIn.symbol}
               amount={amountIn}
+              loadingSetter={setTxLoading}
             />
           ) : !wethCall ? (
             tokenOut.address == ZERO_ADDRESS ||
@@ -1276,6 +1280,7 @@ export default function LimitSwap() {
                 zeroForOne={tokenIn.callId == 0}
                 gasLimit={mintGasLimit}
                 resetAfterSwap={resetAfterSwap}
+                loadingSetter={setTxLoading}
               />
             ) : (
               <LimitCreateAndMintButton
@@ -1293,6 +1298,7 @@ export default function LimitSwap() {
                 closeModal={() => {}}
                 zeroForOne={tokenIn.callId == 0}
                 gasLimit={mintGasLimit}
+                loadingSetter={setTxLoading}
               />
             )
           ) : tokenIn.native ? (
@@ -1304,6 +1310,7 @@ export default function LimitSwap() {
               amountIn={amountIn}
               gasLimit={swapGasLimit}
               resetAfterSwap={resetAfterSwap}
+              loadingSetter={setTxLoading}
             />
           ) : (
             <SwapUnwrapNativeButton
@@ -1314,9 +1321,12 @@ export default function LimitSwap() {
               amountIn={amountIn}
               gasLimit={swapGasLimit}
               resetAfterSwap={resetAfterSwap}
+              loadingSetter={setTxLoading}
             />
           )}
         </>
+      ) : (
+        <Loader />
       )}
     </div>
   );

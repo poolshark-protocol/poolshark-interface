@@ -6,12 +6,8 @@ import {
 import { erc20ABI } from "wagmi";
 import React, { useState } from "react";
 import { useEffect } from "react";
-import {
-  useTradeStore,
-} from "../../hooks/useTradeStore";
-import {
-  useRangeLimitStore,
-} from "../../hooks/useRangeLimitStore";
+import { useTradeStore } from "../../hooks/useTradeStore";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
@@ -21,14 +17,11 @@ export default function SwapRouterApproveButton({
   approveToken,
   tokenSymbol,
   amount,
+  loadingSetter,
 }) {
-
-  const [
-    chainId,
-    networkName
-  ] = useConfigStore((state) => [
+  const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
   ]);
 
   const [toastId, setToastId] = useState(null);
@@ -45,58 +38,66 @@ export default function SwapRouterApproveButton({
     address: approveToken,
     abi: erc20ABI,
     functionName: "approve",
-    args: [
-      routerAddress,
-      amount
-    ],
+    args: [routerAddress, amount],
     chainId: chainId,
   });
 
   const { data, isSuccess, write } = useContractWrite(config);
 
-
-
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      toast.success("Your transaction was successful",{
+      toast.success("Your transaction was successful", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank"
+            ),
         },
       });
+      loadingSetter(false);
       setNeedsAllowanceIn(true);
       setNeedsAllowanceInLimit(true);
     },
     onError() {
-      toast.error("Your transaction failed",{
+      toast.error("Your transaction failed", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank"
+            ),
         },
       });
+      loadingSetter(false);
     },
-    
   });
 
-    useEffect(() => {
-    if(isLoading) {
-      const newToastId = toast.loading("Your transaction is being confirmed...",{
-        action: {
-          label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
-        },
-      });
-      newToastId
+  useEffect(() => {
+    if (isLoading) {
+      loadingSetter(true);
+      const newToastId = toast.loading(
+        "Your transaction is being confirmed...",
+        {
+          action: {
+            label: "View",
+            onClick: () =>
+              window.open(
+                `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+                "_blank"
+              ),
+          },
+        }
+      );
+      newToastId;
       setToastId(newToastId);
     }
   }, [isLoading]);
-
-
-
-
 
   return (
     <>
