@@ -9,15 +9,22 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
-import { isWhitelistedPool } from "../../utils/config";
+import { getWhitelistedIndex, isWhitelistedPool } from "../../utils/config";
+import { useEffect, useState } from "react";
+import { chainProperties } from "../../utils/chains";
+import inputFilter from "../../utils/inputFilter";
 
 export default function RangePool({ rangePool, href }) {
-  const [limitSubgraph, logoMap, chainId, networkName] = useConfigStore((state) => [
-    state.limitSubgraph,
-    state.logoMap,
-    state.chainId,
-    state.networkName,
-  ]);
+  const [limitSubgraph, logoMap, chainId, networkName, oFin, setOFinStrikePrice] = useConfigStore(
+    (state) => [
+      state.limitSubgraph,
+      state.logoMap,
+      state.chainId,
+      state.networkName,
+      state.oFin,
+      state.setOFinStrikePrice,
+    ]
+  );
 
   const [
     setRangeTokenIn,
@@ -25,15 +32,55 @@ export default function RangePool({ rangePool, href }) {
     setRangePoolFromFeeTier,
     resetMintParams,
     resetPoolData,
+    whitelistedFeesData,
+    whitelistedFeesTotal,
+    setPoolApy,
   ] = useRangeLimitStore((state) => [
     state.setTokenIn,
     state.setTokenOut,
     state.setRangePoolFromFeeTier,
     state.resetMintParams,
     state.resetPoolData,
+    state.whitelistedFeesData,
+    state.whitelistedFeesTotal,
+    state.setPoolApy,
   ]);
 
   const router = useRouter();
+
+  const [oFinRewards, setOFinRewards] = useState(0);
+  const [oFinApy, setOFinApy] = useState(0.00);
+  const [feeApy, setFeeApy] = useState(0.00);
+
+  useEffect(() => {
+    if (isWhitelistedPool(rangePool, networkName)) {
+      const whitelistedIndex = getWhitelistedIndex(rangePool, networkName)
+      if (whitelistedFeesData[whitelistedIndex] && whitelistedFeesTotal) {
+        const rewardsPercent = whitelistedFeesData[whitelistedIndex] / whitelistedFeesTotal
+        const totalOFinRewards = chainProperties[networkName]?.season0Rewards?.block1?.whitelistedFeesUsd ?? 0
+        setOFinRewards(rewardsPercent * totalOFinRewards)
+      }
+    }
+  }, [whitelistedFeesData, whitelistedFeesTotal, networkName]);
+
+  useEffect(() => {
+    setFeeApy(parseFloat((rangePool.feesUsd * 365 / rangePool.tvlUsd * 100).toFixed(2)))
+  }, [rangePool.feesUsd]);
+
+  useEffect(() => {
+    if (isWhitelistedPool(rangePool, networkName)) {
+      const apy = parseFloat((oFin.profitUsd * oFinRewards * 12 / parseFloat(rangePool.tvlUsd) * 100).toFixed(2))
+      if (apy > 0) {
+        setOFinApy(parseFloat((oFin.profitUsd * oFinRewards * 12 / parseFloat(rangePool.tvlUsd) * 100).toFixed(2)))
+      } else {
+        setOFinApy(0)
+      }
+    }
+  }, [oFin, oFinRewards, rangePool.tvlUsd, networkName]);
+
+  useEffect(() => {
+    setPoolApy(rangePool.poolId, parseFloat((oFinApy + feeApy).toFixed(2)))
+  }, [oFinApy, feeApy]);
 
   const chooseRangePool = () => {
     resetMintParams();
@@ -97,35 +144,61 @@ export default function RangePool({ rangePool, href }) {
             <div className="text-right md:block hidden text-white text-xs">
               <span>${formatUsdValue(rangePool.feesUsd)} </span>
             </div>
-            <div className="text-right text-white text-xs flex items-center justify-end">
+            <div className="text-right text-white text-xs flex items-center md:justify-end justify-between">
+              <span className="md:hidden">APY</span>
+              {isWhitelistedPool(rangePool, networkName) ? (
               <TooltipProvider>
                 <Tooltip delayDuration={100}>
                   <TooltipTrigger>
                     <div>
                       <span className="text-main2 flex items-center justify-end gap-x-3">
                         <div className="flex items-center gap-x-1.5">
-                          <InformationCircleIcon className="w-4 text-grey" /> 
-                          {isWhitelistedPool(rangePool, networkName) && (
-                          <SparklesIcon className="w-[18px]" />
-                          )}
+                          <InformationCircleIcon className="w-4 text-grey" />
+                            <SparklesIcon className="w-[18px]" />
+                          <span
+                            className="text-main2"
+                          >
+                            {(oFinApy + feeApy).toFixed(2)}%
+                          </span>
                         </div>
                       </span>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3">
+                  <TooltipContent onClick={(e) => e.stopPropagation()} className="bg-dark text-xs rounded-[4px] border border-grey w-40 py-3 cursor-default">
                     <div className="flex items-center flex-col gap-y-1 w-full">
-                      <div className="flex justify-between items-center w-full text-left">
-                        <div className="flex items-center gap-x-1">
-                        {isWhitelistedPool(rangePool, networkName) ? (
-                          <span className="text-grey3 "> This pool has been incentivised with <span className="text-white">60k oFIN</span></span>
-                          ) : ( <span className="text-grey3 "> This pool is not being incentivised with oFIN</span>)}</div>
-                        
-                      </div>
+                      <div className="flex flex-col items-start ">
+                      <span className="text-grey2 text-xs">oFIN Strike Price</span>
 
+                     <div className="relative">
+                      <span className="absolute left-3 top-[16.5px] text-grey1">$</span>
+                     <input className="w-full bg-black border border-grey py-2 pl-6 outline-none rounded-[4px] my-2" value={oFin.strikeDisplay}  onChange={(e) => setOFinStrikePrice(inputFilter(e.target.value))}/>
+                     </div>
+                      </div>
+                      <div className="w-full h-[1px] bg-grey"/>
+                      
+                        <div className="flex justify-between items-center w-full mt-2">
+                          <span className="text-grey2">oFIN</span>
+                          <span className="text-main2 flex items-center gap-x-1">
+                            {oFinApy}%
+                          </span>
+                        </div>
+                      <div className="flex justify-between items-center w-full">
+                        <span className="text-grey2">Fee APY</span>
+                        <span className="text-right">
+                          {feeApy.toFixed(2)}%
+                        </span>
+                      </div>
                     </div>
                   </TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
+              </TooltipProvider>) :
+              (
+                <span className="text-white flex items-center justify-end gap-x-3">
+                        <div className="flex items-center gap-x-1.5">
+                            {feeApy.toFixed(2)}%
+                        </div>
+                      </span>
+              )}
             </div>
           </div>
         </div>

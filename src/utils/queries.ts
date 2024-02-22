@@ -5,8 +5,9 @@ import {
   gql,
 } from "@apollo/client";
 import { BigNumber } from "ethers";
-import { CoverSubgraph, LimitSubgraph } from "./types";
+import { CoverSubgraph, FinSubgraph, LimitSubgraph } from "./types";
 import { limitPoolTypeIds } from "./pools";
+import { chainProperties } from "./chains";
 
 export interface PoolState {
   unlocked: number;
@@ -777,6 +778,12 @@ export const fetchRangePools = (client: LimitSubgraph) => {
                 limitPools(id: $id, orderBy: totalValueLockedUsd, orderDirection: desc, where:{poolType: "${limitPoolTypeIds["constant-product-1.1"]}"}) {
                     id
                     poolType
+                    last24HoursNextIndex
+                    last24HoursPoolData{
+                      startTimestamp
+                      feesUSD
+                      volumeUSD
+                    }
                     token0{
                         id
                         name
@@ -1255,6 +1262,31 @@ export const fetchBondMarket = (marketId: string, subgraphUrl: string) => {
       .then((data) => {
         resolve(data);
         //console.log(data)
+      })
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+};
+
+export const fetchFinTokenData = (client: FinSubgraph) => {
+  return new Promise(function (resolve) {
+    const finTokenAddress = chainProperties["fin-token"]["tokenAddress"]
+    const finQuery = `
+    { 
+      tokens(
+        first: 1
+        where: {id:"${finTokenAddress.toLowerCase()}"}
+      ) {
+        usdPrice
+      }
+    }
+        `;
+    client
+      ?.query({ query: gql(finQuery) })
+      .then((data) => {
+        resolve(data);
+        /* console.log(data) */
       })
       .catch((err) => {
         resolve(err);
