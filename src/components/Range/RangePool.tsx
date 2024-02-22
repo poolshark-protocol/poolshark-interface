@@ -173,14 +173,12 @@ export default function RangePool({ rangePool, href }) {
                       
                         <div className="flex justify-between items-center w-full mt-2">
                           <span className="text-grey2">oFIN</span>
-                          {/* TODO: use 24h fees for Fee APY */}
                           <span className="text-main2 flex items-center gap-x-1">
                             {oFinApy}%
                           </span>
                         </div>
                       <div className="flex justify-between items-center w-full">
                         <span className="text-grey2">Fee APY</span>
-                        {/* TODO: use 24h fees for Fee APY */}
                         <span className="text-right">
                           {feeApy.toFixed(2)}%
                         </span>
