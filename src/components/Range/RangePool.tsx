@@ -51,26 +51,6 @@ export default function RangePool({ rangePool, href }) {
   const [oFinApy, setOFinApy] = useState(0.00);
   const [feeApy, setFeeApy] = useState(0.00);
 
-  // add up last 24 hours worth of fees
-  // * 365 / TVL = Fee APY
-  
-  // assume $1 oFIN strike price - DONE
-  // fetch USD price of FIN - DONE
-  // calculate difference - DONE
-  // calculate current oFIN allo for the pool - Subgraph
-  // whitelisted fees claimed
-  // pool vs. total active pools
-
-  // get fees from this pool
-  // save to index matching config from chains.ts
-  // add up total
-
-  // 1. add up fees earned by pool since start
-  // 2. add up total by active pools since start
-  // 3. calculate oFIN allo based on that
-  // % of whitelisted fees * total oFIN (e.g. 40000)
-  // * $ per oFIN (e.g. $1) * 12 / TVL in pool
-
   useEffect(() => {
     if (isWhitelistedPool(rangePool, networkName)) {
       const whitelistedIndex = getWhitelistedIndex(rangePool, networkName)
