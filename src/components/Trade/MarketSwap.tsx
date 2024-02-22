@@ -337,7 +337,6 @@ export default function MarketSwap() {
             // copy to sorted array
             poolQuotesSorted[i] = poolQuotes[i]
             amountOutTotal = amountOutTotal.add(poolQuotes[i]?.amountOut);
-
           }
           // sort by exchange rate
           poolQuotesSorted = poolQuotesSorted.sort((n1, n2) => {
