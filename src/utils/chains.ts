@@ -111,6 +111,10 @@ export const alchemyNetworks = {
 }
 
 export const chainProperties = {
+  "fin-token": {
+    networkName: "arbitrum-one",
+    tokenAddress: "0x903ca00944d0b51e50d9f4fc96167c89f211542a",
+  },
   "arbitrum-sepolia": {
     chainName: "Arbitrum Sepolia Test Network",
 		sdkSupport: {

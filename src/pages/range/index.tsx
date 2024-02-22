@@ -1,5 +1,5 @@
 import Navbar from "../../components/Navbar";
-import { fetchRangePools, fetchRangePositions } from "../../utils/queries";
+import { fetchFinTokenData, fetchRangePools, fetchRangePositions } from "../../utils/queries";
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import { mapRangePools, mapUserRangePositions } from "../../utils/maps";
@@ -34,15 +34,19 @@ export default function Range() {
   const [
     chainId,
     networkName,
+    finSubgraph,
     limitSubgraph,
     setLimitSubgraph,
+    setFinToken,
     listedtokenList,
     logoMap,
   ] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
+    state.finSubgraph,
     state.limitSubgraph,
     state.setLimitSubgraph,
+    state.setFinToken,
     state.listedtokenList,
     state.logoMap,
   ]);
@@ -56,10 +60,13 @@ export default function Range() {
     resetRangeLimitParams,
     numLegacyPositions,
     numCurrentPositions,
+    whitelistedFeesData,
     setNumLegacyPositions,
     resetNumLegacyPositions,
     setNumCurrentPositions,
     resetNumCurrentPositions,
+    setWhitelistedFeesData,
+    resetWhitelistedFeesData
   ] = useRangeLimitStore((state) => [
     state.setTokenIn,
     state.setTokenOut,
@@ -69,25 +76,43 @@ export default function Range() {
     state.resetRangeLimitParams,
     state.numLegacyPositions,
     state.numCurrentPositions,
+    state.whitelistedFeesData,
     state.setNumLegacyPositions,
     state.resetNumLegacyPositions,
     state.setNumCurrentPositions,
     state.resetNumCurrentPositions,
+    state.setWhitelistedFeesData,
+    state.resetWhitelistedFeesData,
   ]);
 
   const router = useRouter();
 
   //////////////////////Get Pools Data
   useEffect(() => {
+    resetWhitelistedFeesData();
     getRangePoolData();
   }, [chainId]);
 
   async function getRangePoolData() {
     setIsPoolsLoading(true);
+    const finData = await fetchFinTokenData(finSubgraph);
+    if (finData["data"]) {
+      if (finData["data"].tokens.length == 1) {
+        const finTokenData = finData["data"].tokens[0]
+        setFinToken(finTokenData)
+      }
+    }
     const data = await fetchRangePools(limitSubgraph);
     if (data["data"]) {
       const pools = data["data"].limitPools;
-      setAllRangePools(mapRangePools(pools));
+      setAllRangePools(
+        mapRangePools(
+          pools,
+          networkName,
+          whitelistedFeesData,
+          setWhitelistedFeesData
+        )
+      );
       setIsPoolsLoading(false);
     }
   }
@@ -456,7 +481,7 @@ export default function Range() {
                           {sort === "Volume" && (
                             <ChevronDownIcon className="w-4" />
                           )}
-                          Volume
+                          Volume (24h)
                         </span>
                       </button>
                       <button
@@ -486,7 +511,7 @@ export default function Range() {
                           {sort === "Fees" && (
                             <ChevronDownIcon className="w-4" />
                           )}
-                          Fees
+                          Fees (24h)
                         </span>
                       </button>
                       <button

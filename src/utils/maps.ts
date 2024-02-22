@@ -1,3 +1,4 @@
+import { getWhitelistedIndex, isWhitelistedPool } from "./config";
 import { limitPoolTypeIds } from "./pools";
 import {
   getLimitTickIfNotZeroForOne,
@@ -5,7 +6,7 @@ import {
   getCoverTickIfNotZeroForOne,
   getCoverTickIfZeroForOne,
 } from "./queries";
-import { CoverSubgraph, LimitSubgraph } from "./types";
+import { CoverSubgraph, LimitSubgraph, RangePool24HData } from "./types";
 
 export const getClaimTick = async (
   poolAddress: string,
@@ -186,9 +187,10 @@ export function mapUserRangePositions(
   return mappedRangePositions;
 }
 
-export function mapRangePools(rangePools) {
+export function mapRangePools(rangePools, networkName: string, whitelistedFeesData: number[], setWhitelistedFeesData: any) {
   const mappedRangePools = [];
   rangePools.map((rangePool) => {
+    const rangePool24hData = mapRangePool24HourData(rangePool)
     const rangePoolData = {
       poolId: rangePool.id,
       tokenOne: rangePool.token1,
@@ -197,14 +199,43 @@ export function mapRangePools(rangePools) {
       liquidity: rangePool.liquidity,
       feeTier: rangePool.feeTier.feeAmount,
       tickSpacing: rangePool.feeTier.tickSpacing,
-      feesUsd: parseFloat(rangePool.feesUsd).toFixed(2),
+      feesUsd: parseFloat(rangePool24hData.feesUsd.toString()).toFixed(2),
       tvlUsd: parseFloat(rangePool.totalValueLockedUsd).toFixed(2),
-      volumeUsd: parseFloat(rangePool.volumeUsd).toFixed(2),
+      volumeUsd: parseFloat(rangePool24hData.volumeUsd.toString()).toFixed(2),
       volumeEth: parseFloat(rangePool.volumeEth).toFixed(2),
     };
+    // adds to total fees for oFIN APY calculation
+    if (isWhitelistedPool(rangePoolData, networkName)) {
+      const whitelistedIndex = getWhitelistedIndex(rangePoolData, networkName)
+      if (whitelistedIndex != -1) {
+        whitelistedFeesData[whitelistedIndex] = rangePool24hData.feesUsd
+
+        let whitelistedFeesTotal = 0;
+        for (let i = 0; i< whitelistedFeesData.length; i++) {
+          whitelistedFeesTotal += whitelistedFeesData[i]
+        }
+        setWhitelistedFeesData(whitelistedFeesData, whitelistedFeesTotal)
+      }
+    }
     mappedRangePools.push(rangePoolData);
   });
   return mappedRangePools;
+}
+
+export function mapRangePool24HourData(rangePool): RangePool24HData {
+  let rangePool24HData = {
+    volumeUsd: 0,
+    feesUsd: 0
+  }
+  const timestampNow = Date.now() / 1000;
+  const timestamp24HoursAgo = timestampNow - (25 * 60 * 60);
+  for (let i = 0; i < rangePool?.last24HoursPoolData?.length; i++) {
+    if (timestamp24HoursAgo <= Number(rangePool?.last24HoursPoolData[i]?.startTimestamp)) {
+      rangePool24HData.volumeUsd += Number(rangePool?.last24HoursPoolData[i]?.volumeUSD) ?? 0
+      rangePool24HData.feesUsd += Number(rangePool?.last24HoursPoolData[i]?.feesUSD) ?? 0
+    }
+  }
+  return rangePool24HData;
 }
 
 export function mapUserCoverPositions(
