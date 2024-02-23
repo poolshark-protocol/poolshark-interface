@@ -800,7 +800,6 @@ export default function AddLiquidity({}) {
     const priceRange = parseFloat(
       priceOrder ? rangePrice : invertPrice(rangePrice, priceOrder)
     );
-    console.log(priceLower, priceUpper, priceRange);
     if (!isNaN(priceLower) && !isNaN(priceUpper) && !isNaN(priceRange)) {
       if (priceLower > 0 && priceUpper > 0) {
         if (
