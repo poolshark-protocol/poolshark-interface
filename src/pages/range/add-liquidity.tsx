@@ -790,9 +790,17 @@ export default function AddLiquidity({}) {
   const [rangeWarning, setRangeWarning] = useState(false);
 
   useEffect(() => {
-    const priceLower = parseFloat(lowerPrice);
-    const priceUpper = parseFloat(upperPrice);
-    const priceRange = parseFloat(rangePrice);
+    console.log(priceOrder);
+    const priceLower = parseFloat(
+      priceOrder ? lowerPrice : invertPrice(lowerPrice, priceOrder)
+    );
+    const priceUpper = parseFloat(
+      priceOrder ? upperPrice : invertPrice(upperPrice, priceOrder)
+    );
+    const priceRange = parseFloat(
+      priceOrder ? rangePrice : invertPrice(rangePrice, priceOrder)
+    );
+    console.log(priceLower, priceUpper, priceRange);
     if (!isNaN(priceLower) && !isNaN(priceUpper) && !isNaN(priceRange)) {
       if (priceLower > 0 && priceUpper > 0) {
         if (
