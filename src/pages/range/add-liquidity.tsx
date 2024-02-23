@@ -790,7 +790,6 @@ export default function AddLiquidity({}) {
   const [rangeWarning, setRangeWarning] = useState(false);
 
   useEffect(() => {
-    console.log(priceOrder);
     const priceLower = parseFloat(
       priceOrder ? lowerPrice : invertPrice(lowerPrice, priceOrder)
     );
