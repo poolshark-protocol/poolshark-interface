@@ -30,7 +30,7 @@ import LimitSwap from "../components/Trade/LimitSwap";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import inputFilter from "../utils/inputFilter";
-import { getRouterAddress } from "../utils/config";
+import { addressMatches, getRouterAddress, isWeth } from "../utils/config";
 import { Network } from "alchemy-sdk";
 
 export default function Trade() {
@@ -250,12 +250,10 @@ export default function Trade() {
 
   async function getUserLimitPositionData() {
     try {
-
       const data = await fetchLimitPositions(
         limitSubgraph,
         address?.toLowerCase()
       );
-      console.log('getting limit data', data)
       if (data["data"]) {
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
@@ -366,7 +364,8 @@ export default function Trade() {
       args: [address, getRouterAddress(networkName)],
       chainId: chainId,
       watch: true,
-      enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
+      enabled: 
+        tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
       onError(error) {
         console.log("Error allowance", error);
       },
@@ -378,6 +377,7 @@ export default function Trade() {
 
   useEffect(() => {
     if (allowanceInRouter) {
+      console.log('set token in allowance', allowanceInRouter)
       setTokenInTradeAllowance(allowanceInRouter);
     }
   }, [allowanceInRouter]);
@@ -394,11 +394,18 @@ export default function Trade() {
     enabled: router.query.from != undefined,
     onSuccess() {
       if (tokenInData){
+        const newTokenIn = {
+          ...tokenInData,
+          native: isWeth(tokenInData.address, networkName),
+          symbol: isWeth(tokenOutData.address, networkName) ? 'ETH' : tokenOutData.symbol,
+          userRouterAllowance: tokenIn.userRouterAllowance,
+          userBalance: tokenIn.userBalance
+        }
         if (tokenIn.callId == 2) {
           setTokenInInfo(tokenInData)
           setTokenIn(
             tokenOutData,
-            tokenInData,
+            newTokenIn,
             "0",
             false,
           );
@@ -418,11 +425,20 @@ export default function Trade() {
     enabled: router.query.to != undefined,
     onSuccess() {
       if (tokenOutData){
-        if (tokenOut.callId == 2) {
+        const newTokenOut = {
+          ...tokenOutData,
+          native: isWeth(tokenOutData.address, networkName),
+          symbol: isWeth(tokenOutData.address, networkName) ? 'ETH' : tokenOutData.symbol,
+          userRouterAllowance: tokenOut.userRouterAllowance
+        }
+        if (
+            !addressMatches(router.query.from.toString(), router.query.to.toString()) &&
+            (tokenOut.callId == 2 || tokenOut.address == ZERO_ADDRESS)
+        ) {
           setTokenOutInfo(tokenOutData)
           setTokenOut(
             tokenInData,
-            tokenOutData,
+            newTokenOut,
             "0",
             false
           );
@@ -446,7 +462,6 @@ export default function Trade() {
   
 
   useEffect(() => {
-
     const updateRouter = async () => {
       if (tokenIn && tokenOut && tokenOut.address !== ZERO_ADDRESS) {
         router.push({
