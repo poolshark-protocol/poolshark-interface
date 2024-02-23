@@ -454,7 +454,7 @@ export const gasEstimateRangeMint = async (
       );
     const price = await fetchEthPrice();
     const gasPrice = await signer.provider.getGasPrice();
-    const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);
+    const ethUsdPrice = Number(price["data"]["basePrices"]["0"]["USD"]);
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
     const networkFeeUsd = networkFeeEth * ethUsdPrice;
@@ -542,7 +542,7 @@ export const gasEstimateRangeCreateAndMint = async (
       );
     const price = await fetchEthPrice();
     const gasPrice = await signer.provider.getGasPrice();
-    const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);
+    const ethUsdPrice = Number(price["data"]["basePrices"]["0"]["USD"]);
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
     const networkFeeUsd = networkFeeEth * ethUsdPrice;
@@ -759,7 +759,7 @@ export const gasEstimateCoverMint = async (
       );
     const price = await fetchEthPrice();
     const gasPrice = await signer.provider.getGasPrice();
-    const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);
+    const ethUsdPrice = Number(price["data"]["basePrices"]["0"]["USD"]);
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
     const networkFeeUsd = networkFeeEth * ethUsdPrice;
@@ -832,7 +832,7 @@ export const gasEstimateCoverCreateAndMint = async (
       );
     const price = await fetchEthPrice();
     const gasPrice = await signer.provider.getGasPrice();
-    const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);
+    const ethUsdPrice = Number(price["data"]["basePrices"]["0"]["USD"]);
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
     const networkFeeUsd = networkFeeEth * ethUsdPrice;
@@ -879,7 +879,7 @@ export const gasEstimateCoverBurn = async (
     });
     const price = await fetchEthPrice();
     const gasPrice = await signer.provider.getGasPrice();
-    const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);
+    const ethUsdPrice = Number(price["data"]["basePrices"]["0"]["USD"]);
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
     const networkFeeUsd = networkFeeEth * ethUsdPrice;
