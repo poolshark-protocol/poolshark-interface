@@ -360,6 +360,16 @@ export default function MarketSwap() {
             }
             return  0;
           });
+          // then sort by least amount in
+          poolQuotesSorted = poolQuotesSorted.sort((n1, n2) => {
+            if (n1.amountIn.gt(n2.amountIn)) {
+                return  1;
+            }
+            if (n1.amountIn.lte(n2.amountIn)) {
+                return -1;
+            }
+            return  0;
+          });
           setAmountIn(poolQuotesSorted[0].amountIn);
           setDisplayIn(
             numFormat(
