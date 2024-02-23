@@ -1037,21 +1037,20 @@ export const fetchTokenPrice = (
 
 export const fetchEthPrice = () => {
   return new Promise(function (resolve) {
-    const univ3Price = `
-            {
-                bundles(first: 5) {
-                  id
-                  ethPriceUSD
-                }
-            }
+    const ethPrice = `
+    {
+      basePrices(first: 1) {
+        USD
+      }
+    }
             `;
     const client = new ApolloClient({
-      uri: "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
+      uri: chainProperties['arbitrum-one']['limitSubgraphUrl'],
       cache: new InMemoryCache(),
     });
     client
       ?.query({
-        query: gql(univ3Price),
+        query: gql(ethPrice),
       })
       .then((data) => {
         resolve(data);
@@ -1060,6 +1059,7 @@ export const fetchEthPrice = () => {
       .catch((err) => {
         resolve(err);
       });
+    
   });
 };
 

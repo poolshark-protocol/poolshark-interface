@@ -34,7 +34,7 @@ export const gasEstimateWethCall = async (
   try {
     
     const ethUsdQuery = await fetchEthPrice();
-    const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
+    const ethUsdPrice = ethUsdQuery["data"]["basePrices"]["0"]["USD"];
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     let gasUnits: BigNumber;
     if (wethAddress && isConnected) {
@@ -102,7 +102,7 @@ export const gasEstimateSwap = async (
       return
     }
     const ethUsdQuery = await fetchEthPrice();
-    const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
+    const ethUsdPrice = ethUsdQuery["data"]["basePrices"]["0"]["USD"];
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     let gasUnits: BigNumber;
     if (poolAddresses?.length == 0 || !signer.provider || swapParams?.length == 0) {
@@ -166,7 +166,7 @@ export const gasEstimateMintLimit = async (
 ): Promise<void> => {
   try {
     const price = await fetchEthPrice();
-    const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
+    const ethUsdPrice = price["data"]["basePrices"]["0"]["USD"];
     if (!rangePoolRoute || 
           rangePoolRoute == ZERO_ADDRESS ||
           !signer.provider ||
@@ -242,7 +242,7 @@ export const gasEstimateLimitCreateAndMint = async (
     
 
     const price = await fetchEthPrice();
-    const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
+    const ethUsdPrice = price["data"]["basePrices"]["0"]["USD"];
     if (!signer.provider ||
           !isNaN(parseFloat(startPrice)) ||
           tokenIn.userRouterAllowance?.lt(bnInput)) {
@@ -340,7 +340,7 @@ export const gasEstimateBurnLimit = async (
     
 
     const price = await fetchEthPrice();
-    const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
+    const ethUsdPrice = price["data"]["basePrices"]["0"]["USD"];
 
     if (
       !limitPoolRoute ||
@@ -588,7 +588,7 @@ export const gasEstimateRangeStake = async(
     });
   const price = await fetchEthPrice();
   const gasPrice = await signer.provider.getGasPrice();
-  const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
+  const ethUsdPrice = price["data"]["basePrices"]["0"]["USD"];
   const networkFeeWei = gasPrice.mul(gasUnits);
   const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
   const networkFeeUsd = networkFeeEth * ethUsdPrice;
@@ -634,7 +634,7 @@ export const gasEstimateRangeUnstake = async(
     });
   const price = await fetchEthPrice();
   const gasPrice = await provider.getGasPrice();
-  const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
+  const ethUsdPrice = price["data"]["basePrices"]["0"]["USD"];
   const networkFeeWei = gasPrice.mul(gasUnits);
   const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
   const networkFeeUsd = networkFeeEth * ethUsdPrice;
@@ -692,7 +692,7 @@ export const gasEstimateRangeBurn = async (
     );
     const price = await fetchEthPrice();
     const gasPrice = await signer.provider.getGasPrice();
-    const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
+    const ethUsdPrice = price["data"]["basePrices"]["0"]["USD"];
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
     const networkFeeUsd = networkFeeEth * ethUsdPrice;
