@@ -394,7 +394,7 @@ export default function MarketSwap() {
             );
           }
         }
-        updateSwapParams(poolQuotesSorted.length > 0 ? poolQuotesSorted : poolQuotes);
+        updateSwapParams(exactIn ? poolQuotes : poolQuotesSorted);
       } else {
         if (exactIn) {
           setAmountOut(BN_ZERO);
