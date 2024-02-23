@@ -255,7 +255,6 @@ export default function Trade() {
         limitSubgraph,
         address?.toLowerCase()
       );
-      console.log('getting limit data', data)
       if (data["data"]) {
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
