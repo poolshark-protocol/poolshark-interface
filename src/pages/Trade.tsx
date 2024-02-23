@@ -377,7 +377,6 @@ export default function Trade() {
 
   useEffect(() => {
     if (allowanceInRouter) {
-      console.log('set token in allowance', allowanceInRouter)
       setTokenInTradeAllowance(allowanceInRouter);
     }
   }, [allowanceInRouter]);
@@ -397,7 +396,7 @@ export default function Trade() {
         const newTokenIn = {
           ...tokenInData,
           native: isWeth(tokenInData.address, networkName),
-          symbol: isWeth(tokenInData.address, networkName) ? 'ETH' : tokenOutData.symbol,
+          symbol: isWeth(tokenInData.address, networkName) ? 'ETH' : tokenInData.symbol,
           userRouterAllowance: tokenIn.userRouterAllowance,
           userBalance: tokenIn.userBalance
         }
