@@ -180,7 +180,7 @@ export default function Range() {
       <Navbar />
       <div className="container mx-auto my-8 px-3 md:px-0 pb-32">
         <div className="flex lg:flex-row items-start flex-col gap-x-8 gap-y-5 justify-between">
-          <div className="p-7 xl:h-[300px] lg:h-[400px] w-full lg:w-[60%] flex flex-col justify-between bg-cover bg-[url('/static/images/bg/shark1.png')]">
+          <div className="p-7 xl:h-[300px] lg:h-[400px] w-full lg:w-[60%] flex flex-col justify-between bg-cover bg-[url('https://poolshark-token-lists.s3.amazonaws.com/images/bg/shark1.png')]">
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">
                 BECOME A LIQUIDITY PROVIDER AND EARN FEES
