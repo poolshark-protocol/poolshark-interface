@@ -3,7 +3,7 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
-  useSigner,
+  useWalletClient,
 } from "wagmi";
 import React, { useEffect, useState } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
@@ -27,7 +27,7 @@ export default function LimitSwapBurnButton({
   upper,
   burnPercent,
 }) {
-  const { data: signer } = useSigner();
+  const { data: signer } = useWalletClient();
 
   const [chainId, networkName, limitSubgraph] = useConfigStore((state) => [
     state.chainId,
@@ -108,9 +108,7 @@ export default function LimitSwapBurnButton({
       },
     ],
     chainId: chainId,
-    overrides: {
-      gasLimit: gasLimit,
-    },
+    gasLimit,
   });
 
   const { data, isSuccess, write } = useContractWrite(config);

@@ -74,13 +74,11 @@ export default function LimitSwapButton({
     ],
     chainId: chainId,
     enabled: poolAddress != undefined && poolAddress != ZERO_ADDRESS,
-    overrides: {
-      gasLimit: gasLimit,
+      gasLimit,
       value: getLimitSwapButtonMsgValue(
         tokenIn.native,
         amount
-      )
-    },
+      ),
   });
 
   const { data, write } = useContractWrite(config);

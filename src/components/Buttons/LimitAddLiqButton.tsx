@@ -66,9 +66,7 @@ import { chainProperties } from "../../utils/chains";
       ],
       chainId: chainId,
       enabled: positionId != undefined,
-      overrides: {
-        gasLimit: gasLimit,
-      },
+      gasLimit,
     });
   
     const { data, write } = useContractWrite(config);

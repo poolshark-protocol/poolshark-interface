@@ -73,14 +73,12 @@ export default function SwapRouterButton({
     ],
     enabled: poolAddresses.length > 0 && swapParams.length > 0,
     chainId: chainId,
-    overrides: {
-      gasLimit: gasLimit,
-      value: getSwapRouterButtonMsgValue(
-        tokenInNative,
-        tokenOutNative,
-        amountIn
-      )
-    },
+    gasLimit: gasLimit,
+    value: getSwapRouterButtonMsgValue(
+      tokenInNative,
+      tokenOutNative,
+      amountIn
+    ),
   });
 
   const { data, write } = useContractWrite(config);

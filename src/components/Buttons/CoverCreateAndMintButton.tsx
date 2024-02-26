@@ -38,7 +38,7 @@ export default function CoverCreateAndMintButton({
   setIsLoading,
   setTxHash
 }) {
-
+  
   const [
     chainId,
     networkName
@@ -72,24 +72,19 @@ export default function CoverCreateAndMintButton({
         twapLength: volTier.twapLength,
       }, // pool params
       twapReady ? [
-        {
-          to: to,
-          amount: amount,
-          positionId: newPositionId,
-          lower: BigNumber.from(roundTick(Number(lower), tickSpacing)),
-          upper: BigNumber.from(roundTick(Number(upper), tickSpacing)),
-          zeroForOne: zeroForOne,
-          callbackData: ethers.utils.formatBytes32String(""),
-        },
-      ] : [], // cover positions
+            {
+              to: to,
+              amount: amount,
+              positionId: newPositionId,
+              lower: BigNumber.from(roundTick(Number(lower), tickSpacing)),
+              upper: BigNumber.from(roundTick(Number(upper), tickSpacing)),
+              zeroForOne: zeroForOne,
+              callbackData: ethers.utils.formatBytes32String(""),
+            },
+          ] : [], // cover positions
     ],
-    overrides: {
-      gasLimit: gasLimit,
-      value: getCoverMintButtonMsgValue(
-        tokenIn.native,
-        amount
-      )
-    },
+    gasLimit,
+    value: getCoverMintButtonMsgValue(tokenIn.native, amount),
     enabled: !disabled,
     chainId: chainId,
   });
@@ -117,7 +112,7 @@ export default function CoverCreateAndMintButton({
       setIsLoading(false)
     }
   }, [isLoading]);
-  
+
   useEffect(() => {
     setTxHash(data?.hash)
   }, [data]);

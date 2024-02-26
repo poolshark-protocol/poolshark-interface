@@ -2,7 +2,7 @@ import { useState, useEffect, Fragment } from "react";
 import {
   erc20ABI,
   useAccount,
-  useSigner,
+  useWalletClient,
   useContractRead,
   useBalance,
 } from "wagmi";
@@ -35,7 +35,7 @@ import { Network } from "alchemy-sdk";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
-  const { data: signer } = useSigner();
+  const { data: signer } = useWalletClient();
 
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap, setDisplayTokenList, setNetworkName, setChainId] =
     useConfigStore((state) => [

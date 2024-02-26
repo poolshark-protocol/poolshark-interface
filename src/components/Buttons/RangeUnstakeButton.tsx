@@ -84,9 +84,7 @@ const [
         ],
         chainId: chainId,
         enabled: rangePoolAddress != undefined,
-        overrides: {
-            gasLimit: unstakeGasLimit,
-        },
+        gasLimit: unstakeGasLimit,
         onSuccess() {},
         onError() {
           console.log('error unstaked', rangePoolAddress, positionId)

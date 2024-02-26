@@ -1,7 +1,7 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { useAccount, useContractRead, useSigner } from "wagmi";
+import { useAccount, useContractRead, useWalletClient } from "wagmi";
 import LimitCollectButton from "../../components/Buttons/LimitCollectButton";
 import { BigNumber, ethers } from "ethers";
 import {
@@ -95,7 +95,7 @@ export default function ViewLimit() {
   ]);
 
   const { address, isConnected } = useAccount();
-  const { data: signer } = useSigner();
+  const { data: signer } = useWalletClient();
 
   const router = useRouter();
 

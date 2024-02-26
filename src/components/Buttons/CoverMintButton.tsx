@@ -72,13 +72,11 @@ export default function CoverMintButton({
         },
       ],
     ],
-    overrides: {
-      gasLimit: gasLimit,
+      gasLimit,
       value: getCoverMintButtonMsgValue(
         tokenIn.native,
         amount
-      )
-    },
+      ),
     enabled: !disabled,
     chainId: chainId,
   });

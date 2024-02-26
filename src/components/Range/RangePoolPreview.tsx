@@ -6,8 +6,8 @@ import {
   erc20ABI,
   useAccount,
   useContractRead,
-  useProvider,
-  useSigner,
+  usePublicClient,
+  useWalletClient,
 } from "wagmi";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButton";
@@ -63,7 +63,7 @@ export default function RangePoolPreview() {
     tokenIn.address.localeCompare(tokenOut.address) < 0
   );
   const router = useRouter();
-  const provider = useProvider();
+  const provider = usePublicClient();
   const { address } = useAccount();
   const signer = new ethers.VoidSigner(address, provider);
 

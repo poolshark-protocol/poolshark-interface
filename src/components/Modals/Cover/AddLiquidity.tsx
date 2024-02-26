@@ -4,7 +4,7 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import {
   useAccount,
   erc20ABI,
-  useSigner,
+  useWalletClient,
   useBalance,
 } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
@@ -65,7 +65,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   ]);
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
-  const { data: signer } = useSigner();
+  const { data: signer } = useWalletClient();
   const { isConnected } = useAccount();
   const [stateChainName, setStateChainName] = useState(); 
   const [buttonState, setButtonState] = useState("");

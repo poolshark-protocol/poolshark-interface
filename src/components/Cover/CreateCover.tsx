@@ -4,7 +4,7 @@ import {
   erc20ABI,
   useAccount,
   useContractRead,
-  useSigner,
+  useWalletClient,
   useBalance,
 } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
@@ -115,7 +115,7 @@ export default function CreateCover(props: any) {
     state.setNeedsLatestTick,
   ]);
 
-  const { data: signer } = useSigner();
+  const { data: signer } = useWalletClient();
   const { address, isConnected, isDisconnected } = useAccount();
   const { setBnInput, bnInput, inputBox, setDisplay, display } = useInputBox();
   const [loadingPrices, setLoadingPrices] = useState(true);

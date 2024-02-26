@@ -3,7 +3,7 @@ import {
   erc20ABI,
   useAccount,
   useContractRead,
-  useSigner,
+  useWalletClient,
   useBalance,
 } from "wagmi";
 import DoubleArrowIcon from "../Icons/DoubleArrowIcon";
@@ -129,7 +129,7 @@ export default function CoverExistingPool({ goBack }) {
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState();
 
-  const { data: signer } = useSigner();
+  const { data: signer } = useWalletClient();
   const { address, isConnected, isDisconnected } = useAccount();
 
   const router = useRouter();

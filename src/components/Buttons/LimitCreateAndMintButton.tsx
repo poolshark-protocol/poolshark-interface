@@ -87,13 +87,11 @@ import { chainProperties } from "../../utils/chains";
       ],
       enabled: feeTier != undefined && gasLimit.gt(BN_ZERO),
       chainId: chainId,
-      overrides: {
-        gasLimit: gasLimit,
+        gasLimit,
         value: getLimitSwapButtonMsgValue(
           tokenIn.native,
           amount
-        )
-      },
+        ),
     });
   
     const { data, write } = useContractWrite(config);

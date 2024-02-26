@@ -46,10 +46,8 @@ import { toast } from "sonner";
       args: [],
       enabled: routerAddress != undefined && wethAddress != ZERO_ADDRESS,
       chainId: chainId,
-      overrides: {
-        gasLimit: gasLimit,
-        value: amountIn,
-      },
+      gasLimit,
+      value: amountIn,
     });
   
     const { data, write } = useContractWrite(config);

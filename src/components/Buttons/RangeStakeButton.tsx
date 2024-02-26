@@ -88,9 +88,7 @@ const [
       ],
       chainId: chainId,
       enabled: positionId != undefined && stakeApproved,
-      overrides: {
-          gasLimit: stakeGasLimit,
-      },
+      gasLimit: stakeGasLimit,
       onSuccess() {},
       onError() {
         console.log('error stake')

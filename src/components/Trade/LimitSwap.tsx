@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
-import { useAccount, useSigner } from "wagmi";
+import { useAccount, useWalletClient } from "wagmi";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
 import LimitSwapButton from "../Buttons/LimitSwapButton";
@@ -155,7 +155,7 @@ export default function LimitSwap() {
 
   const { address, isDisconnected, isConnected } = useAccount();
 
-  const { data: signer } = useSigner();
+  const { data: signer } = useWalletClient();
 
   const [priceRangeSelected, setPriceRangeSelected] = useState(false);
 

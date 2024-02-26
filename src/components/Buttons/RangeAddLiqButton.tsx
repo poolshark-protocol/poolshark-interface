@@ -2,7 +2,7 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
-  useSigner,
+  useWalletClient,
 } from "wagmi";
 import React, { useState, useEffect } from "react";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
@@ -58,7 +58,7 @@ export default function RangeAddLiqButton({
   ]);
   const [toastId, setToastId] = useState(null);
 
-  const { data: signer } = useSigner();
+  const { data: signer } = useWalletClient();
 
   const { config } = usePrepareContractWrite({
     address: routerAddress,
@@ -80,9 +80,7 @@ export default function RangeAddLiqButton({
     ],
     chainId: chainId,
     enabled: positionId != undefined && poolAddress != ZERO_ADDRESS,
-    overrides: {
-      gasLimit: gasLimit,
-    },
+    gasLimit,
     onError(err) {
       console.log('mint error')  
     },

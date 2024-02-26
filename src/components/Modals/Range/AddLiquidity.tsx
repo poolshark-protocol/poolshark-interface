@@ -6,8 +6,8 @@ import {
   erc20ABI,
   useContractRead,
   useBalance,
-  useSigner,
-  useProvider,
+  useWalletClient,
+  usePublicClient,
 } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import RangeAddLiqButton from "../../Buttons/RangeAddLiqButton";
@@ -94,7 +94,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     setDisplay: setDisplay2,
   } = useInputBox();
   const router = useRouter();
-  const provider = useProvider();
+  const provider = usePublicClient();
   const { address } = useAccount();
   const signer = new ethers.VoidSigner(address, provider);
 

@@ -2,7 +2,12 @@ import "../styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import Script from "next/script";
-import { configureChains, createClient, useProvider, WagmiConfig } from "wagmi";
+import {
+  configureChains,
+  createConfig,
+  usePublicClient,
+  WagmiConfig,
+} from "wagmi";
 import { arbitrum } from "wagmi/chains";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import Head from "next/head";
@@ -27,7 +32,7 @@ import { fetchListedTokenBalances, fetchTokenMetadata } from "../utils/tokens";
 import Safary from "../components/script";
 import { Toaster } from "sonner";
 
-const { chains, provider } = configureChains(
+const { chains, publicClient } = configureChains(
   [mode, arbitrum, scroll, arbitrumSepolia],
   [
     jsonRpcProvider({
@@ -45,9 +50,9 @@ const { connectors } = getDefaultWallets({
 });
 
 // Wagmi
-const wagmiClient = createClient({
+const wagmiClient = createConfig({
   connectors,
-  provider,
+  publicClient,
   autoConnect: true,
 });
 
@@ -111,8 +116,9 @@ function MyApp({ Component, pageProps }) {
   ]);
 
   const {
-    network: { chainId, name },
-  } = useProvider();
+    chain: { id: chainId },
+    name,
+  } = usePublicClient();
 
   useEffect(() => {
     setChainId(chainId);
@@ -166,7 +172,7 @@ function MyApp({ Component, pageProps }) {
       </Head>
       <Safary />
       <Toaster richColors theme="dark" />
-      <WagmiConfig client={wagmiClient}>
+      <WagmiConfig config={wagmiClient}>
         <RainbowKitProvider chains={chains} initialChain={mode}>
           {/* <ApolloProvider client={apolloClient}> */}
           <>

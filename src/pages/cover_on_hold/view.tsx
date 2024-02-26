@@ -1,7 +1,7 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import router from "next/router";
-import { useAccount, useContractRead, useSigner } from "wagmi";
+import { useAccount, useContractRead, useWalletClient } from "wagmi";
 import CoverCollectButton from "../../components/Buttons/CoverCollectButton";
 import { BigNumber, ethers } from "ethers";
 import { TickMath } from "../../utils/math/tickMath";
@@ -72,7 +72,7 @@ export default function ViewCover() {
 
   const { address, isConnected } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
-  const { data: signer } = useSigner();
+  const { data: signer } = useWalletClient();
 
   //cover aux
   const [priceDirection, setPriceDirection] = useState(false);

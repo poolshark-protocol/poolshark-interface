@@ -75,9 +75,7 @@ export default function CoverCollectButton({
     args: [[address, BigNumber.from(0), positionId, claim, zeroForOne, true]],
     chainId: chainId,
     enabled: positionId != undefined,
-    overrides: {
-      gasLimit: gasLimit,
-    },
+    gasLimit
   });
 
   const { data, isSuccess, write } = useContractWrite(config);

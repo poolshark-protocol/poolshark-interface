@@ -72,9 +72,7 @@ export default function CoverAddLiqButton({
     ],
     enabled: amount.gt(BN_ZERO) && poolAddress != undefined && positionId != undefined,
     chainId: chainId,
-    overrides: {
-      gasLimit: gasLimit,
-    },
+    gasLimit
   });
 
   const { data, isSuccess, write } = useContractWrite(config);

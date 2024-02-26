@@ -3,7 +3,7 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
-  useSigner,
+  useWalletClient
 } from "wagmi";
 import React, { useEffect, useState } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
@@ -29,7 +29,7 @@ export default function LimitRemoveLiqButton({
   closeModal,
   setIsOpen,
 }) {
-  const { data: signer } = useSigner();
+  const { data: signer } = useWalletClient();
 
   const [
     chainId,
@@ -121,9 +121,7 @@ export default function LimitRemoveLiqButton({
     ],
     enabled: positionId != undefined,
     chainId: chainId,
-    overrides: {
-      gasLimit: gasLimit,
-    },
+    gasLimit,
   });
 
   const { data, isSuccess, write } = useContractWrite(config);

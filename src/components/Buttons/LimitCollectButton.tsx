@@ -57,9 +57,7 @@ export default function LimitCollectButton({
     ],
     chainId: chainId,
     enabled: positionId != undefined,
-    overrides: {
-      gasLimit: gasLimit,
-    },
+    gasLimit,
   });
 
   const { data, isSuccess, write } = useContractWrite(config);

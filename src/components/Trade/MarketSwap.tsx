@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
-import { useAccount, useContractRead, useProvider, useSigner } from "wagmi";
+import { useAccount, useContractRead, usePublicClient, useWalletClient } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
@@ -123,8 +123,8 @@ export default function MarketSwap() {
 
   const { address, isDisconnected, isConnected } = useAccount();
 
-  const { data: signer } = useSigner();
-  const provider = useProvider();
+  const { data: signer } = useWalletClient();
+  const provider = usePublicClient();
 
   const router = useRouter();
 

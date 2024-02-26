@@ -1,7 +1,7 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import RangeCompoundButton from "../../components/Buttons/RangeCompoundButton";
-import { useAccount, useSigner } from "wagmi";
+import { useAccount, useWalletClient } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
@@ -81,7 +81,7 @@ export default function ViewRange() {
   ]);
 
   const { address, isConnected } = useAccount();
-  const { data: signer } = useSigner();
+  const { data: signer } = useWalletClient();
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);

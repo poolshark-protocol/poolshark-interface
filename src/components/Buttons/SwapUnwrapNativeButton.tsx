@@ -48,9 +48,7 @@ import { useEffect } from "react";
       args: [amountIn],
       enabled: routerAddress != undefined && wethAddress != ZERO_ADDRESS,
       chainId: chainId,
-      overrides: {
-        gasLimit: gasLimit,
-      },
+      gasLimit,
     });
   
     const { data, write } = useContractWrite(config);

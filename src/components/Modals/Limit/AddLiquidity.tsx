@@ -1,7 +1,7 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useAccount, erc20ABI, useSigner, useBalance } from "wagmi";
+import { useAccount, erc20ABI, useWalletClient, useBalance } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import LimitAddLiqButton from "../../Buttons/LimitAddLiqButton";
 import { BigNumber, ethers } from "ethers";
@@ -46,7 +46,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   ]);
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
-  const { data: signer } = useSigner();
+  const { data: signer } = useWalletClient();
   const { isConnected } = useAccount();
 
   const [allowanceIn, setAllowanceIn] = useState(BN_ZERO);
