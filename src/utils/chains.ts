@@ -316,7 +316,7 @@ export const chainProperties = {
       symbol: "INJ",
       decimals: 18,
     },
-    wethAddress: "nj" as `0x${string}`,
+    wethAddress: "0x4c3a213bd5e8c4bd70a8396d6f3c8302571598cd" as `0x${string}`,
     daiAddress: "0x8358d8291e3bedb04804975eea0fe9fe0fafb147" as `0x${string}`,
     finAddress: "0x66864e3954daC74b9377Ef25E4B47Ca47423688E" as `0x${string}`,
     routerAddress:

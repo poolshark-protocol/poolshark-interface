@@ -396,7 +396,8 @@ export default function Trade() {
         const newTokenIn = {
           ...tokenInData,
           native: isWeth(tokenInData.address, networkName),
-          symbol: isWeth(tokenInData.address, networkName) ? 'ETH' : tokenInData.symbol,
+          symbol: isWeth(tokenInData.address, networkName) ? chainProperties[networkName].nativeCurrency.symbol 
+                                                           : tokenInData.symbol,
           userRouterAllowance: tokenIn.userRouterAllowance,
           userBalance: tokenIn.userBalance
         }
@@ -427,7 +428,8 @@ export default function Trade() {
         const newTokenOut = {
           ...tokenOutData,
           native: isWeth(tokenOutData.address, networkName),
-          symbol: isWeth(tokenOutData.address, networkName) ? 'ETH' : tokenOutData.symbol,
+          symbol: isWeth(tokenOutData.address, networkName) ? chainProperties[networkName].nativeCurrency.symbol
+                                                            : tokenOutData.symbol,
           userRouterAllowance: tokenOut.userRouterAllowance
         }
         if (
