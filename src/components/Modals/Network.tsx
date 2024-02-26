@@ -100,25 +100,29 @@ export default function Network({
                       Connected
                       <div className="h-1.5 w-1.5 bg-main2 rounded-full" />
                     </div>
-                  </div>
-                  <div
+                </div>
+                <div
                     onClick={() => {
-                      setNetworkName("arbitrum-one");
-                      switchNetwork(42161);
+                      setNetworkName("inEvm");
+                      switchNetwork(2525);
                     }}
                     className={`${
-                      chainId === 42161
-                        ? " bg-main1 border-main2/20"
-                        : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
-                    } flex justify-between items-center w-full p-2 rounded-md border border-black cursor-pointer`}
+                      chainId === 2525
+                      ? " bg-main1 border-main2/20"
+                      : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
+                  } flex justify-between items-center w-full p-2 rounded-md border border-black cursor-pointer`}
                   >
                     <div className="flex gap-x-2 items-center">
-                      <img src="https://poolshark-token-lists.s3.amazonaws.com/images/arb_icon.svg" />
-                      Arbitrum Mainnet
+                      <img
+                        src="https://poolshark-token-lists.s3.amazonaws.com/images/mode_icon.svg"
+                        width="28"
+                        height="28"
+                      />
+                      Injective EVM
                     </div>
                     <div
                       className={`${
-                        chainId === 42161
+                        chainId === 2525
                           ? " flex gap-x-2 items-center text-main2 text-xs"
                           : "hidden"
                       }`}
@@ -126,7 +130,33 @@ export default function Network({
                       Connected
                       <div className="h-1.5 w-1.5 bg-main2 rounded-full" />
                     </div>
-                  </div>
+                </div>
+                <div
+                  onClick={() => {
+                    setNetworkName("arbitrum-one");
+                    switchNetwork(42161);
+                  }}
+                  className={`${
+                    chainId === 42161
+                      ? " bg-main1 border-main2/20"
+                      : "hover:bg-[#0C0C0C] hover:border-[#1C1C1C]"
+                  } flex justify-between items-center w-full p-2 rounded-md border border-black cursor-pointer`}
+                >
+                <div className="flex gap-x-2 items-center">
+                  <img src="https://poolshark-token-lists.s3.amazonaws.com/images/arb_icon.svg" />
+                  Arbitrum Mainnet
+                </div>
+                <div
+                  className={`${
+                    chainId === 42161
+                      ? " flex gap-x-2 items-center text-main2 text-xs"
+                      : "hidden"
+                  }`}
+                >
+                  Connected
+                  <div className="h-1.5 w-1.5 bg-main2 rounded-full" />
+                </div>
+              </div>
                   <div
                     onClick={() => {
                       setNetworkName("scroll");

@@ -48,6 +48,29 @@ export const mode: Chain = {
   },
 };
 
+export const inEvm: Chain = {
+  id: 2525,
+  name: "Injective EVM",
+  network: "inEvm",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Injective",
+    symbol: "INJ",
+  },
+  rpcUrls: {
+    default: {
+      http: [
+        "https://inevm.calderachain.xyz/http",
+      ],
+    },
+    public: {
+      http: [
+        "https://inevm.calderachain.xyz/http",
+      ],
+    },
+  },
+};
+
 export const arbitrumSepolia: Chain = {
   id: 421614,
   name: "Arbitrum Sepolia",
@@ -78,6 +101,7 @@ export const chainIdsToNames = {
   42161: "arbitrum-one",
   534352: "scroll",
   34443: "mode",
+  2525: "inEvm",
 };
 
 export const supportedChainIds = {
@@ -85,6 +109,7 @@ export const supportedChainIds = {
   42161: "arbitrum",
   534352: "scroll",
   34443: "mode",
+  2525: "inEvm",
 };
 
 export const supportedNetworkNames = {
@@ -92,6 +117,7 @@ export const supportedNetworkNames = {
   arbitrum: "arbitrum-one",
   scroll: "scroll",
   mode: "mode",
+  inEvm: "inEvm"
 };
 
 export const chainIdToRpc = {
@@ -103,6 +129,8 @@ export const chainIdToRpc = {
     "https://chaotic-cosmopolitan-replica.scroll-mainnet.quiknode.pro/8ef882241d10f392fcbb1b1b051cd8cda1eaacf9/",
   34443:
     "https://mainnet.mode.network",
+  2525:
+    "https://inevm.calderachain.xyz/http",
 };
 
 export const alchemyNetworks = {
@@ -288,7 +316,7 @@ export const chainProperties = {
       symbol: "INJ",
       decimals: 18,
     },
-    wethAddress: "0x4c3a213bd5e8c4bd70a8396d6f3c8302571598cd" as `0x${string}`,
+    wethAddress: "nj" as `0x${string}`,
     daiAddress: "0x8358d8291e3bedb04804975eea0fe9fe0fafb147" as `0x${string}`,
     finAddress: "0x66864e3954daC74b9377Ef25E4B47Ca47423688E" as `0x${string}`,
     routerAddress:
