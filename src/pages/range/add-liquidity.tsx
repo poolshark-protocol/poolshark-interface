@@ -49,6 +49,7 @@ import {
   ArrowTopRightOnSquareIcon,
   SparklesIcon,
 } from "@heroicons/react/20/solid";
+import { XOctagon } from "lucide-react";
 
 export default function AddLiquidity({}) {
   const [
@@ -176,6 +177,8 @@ export default function AddLiquidity({}) {
     } else {
       setPairSelected(false);
     }
+
+    setPriceOrder(tokenIn.callId == 0);
   }, [tokenIn.address, tokenOut.address]);
 
   useEffect(() => {
@@ -722,21 +725,21 @@ export default function AddLiquidity({}) {
     ) {
       const priceLower = invertPrice(
         roundPrice(
-          priceOrder == (tokenIn.callId == 0) ? minInput : maxInput,
+          priceOrder ? minInput : maxInput,
           tokenIn,
           tokenOut,
           rangePoolData.feeTier?.tickSpacing ?? 30
         ),
-        priceOrder == (tokenIn.callId == 0)
+        priceOrder
       );
       const priceUpper = invertPrice(
         roundPrice(
-          priceOrder == (tokenIn.callId == 0) ? maxInput : minInput,
+          priceOrder ? maxInput : minInput,
           tokenIn,
           tokenOut,
           rangePoolData.feeTier?.tickSpacing ?? 30
         ),
-        priceOrder == (tokenIn.callId == 0)
+        priceOrder
       );
       setLowerPrice(priceLower);
       setUpperPrice(priceUpper);
@@ -757,13 +760,13 @@ export default function AddLiquidity({}) {
       setRangePoolData({
         poolPrice: String(
           TickMath.getSqrtPriceAtPriceString(
-            invertPrice(startPrice, priceOrder == (tokenIn.callId == 0)),
+            invertPrice(startPrice, priceOrder),
             tokenIn,
             tokenOut
           )
         ),
         tickAtPrice: TickMath.getTickAtPriceString(
-          invertPrice(startPrice, priceOrder == (tokenIn.callId == 0)),
+          invertPrice(startPrice, priceOrder),
           tokenIn,
           tokenOut
         ),
