@@ -252,7 +252,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     isAmountIn: boolean
   ) => {
     //if tokenOut is selected
-    if (tokenOut.address != initialTradeState.tokenOut.address) {
+    if (tokenOut?.address != initialTradeState.tokenOut.address) {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to initialState
       if (
         newTokenIn.address?.toLowerCase() == tokenOut.address?.toLowerCase() &&
@@ -305,7 +305,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             native: newTokenIn.native ?? false,
           },
           tokenOut: {
-            ...tokenOut,
+            ...state.tokenOut,
             callId:
               tokenOut.address.localeCompare(newTokenIn.address) < 0 ? 0 : 1,
           },
@@ -332,12 +332,16 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           native: newTokenIn.native ?? false,
         },
         tokenOut: {
-          ...tokenOut,
+          ...state.tokenOut,
           callId: 0,
         },
         amountIn: isAmountIn
           ? parseUnits(amount, newTokenIn.decimals)
           : state.amountIn,
+        userRouterAllowance: newTokenIn.address == state.tokenIn.address ? state.tokenIn.userRouterAllowance
+                                                                         : BN_ZERO,
+        userBalance: newTokenIn.address == state.tokenIn.address ? state.tokenIn.userBalance
+                                                                 : BN_ZERO,
         pairSelected: false,
         wethCall: false,
         needsAllowanceIn: !newTokenIn.native,
@@ -371,12 +375,12 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     isAmountIn: boolean
   ) => {
     //if tokenIn exists
-    if (tokenIn.address != initialTradeState.tokenOut.address) {
+    if (tokenIn?.address != initialTradeState.tokenOut.address) {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
       // NATIVE: only flip tokens if 'isNative' also matches
       if (
-        newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase() &&
-        newTokenOut.native == tokenIn.native
+        newTokenOut?.address.toLowerCase() == tokenIn?.address.toLowerCase() &&
+        newTokenOut?.native == tokenIn?.native
       ) {
         set((state) => ({
           tokenIn: {
@@ -419,14 +423,14 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         //if tokens are different
         set((state) => ({
           tokenIn: {
-            ...tokenIn,
+            ...state.tokenIn,
             callId:
-              tokenIn.address.localeCompare(newTokenOut.address) < 0 ? 0 : 1,
+              tokenIn?.address.localeCompare(newTokenOut.address) < 0 ? 0 : 1,
           },
           tokenOut: {
             ...newTokenOut,
             callId:
-              newTokenOut.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
+              newTokenOut?.address.localeCompare(tokenIn?.address) < 0 ? 0 : 1,
             native: newTokenOut.native ?? false,
           },
           amountOut: isAmountIn
@@ -434,19 +438,19 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             : parseUnits(amount, newTokenOut.decimals),
           pairSelected: true,
           wethCall:
-            newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase(),
+            newTokenOut.address.toLowerCase() == tokenIn?.address.toLowerCase(),
           needsBalanceOut: true,
           needsAllowanceIn: true,
           needsPairUpdate: true,
           limitPriceOrder:
-            tokenIn.address.localeCompare(newTokenOut.address) < 0,
+            tokenIn?.address.localeCompare(newTokenOut.address) < 0,
         }));
       }
     } else {
       //if tokenIn is not selected
       set((state) => ({
         tokenIn: {
-          ...tokenIn,
+          ...state.tokenIn,
           callId: 0,
         },
         tokenOut: {

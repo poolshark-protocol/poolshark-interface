@@ -359,7 +359,7 @@ export default function Bond() {
 
   const getEthUsdPrice = async () => {
     const price = await fetchEthPrice();
-    const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
+    const ethUsdPrice = price["data"]["basePrices"]["0"]["USD"];
 
     setEthPrice(ethUsdPrice);
   };

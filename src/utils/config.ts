@@ -71,7 +71,26 @@ const isAddress = (input: string) => {
     return false;
 };
 
+export const addressMatches = (addressA: string, addressB: string) => {
+    // validate address
+    if (
+      addressA.toLocaleLowerCase() == addressB.toLocaleLowerCase()
+    ) {
+      // if not in listed tokens or search tokens we need to fetch data from the chain
+      return true;
+    }
+    return false;
+};
 
+export const isWeth = (address: string, networkName: string) => {
+    // validate address
+    if (
+		addressMatches(address, chainProperties[networkName]["wethAddress"])
+    ) {
+      return true;
+    }
+    return false;
+};
 
 export const isWhitelistedPool = (rangePool: any, networkName: string): boolean => {
 	if (!rangePool?.poolId) {

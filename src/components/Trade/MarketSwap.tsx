@@ -350,28 +350,35 @@ export default function MarketSwap() {
             }
             return  0;
           });
-          // then sort by most amount out
+          // then filter for low amount out
+          poolQuotesSorted = poolQuotesSorted.filter((n1) => n1.amountOut.gte(amountOut));
+          // then sort by least amount in
           poolQuotesSorted = poolQuotesSorted.sort((n1, n2) => {
-            if (n1.amountOut.lt(n2.amountOut)) {
+            if (n1.amountIn.gt(n2.amountIn)) {
                 return  1;
             }
-            if (n1.amountOut.gte(n2.amountOut)) {
+            if (n1.amountIn.lte(n2.amountIn)) {
                 return -1;
             }
             return  0;
           });
-          setAmountIn(poolQuotesSorted[0].amountIn);
-          setDisplayIn(
-            numFormat(
-              parseFloat(
-                ethers.utils.formatUnits(
-                  poolQuotesSorted[0].amountIn.toString(),
-                  tokenIn.decimals
-                )
-              ),
-              5
-            )
-          );
+          if (poolQuotesSorted.length > 0) {
+            setAmountIn(poolQuotesSorted[0]?.amountIn ?? BN_ZERO);
+            setDisplayIn(
+              numFormat(
+                parseFloat(
+                  ethers.utils.formatUnits(
+                    poolQuotesSorted[0]?.amountIn.toString(),
+                    tokenIn.decimals
+                  )
+                ),
+                5
+              )
+            );
+          } else {
+            setAmountIn(BN_ZERO)
+            setDisplayIn('')
+          }
           if (amountOutTotal.lt(amountOut)) {
             setAmountOut(amountOutTotal);
             setDisplayOut(
@@ -387,7 +394,7 @@ export default function MarketSwap() {
             );
           }
         }
-        updateSwapParams(poolQuotesSorted.length > 0 ? poolQuotesSorted : poolQuotes);
+        updateSwapParams(exactIn ? poolQuotes : poolQuotesSorted);
       } else {
         if (exactIn) {
           setAmountOut(BN_ZERO);
