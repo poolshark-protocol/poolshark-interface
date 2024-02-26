@@ -117,7 +117,7 @@ export const supportedNetworkNames = {
   arbitrum: "arbitrum-one",
   scroll: "scroll",
   mode: "mode",
-  injectiveEvm: "injective-evm"
+  ["injective-evm"]: "injective-evm"
 };
 
 export const chainIdToRpc = {

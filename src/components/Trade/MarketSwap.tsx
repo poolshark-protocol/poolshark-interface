@@ -217,6 +217,8 @@ export default function MarketSwap() {
     }
   }, [tokenIn.address, tokenOut.address]);
 
+  // console.log('token in:', tokenIn)
+
   const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
     if (isAmountIn) {
       if (bnValue.gt(BN_ZERO)) {
@@ -308,6 +310,10 @@ export default function MarketSwap() {
     },
     onSuccess(data) {},
   });
+
+  useEffect(() => {
+    console.log('token in symbol:', tokenIn.symbol)
+  }, [tokenIn.symbol]);
 
   useEffect(() => {
     let poolQuotesSorted: QuoteResults[] = [];

@@ -459,9 +459,6 @@ export default function Trade() {
       } 
   }, [router.query.to, tokenOutInfo, router.query.from, tokenInInfo]);
 
-
-  
-
   useEffect(() => {
     const updateRouter = async () => {
       if (tokenIn && tokenOut && tokenOut.address !== ZERO_ADDRESS) {
@@ -480,8 +477,6 @@ export default function Trade() {
     updateRouter()
     
   }, [tokenIn.address, tokenOut.address, chainId]);
-
-
 
   return (
     <div className="min-h-[calc(100vh-160px)] w-[48rem] px-3 md:px-0">

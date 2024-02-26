@@ -175,8 +175,6 @@ export default function SelectToken(props) {
     setIsOpen(true);
   }
 
-  console.log('token data', props)
-
   return (
     <div className="w-full">
       <Transition appear show={isOpen} as={Fragment}>
