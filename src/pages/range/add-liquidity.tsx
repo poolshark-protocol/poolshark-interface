@@ -1041,25 +1041,25 @@ export default function AddLiquidity({}) {
                   setMinInput(
                     invertPrice(
                       TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
+                        priceOrder
                           ? rangePoolData.tickAtPrice - 2232
                           : rangePoolData.tickAtPrice - -2232,
                         tokenIn,
                         tokenOut
                       ),
-                      priceOrder == (tokenIn.callId == 0)
+                      priceOrder
                     )
                   );
                   setMaxInput(
                     invertPrice(
                       TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
+                        priceOrder
                           ? rangePoolData.tickAtPrice - -2232
                           : rangePoolData.tickAtPrice - 2232,
                         tokenIn,
                         tokenOut
                       ),
-                      priceOrder == (tokenIn.callId == 0)
+                      priceOrder
                     )
                   );
                 }}
@@ -1073,25 +1073,25 @@ export default function AddLiquidity({}) {
                   setMinInput(
                     invertPrice(
                       TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
+                        priceOrder
                           ? rangePoolData.tickAtPrice - 4055
                           : rangePoolData.tickAtPrice - -4055,
                         tokenIn,
                         tokenOut
                       ),
-                      priceOrder == (tokenIn.callId == 0)
+                      priceOrder
                     )
                   );
                   setMaxInput(
                     invertPrice(
                       TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
+                        priceOrder
                           ? rangePoolData.tickAtPrice - -4055
                           : rangePoolData.tickAtPrice - 4055,
                         tokenIn,
                         tokenOut
                       ),
-                      priceOrder == (tokenIn.callId == 0)
+                      priceOrder
                     )
                   );
                 }}
@@ -1105,25 +1105,25 @@ export default function AddLiquidity({}) {
                   setMinInput(
                     invertPrice(
                       TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
+                        priceOrder
                           ? rangePoolData.tickAtPrice - 5596
                           : rangePoolData.tickAtPrice - -5596,
                         tokenIn,
                         tokenOut
                       ),
-                      priceOrder == (tokenIn.callId == 0)
+                      priceOrder
                     )
                   );
                   setMaxInput(
                     invertPrice(
                       TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
+                        priceOrder
                           ? rangePoolData.tickAtPrice - -5596
                           : rangePoolData.tickAtPrice - 5596,
                         tokenIn,
                         tokenOut
                       ),
-                      priceOrder == (tokenIn.callId == 0)
+                      priceOrder
                     )
                   );
                 }}
