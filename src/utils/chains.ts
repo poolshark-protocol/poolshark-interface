@@ -276,4 +276,46 @@ export const chainProperties = {
       }
     },
   },
+  "inEvm": {
+    chainName: "Injective EVM",
+		sdkSupport: {
+			alchemy: false,
+			swing: false
+    },
+    explorerUrl: "https://explorer.inevm.com",
+    nativeCurrency: {
+      name: "INJ",
+      symbol: "INJ",
+      decimals: 18,
+    },
+    wethAddress: "0x4c3a213bd5e8c4bd70a8396d6f3c8302571598cd" as `0x${string}`,
+    daiAddress: "0x8358d8291e3bedb04804975eea0fe9fe0fafb147" as `0x${string}`,
+    finAddress: "0x66864e3954daC74b9377Ef25E4B47Ca47423688E" as `0x${string}`,
+    routerAddress:
+      "0x7183ffeefc0883d499c52c1a1dff1af716467a46" as `0x${string}`,
+    rangeStakerAddress:
+      "0xde95e92dd151c39eb51cfae80fdff4d6c32c1fad" as `0x${string}`,
+    coverPoolFactory:
+      ZERO_ADDRESS as `0x${string}`,
+    coverSubgraphUrl:
+      "",
+    limitSubgraphUrl:
+      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-inevm-season0-block1/0.2.7/gn",
+    whitelistedPools: [
+    ],
+    whitelistedPairs: [
+    ],
+    usdStables: [
+      '0x8358d8291e3bedb04804975eea0fe9fe0fafb147', // USDC
+      '0x97423a68bae94b5de52d767a17abcc54c157c0e5'  // USDT
+    ],
+    stablePools: [
+      '0x00a5a1f32231040e998b56b158bcb1933fa73ee8' // USDC-USDT 0.1%
+    ],
+    season0Rewards: {
+      block1: {
+        whitelistedFeesUsd: 0
+      }
+    },
+  },
 };
