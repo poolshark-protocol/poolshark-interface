@@ -354,10 +354,10 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       isAmountIn: boolean
     ) => {
       //if tokenOut is selected
-      if (tokenOut.symbol != "Select Token") {
+      if (tokenOut?.symbol != "Select Token") {
         //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
         if (
-          newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase()
+          newTokenIn?.address.toLowerCase() == tokenOut?.address.toLowerCase()
         ) {
           set((state) => ({
             tokenIn: {
@@ -511,12 +511,12 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     ) => {
       //if tokenIn exists
       if (
-        tokenIn.address != initialRangeLimitState.tokenOut.address ||
-        tokenIn.symbol != "Select Token"
+        tokenIn?.address != initialRangeLimitState.tokenOut.address ||
+        tokenIn?.symbol != "Select Token"
       ) {
         //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
         if (
-          newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase()
+          newTokenOut?.address.toLowerCase() == tokenIn?.address.toLowerCase()
         ) {
           set((state) => ({
             tokenIn: {
