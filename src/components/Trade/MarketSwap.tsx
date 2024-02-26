@@ -20,7 +20,7 @@ import Range from "../Icons/RangeIcon";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
 import SwapRouterButton from "../Buttons/SwapRouterButton";
-import { chainProperties } from "../../utils/chains";
+import { chainProperties, defaultNetwork } from "../../utils/chains";
 import { gasEstimateSwap, gasEstimateWethCall } from "../../utils/gas";
 import JSBI from "jsbi";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
@@ -867,6 +867,11 @@ export default function MarketSwap() {
                   query: {
                     feeTier: "3000",
                     poolId: ZERO_ADDRESS,
+                    tokenIn: tokenIn.address,
+                    tokenInNative: tokenIn.native,
+                    tokenOut: tokenOut.address,
+                    tokenOutNative: tokenOut.native,
+                    chainId: chainId,
                   },
                 });
               }}

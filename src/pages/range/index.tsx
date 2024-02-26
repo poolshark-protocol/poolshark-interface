@@ -1,5 +1,9 @@
 import Navbar from "../../components/Navbar";
-import { fetchFinTokenData, fetchRangePools, fetchRangePositions } from "../../utils/queries";
+import {
+  fetchFinTokenData,
+  fetchRangePools,
+  fetchRangePositions,
+} from "../../utils/queries";
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import { mapRangePools, mapUserRangePositions } from "../../utils/maps";
@@ -95,11 +99,10 @@ export default function Range() {
   }, [chainId]);
 
   useEffect(() => {
-    console.log('pool apy updated',)
     for (let i = 0; i < allRangePools.length; i++) {
       if (poolApys[allRangePools[i].poolId]) {
-        allRangePools[i].poolApy = poolApys[allRangePools[i].poolId]
-        setAllRangePools(allRangePools)
+        allRangePools[i].poolApy = poolApys[allRangePools[i].poolId];
+        setAllRangePools(allRangePools);
       }
     }
   }, [poolApys]);
@@ -109,8 +112,8 @@ export default function Range() {
     const finData = await fetchFinTokenData(finSubgraph);
     if (finData["data"]) {
       if (finData["data"].tokens.length == 1) {
-        const finTokenData = finData["data"].tokens[0]
-        setFinToken(finTokenData)
+        const finTokenData = finData["data"].tokens[0];
+        setFinToken(finTokenData);
       }
     }
     const data = await fetchRangePools(limitSubgraph);
@@ -567,7 +570,9 @@ export default function Range() {
                           } else if (sort === "TVL") {
                             return parseFloat(b.tvlUsd) - parseFloat(a.tvlUsd);
                           } else if (sort === "APY") {
-                            return parseFloat(b.poolApy) - parseFloat(a.poolApy);
+                            return (
+                              parseFloat(b.poolApy) - parseFloat(a.poolApy)
+                            );
                           }
                           return 0;
                         })
