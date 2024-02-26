@@ -103,7 +103,7 @@ export default function Network({
                 </div>
                 <div
                     onClick={() => {
-                      setNetworkName("inEvm");
+                      setNetworkName("injective-evm");
                       switchNetwork(2525);
                     }}
                     className={`${
@@ -114,7 +114,7 @@ export default function Network({
                   >
                     <div className="flex gap-x-2 items-center">
                       <img
-                        src="https://poolshark-token-lists.s3.amazonaws.com/images/mode_icon.svg"
+                        src="https://poolshark-token-lists.s3.amazonaws.com/images/in_evm_alt.svg"
                         width="28"
                         height="28"
                       />

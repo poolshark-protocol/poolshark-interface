@@ -48,10 +48,10 @@ export const mode: Chain = {
   },
 };
 
-export const inEvm: Chain = {
+export const injectiveEvm: Chain = {
   id: 2525,
   name: "Injective EVM",
-  network: "inEvm",
+  network: "injective-evm",
   nativeCurrency: {
     decimals: 18,
     name: "Injective",
@@ -101,7 +101,7 @@ export const chainIdsToNames = {
   42161: "arbitrum-one",
   534352: "scroll",
   34443: "mode",
-  2525: "inEvm",
+  2525: "injective-evm",
 };
 
 export const supportedChainIds = {
@@ -109,7 +109,7 @@ export const supportedChainIds = {
   42161: "arbitrum",
   534352: "scroll",
   34443: "mode",
-  2525: "inEvm",
+  2525: "injective-evm",
 };
 
 export const supportedNetworkNames = {
@@ -117,7 +117,7 @@ export const supportedNetworkNames = {
   arbitrum: "arbitrum-one",
   scroll: "scroll",
   mode: "mode",
-  inEvm: "inEvm"
+  injectiveEvm: "injective-evm"
 };
 
 export const chainIdToRpc = {
@@ -304,7 +304,7 @@ export const chainProperties = {
       }
     },
   },
-  "inEvm": {
+  "injective-evm": {
     chainName: "Injective EVM",
 		sdkSupport: {
 			alchemy: false,
