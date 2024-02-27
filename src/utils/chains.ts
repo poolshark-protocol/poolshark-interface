@@ -23,6 +23,12 @@ export const scroll: Chain = {
       ],
     },
   },
+  blockExplorers: {
+    default: {
+      name: "Scrollscan",
+      url: "https://scrollscan.com/"
+    }
+  }
 };
 
 export const mode: Chain = {
@@ -46,6 +52,12 @@ export const mode: Chain = {
       ],
     },
   },
+  blockExplorers: {
+    default: {
+      name: "Mode Explorer",
+      url: "https://explorer.mode.network/"
+    }
+  }
 };
 
 export const arbitrumSepolia: Chain = {
@@ -69,6 +81,12 @@ export const arbitrumSepolia: Chain = {
       ],
     },
   },
+  blockExplorers: {
+    default: {
+      name: "Sepolia Arbiscan",
+      url: "https://sepolia.arbiscan.io/"
+    }
+  }
 };
 
 export const defaultNetwork = "arbitrum-one";
