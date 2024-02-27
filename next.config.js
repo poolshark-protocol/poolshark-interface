@@ -2,9 +2,14 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  images: {
-    domains: ['poolshark-token-lists.s3.amazonaws.com'],
-  },
+  remotePatterns: [
+    {
+      protocol: 'https',
+      hostname: 'poolshark-token-lists.s3.amazonaws.com',
+      port: '',
+      pathname: '**',
+    },
+  ],
 }
 
 module.exports = nextConfig
