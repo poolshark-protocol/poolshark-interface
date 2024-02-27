@@ -9,6 +9,7 @@ import {
   getTradeButtonMessage,
 } from "../utils/buttons";
 import { chainIdsToNames, chainProperties, defaultNetwork } from "../utils/chains";
+import { tokenListsBaseUrl } from "../utils/tokens";
 
 type TradeState = {
   //tradePoolData contains all the info about the pool
@@ -149,7 +150,7 @@ const initialTradeState: TradeState = {
     name: "Ether",
     symbol: "ETH",
     logoURI:
-      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/logo.png",
+      tokenListsBaseUrl + "/ethereum/logo.png",
     native: true,
     address: chainProperties[defaultNetwork]["wethAddress"],
     decimals: 18,

@@ -9,9 +9,10 @@ import { BigNumber, ethers } from "ethers";
 import axios from "axios";
 import { numFormat, numStringFormat } from "./math/valueMath";
 
-export const defaultTokenLogo =
+export const tokenListsBaseUrl = "https://poolshark-token-lists.s3.amazonaws.com/blockchains";
 
-  "https://raw.githubusercontent.com/poolshark-protocol/token-metadata/master/blockchains/arbitrum-goerli/tokenZero.png";
+export const defaultTokenLogo =
+  tokenListsBaseUrl + "/arbitrum-one/tokenZero.png";
 
 export const fetchRangeTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
   try {
@@ -176,8 +177,6 @@ export const fetchListedTokenBalances = async (
   }, 5000);
 };
 
-const tokenMetadataBranch = "master";
-
 export const fetchTokenMetadata = async (
   chainId: number,
   setListedTokenList: any,
@@ -188,9 +187,8 @@ export const fetchTokenMetadata = async (
   const chainName = chainIdsToNames[chainId];
   axios
     .get(
-      `https://raw.githubusercontent.com/poolshark-protocol/token-lists/` +
-        tokenMetadataBranch +
-        `/blockchains/${chainName ?? "arbitrum-one"}/tokenlist.json`
+      tokenListsBaseUrl +
+        `/${chainName ?? "arbitrum-one"}/tokenlist.json`
     )
     .then(function (response) {
       const coins = {
