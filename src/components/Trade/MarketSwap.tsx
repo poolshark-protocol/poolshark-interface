@@ -312,10 +312,6 @@ export default function MarketSwap() {
   });
 
   useEffect(() => {
-    console.log('token in symbol:', tokenIn.symbol)
-  }, [tokenIn.symbol]);
-
-  useEffect(() => {
     let poolQuotesSorted: QuoteResults[] = [];
     if (poolQuotes && poolQuotes[0]) {
       if (
