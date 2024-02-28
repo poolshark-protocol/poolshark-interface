@@ -1,5 +1,10 @@
 import { BigNumber } from "ethers";
-import { LimitSubgraph, RangePool24HData, token, tokenRangeLimit } from "../utils/types";
+import {
+  LimitSubgraph,
+  RangePool24HData,
+  token,
+  tokenRangeLimit,
+} from "../utils/types";
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import { create } from "zustand";
 import {
@@ -17,7 +22,7 @@ import {
   chainProperties,
   defaultNetwork,
 } from "../utils/chains";
-import { getUserAllowance, getUserBalance } from "../utils/tokens";
+import { getUserAllowance, getUserBalance, tokenListsBaseUrl } from "../utils/tokens";
 import { getWhitelistedIndex, isWhitelistedPool } from "../utils/config";
 
 type RangeLimitState = {
@@ -83,6 +88,7 @@ type RangeLimitState = {
   chainSwitched: boolean;
   numLegacyPositions: number;
   numCurrentPositions: number;
+  manualRange: boolean;
   whitelistedFeesData: number[];
   whitelistedFeesTotal: number;
   poolApys: any;
@@ -141,14 +147,14 @@ type RangeLimitAction = {
     client: LimitSubgraph,
     poolPrice?: any,
     tickAtPrice?: any,
-    poolTypeId?: any,
+    poolTypeId?: any
   ) => void;
   setLimitPoolFromVolatility: (
     tokenIn: any,
     tokenOut: any,
     volatility: any,
     client: LimitSubgraph,
-    poolTypeId?: number,
+    poolTypeId?: number
   ) => void;
   resetRangeLimitParams: (chainId) => void;
   resetMintParams: () => void;
@@ -176,7 +182,11 @@ type RangeLimitAction = {
   resetNumLegacyPositions: () => void;
   setNumCurrentPositions: () => void;
   resetNumCurrentPositions: () => void;
-  setWhitelistedFeesData: (whitelistedFeesData: number[], whitelistedFeesTotal: number) => void;
+  setManualRange: (manualRange: boolean) => void;
+  setWhitelistedFeesData: (
+    whitelistedFeesData: number[],
+    whitelistedFeesTotal: number
+  ) => void;
   resetWhitelistedFeesData: () => void;
   setPoolApy: (poolAddress: string, apy: number) => void;
   resetPoolApys: () => void;
@@ -227,7 +237,7 @@ const initialRangeLimitState: RangeLimitState = {
     native: false,
 
     logoURI:
-      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+      tokenListsBaseUrl + "/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
     address: ZERO_ADDRESS,
     decimals: 18,
     userBalance: 0.0,
@@ -245,9 +255,8 @@ const initialRangeLimitState: RangeLimitState = {
     name: "DAI",
     symbol: "DAI",
     native: false,
-
     logoURI:
-      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
+      tokenListsBaseUrl + "/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
     address: ZERO_ADDRESS,
     decimals: 18,
     userBalance: 0.0,
@@ -274,6 +283,7 @@ const initialRangeLimitState: RangeLimitState = {
   chainSwitched: false,
   numLegacyPositions: 0,
   numCurrentPositions: 0,
+  manualRange: false,
   whitelistedFeesData: [],
   whitelistedFeesTotal: 0,
   poolApys: {},
@@ -326,6 +336,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     chainSwitched: initialRangeLimitState.chainSwitched,
     numLegacyPositions: initialRangeLimitState.numLegacyPositions,
     numCurrentPositions: initialRangeLimitState.numCurrentPositions,
+    manualRange: initialRangeLimitState.manualRange,
     whitelistedFeesData: initialRangeLimitState.whitelistedFeesData,
     whitelistedFeesTotal: initialRangeLimitState.whitelistedFeesTotal,
     poolApys: initialRangeLimitState.poolApys,
@@ -342,10 +353,10 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       isAmountIn: boolean
     ) => {
       //if tokenOut is selected
-      if (tokenOut.symbol != "Select Token") {
+      if (tokenOut?.symbol != "Select Token") {
         //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
         if (
-          newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase()
+          newTokenIn?.address.toLowerCase() == tokenOut?.address.toLowerCase()
         ) {
           set((state) => ({
             tokenIn: {
@@ -398,7 +409,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               callId:
                 newTokenIn.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
               native: newTokenIn.native ?? false,
-              userBalance: getUserBalance(newTokenIn, state.tokenIn), 
+              userBalance: getUserBalance(newTokenIn, state.tokenIn),
               userRouterAllowance: getUserAllowance(newTokenIn, state.tokenIn),
             },
             tokenOut: {
@@ -430,13 +441,13 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
             callId: 1,
             native: newTokenIn.native ?? false,
             userRouterAllowance: state.tokenIn?.userRouterAllowance ?? BN_ZERO,
-            userBalance: state.tokenIn?.userBalance ?? 0
+            userBalance: state.tokenIn?.userBalance ?? 0,
           },
           tokenOut: {
             ...tokenOut,
             callId: 0,
             userRouterAllowance: state.tokenOut?.userRouterAllowance ?? BN_ZERO,
-            userBalance: state.tokenOut?.userBalance ?? 0
+            userBalance: state.tokenOut?.userBalance ?? 0,
           },
           rangeMintParams: {
             ...state.rangeMintParams,
@@ -499,12 +510,12 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     ) => {
       //if tokenIn exists
       if (
-        tokenIn.address != initialRangeLimitState.tokenOut.address ||
-        tokenIn.symbol != "Select Token"
+        tokenIn?.address != initialRangeLimitState.tokenOut.address ||
+        tokenIn?.symbol != "Select Token"
       ) {
         //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
         if (
-          newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase()
+          newTokenOut?.address.toLowerCase() == tokenIn?.address.toLowerCase()
         ) {
           set((state) => ({
             tokenIn: {
@@ -565,7 +576,10 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
                 newTokenOut.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
               native: newTokenOut.native ?? false,
               userBalance: getUserBalance(newTokenOut, state.tokenOut),
-              userRouterAllowance: getUserAllowance(newTokenOut, state.tokenOut),
+              userRouterAllowance: getUserAllowance(
+                newTokenOut,
+                state.tokenOut
+              ),
             },
             rangeMintParams: {
               ...state.rangeMintParams,
@@ -817,14 +831,16 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         const pool = await getRangePoolFromFactory(
           client,
           tokenIn.address,
-          tokenOut.address,
+          tokenOut.address
         );
         const dataLength = pool["data"]["limitPools"].length;
         let poolFound = false;
         for (let i = 0; i < dataLength; i++) {
           if (
-            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility &&
-            (poolTypeId == undefined || pool["data"]["limitPools"][i]["poolType"] == poolTypeId)
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] ==
+              volatility &&
+            (poolTypeId == undefined ||
+              pool["data"]["limitPools"][i]["poolType"] == poolTypeId)
           ) {
             poolFound = true;
             set(() => ({
@@ -837,8 +853,13 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           set((state) => ({
             rangePoolAddress: ZERO_ADDRESS as `0x${string}`,
             rangePoolData: {
+              ...state.rangePoolData,
               id: ZERO_ADDRESS as `0x${string}`,
-              feeTier: state.rangePoolData.feeTier,
+              feeTier: state.rangePoolData.feeTier ?? {
+                feeAmount: "3000",
+                id: "3000",
+                tickSpacing: "30",
+              },
             },
           }));
         }
@@ -862,8 +883,10 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         const dataLength = pool["data"]["limitPools"].length;
         for (let i = 0; i < dataLength; i++) {
           if (
-            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility &&
-            (poolTypeId == undefined || pool["data"]["limitPools"][i]["poolType"] == poolTypeId)
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] ==
+              volatility &&
+            (poolTypeId == undefined ||
+              pool["data"]["limitPools"][i]["poolType"] == poolTypeId)
           ) {
             set(() => ({
               limitPoolAddress: pool["data"]["limitPools"][i]["id"],
@@ -920,7 +943,15 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         numCurrentPositions: 0,
       }));
     },
-    setWhitelistedFeesData: (whitelistedFeesData: number[], whitelistedFeesTotal: number) => {
+    setManualRange: (manualRange: boolean) => {
+      set(() => ({
+        manualRange: manualRange,
+      }));
+    },
+    setWhitelistedFeesData: (
+      whitelistedFeesData: number[],
+      whitelistedFeesTotal: number
+    ) => {
       if (whitelistedFeesData) {
         set(() => ({
           whitelistedFeesData: whitelistedFeesData,
@@ -937,18 +968,18 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         poolApys: {
           ...state.poolApys,
           [poolAddress]: apy,
-        }
+        },
       }));
     },
     resetPoolApys: () => {
       set((state) => ({
-        poolApys: {}
+        poolApys: {},
       }));
     },
     resetWhitelistedFeesData: () => {
       set(() => ({
         whitelistedFeesData: [],
-        whitelistedFeesTotal: 0
+        whitelistedFeesTotal: 0,
       }));
     },
     setStakeFlag: (stakeFlag: boolean) => {

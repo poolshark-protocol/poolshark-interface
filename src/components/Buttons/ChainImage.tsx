@@ -5,7 +5,7 @@ function ChainImage({ chainId }) {
         return (
             <img
                 style={{ width: 17, height: 17 }}
-                src="/static/images/arb_icon.svg"
+                src="https://poolshark-token-lists.s3.amazonaws.com/images/arb_icon.svg"
                 className={`aspect-square ${
                     chainId === 421614 && "saturate-0"
                 }`}
@@ -25,7 +25,7 @@ function ChainImage({ chainId }) {
         return (
             <img
                 style={{ width: 17, height: 17 }}
-                src="/static/images/mode_icon.svg"
+                src="https://poolshark-token-lists.s3.amazonaws.com/images/mode_icon.svg"
                 className={`aspect-square ${
                     chainId === 534351 && "saturate-0"
                 }`}
