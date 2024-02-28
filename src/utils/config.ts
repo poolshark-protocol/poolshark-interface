@@ -71,7 +71,26 @@ const isAddress = (input: string) => {
     return false;
 };
 
+export const addressMatches = (addressA: string, addressB: string) => {
+    // validate address
+    if (
+      addressA.toLocaleLowerCase() == addressB.toLocaleLowerCase()
+    ) {
+      // if not in listed tokens or search tokens we need to fetch data from the chain
+      return true;
+    }
+    return false;
+};
 
+export const isWeth = (address: string, networkName: string) => {
+    // validate address
+    if (
+		addressMatches(address, chainProperties[networkName]["wethAddress"])
+    ) {
+      return true;
+    }
+    return false;
+};
 
 export const isWhitelistedPool = (rangePool: any, networkName: string): boolean => {
 	if (!rangePool?.poolId) {
@@ -84,6 +103,21 @@ export const isWhitelistedPool = (rangePool: any, networkName: string): boolean 
 		return false
 	}
 	return false
+}
+
+export const getWhitelistedIndex = (rangePool: any, networkName: string): number => {
+	if (!rangePool?.poolId) {
+		console.log('percent early return')
+		return -1
+	} else if (chainProperties[networkName]?.whitelistedPools) {
+		const whitelistedPools: string[] = chainProperties[networkName].whitelistedPools
+		if (whitelistedPools.indexOf(rangePool?.poolId) != -1) {
+			return whitelistedPools.indexOf(rangePool?.poolId)
+		}
+		console.log('percent early return', whitelistedPools, networkName, rangePool.poolId)
+		return -1
+	}
+	return -1
 }
 
 export const isWhitelistedPair = (tokenIn: any, tokenOut: any, feeTier: string, networkName: string): boolean => {

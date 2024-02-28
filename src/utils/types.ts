@@ -23,6 +23,13 @@ export type QuoteParams = {
   zeroForOne: boolean;
 }
 
+export type QuoteResults = {
+  amountIn: BigNumber;
+  amountOut: BigNumber;
+  pool: string;
+  priceAfter: BigNumber;
+}
+
 export type SwapParams = {
   to: string;
   priceLimit: BigNumber;
@@ -71,8 +78,21 @@ export type tokenCover = {
   native: boolean;
 };
 
+export type oFin = {
+  strikeDisplay: string;
+  strikePrice: number;
+  profitUsd: number;
+}
+
+export type RangePool24HData = {
+  volumeUsd: number;
+  feesUsd: number;
+}
+
 export type token = tokenCover | tokenRangeLimit | tokenSwap;
 
 export type LimitSubgraph = ApolloClient<NormalizedCacheObject>;
 
 export type CoverSubgraph = ApolloClient<NormalizedCacheObject>;
+
+export type FinSubgraph = ApolloClient<NormalizedCacheObject>;

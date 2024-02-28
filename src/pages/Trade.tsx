@@ -13,6 +13,9 @@ import { getLimitTokenUsdPrice } from "../utils/tokens";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { fetchLimitPositions } from "../utils/queries";
+import { useSwitchNetwork } from "wagmi";
+import { useToken } from "wagmi";
+import { useRouter } from "next/router";
 import {
   getClaimTick,
   mapUserHistoricalOrders,
@@ -27,19 +30,23 @@ import LimitSwap from "../components/Trade/LimitSwap";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import inputFilter from "../utils/inputFilter";
-import { getRouterAddress } from "../utils/config";
+import { addressMatches, getRouterAddress, isWeth } from "../utils/config";
+import { Network } from "alchemy-sdk";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
   const { data: signer } = useSigner();
 
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap, setDisplayTokenList, setNetworkName, setChainId] =
     useConfigStore((state) => [
       state.chainId,
       state.networkName,
       state.limitSubgraph,
       state.setLimitSubgraph,
       state.logoMap,
+      state.setDisplayTokenList,
+      state.setNetworkName,
+      state.setChainId,
     ]);
 
   const [
@@ -132,6 +139,16 @@ export default function Trade() {
     s.setLimitTabSelected,
   ]);
 
+  const {
+    error: networkError,
+    switchNetwork,
+  } = useSwitchNetwork({
+    onSuccess(data) {
+    },
+  });
+
+  const router = useRouter();
+
   //false order history is selected, true when active orders is selected
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
 
@@ -146,6 +163,10 @@ export default function Trade() {
   //log amount in and out
   const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
   const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
+
+
+  const [tokenInInfo, setTokenInInfo] = useState(undefined);
+  const [tokenOutInfo, setTokenOutInfo] = useState(undefined);
 
   useEffect(() => {
     if (
@@ -229,12 +250,10 @@ export default function Trade() {
 
   async function getUserLimitPositionData() {
     try {
-
       const data = await fetchLimitPositions(
         limitSubgraph,
         address?.toLowerCase()
       );
-      console.log('getting limit data', data)
       if (data["data"]) {
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
@@ -345,7 +364,8 @@ export default function Trade() {
       args: [address, getRouterAddress(networkName)],
       chainId: chainId,
       watch: true,
-      enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
+      enabled: 
+        tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
       onError(error) {
         console.log("Error allowance", error);
       },
@@ -363,6 +383,103 @@ export default function Trade() {
 
   ///////////////////////
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const {
+    data: tokenInData,
+    refetch: refetchTokenInInfo,
+    isLoading: isTokenInLoading
+  } = useToken({
+    address: router.query.from as `0x${string}`,
+    enabled: router.query.from != undefined,
+    onSuccess() {
+      if (tokenInData){
+        const newTokenIn = {
+          ...tokenInData,
+          native: isWeth(tokenInData.address, networkName),
+          symbol: isWeth(tokenInData.address, networkName) ? 'ETH' : tokenInData.symbol,
+          userRouterAllowance: tokenIn.userRouterAllowance,
+          userBalance: tokenIn.userBalance
+        }
+        if (tokenIn.callId == 2) {
+          setTokenInInfo(tokenInData)
+          setTokenIn(
+            tokenOutData,
+            newTokenIn,
+            "0",
+            false,
+          );
+        }
+      }  
+      else if (router.query.from)
+        refetchTokenInInfo();
+    },
+  });
+
+  const {
+    data: tokenOutData,
+    refetch: refetchTokenOutInfo,
+    isLoading: isTokenOutLoading
+  } = useToken({
+    address: router.query.to as `0x${string}`,
+    enabled: router.query.to != undefined,
+    onSuccess() {
+      if (tokenOutData){
+        const newTokenOut = {
+          ...tokenOutData,
+          native: isWeth(tokenOutData.address, networkName),
+          symbol: isWeth(tokenOutData.address, networkName) ? 'ETH' : tokenOutData.symbol,
+          userRouterAllowance: tokenOut.userRouterAllowance
+        }
+        if (
+            !addressMatches(router.query.from.toString(), router.query.to.toString()) &&
+            (tokenOut.callId == 2 || tokenOut.address == ZERO_ADDRESS)
+        ) {
+          setTokenOutInfo(tokenOutData)
+          setTokenOut(
+            tokenInData,
+            newTokenOut,
+            "0",
+            false
+          );
+        }
+      }  
+      else if (router.query.to)
+        refetchTokenOutInfo();
+    },
+  });
+    
+  useEffect(() => {
+      if (tokenOutInfo === undefined && router.query.to) {
+        refetchTokenOutInfo();
+      } 
+      if (tokenInInfo === undefined && router.query.from) {
+        refetchTokenInInfo();
+      } 
+  }, [router.query.to, tokenOutInfo, router.query.from, tokenInInfo]);
+
+
+  
+
+  useEffect(() => {
+    const updateRouter = async () => {
+      if (tokenIn && tokenOut && tokenOut.address !== ZERO_ADDRESS) {
+        router.push({
+          pathname: '/',
+          query: { 
+            chain: chainId, 
+            from: tokenIn.address,
+            to: tokenOut.address
+          },
+        }, undefined, { shallow: true });
+        return true;
+      }
+      return false;
+    }
+    updateRouter()
+    
+  }, [tokenIn.address, tokenOut.address, chainId]);
+
+
 
   return (
     <div className="min-h-[calc(100vh-160px)] w-[48rem] px-3 md:px-0">
