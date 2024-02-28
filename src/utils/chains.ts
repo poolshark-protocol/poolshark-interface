@@ -183,7 +183,7 @@ export const chainProperties = {
     daiAddress: "0x9f479560cd8a531e6c0fe04521cb246264fe6b71" as `0x${string}`,
     finAddress: "0xcd453b942f35adf0364d89c05a892518825c1c3b",
     routerAddress:
-      "0x73ac9a2e665925719d9c272a3df60b97dbc3e50d" as `0x${string}`,
+      "0x86d7513c703767595a2b33f6379e2a7a591f3c6e" as `0x${string}`,
     rangeStakerAddress:
       "0x62e0671022af1b2e705f08b282767c57d29c7c4c" as `0x${string}`,
     coverPoolFactory:
@@ -208,7 +208,7 @@ export const chainProperties = {
     wethAddress: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1" as `0x${string}`,
     daiAddress: "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1" as `0x${string}`,
     routerAddress:
-      "0xd6c7778d6ebebae3fac109b4ae6bc7cbe5aee404" as `0x${string}`,
+      "0x56eb29a51d5a163b621fd8d6416f35f37811fbf0" as `0x${string}`,
     rangeStakerAddress:
       "0x0e2b069fa52064a7e0b5a044ba25142203210a13" as `0x${string}`,
     coverPoolFactory: ZERO_ADDRESS as `0x${string}`,
@@ -258,7 +258,7 @@ export const chainProperties = {
     daiAddress: "0xcA77eB3fEFe3725Dc33bccB54eDEFc3D9f764f97" as `0x${string}`,
     finAddress: "0x66864e3954dac74b9377ef25e4b47ca47423688e" as `0x${string}`,
     routerAddress:
-      "0x5abbbdd87ab3578816c0411151b9e02713181541" as `0x${string}`,
+      "0xf04bf4e3e8157ba5b91bfda16e21be770e7ac790" as `0x${string}`,
     rangeStakerAddress:
       "0xebf57cb31ed38e6ccb53fb71ba246ea549c42e51" as `0x${string}`,
     coverPoolFactory:
@@ -295,7 +295,7 @@ export const chainProperties = {
     daiAddress: "0xE7798f023fC62146e8Aa1b36Da45fb70855a77Ea" as `0x${string}`,
     finAddress: "0x66864e3954daC74b9377Ef25E4B47Ca47423688E" as `0x${string}`,
     routerAddress:
-      "0xa7cb81149836adc9945b177c320fe7c027e15600" as `0x${string}`,
+      "0x54f66fb1b1776670a512b6a9e61a94e6c2dcd512" as `0x${string}`,
     rangeStakerAddress:
       "0x58d8235108e12e6b725a53b57cd0b00c5edee0da" as `0x${string}`,
     coverPoolFactory:
