@@ -11,7 +11,7 @@ type ConfigState = {
   oFin: oFin;
   limitSubgraph: LimitSubgraph;
   coverSubgraph: CoverSubgraph;
-  coverFactoryAddress: string;
+  coverFactoryAddress: '0x${string}';
   finToken: any;
   listedtokenList: any;
   searchtokenList: any;
@@ -100,7 +100,7 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
       }),
     }));
   },
-  setCoverFactoryAddress(coverFactoryAddress: string) {
+  setCoverFactoryAddress(coverFactoryAddress: '0x${string}') {
     set(() => ({
       coverFactoryAddress: coverFactoryAddress,
     }));

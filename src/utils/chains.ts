@@ -1,11 +1,10 @@
 import { ZERO_ADDRESS } from "./math/constants";
-import { Chain } from "wagmi";
+import { type Chain } from 'viem'
 import { Network } from "alchemy-sdk";
 
 export const scroll: Chain = {
   id: 534352,
   name: "Scroll Mainnet",
-  network: "scroll",
   nativeCurrency: {
     decimals: 18,
     name: "Ether",
@@ -28,7 +27,6 @@ export const scroll: Chain = {
 export const mode: Chain = {
   id: 34443,
   name: "Mode Network",
-  network: "mode",
   nativeCurrency: {
     decimals: 18,
     name: "Ether",
@@ -51,7 +49,6 @@ export const mode: Chain = {
 export const arbitrumSepolia: Chain = {
   id: 421614,
   name: "Arbitrum Sepolia",
-  network: "arbitrumSepolia",
   nativeCurrency: {
     decimals: 18,
     name: "Ether",
