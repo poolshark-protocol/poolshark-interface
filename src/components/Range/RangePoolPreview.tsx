@@ -5,9 +5,6 @@ import { BigNumber, ethers } from "ethers";
 import {
   erc20ABI,
   useAccount,
-  useContractRead,
-  usePublicClient,
-  useWalletClient,
 } from "wagmi";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButton";
@@ -27,6 +24,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import JSBI from "jsbi";
 import { getLogoURI, logoMapKey, nativeString } from "../../utils/tokens";
 import { getRouterAddress } from "../../utils/config";
+import { useEthersSigner } from "../../utils/viemEthersAdapters";
 
 export default function RangePoolPreview() {
   const [chainId, logoMap, networkName] = useConfigStore((state) => [
@@ -63,9 +61,8 @@ export default function RangePoolPreview() {
     tokenIn.address.localeCompare(tokenOut.address) < 0
   );
   const router = useRouter();
-  const provider = usePublicClient();
   const { address } = useAccount();
-  const signer = new ethers.VoidSigner(address, provider);
+  const signer = useEthersSigner();
 
   ///////////////////////////////Modal
   const [isOpen, setIsOpen] = useState(false);

@@ -2,7 +2,6 @@ import Navbar from "../../components/Navbar";
 import Info from "../../components/Icons/InfoIcon";
 import ClaimRewardsButton from "../../components/Buttons/ClaimRewardsButton";
 import { CheckIcon } from "@heroicons/react/20/solid";
-import { ethers } from "ethers";
 import { useAccount, usePublicClient } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useEffect } from "react";
@@ -13,8 +12,6 @@ import { chainProperties } from "../../utils/chains";
 export default function Earn() {
 
   const { address, isConnected } = useAccount();
-  const provider = usePublicClient();
-  const signer = new ethers.VoidSigner(address, provider);
 
   const [
     chainId,

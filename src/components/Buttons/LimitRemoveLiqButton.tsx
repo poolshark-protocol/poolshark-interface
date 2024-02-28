@@ -3,7 +3,6 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
-  useWalletClient
 } from "wagmi";
 import React, { useEffect, useState } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
@@ -16,6 +15,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { parseUnits } from "../../utils/math/valueMath";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
+import { useEthersSigner } from "../../utils/viemEthersAdapters";
 
 export default function LimitRemoveLiqButton({
   poolAddress,
@@ -29,7 +29,7 @@ export default function LimitRemoveLiqButton({
   closeModal,
   setIsOpen,
 }) {
-  const { data: signer } = useWalletClient();
+  const signer = useEthersSigner()
 
   const [
     chainId,

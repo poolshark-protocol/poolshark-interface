@@ -2,7 +2,6 @@ import { useState, useEffect, Fragment } from "react";
 import {
   erc20ABI,
   useAccount,
-  useWalletClient,
   useContractRead,
   useBalance,
 } from "wagmi";
@@ -36,7 +35,6 @@ import { convertBigIntAndBigNumber } from "../utils/misc";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
-  const { data: signer } = useWalletClient();
 
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap, setDisplayTokenList, setNetworkName, setChainId] =
     useConfigStore((state) => [

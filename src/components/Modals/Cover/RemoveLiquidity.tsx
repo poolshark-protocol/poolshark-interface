@@ -7,7 +7,6 @@ import { BN_ZERO } from "../../../utils/math/constants";
 import { useRouter } from "next/router";
 import { useCoverStore } from "../../../hooks/useCoverStore";
 import { gasEstimateCoverBurn } from "../../../utils/gas";
-import { useWalletClient } from "wagmi";
 import { parseUnits } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getLogoURI } from "../../../utils/tokens";

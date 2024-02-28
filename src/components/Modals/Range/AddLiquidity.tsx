@@ -6,7 +6,6 @@ import {
   erc20ABI,
   useContractRead,
   useBalance,
-  useWalletClient,
   usePublicClient,
 } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
@@ -28,6 +27,7 @@ import { getLogoURI, logoMapKey } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 import BalanceDisplay from "../../Display/BalanceDisplay";
 import { convertBigIntAndBigNumber } from "../../../utils/misc";
+import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [chainId, networkName, logoMap] = useConfigStore((state) => [
@@ -97,7 +97,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const router = useRouter();
   const provider = usePublicClient();
   const { address } = useAccount();
-  const signer = new ethers.VoidSigner(address, provider);
+  const signer = useEthersSigner();
 
   const [disabled, setDisabled] = useState(false);
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(

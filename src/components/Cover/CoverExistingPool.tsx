@@ -3,7 +3,6 @@ import {
   erc20ABI,
   useAccount,
   useContractRead,
-  useWalletClient,
   useBalance,
 } from "wagmi";
 import DoubleArrowIcon from "../Icons/DoubleArrowIcon";
@@ -37,6 +36,8 @@ import { mapUserRangePositions } from "../../utils/maps";
 import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 import { getRouterAddress } from "../../utils/config";
 import { convertBigIntAndBigNumber } from "../../utils/misc";
+import { useEthersSigner } from "../../utils/viemEthersAdapters";
+
 export default function CoverExistingPool({ goBack }) {
   const [
     chainId,
@@ -130,7 +131,7 @@ export default function CoverExistingPool({ goBack }) {
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState();
 
-  const { data: signer } = useWalletClient();
+  const signer = useEthersSigner();
   const { address, isConnected, isDisconnected } = useAccount();
 
   const router = useRouter();

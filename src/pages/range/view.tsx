@@ -1,7 +1,7 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import RangeCompoundButton from "../../components/Buttons/RangeCompoundButton";
-import { useAccount, useWalletClient } from "wagmi";
+import { useAccount } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
@@ -27,6 +27,7 @@ import RangeUnstakeButton from "../../components/Buttons/RangeUnstakeButton";
 import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
 import { getRangeStakerAddress } from "../../utils/config";
 import { numFormat } from "../../utils/math/valueMath";
+import { useEthersSigner } from "../../utils/viemEthersAdapters";
 
 export default function ViewRange() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -81,7 +82,7 @@ export default function ViewRange() {
   ]);
 
   const { address, isConnected } = useAccount();
-  const { data: signer } = useWalletClient();
+  const signer = useEthersSigner();
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);

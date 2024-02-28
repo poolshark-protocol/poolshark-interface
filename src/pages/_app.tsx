@@ -47,6 +47,7 @@ const { chains, publicClient } = configureChains(
 const { connectors } = getDefaultWallets({
   appName: "Poolshark UI",
   chains,
+  projectId: '4c0830341026abc0916819b69728a141'
 });
 
 // Wagmi

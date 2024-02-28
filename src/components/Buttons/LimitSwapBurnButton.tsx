@@ -3,7 +3,6 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
-  useWalletClient,
 } from "wagmi";
 import React, { useEffect, useState } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
@@ -16,6 +15,7 @@ import { parseUnits } from "../../utils/math/valueMath";
 import { useRouter } from "next/router";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
+import { useEthersSigner } from "../../utils/viemEthersAdapters";
 
 export default function LimitSwapBurnButton({
   poolAddress,
@@ -27,7 +27,7 @@ export default function LimitSwapBurnButton({
   upper,
   burnPercent,
 }) {
-  const { data: signer } = useWalletClient();
+  const signer = useEthersSigner()
 
   const [chainId, networkName, limitSubgraph] = useConfigStore((state) => [
     state.chainId,

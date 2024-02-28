@@ -1,7 +1,7 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import router from "next/router";
-import { useAccount, useContractRead, useWalletClient } from "wagmi";
+import { useAccount, useContractRead } from "wagmi";
 import CoverCollectButton from "../../components/Buttons/CoverCollectButton";
 import { BigNumber, ethers } from "ethers";
 import { TickMath } from "../../utils/math/tickMath";
@@ -17,6 +17,7 @@ import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
+import { useEthersSigner } from "../../utils/viemEthersAdapters";
 
 export default function ViewCover() {
   const [chainId, networkName, coverSubgraph, setCoverSubgraph, logoMap] =
@@ -72,7 +73,7 @@ export default function ViewCover() {
 
   const { address, isConnected } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
-  const { data: signer } = useWalletClient();
+  const signer = useEthersSigner();
 
   //cover aux
   const [priceDirection, setPriceDirection] = useState(false);

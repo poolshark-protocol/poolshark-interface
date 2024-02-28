@@ -4,7 +4,6 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import {
   useAccount,
   erc20ABI,
-  useWalletClient,
   useBalance,
 } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
@@ -23,6 +22,7 @@ import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getLogoURI } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 import { convertBigIntAndBigNumber } from "../../../utils/misc";
+import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
@@ -66,7 +66,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   ]);
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
-  const { data: signer } = useWalletClient();
+  const signer = useEthersSigner();
   const { isConnected } = useAccount();
   const [stateChainName, setStateChainName] = useState(); 
   const [buttonState, setButtonState] = useState("");

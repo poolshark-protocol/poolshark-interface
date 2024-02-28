@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
-import { useAccount, useContractRead, usePublicClient, useWalletClient } from "wagmi";
+import { useAccount, useContractRead } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
@@ -30,6 +30,7 @@ import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { getRouterAddress } from "../../utils/config";
 import BalanceDisplay from "../Display/BalanceDisplay";
+import { useEthersSigner } from "../../utils/viemEthersAdapters";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -123,8 +124,7 @@ export default function MarketSwap() {
 
   const { address, isDisconnected, isConnected } = useAccount();
 
-  const { data: signer } = useWalletClient();
-  const provider = usePublicClient();
+  const signer = useEthersSigner();
 
   const router = useRouter();
 

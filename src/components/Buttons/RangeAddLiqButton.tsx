@@ -2,7 +2,6 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
-  useWalletClient,
 } from "wagmi";
 import React, { useState, useEffect } from "react";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
@@ -15,6 +14,7 @@ import { getRangeMintInputData } from "../../utils/buttons";
 import { chainProperties } from "../../utils/chains";
 import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
+import { useEthersSigner } from "../../utils/viemEthersAdapters";
 
 export default function RangeAddLiqButton({
   routerAddress,
@@ -58,7 +58,7 @@ export default function RangeAddLiqButton({
   ]);
   const [toastId, setToastId] = useState(null);
 
-  const { data: signer } = useWalletClient();
+  const signer = useEthersSigner()
 
   const { config } = usePrepareContractWrite({
     address: routerAddress,

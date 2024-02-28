@@ -4,7 +4,6 @@ import {
   erc20ABI,
   useAccount,
   useContractRead,
-  useWalletClient,
   useBalance,
 } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
@@ -37,6 +36,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 import { getRouterAddress } from "../../utils/config";
 import { convertBigIntAndBigNumber } from "../../utils/misc";
+import { useEthersSigner } from "../../utils/viemEthersAdapters";
 
 export default function CreateCover(props: any) {
   const [chainId, networkName, coverSubgraph, coverFactoryAddress] = useConfigStore((state) => [
@@ -116,7 +116,7 @@ export default function CreateCover(props: any) {
     state.setNeedsLatestTick,
   ]);
 
-  const { data: signer } = useWalletClient();
+  const signer = useEthersSigner();
   const { address, isConnected, isDisconnected } = useAccount();
   const { setBnInput, bnInput, inputBox, setDisplay, display } = useInputBox();
   const [loadingPrices, setLoadingPrices] = useState(true);
