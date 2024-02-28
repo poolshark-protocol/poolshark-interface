@@ -1,5 +1,5 @@
 import { Transition, Dialog } from "@headlessui/react";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import {
   useAccount,
@@ -22,6 +22,7 @@ import { useCoverStore } from "../../../hooks/useCoverStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getLogoURI } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
+import { convertBigIntAndBigNumber } from "../../../utils/misc";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
@@ -73,7 +74,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
 
   ////////////////////////////////Allowances
 
-  const { data: allowanceInCover } = useContractRead({
+  const { data: allowanceInCoverInt } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
@@ -89,6 +90,8 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     },
     onSettled(data, error) {},
   });
+
+  const allowanceInCover = useMemo(() =>convertBigIntAndBigNumber(allowanceInCoverInt), [allowanceInCoverInt]);
 
   useEffect(() => {
     if (isConnected && allowanceInCover)

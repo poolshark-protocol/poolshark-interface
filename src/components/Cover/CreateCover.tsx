@@ -13,7 +13,7 @@ import {
   chainIdsToNames,
   chainProperties,
 } from "../../utils/chains";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useInputBox from "../../hooks/useInputBox";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import { BigNumber, ethers } from "ethers";
@@ -36,6 +36,7 @@ import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 import { getRouterAddress } from "../../utils/config";
+import { convertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function CreateCover(props: any) {
   const [chainId, networkName, coverSubgraph, coverFactoryAddress] = useConfigStore((state) => [
@@ -144,7 +145,7 @@ export default function CreateCover(props: any) {
 
   ////////////////////////////////Token Allowances
 
-  const { data: allowanceInCover } = useContractRead({
+  const { data: allowanceInCoverInt } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
@@ -160,6 +161,8 @@ export default function CreateCover(props: any) {
     },
     onSettled(data, error) {},
   });
+
+  const allowanceInCover = useMemo(() =>convertBigIntAndBigNumber(allowanceInCoverInt), [allowanceInCoverInt]);
 
   useEffect(() => {
     if (allowanceInCover) {

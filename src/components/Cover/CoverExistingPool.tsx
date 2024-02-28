@@ -36,6 +36,7 @@ import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 import { getRouterAddress } from "../../utils/config";
+import { convertBigIntAndBigNumber } from "../../utils/misc";
 export default function CoverExistingPool({ goBack }) {
   const [
     chainId,
@@ -152,7 +153,7 @@ export default function CoverExistingPool({ goBack }) {
 
   ////////////////////////////////Token Allowances
 
-  const { data: allowanceInCover } = useContractRead({
+  const { data: allowanceInCoverInt } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
@@ -168,6 +169,8 @@ export default function CoverExistingPool({ goBack }) {
     },
     onSettled(data, error) {},
   });
+
+  const allowanceInCover = convertBigIntAndBigNumber(allowanceInCoverInt)
 
   useEffect(() => {
     if (allowanceInCover) {

@@ -1,5 +1,5 @@
 import { Transition, Dialog } from "@headlessui/react";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import {
   useAccount,
@@ -27,6 +27,7 @@ import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getLogoURI, logoMapKey } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 import BalanceDisplay from "../../Display/BalanceDisplay";
+import { convertBigIntAndBigNumber } from "../../../utils/misc";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [chainId, networkName, logoMap] = useConfigStore((state) => [
@@ -132,7 +133,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
 
   ////////////////////////////////Allowances
 
-  const { data: tokenInAllowance } = useContractRead({
+  const { data: tokenInAllowanceInt } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
@@ -149,7 +150,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     },
   });
 
-  const { data: tokenOutAllowance } = useContractRead({
+  const { data: tokenOutAllowanceInt } = useContractRead({
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
@@ -165,6 +166,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       console.log("Error", error);
     },
   });
+
+
+  const tokenInAllowance  = useMemo(() =>convertBigIntAndBigNumber(tokenInAllowanceInt), [tokenInAllowanceInt]);
+  const tokenOutAllowance = useMemo(() =>convertBigIntAndBigNumber(tokenOutAllowanceInt), [tokenOutAllowanceInt]);
 
   useEffect(() => {
     setTokenInAllowance(tokenInAllowance);

@@ -49,6 +49,7 @@ import {
   ArrowTopRightOnSquareIcon,
   SparklesIcon,
 } from "@heroicons/react/20/solid";
+import { convertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function AddLiquidity({}) {
   const [
@@ -470,8 +471,8 @@ export default function AddLiquidity({}) {
     });
 
   useEffect(() => {
-    setTokenInAllowance(allowanceInRange);
-    setTokenOutAllowance(allowanceOutRange);
+    setTokenInAllowance(convertBigIntAndBigNumber(allowanceInRange));
+    setTokenOutAllowance(convertBigIntAndBigNumber(allowanceOutRange));
   }, [allowanceInRange, allowanceOutRange]);
 
   ////////////////////////////////Token Balances
