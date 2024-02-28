@@ -197,6 +197,7 @@ export default function ViewLimit() {
     enabled:
       isConnected &&
       limitPositionData.positionId != undefined &&
+      claimTick != undefined &&
       claimTick >= Number(limitPositionData.min) &&
       claimTick <= Number(limitPositionData.max),
     onSuccess(data) {
