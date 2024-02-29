@@ -189,10 +189,7 @@ export default function ViewLimit() {
         parseUnits("1", 38),
         Number(limitPositionData.positionId),
         BigNumber.from(
-          claimTick ?? 
-          (
-            0
-          )
+          claimTick ?? 0
         ),
         tokenIn.callId == 0,
       ],
@@ -277,7 +274,6 @@ export default function ViewLimit() {
         limitSubgraph,
         setLimitAddLiqDisabled
       );
-      console.log('claim tick check', aux)
       if (aux != undefined) {
         setClaimTick(aux);
         setIsFullSpacingClaim(
