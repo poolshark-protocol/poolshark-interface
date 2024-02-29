@@ -358,9 +358,7 @@ export default function Bond() {
   }, [marketPriceData, marketScaleData, ethPrice]);
 
   const getEthUsdPrice = async () => {
-    const price = await fetchEthPrice();
-    const ethUsdPrice = price["data"]["basePrices"]["0"]["USD"];
-
+    const ethUsdPrice = await fetchEthPrice(limitSubgraph);
     setEthPrice(ethUsdPrice);
   };
 
