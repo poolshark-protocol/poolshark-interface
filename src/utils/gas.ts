@@ -384,6 +384,7 @@ export const gasEstimateBurnLimit = async (
       "gas error limit burn",
       positionId?.toString(),
       claim.toString(),
+      zeroForOne.toString(),
       error
     );
     setBurnGasFee("$0.00");
