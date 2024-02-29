@@ -475,6 +475,7 @@ export default function Bond() {
                 <span className="text-grey1 text-[13px]">TOTAL VALUE SOLD</span>
                 <span className="text-white text-center xl:text-4xl md:text-3xl text-2xl">
                   $353,452.53
+                 <span className="text-grey2"> / $353,452.53</span>
                 </span>
               </div>
             </div>
