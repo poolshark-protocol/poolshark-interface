@@ -276,7 +276,7 @@ const initialRangeLimitState: RangeLimitState = {
   needsBalanceOut: true,
   needsSnapshot: true,
   //
-  claimTick: 0,
+  claimTick: undefined,
   //
   currentAmountOut: "0",
   startPrice: "",
