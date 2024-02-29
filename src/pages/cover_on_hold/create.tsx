@@ -76,7 +76,7 @@ export default function CoverCreate() {
         </h1>
         {state === "select" ? (
           <div className="mt-6 rounded-[4px] overflow-hidden border border-grey/70">
-            <div className="bg-[url('/static/images/bg/shark2.png')] bg-no-repeat bg-cover w-full flex items-center justify-center">
+            <div className="bg-[url('https://poolshark-token-lists.s3.amazonaws.com/images/bg/shark2.png')] bg-no-repeat bg-cover w-full flex items-center justify-center">
                 <button
                   onClick={() => setIsOpen(true)}
                   className="px-24 py-6 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto my-12 border border-main bg-main1/50 uppercase backdrop-blur shadow-lg text-sm disabled:opacity-50 hover:opacity-80"
@@ -84,7 +84,7 @@ export default function CoverCreate() {
                   COVER A RANGE POSITION
                 </button>
             </div>
-            <div className="bg-[url('/static/images/bg/shark3.png')] bg-no-repeat bg-cover w-full flex items-center justify-center">
+            <div className="bg-[url('https://poolshark-token-lists.s3.amazonaws.com/images/bg/shark3.png')] bg-no-repeat bg-cover w-full flex items-center justify-center">
               <a onClick={() => router.push({query: { state: "custom"}})} href="#create">
                 <button
                   onClick={() => setIsShifted("createCover")}

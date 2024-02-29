@@ -383,7 +383,7 @@ export default function Bond() {
         <div className="flex md:flex-row flex-col justify-between w-full items-start md:items-center gap-y-5">
           <div className="flex items-center gap-x-4">
             <div className="">
-              <img height="70" width="70" src="/static/images/fin_icon.png" />
+              <img height="70" width="70" src="https://poolshark-token-lists.s3.amazonaws.com/images/fin_icon.png" />
             </div>
             <div className="flex flex-col gap-y-2">
               <div className="flex text-lg items-center text-white">
@@ -713,7 +713,7 @@ export default function Bond() {
                                   <div className="flex gap-x-1.5 items-center">
                                     <img
                                       className="w-5 md:block hidden"
-                                      src="/static/images/fin_icon.png"
+                                      src="https://poolshark-token-lists.s3.amazonaws.com/images/fin_icon.png"
                                     />
                                     {parseFloat(userBond.payout).toFixed(4)}{" "}
                                     {userBond.payoutTokenSymbol}
@@ -831,7 +831,7 @@ export default function Bond() {
                                   <div className="flex gap-x-1.5 items-center">
                                     <img
                                       className="w-5 md:block hidden"
-                                      src="/static/images/fin_icon.png"
+                                      src="https://poolshark-token-lists.s3.amazonaws.com/images/fin_icon.png"
                                     />
                                     {parseFloat(userBond.payout).toFixed(4)}{" "}
                                     {userBond.payoutTokenSymbol}
