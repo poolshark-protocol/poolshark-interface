@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { BigNumber } from "ethers";
 import { useAccount, useBalance, useContractRead } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import Link from "next/link";
 import { bondTellerABI } from "../../abis/evm/bondTeller";
 import {
   fetchBondMarket,
@@ -34,6 +35,7 @@ export default function Bond() {
   const [needsMarketPurchaseData, setNeedsMarketPurchaseData] = useState(true);
   const [needsCapacityData, setNeedsCapacityData] = useState(true);
   const [needsMarketPriceData, setNeedsMarketPriceData] = useState(true);
+  const [priceFill, setPriceFill] = useState("50%");
   const [needsMaxAmountAcceptedData, setNeedsMaxAmountAcceptedData] =
     useState(true);
   const [needsBondTokenData, setNeedsBondTokenData] = useState(true);
@@ -400,6 +402,9 @@ export default function Bond() {
     (((price - minPrice) / (maxPrice - minPrice)) * totalBars - filledBars) *
     100;
 
+
+    const dotPosition = `calc(${priceFill}% - 8px)`;
+
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
@@ -443,186 +448,80 @@ export default function Bond() {
           </div>
 
           <div className="flex items-center gap-x-4 w-full md:w-auto">
-            <a
-              className="bg-black border whitespace-nowrap w-full text-center border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
-              href={
-                "https://docs.bondprotocol.finance/products/permissionless-bonds"
-              }
-              target="_blank"
-              rel="noreferrer"
+            <Link href={'/?chain=34443&from=0x4200000000000000000000000000000000000006&to=0xf0F161fDA2712DB8b566946122a5af183995e2eD'}>
+            <button
+              className="bg-main1 hover:opacity-80 transition-all border whitespace-nowrap w-full rounded-full text-center border-main transition-all py-2.5 px-20 text-sm uppercase cursor-pointer text-[13px] text-main2"
             >
-              How does it work?
-            </a>
+              BUY FIN
+            </button>
+            </Link>
           </div>
         </div>
-        {/* add vesting claim for each day the market is live */}
-        {bondTokenBalance != undefined &&
-        bondTokenId != undefined &&
-        parseFloat(formatEther(bondTokenBalance)) > 0 ? (
-          <div className="border bg-main1/30 border-main/40 p-5 mt-5">
-            <h1 className="">PAYOUT AVAILABLE</h1>
-            <div className="flex flex-col gap-y-4 border-main/60 border rounded-[4px] text-xs p-5 mt-4 bg-black/50 mb-2">
-              <div className="flex flex-col gap-y-1 justify-between w-full items-center text-white/20">
-                AMOUNT{" "}
-                <span className="text-white text-lg">
-                  {parseFloat(formatEther(bondTokenBalance)).toFixed(2)} FIN
-                </span>
-              </div>
-            </div>
-            <RedeemMulticallBondButton
-              tellerAddress={bondProtocolConfig["tellerAddress"]}
-              tokenId={bondTokenId}
-              amount={bondTokenBalance}
-              setNeedsBondTokenData={setNeedsBondTokenData}
-            />
-          </div>
-        ) : null}
-        <div className="flex lg:flex-row flex-col justify-between w-full mt-8 gap-10">
-          <div className="border h-min border-grey rounded-[4px] lg:w-1/2 w-full p-5 pb-7">
+        <div className=" w-full mt-8 gap-10">
+          <div className="border h-min border-grey rounded-[4px] w-full p-5 pb-7">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">STATISTICS</h1>
             </div>
-            <div className="flex flex-col gap-y-3 mt-2">
-              <div className="flex items-center gap-x-5 mt-3">
-                <div className="border border-main rounded-[4px] flex flex-col w-full items-center justify-center gap-y-4 h-32 bg-main1 ">
-                  <span className="text-main2/60 text-[13px]">
-                    CURRENT BOND PRICE
-                  </span>
-                  <span className="text-main2 lg:text-4xl text-3xl">${price}</span>
-                </div>
+            <div className="flex flex-row gap-6 mt-2">
+              <div className="border w-full border-main rounded-[4px] flex flex-col w-full items-center justify-center gap-y-4 h-32 bg-main1 ">
+                <span className="text-main2/60 text-[13px]">
+                  CURRENT SALE PRICE
+                </span>
+                <span className="text-main2 lg:text-4xl text-3xl">
+                  ${price}
+                </span>
               </div>
               <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-4 h-32">
                 <span className="text-grey1 text-[13px]">TOTAL VALUE SOLD</span>
                 <span className="text-white text-center xl:text-4xl md:text-3xl text-2xl">
-                  $353,452.53 {" "}
-                  <span className="text-grey1">
-                    / $353,452.53
-                    </span>
+                  $353,452.53
                 </span>
               </div>
             </div>
-            <div className="flex justify-between mt-5">
-              <h1 className="uppercase text-white">PROGRESS</h1>
-            </div>
-            <div className="flex flex-col">
-            <div className="flex items-end h-[150px] mt-4 justify-between">
-              {[...Array(20)].map((_, index) => (
-                <div
-                  key={index}
-                  className="relative w-6 h-full bg-main/70 rounded-b-[1px] overflow-hidden rounded-t-md"
-                >
-                  {index < filledBars ? (
-                    // Fully filled bars
-                    <div>
-                    
-                    <div className="w-full bg-main2 h-full rounded-b-[1px] absolute bottom-0" />
-                    </div>
-                  ) : index === filledBars ? (
-                    // Partially filled bar
-                    <div
-                      style={{ height: `${partialFillPercentage}%` }}
-                      className="w-full bg-main2 rounded-b-[1px] absolute bottom-0"
-                    />
-                  ) : null}
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-between w-full mt-2">
-              <span>$2</span>
-              <span>$4</span>
-            </div>
-            </div>
           </div>
-          <div className="flex gap-y-5 flex-col w-full lg:w-1/2 relative">
-            <div className="border relative bg-dark border-grey rounded-[4px] w-full p-5 pb-7 h-full">
-              <div className="">
-                <h1 className="uppercase text-white">BUY FIN LIMIT SALE</h1>
-              </div>
-              <div className="relative">
-                {/*
-                <div className="flex flex-col gap-y-7">
-                <div className="border border-grey bg-black rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
-                  <div className="flex items-end justify-between text-[11px] text-grey1">
-                    <span>
-                      ~$
-                      {ethPrice != undefined && display != ""
-                        ? (parseFloat(display) * ethPrice).toFixed(2)
-                        : "0.00"}
-                    </span>
-                    <span>
-                      BALANCE:{" "}
-                      {tokenBalance != undefined
-                        ? formatEther(tokenBalance.value)
-                        : "0"}
-                    </span>
-                  </div>
-                  <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                    {inputBox("0", {
-                      callId: 0,
-                      name: marketData[0]?.quoteTokenName,
-                      symbol: marketData[0]?.quoteTokenSymbol,
-                      logoURI: "",
-                      address: marketData[0]?.quoteTokenAddress,
-                      decimals: marketData[0]?.quoteTokenDecimals,
-                      userBalance: tokenBalance,
-                      userRouterAllowance: BigNumber.from(0),
-                      USDPrice: 0,
-                    } as tokenSwap)}
-                    <div className="flex items-center gap-x-2 ">
-                      <button
-                        className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden"
-                        onClick={() => {
-                          maxBalance(
-                            tokenBalance != undefined
-                              ? formatEther(tokenBalance.value)
-                              : "0",
-                            "0",
-                            marketData != undefined
-                              ? marketData[0].quoteTokenDecimals
-                              : 18
-                          );
-                        }}
-                      >
-                        MAX
-                      </button>
-                      <div className="flex items-center gap-x-2">
-                        <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px] min-w-[120px]">
-                          <img
-                            height="28"
-                            width="25"
-                            src="/static/images/weth_icon.png"
-                          />
-                          WETH
-                        </div>
-                      </div>
-                    </div>
-                */}
-                <div className="flex flex-col bg-black gap-y-4 border-grey/70 border rounded-[4px] text-xs pt-5 pb-3 px-2 mt-5">
-                  <div className="flex justify-between w-full text-grey1 px-3">
-                    WETH AMOUNT
-                    <span className="text-grey1">
-                      1 WETH
-                    </span>
-                  </div>
-                  <div className="flex justify-between w-full text-grey1 px-3">
-                    FIN PRICE
-                    <span className="text-grey1">
-                    ${price}
-                    </span>
-                  </div>
-                  <div className="w-full bg-grey h-[1px]" />
-                  <div className="flex justify-between w-full text-main2 bg-main1 py-3 border border-main/30 px-3 rounded-[4px]">
-                    BUY AMOUNT{" "}
-                    <span className="text-main2">
-                      5 FIN
-                    </span>
-                  </div>
-                </div>
-                <div className="mt-6">
-                  <BuyFinSaleButton/>
-                </div>
-              </div>
+          <div className="mt-10 relative bg-dark border border-grey h-[350px] flex items-end">
+            <div className="bg-black border-grey border px-5 py-2 rounded-[4px] absolute text-xs bottom-16 left-5">
+              <span className="text-white/70">Start Price:</span> $2
             </div>
+            <div className="bg-black border-grey border px-5 py-2 rounded-[4px] absolute text-xs top-4 right-5">
+            <span className="text-white/70">End Price:</span> $4
+            </div>
+          <div className="svg-container bottom-0" style={{ position: 'relative', width: '100%', height: '300px' }}>
+  <div className="absolute w-full h-full bottom-0 left-0 p-5">
+    <svg
+      width="100%"
+      height="100%"
+      viewBox="0 0 1432 260"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1431.17 0.196533C969.361 213.838 13.2114 259.935 0.178223 259.935H1431.17V0.196533Z"
+        fill="#27282D"
+        fill-opacity="0.4"
+      />
+    </svg>
+  </div>
+  <div className="absolute w-full h-full bottom-0 left-0 p-5" style={{ clipPath: `inset(0 ${priceFill} 0 0)` }}>
+    <svg
+      width="100%"
+      height="100%"
+      viewBox="0 0 1433 262"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1432.17 1.19653C970.361 214.838 14.2114 260.935 1.17822 260.935H1432.17V1.19653Z"
+        fill="#000A2C"
+      />
+      <path
+        d="M1.17822 260.935C14.2114 260.935 970.361 214.838 1432.17 1.19653"
+        stroke="#227BED"
+        stroke-linecap="round"
+      />
+    </svg>
+  </div>
+</div>
           </div>
         </div>
       </div>
