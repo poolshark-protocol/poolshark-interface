@@ -258,7 +258,7 @@ export default function ViewLimit() {
       }
       updateCollectFee();
     }
-  }, [limitPoolAddress, limitPositionData]);
+  }, [limitPoolAddress, limitPositionData.min, limitPositionData.max]);
 
   async function updateClaimTick() {
     if (

@@ -77,22 +77,6 @@ export default function LimitRemoveLiqButton({
     setClaimTick(tick);
   };
 
-  const { data: queryData } = useContractRead({
-    address: "0xfc16003afdff37580c9de7deeeb87f9c65b6908a",
-    abi: limitPoolABI,
-    functionName: "globalState",
-    args: [],
-    chainId: chainId,
-    watch: true,
-    enabled: true,
-    onSuccess() {
-      console.group('queryData:', queryData)
-    },
-    onError() {
-      console.log('balanceOf error',)
-    },
-  });
-
   async function getGasLimit() {
     await gasEstimateBurnLimit(
       poolAddress,
