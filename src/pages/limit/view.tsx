@@ -364,7 +364,8 @@ export default function ViewLimit() {
         tokenIn.callId == 0,
         signer,
         setCollectGasFee,
-        setCollectGasLimit
+        setCollectGasLimit,
+        limitSubgraph,
       );
     }
   }
