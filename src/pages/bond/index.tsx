@@ -394,7 +394,7 @@ export default function Bond() {
                 </h1>
                 <a
                   href={
-                    `${chainProperties[networkName]["explorerUrl"]}/address/` +
+                    `${chainProperties[networkName].explorerUrl}/address/` +
                     bondProtocolConfig["tellerAddress"]
                   }
                   target="_blank"

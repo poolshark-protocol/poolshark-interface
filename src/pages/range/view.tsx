@@ -465,7 +465,7 @@ export default function ViewRange() {
                 </h1>
                 <a
                   href={
-                    `${chainProperties[networkName]["explorerUrl"]}/address/` +
+                    `${chainProperties[networkName]?.explorerUrl}/address/` +
                     rangePoolAddress
                   }
                   target="_blank"
