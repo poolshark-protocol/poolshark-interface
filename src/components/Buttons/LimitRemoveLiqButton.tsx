@@ -4,7 +4,6 @@ import {
   useContractWrite,
   useWaitForTransaction,
   useSigner,
-  useContractRead,
 } from "wagmi";
 import React, { useEffect, useState } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
@@ -59,7 +58,7 @@ export default function LimitRemoveLiqButton({
       state.setNeedsSnapshot,
     ]
   );
-  const [claimTick, setClaimTick] = useState(0);
+  const [claimTick, setClaimTick] = useState(undefined);
   const [gasFee, setGasFee] = useState("$0.00");
   const [gasLimit, setGasLimit] = useState(BN_ZERO);
 
@@ -88,6 +87,7 @@ export default function LimitRemoveLiqButton({
       signer,
       setGasFee,
       setGasLimit,
+      limitSubgraph,
     );
   };
 
@@ -116,11 +116,11 @@ export default function LimitRemoveLiqButton({
         to: address,
         burnPercent: burnPercent,
         positionId: positionId,
-        claim: BigNumber.from(claimTick),
+        claim: BigNumber.from(claimTick ?? 0),
         zeroForOne: zeroForOne
       },
     ],
-    enabled: positionId != undefined,
+    enabled: positionId != undefined && claimTick != undefined,
     chainId: chainId,
     overrides: {
       gasLimit: gasLimit,

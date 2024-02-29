@@ -1035,25 +1035,22 @@ export const fetchTokenPrice = (
   });
 };
 
-export const fetchEthPrice = () => {
+export const fetchEthPrice = (client: LimitSubgraph): Promise<number> => {
   return new Promise(function (resolve) {
     const ethPrice = `
-    {
-      basePrices(first: 1) {
-        USD
+      {
+        basePrices(first: 1) {
+          USD
+        }
       }
-    }
-            `;
-    const client = new ApolloClient({
-      uri: chainProperties['arbitrum-one']['limitSubgraphUrl'],
-      cache: new InMemoryCache(),
-    });
+    `;
     client
       ?.query({
         query: gql(ethPrice),
       })
       .then((data) => {
-        resolve(data);
+        console.log('data check:', data["data"])
+        resolve(data["data"]?.basePrices[0]?.USD ?? 0);
         /* console.log(data) */
       })
       .catch((err) => {
