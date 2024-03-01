@@ -19,10 +19,11 @@ import { convertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
-  const [chainId, logoMap, networkName] = useConfigStore((state) => [
+  const [chainId, logoMap, networkName, limitSubgraph] = useConfigStore((state) => [
     state.chainId,
     state.logoMap,
     state.networkName,
+    state.limitSubgraph,
   ]);
 
   const [
@@ -143,7 +144,8 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
         signer,
         setMintGasFee,
         setMintGasLimit,
-        networkName
+        networkName,
+        limitSubgraph,
       );
     }
   }

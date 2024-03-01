@@ -189,7 +189,9 @@ export default function ViewLimit() {
         address,
         parseUnits("1", 38),
         Number(limitPositionData.positionId),
-        BigNumber.from(claimTick),
+        BigNumber.from(
+          claimTick ?? 0
+        ),
         tokenIn.callId == 0,
       ],
     ],
@@ -198,10 +200,11 @@ export default function ViewLimit() {
     enabled:
       isConnected &&
       limitPositionData.positionId != undefined &&
+      claimTick != undefined &&
       claimTick >= Number(limitPositionData.min) &&
       claimTick <= Number(limitPositionData.max),
     onSuccess(data) {
-      // console.log("Success price filled amount", data);
+      console.log("Success price filled amount", data);
       setNeedsSnapshot(false);
     },
     onError(error) {
@@ -243,12 +246,17 @@ export default function ViewLimit() {
   useEffect(() => {
     if (limitPoolAddress != undefined) {
       setNeedsSnapshot(true);
-      setTimeout(() => {
+      if (claimTick == undefined) {
         updateClaimTick();
-      }, 1500);
+      } else {
+        console.log('claim tick check', claimTick)
+        setTimeout(() => {
+          updateClaimTick();
+        }, 10000);
+      }
       updateCollectFee();
     }
-  }, [limitPoolAddress, limitPositionData, claimTick]);
+  }, [limitPoolAddress, limitPositionData.min, limitPositionData.max]);
 
   async function updateClaimTick() {
     if (
@@ -267,14 +275,16 @@ export default function ViewLimit() {
         limitSubgraph,
         setLimitAddLiqDisabled
       );
-      setClaimTick(aux);
-      setIsFullSpacingClaim(
-        Boolean(limitPositionData.zeroForOne)
-          ? claimTick - Number(limitPositionData.min) >=
-              Number(limitPositionData.tickSpacing)
-          : Number(limitPositionData.max) - claimTick >=
-              Number(limitPositionData.tickSpacing)
-      );
+      if (aux != undefined) {
+        setClaimTick(aux);
+        setIsFullSpacingClaim(
+          Boolean(limitPositionData.zeroForOne)
+            ? claimTick - Number(limitPositionData.min) >=
+                Number(limitPositionData.tickSpacing)
+            : Number(limitPositionData.max) - claimTick >=
+                Number(limitPositionData.tickSpacing)
+        );
+      }
     }
   }
 
@@ -355,7 +365,8 @@ export default function ViewLimit() {
         tokenIn.callId == 0,
         signer,
         setCollectGasFee,
-        setCollectGasLimit
+        setCollectGasLimit,
+        limitSubgraph,
       );
     }
   }
@@ -787,7 +798,7 @@ export default function ViewLimit() {
                 poolAddress={limitPoolAddress}
                 address={address}
                 positionId={limitPositionData.positionId}
-                claim={BigNumber.from(claimTick)}
+                claim={BigNumber.from(claimTick ?? 0)}
                 zeroForOne={tokenIn.callId == 0}
                 gasLimit={collectGasLimit}
                 gasFee={collectGasFee}

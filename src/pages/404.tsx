@@ -5,7 +5,7 @@ export default function Error() {
   return (
     <div className="h-screen flex md:flex-row flex-col items-center justify-center w-full gap-14 px-5">
       <Image
-        src="/static/images/logoascii.png"
+        src="https://poolshark-token-lists.s3.amazonaws.com/images/logoascii.png"
         width={480}
         height={400}
         className=""

@@ -71,7 +71,26 @@ const isAddress = (input: string) => {
     return false;
 };
 
+export const addressMatches = (addressA: string, addressB: string) => {
+    // validate address
+    if (
+      addressA.toLocaleLowerCase() == addressB.toLocaleLowerCase()
+    ) {
+      // if not in listed tokens or search tokens we need to fetch data from the chain
+      return true;
+    }
+    return false;
+};
 
+export const isWeth = (address: string, networkName: string) => {
+    // validate address
+    if (
+		addressMatches(address, chainProperties[networkName]["wethAddress"])
+    ) {
+      return true;
+    }
+    return false;
+};
 
 export const isWhitelistedPool = (rangePool: any, networkName: string): boolean => {
 	if (!rangePool?.poolId) {
@@ -122,7 +141,7 @@ export const isStablePair = (tokenIn: any, tokenOut: any, networkName: string): 
 		return false
 	} else if (chainProperties[networkName]?.usdStables) {
 		const usdStables: string[] = chainProperties[networkName]?.usdStables
-		if (usdStables.indexOf(tokenIn?.address) != -1 && usdStables.indexOf(tokenOut?.address) != -1) {
+		if (usdStables.indexOf(tokenIn?.address?.toLowerCase()) != -1 && usdStables.indexOf(tokenOut?.address?.toLowerCase()) != -1) {
 			return true
 		}
 		return false
@@ -153,10 +172,10 @@ export const setDefaultRange = (
 	setMaxInput: any,
 	poolAddress?: string
 ) => {
-	console.log('setting new default range', poolAddress, isStablePool(poolAddress, networkName))
+	//console.log('setting new default range', poolAddress, isStablePool(poolAddress, networkName))
 	if (isStablePair(tokenIn, tokenOut, networkName) ||
 		(poolAddress != undefined && isStablePool(poolAddress, networkName))) {
-		console.log('stable pair')
+		//console.log('stable pair')
 		setMinInput(
 		invertPrice(
 			priceOrder == (tokenIn.callId == 0) ? "0.98" : "1.02",
@@ -170,7 +189,7 @@ export const setDefaultRange = (
 		)
 		);
 	} else {
-		console.log('non stable pair')
+		//console.log('non stable pair')
 		setMinInput(
 			invertPrice(
 				TickMath.getPriceStringAtTick(

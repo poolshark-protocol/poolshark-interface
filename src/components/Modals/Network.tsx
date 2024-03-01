@@ -84,7 +84,7 @@ export default function Network({
                   >
                     <div className="flex gap-x-2 items-center">
                       <img
-                        src="/static/images/mode_icon.svg"
+                        src="https://poolshark-token-lists.s3.amazonaws.com/images/mode_icon.svg"
                         width="28"
                         height="28"
                       />
@@ -113,7 +113,7 @@ export default function Network({
                     } flex justify-between items-center w-full p-2 rounded-md border border-black cursor-pointer`}
                   >
                     <div className="flex gap-x-2 items-center">
-                      <img src="/static/images/arb_icon.svg" />
+                      <img src="https://poolshark-token-lists.s3.amazonaws.com/images/arb_icon.svg" />
                       Arbitrum Mainnet
                     </div>
                     <div
@@ -172,7 +172,7 @@ export default function Network({
                       <div className="flex gap-x-2 items-center">
                         <img
                           className="saturate-0"
-                          src="/static/images/arb_icon.svg"
+                          src="https://poolshark-token-lists.s3.amazonaws.com/images/arb_icon.svg"
                         />
                         <span className="opacity-70">Arbitrum Sepolia</span>
                       </div>

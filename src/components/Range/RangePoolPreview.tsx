@@ -27,10 +27,11 @@ import { getRouterAddress } from "../../utils/config";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 
 export default function RangePoolPreview() {
-  const [chainId, logoMap, networkName] = useConfigStore((state) => [
+  const [chainId, logoMap, networkName, limitSubgraph] = useConfigStore((state) => [
     state.chainId,
     state.logoMap,
     state.networkName,
+    state.limitSubgraph,
   ]);
 
   const [
@@ -127,7 +128,8 @@ export default function RangePoolPreview() {
             rangeMintParams.tokenOutAmount,
             signer,
             rangeMintParams.stakeFlag,
-            networkName
+            networkName,
+            limitSubgraph,
           )
         : await gasEstimateRangeCreateAndMint(
             limitPoolTypeIds["constant-product-1.1"],
@@ -157,7 +159,8 @@ export default function RangePoolPreview() {
             rangeMintParams.tokenOutAmount,
             signer,
             rangeMintParams.stakeFlag,
-            networkName
+            networkName,
+            limitSubgraph
           );
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }

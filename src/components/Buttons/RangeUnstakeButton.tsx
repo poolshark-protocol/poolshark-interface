@@ -26,11 +26,13 @@ export default function RangeUnstakeButton({
 }) {
 
 const [
-    chainId,
-    networkName
+      chainId,
+      networkName,
+      limitSubgraph,
     ] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName
+      state.chainId,
+      state.networkName,
+      state.limitSubgraph,
     ]);
 
     const [
@@ -66,7 +68,8 @@ const [
         address,
         positionId,
         networkName,
-        signer
+        signer,
+        limitSubgraph,
       );
       setUnstakeGasLimit(newGasFee.gasUnits.mul(130).div(100));
     }

@@ -50,6 +50,7 @@ import {
   SparklesIcon,
 } from "@heroicons/react/20/solid";
 import { convertBigIntAndBigNumber } from "../../utils/misc";
+import { XOctagon } from "lucide-react";
 
 export default function AddLiquidity({}) {
   const [
@@ -105,6 +106,8 @@ export default function AddLiquidity({}) {
     setStakeFlag,
     chainSwitched,
     setChainSwitched,
+    manualRange,
+    setManualRange,
   ] = useRangeLimitStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
@@ -142,6 +145,8 @@ export default function AddLiquidity({}) {
     state.setStakeFlag,
     state.chainSwitched,
     state.setChainSwitched,
+    state.manualRange,
+    state.setManualRange,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -155,7 +160,6 @@ export default function AddLiquidity({}) {
     setDisplay: setDisplayOut,
     display: displayOut,
   } = useInputBox();
-  const [showTooltip, setShowTooltip] = useState(false);
   const [amountInSetLast, setAmountInSetLast] = useState(true);
   const [amountInDisabled, setAmountInDisabled] = useState(false);
   const [amountOutDisabled, setAmountOutDisabled] = useState(false);
@@ -165,14 +169,17 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     setManualRange(false);
+    //setRangePoolData({});
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address != ZERO_ADDRESS) {
       setPairSelected(true);
       if (rangePoolData.feeTier != undefined) {
-        updatePools(parseInt(rangePoolData.feeTier.feeAmount));
+        fetchNewPoolFromTokens();
       }
     } else {
       setPairSelected(false);
     }
+
+    setPriceOrder(tokenIn.callId == 0);
   }, [tokenIn.address, tokenOut.address]);
 
   useEffect(() => {
@@ -181,11 +188,12 @@ export default function AddLiquidity({}) {
       !isNaN(parseInt(router.query.feeTier.toString())) &&
       rangePoolData.feeTier == undefined
     ) {
-      updatePools(parseInt(router.query.feeTier.toString()));
+      fetchPoolFromRouter(parseInt(router.query.feeTier.toString()));
     }
   }, [router.query.feeTier]);
 
   useEffect(() => {
+    setManualRange(false);
     const fetchPool = async () => {
       const data = await fetchRangePools(limitSubgraph);
       if (
@@ -196,6 +204,53 @@ export default function AddLiquidity({}) {
       ) {
         if (!chainSwitched) setChainSwitched(true);
         const pool = data["data"].limitPools[0];
+        if (pool) {
+          const originalTokenIn = {
+            name: pool.token0.symbol,
+            address: pool.token0.id,
+            symbol: pool.token0.symbol,
+            decimals: pool.token0.decimals,
+            userBalance: pool.token0.balance,
+            callId: 0,
+          };
+          const originalTokenOut = {
+            name: pool.token1.symbol,
+            address: pool.token1.id,
+            symbol: pool.token1.symbol,
+            decimals: pool.token1.decimals,
+            userBalance: pool.token1.balance,
+            callId: 1,
+          };
+          setTokenIn(originalTokenOut, originalTokenIn, "0", true);
+          setTokenOut(originalTokenIn, originalTokenOut, "0", false);
+          setRangePoolFromFeeTier(
+            originalTokenIn,
+            originalTokenOut,
+            parseInt(pool.feeTier.feeAmount),
+            limitSubgraph,
+            undefined,
+            undefined,
+            limitPoolTypeIds["constant-product-1.1"]
+          );
+        } else {
+          router.push("/range");
+        }
+      }
+      setIsLoading(false);
+    };
+    fetchPool();
+  }, [chainId]);
+
+  async function fetchPoolFromRouter(feeAmount) {
+    const data = await fetchRangePools(limitSubgraph);
+    if (data["data"]) {
+      const pools = data["data"].limitPools;
+      var pool = pools.find(
+        (pool) =>
+          pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
+      );
+      //if pool exists
+      if (pool) {
         const originalTokenIn = {
           name: pool.token0.symbol,
           address: pool.token0.id,
@@ -217,19 +272,123 @@ export default function AddLiquidity({}) {
         setRangePoolFromFeeTier(
           originalTokenIn,
           originalTokenOut,
-          parseInt(pool.feeTier.feeAmount),
+          feeAmount,
           limitSubgraph,
           undefined,
           undefined,
           limitPoolTypeIds["constant-product-1.1"]
         );
+      } else {
+        const tokenInAddress = router.query.tokenIn?.toString();
+        const tokenOutAddress = router.query.tokenOut?.toString();
+        const routerTokenIn = searchtokenList.find(
+          (token) =>
+            token.address?.toLowerCase() == tokenInAddress?.toLowerCase() &&
+            (token.native?.toString() == router.query.tokenInNative ||
+              token.native == undefined)
+        );
+        const routerTokenOut = searchtokenList.find(
+          (token) =>
+            token.address?.toLowerCase() == tokenOutAddress?.toLowerCase() &&
+            (token.native?.toString() == router.query.tokenOutNative ||
+              token.native == undefined)
+        );
+        setTokenIn(routerTokenOut, routerTokenIn, "0", true);
+        setTokenOut(routerTokenIn, routerTokenOut, "0", false);
+        setRangePoolFromFeeTier(
+          tokenIn,
+          tokenOut,
+          feeAmount,
+          limitSubgraph,
+          undefined,
+          undefined,
+          limitPoolTypeIds["constant-product-1.1"]
+        );
+        setRangePoolData({
+          ...rangePoolData,
+          liquitidy: undefined,
+          poolPrice: undefined,
+          tickAtPrice: undefined,
+        });
       }
-      setIsLoading(false);
-    };
-    fetchPool();
-  }, [chainId]);
+    }
+  }
 
-  const [manualRange, setManualRange] = useState(false);
+  async function fetchNewPoolFromTokens() {
+    //after changing to different tokens with existing pools -> should land on the existing pool with the new price ranges
+    //after changing to different tokens with no existing pools -> price range resets to 0
+    const currentFeeTier = rangePoolData.feeTier?.feeAmount;
+    setRangePoolData({
+      ...rangePoolData,
+      liquitidy: undefined,
+      poolPrice: undefined,
+      tickAtPrice: undefined,
+    });
+    setRangePoolFromFeeTier(
+      tokenIn,
+      tokenOut,
+      currentFeeTier ?? 3000,
+      limitSubgraph,
+      undefined,
+      undefined,
+      limitPoolTypeIds["constant-product-1.1"]
+    );
+  }
+
+  function fetchPoolSameTokensDifferentFeeTier(feeAmount: number) {
+    //after changing to a non existing pool with the same tokens -> price range keeps there
+    setRangePoolFromFeeTier(
+      tokenIn,
+      tokenOut,
+      feeAmount,
+      limitSubgraph,
+      undefined,
+      undefined,
+      limitPoolTypeIds["constant-product-1.1"]
+    );
+  }
+
+  //this sets the default position price range
+  useEffect(() => {
+    if (manualRange) return;
+    if (rangePoolData.poolPrice) {
+      const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
+      const tickAtPrice = rangePoolData.tickAtPrice;
+      setDefaultRange(
+        tokenIn,
+        tokenOut,
+        networkName,
+        priceOrder == (tokenIn.callId == 0),
+        tickAtPrice,
+        setMinInput,
+        setMaxInput,
+        rangePoolData?.id
+      );
+      setRangePrice(
+        TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut)
+      );
+      setRangeSqrtPrice(sqrtPrice);
+    } else {
+      setMinInput("");
+      setMaxInput("");
+    }
+  }, [manualRange, rangePoolData]);
+
+  //sames as updatePools but triggered from the html
+  const handleManualFeeTierChange = async (feeAmount: number) => {
+    setManualRange(false);
+    fetchPoolSameTokensDifferentFeeTier(feeAmount);
+    setRangePoolData({
+      ...rangePoolData,
+      feeTier: {
+        ...rangePoolData.feeTier,
+        feeAmount: feeAmount,
+        tickSpacing: feeTierMap[feeAmount].tickSpacing,
+      },
+    });
+  };
+
+  ////////////////////////////////Token Prices
 
   useEffect(() => {
     if (
@@ -256,170 +415,6 @@ export default function AddLiquidity({}) {
       );
     }
   }, [tokenOut.address]);
-
-  async function updatePools(feeAmount: number) {
-    /// @notice - this should filter by the poolId in the actual query
-    const data = await fetchRangePools(limitSubgraph);
-    if (data["data"]) {
-      const pools = data["data"].limitPools;
-      //try to get the pool from routing params
-      var pool = pools.find(
-        (pool) =>
-          pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
-      );
-      if (
-        router.query.feeTier &&
-        !isNaN(parseInt(router.query.feeTier.toString())) &&
-        rangePoolData.feeTier == undefined
-      ) {
-        if (router.query.poolId != ZERO_ADDRESS && pool != undefined) {
-          const originalTokenIn = {
-            name: pool.token0.symbol,
-            address: pool.token0.id,
-            symbol: pool.token0.symbol,
-            decimals: pool.token0.decimals,
-            userBalance: pool.token0.balance,
-            callId: 0,
-          };
-          const originalTokenOut = {
-            name: pool.token1.symbol,
-            address: pool.token1.id,
-            symbol: pool.token1.symbol,
-            decimals: pool.token1.decimals,
-            userBalance: pool.token1.balance,
-            callId: 1,
-          };
-          setTokenIn(originalTokenOut, originalTokenIn, "0", true);
-          setTokenOut(originalTokenIn, originalTokenOut, "0", false);
-          setRangePoolFromFeeTier(
-            originalTokenIn,
-            originalTokenOut,
-            feeAmount,
-            limitSubgraph,
-            undefined,
-            undefined,
-            limitPoolTypeIds["constant-product-1.1"]
-          );
-        } else if (
-          router.query.poolId == ZERO_ADDRESS &&
-          isAddress(router.query.tokenIn?.toString()) &&
-          isAddress(router.query.tokenOut?.toString()) &&
-          !isNaN(parseInt(router.query.chainId.toString())) &&
-          parseInt(router.query?.chainId.toString()) == chainId
-        ) {
-          if (
-            tokenIn.address != router.query.tokenIn ||
-            tokenOut.address != router.query.tokenOut
-          ) {
-            const tokenInAddress = router.query.tokenIn?.toString();
-            const tokenOutAddress = router.query.tokenOut?.toString();
-            const routerTokenIn = searchtokenList.find(
-              (token) =>
-                token.address.toLowerCase() == tokenInAddress.toLowerCase() &&
-                (token.native?.toString() == router.query.tokenInNative ||
-                  token.native == undefined)
-            );
-            const routerTokenOut = searchtokenList.find(
-              (token) =>
-                token.address.toLowerCase() == tokenOutAddress.toLowerCase() &&
-                (token.native?.toString() == router.query.tokenOutNative ||
-                  token.native == undefined)
-            );
-            setTokenIn(routerTokenOut, routerTokenIn, "0", true);
-            setTokenOut(routerTokenIn, routerTokenOut, "0", false);
-          }
-          setRangePoolData({
-            ...rangePoolData,
-            poolPrice: String(
-              TickMath.getSqrtPriceAtPriceString("1.00", tokenIn, tokenOut)
-            ),
-            feeTier: {
-              ...rangePoolData.feeTier,
-              feeAmount: feeAmount,
-              tickSpacing: feeTierMap[feeAmount].tickSpacing,
-            },
-          });
-        } else {
-          setRangePoolFromFeeTier(
-            tokenIn,
-            tokenOut,
-            feeAmount,
-            limitSubgraph,
-            undefined,
-            undefined,
-            limitPoolTypeIds["constant-product-1.1"]
-          );
-        }
-      } else {
-        setRangePoolFromFeeTier(
-          tokenIn,
-          tokenOut,
-          feeAmount,
-          limitSubgraph,
-          undefined,
-          undefined,
-          limitPoolTypeIds["constant-product-1.1"]
-        );
-      }
-    }
-  }
-
-  useEffect(() => {
-    if (!manualRange) {
-      const tickAtPrice = rangePoolData.tickAtPrice;
-      setDefaultRange(
-        tokenIn,
-        tokenOut,
-        networkName,
-        priceOrder,
-        tickAtPrice,
-        setMinInput,
-        setMaxInput,
-        rangePoolData?.id
-      );
-    }
-  }, [manualRange, rangePoolData?.id]);
-
-  //sames as updatePools but triggered from the html
-  const handleManualFeeTierChange = async (feeAmount: number) => {
-    setManualRange(false);
-    updatePools(feeAmount);
-    setRangePoolData({
-      ...rangePoolData,
-      feeTier: {
-        ...rangePoolData.feeTier,
-        feeAmount: feeAmount,
-        tickSpacing: feeTierMap[feeAmount].tickSpacing,
-      },
-    });
-  };
-
-  //this sets the default position price range
-  useEffect(() => {
-    if (rangePoolData.poolPrice) {
-      const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
-      const tickAtPrice = rangePoolData.tickAtPrice;
-      if (rangePoolAddress != ZERO_ADDRESS && rangePrice == undefined) {
-        setDefaultRange(
-          tokenIn,
-          tokenOut,
-          networkName,
-          priceOrder,
-          tickAtPrice,
-          setMinInput,
-          setMaxInput
-        );
-      }
-      setRangePrice(
-        TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut)
-      );
-      setRangeSqrtPrice(sqrtPrice);
-    }
-  }, [
-    rangePoolData.feeTier,
-    rangePoolData.poolPrice,
-    rangePoolData.tickAtPrice,
-  ]);
 
   ////////////////////////////////Allowances
   const { data: allowanceInRange, refetch: refetchAllowanceIn } =
@@ -799,9 +794,15 @@ export default function AddLiquidity({}) {
   const [rangeWarning, setRangeWarning] = useState(false);
 
   useEffect(() => {
-    const priceLower = parseFloat(lowerPrice);
-    const priceUpper = parseFloat(upperPrice);
-    const priceRange = parseFloat(rangePrice);
+    const priceLower = parseFloat(
+      priceOrder ? lowerPrice : invertPrice(lowerPrice, priceOrder)
+    );
+    const priceUpper = parseFloat(
+      priceOrder ? upperPrice : invertPrice(upperPrice, priceOrder)
+    );
+    const priceRange = parseFloat(
+      priceOrder ? rangePrice : invertPrice(rangePrice, priceOrder)
+    );
     if (!isNaN(priceLower) && !isNaN(priceUpper) && !isNaN(priceRange)) {
       if (priceLower > 0 && priceUpper > 0) {
         if (
@@ -829,7 +830,7 @@ export default function AddLiquidity({}) {
               <div className="h-[42.02px] w-[230px] bg-grey/60 animate-pulse rounded-[4px]" />
             ) : (
               <a
-                href={`${chainProperties[networkName]["explorerUrl"]}/address/${rangePoolAddress}`}
+                href={`${chainProperties[networkName]?.explorerUrl}/address/${rangePoolAddress}`}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -1033,7 +1034,7 @@ export default function AddLiquidity({}) {
               <DoubleArrowIcon />
             </div>
           </div>
-          {rangePoolAddress != ZERO_ADDRESS && (
+          {Number(minInput) > 0 && (
             <div className="flex justify-between items-center w-full md:gap-x-4 gap-x-2">
               <button
                 onClick={() => {
@@ -1041,25 +1042,25 @@ export default function AddLiquidity({}) {
                   setMinInput(
                     invertPrice(
                       TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
+                        priceOrder
                           ? rangePoolData.tickAtPrice - 2232
                           : rangePoolData.tickAtPrice - -2232,
                         tokenIn,
                         tokenOut
                       ),
-                      priceOrder == (tokenIn.callId == 0)
+                      priceOrder
                     )
                   );
                   setMaxInput(
                     invertPrice(
                       TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
+                        priceOrder
                           ? rangePoolData.tickAtPrice - -2232
                           : rangePoolData.tickAtPrice - 2232,
                         tokenIn,
                         tokenOut
                       ),
-                      priceOrder == (tokenIn.callId == 0)
+                      priceOrder
                     )
                   );
                 }}
@@ -1073,25 +1074,25 @@ export default function AddLiquidity({}) {
                   setMinInput(
                     invertPrice(
                       TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
+                        priceOrder
                           ? rangePoolData.tickAtPrice - 4055
                           : rangePoolData.tickAtPrice - -4055,
                         tokenIn,
                         tokenOut
                       ),
-                      priceOrder == (tokenIn.callId == 0)
+                      priceOrder
                     )
                   );
                   setMaxInput(
                     invertPrice(
                       TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
+                        priceOrder
                           ? rangePoolData.tickAtPrice - -4055
                           : rangePoolData.tickAtPrice - 4055,
                         tokenIn,
                         tokenOut
                       ),
-                      priceOrder == (tokenIn.callId == 0)
+                      priceOrder
                     )
                   );
                 }}
@@ -1105,25 +1106,25 @@ export default function AddLiquidity({}) {
                   setMinInput(
                     invertPrice(
                       TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
+                        priceOrder
                           ? rangePoolData.tickAtPrice - 5596
                           : rangePoolData.tickAtPrice - -5596,
                         tokenIn,
                         tokenOut
                       ),
-                      priceOrder == (tokenIn.callId == 0)
+                      priceOrder
                     )
                   );
                   setMaxInput(
                     invertPrice(
                       TickMath.getPriceStringAtTick(
-                        priceOrder == (tokenIn.callId == 0)
+                        priceOrder
                           ? rangePoolData.tickAtPrice - -5596
                           : rangePoolData.tickAtPrice - 5596,
                         tokenIn,
                         tokenOut
                       ),
-                      priceOrder == (tokenIn.callId == 0)
+                      priceOrder
                     )
                   );
                 }}
@@ -1355,10 +1356,12 @@ export default function AddLiquidity({}) {
               >
                 <h1 className="flex items-center gap-x-2 ">
                   {feeTier.tier} FEE
-                  {(
-                    isWhitelistedPair(tokenIn, tokenOut, feeTier.tier, networkName)) && (
-                        <SparklesIcon className="text-main2 w-[16px]" />
-                      )}
+                  {isWhitelistedPair(
+                    tokenIn,
+                    tokenOut,
+                    feeTier.tier,
+                    networkName
+                  ) && <SparklesIcon className="text-main2 w-[16px]" />}
                 </h1>
 
                 <h2 className="text-[11px] uppercase text-grey1 mt-2">
@@ -1382,30 +1385,31 @@ export default function AddLiquidity({}) {
               STAKE RANGE POSITION
             </label>
             <TooltipProvider>
-                <Tooltip delayDuration={100}>
-                  <TooltipTrigger>
-                    <div>
-                      <span className="text-main2 flex items-center justify-end gap-x-3">
-                        <div className="flex items-center gap-x-1.5  text-green-600 text-xs">
-                          <InformationCircleIcon className="w-4" /> 
-                          Info
-                        </div>
-                      </span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-44 py-3">
-                    <div className="flex items-center flex-col gap-y-1 w-full">
-                      <div className="flex justify-between items-center w-full text-left">
-                        <div className="flex items-center gap-x-1">
-                          <span className="text-grey3 "> Staking this position will allow you to earn oFIN</span>
-                        
+              <Tooltip delayDuration={100}>
+                <TooltipTrigger>
+                  <div>
+                    <span className="text-main2 flex items-center justify-end gap-x-3">
+                      <div className="flex items-center gap-x-1.5  text-green-600 text-xs">
+                        <InformationCircleIcon className="w-4" />
+                        Info
                       </div>
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="bg-dark text-xs rounded-[4px] border border-grey w-44 py-3">
+                  <div className="flex items-center flex-col gap-y-1 w-full">
+                    <div className="flex justify-between items-center w-full text-left">
+                      <div className="flex items-center gap-x-1">
+                        <span className="text-grey3 ">
+                          {" "}
+                          Staking this position will allow you to earn oFIN
+                        </span>
                       </div>
-
                     </div>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
         <div className="bg-dark mt-8"></div>

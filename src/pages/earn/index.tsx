@@ -201,7 +201,7 @@ export default function Earn() {
                           <img
                             height="25"
                             width="25"
-                            src="/static/images/fin_icon.png"
+                            src="https://poolshark-token-lists.s3.amazonaws.com/images/fin_icon.png"
                           />
                           oFIN
                         </div>
