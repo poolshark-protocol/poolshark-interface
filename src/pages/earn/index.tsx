@@ -5,7 +5,7 @@ import { CheckIcon } from "@heroicons/react/20/solid";
 import { ethers } from "ethers";
 import { useAccount, useProvider } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { fetchSeason1Rewards } from "../../utils/queries";
 import { useEarnStore } from "../../hooks/useEarnStore";
 import { chainProperties } from "../../utils/chains";
@@ -13,6 +13,7 @@ import { chainProperties } from "../../utils/chains";
 export default function Earn() {
 
   const { address, isConnected } = useAccount();
+  const [ block, setBlock ] = useState("Block 1")
   const provider = useProvider();
   const signer = new ethers.VoidSigner(address, provider);
 
@@ -109,6 +110,7 @@ export default function Earn() {
       }
     }
   }
+  const blocks = ["Block 1", "Block 2"];
 
   return (
     <div className=" bg-no-repeat bg-black min-h-screen pb-20 md:pb-5">
@@ -145,6 +147,15 @@ export default function Earn() {
               Read More
             </a>
           </div>
+          <div className="flex justify-start text-sm mt-5">
+            {blocks.map((blockName, index) => (
+              <div key={index} className="relative">
+              <button className={`py-2 ${block === blockName ? 'bg-main1 text-main2 border-main' : 'bg-dark text-grey1 border-transparent'} border flex items-center gap-x-2 rounded-[4px] px-5 mr-2`} onClick={() => setBlock(blockName)}>
+                {blockName}
+              </button>
+              </div>
+            ))}
+          </div>
           <div className="w-full mb-5">
             <div className="flex lg:flex-row flex-col h-full gap-5  mt-5">
               <div className="bg-dark border border-grey p-5 w-full">
@@ -164,7 +175,8 @@ export default function Earn() {
                       LP Rewards
                     </span>
                     <span className="text-white text-2xl md:text-3xl">
-                      {userSeason1FIN.whitelistedFeesUsd === 0 || !userSeason1FIN ? 0 : userSeason1FIN.whitelistedFeesUsd.toFixed(2)}
+                      {block === "Block 1" && (userSeason1FIN?.whitelistedFeesUsd === 0 ? 0 : userSeason1FIN.whitelistedFeesUsd.toFixed(2))}
+                      {block === "Block 2" && ("0.00")}
                     </span>
                   </div>
                   {/* <div className="border border-grey w-full rounded-[4px] bg-black flex flex-col w-full items-center justify-center gap-y-3 h-32">
@@ -183,6 +195,10 @@ export default function Earn() {
                       {userSeason1FINTotal === 0 ? 0 : userSeason1FINTotal.toPrecision(6)}
                       </span>
                     </div> */}
+                </div>
+                <div className="flex items-center justify-between mt-5">
+                <h1 className="text-grey1 text-sm">Total across all blocks</h1>
+                <span>50 oFIN</span>
                 </div>
               </div>
               <div className="border h-full bg-dark border-grey rounded-[4px] w-full p-5">
@@ -222,13 +238,20 @@ export default function Earn() {
           </div>
           <div className="flex flex-col gap-y-1 mt-6 mb-5 px-5">
                   <div className="flex items-center mb-2">
-                    <span className={`text-xs w-5 flex items-center justify-center ${new Date() > new Date('2024-02-09') ? 'text-white' : 'text-grey1'}`}>
+                  {block === "Block 1" && (<span className={`text-xs w-5 flex items-center justify-center ${new Date() > new Date('2024-02-09') ? 'text-white' : 'text-grey1'}`}>
                     02/09
-                    </span>
-                    <div className="w-full h-[2px]" />
-                    <span className={`text-xs w-5 flex items-center justify-center ${new Date() > new Date('2024-03-09') ? 'text-white' : 'text-grey1'}`}>
+                    </span>)}
+                    {block === "Block 2" && (<span className={`text-xs w-5 flex items-center justify-center ${new Date() > new Date('2024-03-09') ? 'text-white' : 'text-grey1'}`}>
                     03/09
-                    </span>
+                    </span>)}
+                    
+                    <div className="w-full h-[2px]" />
+                    {block === "Block 1" && (<span className={`text-xs w-5 flex items-center justify-center ${new Date() > new Date('2024-03-09') ? 'text-white' : 'text-grey1'}`}>
+                    03/09
+                    </span>)}
+                    {block === "Block 2" && (<span className={`text-xs w-5 flex items-center justify-center ${new Date() > new Date('2024-04-09') ? 'text-white' : 'text-grey1'}`}>
+                    04/09
+                    </span>)}
                     <div className="w-full h-[2px]" />
                     <span className={`text-xs w-5 flex items-center justify-center ${new Date() > new Date('2025-00-00') ? 'text-white' : 'text-grey1'}`}>
                       ??/??
@@ -239,9 +262,15 @@ export default function Earn() {
                     </span>
                   </div>
                   <div className="flex items-center">
-                  <div className={`w-6 h-6 aspect-square ${new Date() > new Date('2024-02-09') ? 'bg-main2' : 'bg-main'} rounded-full`} />
-                  <div className={`w-full h-[2px] aspect-square ${new Date() > new Date('2024-03-09') ? 'bg-main2' : 'bg-main'}`} />
-                    <div className={`w-6 h-6 aspect-square ${new Date() > new Date('2024-03-09') ? 'bg-main2' : 'bg-main'} rounded-full`} />
+                  {block === "Block 1" && ( <div className={`w-6 h-6 aspect-square ${new Date() > new Date('2024-02-09') ? 'bg-main2' : 'bg-main'} rounded-full`} />)}
+                  {block === "Block 2" && ( <div className={`w-6 h-6 aspect-square ${new Date() > new Date('2024-03-09') ? 'bg-main2' : 'bg-main'} rounded-full`} />)}
+
+                  {block === "Block 1" && ( <div className={`w-full h-[2px] aspect-square ${new Date() > new Date('2024-03-09') ? 'bg-main2' : 'bg-main'}`} />)}
+                  {block === "Block 2" && ( <div className={`w-full h-[2px] aspect-square ${new Date() > new Date('2024-04-09') ? 'bg-main2' : 'bg-main'}`} />)}
+
+                  {block === "Block 1" && ( <div className={`w-6 h-6 aspect-square ${new Date() > new Date('2024-03-09') ? 'bg-main2' : 'bg-main'} rounded-full`} />)}
+                  {block === "Block 2" && ( <div className={`w-6 h-6 aspect-square ${new Date() > new Date('2024-04-09') ? 'bg-main2' : 'bg-main'} rounded-full`} />)}
+                  
                     <div className={`w-full h-[2px] aspect-square ${new Date() > new Date('2025-00-00') ? 'bg-main2' : 'bg-main'}`} />
                     <div className={`w-6 h-6 aspect-square ${new Date() > new Date('2025-00-00') ? 'bg-main2' : 'bg-main'} rounded-full`} />
                     <div className={`w-full h-[2px] aspect-square ${new Date() > new Date('2025-00-00') ? 'bg-main2' : 'bg-main'}`} />
