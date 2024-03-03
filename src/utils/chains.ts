@@ -147,9 +147,9 @@ export const chainProperties = {
     },
     wethAddress: "0x414b73f989e7ca0653b5c98186749a348405e6d5" as `0x${string}`,
     daiAddress: "0x9f479560cd8a531e6c0fe04521cb246264fe6b71" as `0x${string}`,
-    finAddress: "0xcd453b942f35adf0364d89c05a892518825c1c3b",
+    finAddress: "0x85972e3a58a4b03cc3c36e8a05e4ca5c16f92068",
     routerAddress:
-      "0x4255e7a88bae87d2a5ff3ba317c6d512562f7078" as `0x${string}`,
+      "0xa801ca07b20ef56251739d9b3197bfd02cfa20e8" as `0x${string}`,
     rangeStakerAddress:
       "0x62e0671022af1b2e705f08b282767c57d29c7c4c" as `0x${string}`,
     coverPoolFactory:
