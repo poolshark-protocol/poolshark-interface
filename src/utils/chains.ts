@@ -149,15 +149,15 @@ export const chainProperties = {
     daiAddress: "0x9f479560cd8a531e6c0fe04521cb246264fe6b71" as `0x${string}`,
     finAddress: "0xcd453b942f35adf0364d89c05a892518825c1c3b",
     routerAddress:
-      "0x86d7513c703767595a2b33f6379e2a7a591f3c6e" as `0x${string}`,
+      "0x4255e7a88bae87d2a5ff3ba317c6d512562f7078" as `0x${string}`,
     rangeStakerAddress:
       "0x62e0671022af1b2e705f08b282767c57d29c7c4c" as `0x${string}`,
     coverPoolFactory:
-      "0x5c032AEC3a62AEC6a337D5f2aaA94905ecCBF06B" as `0x${string}`,
+      ZERO_ADDRESS as `0x${string}`,
     coverSubgraphUrl:
       "",
     limitSubgraphUrl:
-      "https://arbitrum-goerli.graph-eu.p2pify.com/871e9ed9089def9ec3ed8b54d340e36e/limit-arbitrum-sepolia",
+      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-arb-sepolia/0.2.7/gn",
   },
   "arbitrum-one": {
     sdkSupport: {
