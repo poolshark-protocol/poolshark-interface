@@ -25,7 +25,7 @@ import { limitPoolTypeIds } from "../../utils/pools";
 import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import JSBI from "jsbi";
-import { getLogoURI, logoMapKey, nativeString } from "../../utils/tokens";
+import { getLogo, logoMapKey, nativeString } from "../../utils/tokens";
 import { getRouterAddress } from "../../utils/config";
 
 export default function RangePoolPreview() {
