@@ -67,11 +67,12 @@ export const getLimitTokenUsdPrice = async (
 };
 
 export const getLogo = (token: any, logoMap: any) => {
+  // token.address = token.id ?? ZERO_ADDRESS
   return logoMap[logoMapKey(token)] ?? defaultTokenLogo
 }
 
 export const logoMapKey = (token: any) => {
-  return (token?.address?.toLowerCase() ?? ZERO_ADDRESS) + nativeString(token)
+  return ((token?.address?.toLowerCase() ?? token?.id?.toLowerCase()) ?? ZERO_ADDRESS) + nativeString(token)
 }
 
 export const nativeString = (token: any) => {
@@ -202,6 +203,7 @@ export const fetchTokenMetadata = async (
         setListedTokenList(coins.listed_tokens);
         setDisplayTokenList(coins.listed_tokens);
       }
+      console.log('search tokens', response.data.search_tokens)
       //search tokens
       for (let i = 0; i < coins.search_tokens?.length; i++) {
         coins.search_tokens[i].address = coins.search_tokens[i].id;

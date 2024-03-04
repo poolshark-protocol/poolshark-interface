@@ -8,7 +8,7 @@ import {
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { chainProperties } from "../utils/chains";
-import { ZERO_ADDRESS } from "../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import { getLimitTokenUsdPrice } from "../utils/tokens";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { useTradeStore } from "../hooks/useTradeStore";
@@ -395,9 +395,9 @@ export default function Trade() {
       if (tokenInData){
         const newTokenIn = {
           ...tokenInData,
-          native: isWeth(tokenInData.address, networkName),
-          symbol: isWeth(tokenInData.address, networkName) ? 'ETH' : tokenInData.symbol,
-          userRouterAllowance: tokenIn.userRouterAllowance,
+          native: false,
+          symbol: tokenInData.symbol,
+          userRouterAllowance: tokenIn.userRouterAllowance ?? BN_ZERO,
           userBalance: tokenIn.userBalance
         }
         if (tokenIn.callId == 2) {
@@ -426,9 +426,9 @@ export default function Trade() {
       if (tokenOutData){
         const newTokenOut = {
           ...tokenOutData,
-          native: isWeth(tokenOutData.address, networkName),
-          symbol: isWeth(tokenOutData.address, networkName) ? 'ETH' : tokenOutData.symbol,
-          userRouterAllowance: tokenOut.userRouterAllowance
+          native: false,
+          symbol: tokenOutData.symbol,
+          userRouterAllowance: tokenOut.userRouterAllowance ?? BN_ZERO
         }
         if (
             !addressMatches(router.query.from.toString(), router.query.to.toString()) &&
