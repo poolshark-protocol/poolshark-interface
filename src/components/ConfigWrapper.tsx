@@ -70,8 +70,7 @@ const ConfigWrapper = ({ children }: PropsWithChildren) => {
   ]);
 
   const {
-    chain: { id: chainId },
-    name,
+    chain: { id: chainId, network: name },
   } = usePublicClient();
 
   useEffect(() => {

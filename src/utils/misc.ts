@@ -12,7 +12,10 @@ export function useCopyElementUseEffect(event, setCopied) {
 
 export function convertBigIntAndBigNumber(input: bigint): BigNumber;
 export function convertBigIntAndBigNumber(input: BigNumber): bigint;
+export function convertBigIntAndBigNumber(input: undefined): undefined;
 export function convertBigIntAndBigNumber(input) {
+  if (input === undefined || input === null) return;
+
   if (BigNumber.isBigNumber(input)) {
     return BigInt(input.toString());
   }
@@ -20,6 +23,4 @@ export function convertBigIntAndBigNumber(input) {
   if (typeof input === 'bigint') {
     return BigNumber.from(input.toString());
   }
-
-  throw new Error('Input must be either a bigint or a BigNumber');
 }
