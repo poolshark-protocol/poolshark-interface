@@ -7,7 +7,7 @@ import {
 } from "wagmi";
 import DoubleArrowIcon from "../Icons/DoubleArrowIcon";
 import CoverMintButton from "../Buttons/CoverMintButton";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import JSBI from "jsbi";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
@@ -171,7 +171,8 @@ export default function CoverExistingPool({ goBack }) {
     onSettled(data, error) {},
   });
 
-  const allowanceInCover = convertBigIntAndBigNumber(allowanceInCoverInt)
+  const allowanceInCover = 
+    useMemo(() => convertBigIntAndBigNumber(allowanceInCoverInt), [allowanceInCoverInt]);
 
   useEffect(() => {
     if (allowanceInCover) {
