@@ -51,7 +51,11 @@ export function parseUnits(value: string, decimals: number): BigNumber {
     const decimalCount = (floatValue.toString().split('e-')[0]).split('.')[1].length
     const exponentialCount = Number(floatValue.toString().split('e-')[1])
     const decimalPlaces = decimalCount + exponentialCount
-    if (decimalPlaces > decimals || decimalPlaces >= 16) value = floatValue.toFixed(decimals)
+    if (decimalPlaces > decimals || decimalPlaces >= 16) {
+      value = floatValue.toFixed(decimals)
+    } else {
+      value = floatValue.toFixed(decimalPlaces)
+    }
   } else if (floatValue.toString().indexOf('.') != -1) {
     // example: 1.36
     const decimalPlaces = floatValue.toString().split('.')[1].length
@@ -59,7 +63,11 @@ export function parseUnits(value: string, decimals: number): BigNumber {
   } else if (floatValue.toString().indexOf('e-') != -1) {
     // example: 1e-7
     const decimalPlaces = Number(floatValue.toString().split('e-')[1])
-    if (decimalPlaces > decimals || decimalPlaces >= 16) value = floatValue.toFixed(decimals)
+    if (decimalPlaces > decimals || decimalPlaces >= 16) {
+      value = floatValue.toFixed(decimals)
+    } else {
+      value = floatValue.toFixed(decimalPlaces)
+    }
   } else {
     // if float is 1.[15]1 parseFloat will round to 1
     // thus we truncate using fixed decimals

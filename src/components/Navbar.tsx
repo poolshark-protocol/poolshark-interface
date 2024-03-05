@@ -24,7 +24,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
             <Link href="/">
               <div className="flex items-center">
                 <Image
-                  src="/static/images/logo.png"
+                  src="https://poolshark-token-lists.s3.amazonaws.com/images/logo.png"
                   width={70}
                   height={70}
                   quality="90"

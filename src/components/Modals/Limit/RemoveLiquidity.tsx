@@ -6,7 +6,7 @@ import { BigNumber, ethers } from "ethers";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { parseUnits } from "../../../utils/math/valueMath";
-import { getLogoURI, logoMapKey } from "../../../utils/tokens";
+import { getLogo, logoMapKey } from "../../../utils/tokens";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 
 export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {

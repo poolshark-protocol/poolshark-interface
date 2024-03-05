@@ -20,7 +20,7 @@ import {
 import { gasEstimateCoverMint } from "../../../utils/gas";
 import { useCoverStore } from "../../../hooks/useCoverStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
-import { getLogoURI } from "../../../utils/tokens";
+import { getLogo } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
@@ -253,7 +253,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                           </button>
                         ) : null}
                         <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                          <img height="28" width="25" src={getLogoURI(logoMap, tokenIn)} />
+                          <img height="28" width="25" src={getLogo(logoMap, tokenIn)} />
                           {tokenIn.symbol}
                         </div>
                       </div>

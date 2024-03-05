@@ -24,15 +24,16 @@ import { gasEstimateRangeMint } from "../../../utils/gas";
 import { useRouter } from "next/router";
 import { inputHandler } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
-import { getLogoURI, logoMapKey } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 import BalanceDisplay from "../../Display/BalanceDisplay";
+import { getLogo } from "../../../utils/tokens";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
-  const [chainId, networkName, logoMap] = useConfigStore((state) => [
+  const [chainId, networkName, logoMap, limitSubgraph] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
     state.logoMap,
+    state.limitSubgraph,
   ]);
 
   const [
@@ -354,11 +355,19 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
           }
         }
         setLiquidityAmount(liquidity);
-        const outputJsbi = JSBI.greaterThan(liquidity, ZERO)
-          ? isToken0
-            ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
-            : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
-          : ZERO;
+        let outputJsbi;
+        if (
+          JSBI.lessThan(rangeSqrtPrice, upperSqrtPrice) &&
+          JSBI.greaterThan(rangeSqrtPrice, lowerSqrtPrice)
+        ) {
+          outputJsbi = JSBI.greaterThan(liquidity, ZERO)
+            ? isToken0
+              ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
+              : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
+            : ZERO;
+        } else {
+          outputJsbi = ZERO;
+        }
         let outputBn = BigNumber.from(String(outputJsbi));
         if (outputBn?.lt(BN_ZERO)) outputBn = BN_ZERO
         // set amount based on inputBn
@@ -435,6 +444,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       signer,
       rangePositionData.staked,
       networkName,
+      limitSubgraph,
       rangePositionData.positionId
     );
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
@@ -533,7 +543,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                           </button>
                         ) : null}
                         <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                          <img height="28" width="25" src={logoMap[logoMapKey(tokenIn)]} />
+                          <img height="28" width="25" src={getLogo(tokenIn, logoMap)} />
                           {tokenIn.symbol}
                         </div>
                       </div>
@@ -583,7 +593,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                           </button>
                         ) : null}
                         <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                          <img height="28" width="25" src={logoMap[logoMapKey(tokenOut)]} />
+                          <img height="28" width="25" src={getLogo(tokenOut, logoMap)} />
                           {tokenOut.symbol}
                         </div>
                       </div>

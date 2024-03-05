@@ -76,7 +76,8 @@ export default function LimitSwapBurnButton({
       zeroForOne,
       signer,
       setGasFee,
-      setGasLimit
+      setGasLimit,
+      limitSubgraph,
     );
   };
 

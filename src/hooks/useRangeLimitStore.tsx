@@ -22,7 +22,7 @@ import {
   chainProperties,
   defaultNetwork,
 } from "../utils/chains";
-import { getUserAllowance, getUserBalance } from "../utils/tokens";
+import { getUserAllowance, getUserBalance, tokenListsBaseUrl } from "../utils/tokens";
 import { getWhitelistedIndex, isWhitelistedPool } from "../utils/config";
 
 type RangeLimitState = {
@@ -237,7 +237,7 @@ const initialRangeLimitState: RangeLimitState = {
     native: false,
 
     logoURI:
-      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+      tokenListsBaseUrl + "/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
     address: ZERO_ADDRESS,
     decimals: 18,
     userBalance: 0.0,
@@ -255,9 +255,8 @@ const initialRangeLimitState: RangeLimitState = {
     name: "DAI",
     symbol: "DAI",
     native: false,
-
     logoURI:
-      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/stake-range/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
+      tokenListsBaseUrl + "/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
     address: ZERO_ADDRESS,
     decimals: 18,
     userBalance: 0.0,
@@ -277,7 +276,7 @@ const initialRangeLimitState: RangeLimitState = {
   needsBalanceOut: true,
   needsSnapshot: true,
   //
-  claimTick: 0,
+  claimTick: undefined,
   //
   currentAmountOut: "0",
   startPrice: "",

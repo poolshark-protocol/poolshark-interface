@@ -829,7 +829,7 @@ export default function AddLiquidity({}) {
               <div className="h-[42.02px] w-[230px] bg-grey/60 animate-pulse rounded-[4px]" />
             ) : (
               <a
-                href={`${chainProperties[networkName]["explorerUrl"]}/address/${rangePoolAddress}`}
+                href={`${chainProperties[networkName]?.explorerUrl}/address/${rangePoolAddress}`}
                 target="_blank"
                 rel="noreferrer"
               >

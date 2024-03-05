@@ -13,17 +13,19 @@ import { useAccount } from "wagmi";
 import { gasEstimateRangeBurn } from "../../../utils/gas";
 import { parseUnits } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
-import { getLogoURI, logoMapKey } from "../../../utils/tokens";
+import { getLogo, logoMapKey } from "../../../utils/tokens";
 
 export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked }) {
   const [
     chainId,
     networkName,
     logoMap,
+    limitSubgraph,
   ] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
     state.logoMap,
+    state.limitSubgraph,
   ]);
   
   const [
@@ -166,7 +168,8 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
       burnPercent,
       staked,
       networkName,
-      signer
+      signer,
+      limitSubgraph,
     );
     if (
       newBurnGasFee.gasUnits.gt(BN_ZERO) &&
