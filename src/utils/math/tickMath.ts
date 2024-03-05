@@ -7,7 +7,7 @@ import { priceToString, scale } from './priceMath'
 import { BigNumber } from 'ethers'
 import { PrecisionMath } from './precisionMath'
 import { DyDxMath } from './dydxMath'
-import { token, tokenCover, tokenRangeLimit, tokenSwap } from '../types'
+import { baseToken, token, tokenCover, tokenRangeLimit, tokenSwap } from '../types'
 
 function mulShift(val: JSBI, mulBy: string): JSBI {
   return JSBI.signedRightShift(JSBI.multiply(val, JSBI.BigInt(mulBy)), JSBI.BigInt(128))
@@ -140,7 +140,7 @@ export abstract class TickMath {
    */
   public static MAX_SQRT_RATIO: JSBI = JSBI.BigInt('1461446703485210103287273052203988822378723970342')
 
-  public static getPriceStringAtTick(tick: number, tokenA: token, tokenB: token, tickSpacing?: number): string {
+  public static getPriceStringAtTick(tick: number, tokenA: baseToken, tokenB: baseToken, tickSpacing?: number): string {
     if (isNaN(tick)) return '0.00'
 
     // round the tick based on tickSpacing
@@ -178,7 +178,7 @@ export abstract class TickMath {
     return sqrtPrice
   }
 
-  public static getPriceStringAtSqrtPrice(sqrtPrice: JSBI, tokenA: token, tokenB: token): string {
+  public static getPriceStringAtSqrtPrice(sqrtPrice: JSBI, tokenA: baseToken, tokenB: baseToken): string {
     const sqrtPriceBD = JSBD.BigDecimal(sqrtPrice.toString())
     // square sqrtPrice
     const sqrtPriceExp = JSBD.pow(sqrtPriceBD, 2)
@@ -351,6 +351,4 @@ export abstract class TickMath {
       }
     }
   }
-
-
 }

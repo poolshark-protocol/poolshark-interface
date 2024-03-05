@@ -120,7 +120,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                   </div>
                 </Link>
               )}
-              {chainId === 34443 && (
+              {(chainId === 34443 || chainId == 421614) && (
                 <Link href="/sale">
                   <div
                     className={

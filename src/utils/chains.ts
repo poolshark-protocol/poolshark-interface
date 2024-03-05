@@ -132,6 +132,17 @@ export const chainProperties = {
   "fin-token": {
     networkName: "arbitrum-one",
     tokenAddress: "0x903ca00944d0b51e50d9f4fc96167c89f211542a",
+    sale: {
+      chainId: 421614,
+      wethAddress: "0x414b73f989e7ca0653b5c98186749a348405e6d5",
+      finAddress: "0x85972e3a58a4b03cc3c36e8a05e4ca5c16f92068",
+      explorerUrl: "https://sepolia.arbiscan.io/address/0x85972e3a58a4b03cc3c36e8a05e4ca5c16f92068",
+      poolAddress: "0xd9c7b32d38ad4b105321d3409b0f4641d80f38d7",
+      ownerAddress: "0xBd5db4c7D55C086107f4e9D17c4c34395D1B1E1E",
+      limitPositionId: 3,
+      finIsToken0: false,
+      limitLiquidity: 136081951222855622138474
+    }
   },
   "arbitrum-sepolia": {
     chainName: "Arbitrum Sepolia Test Network",
