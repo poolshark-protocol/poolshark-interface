@@ -5,19 +5,16 @@ on:
     branches:
       - 'main'
       - 'staging'
-      - 'test'
-      
   pull_request:
     branches:
       - 'main'
       - 'staging'
-      - 'test'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Modules
         run: npm install
       - name: Format
@@ -31,8 +28,8 @@ jobs:
       - name: Commit Formatting Changes
         if: github.event_name == 'pull_request' && steps.check_format_changes.outputs.code == '0' && !cancelled()
         run: |
-          git config --local user.name 'lucasregueiroo'
-          git config --local user.email 'hello@lucasregueiro.com'
+          git config --local user.name 'softwarecurator'
+          git config --local user.email 'me@softwarecurator.dev'
 
           if [ -n "$(git status --porcelain)" ]; then
           git add .
