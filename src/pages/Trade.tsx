@@ -37,17 +37,25 @@ export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
   const { data: signer } = useSigner();
 
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap, setDisplayTokenList, setNetworkName, setChainId] =
-    useConfigStore((state) => [
-      state.chainId,
-      state.networkName,
-      state.limitSubgraph,
-      state.setLimitSubgraph,
-      state.logoMap,
-      state.setDisplayTokenList,
-      state.setNetworkName,
-      state.setChainId,
-    ]);
+  const [
+    chainId,
+    networkName,
+    limitSubgraph,
+    setLimitSubgraph,
+    logoMap,
+    setDisplayTokenList,
+    setNetworkName,
+    setChainId,
+  ] = useConfigStore((state) => [
+    state.chainId,
+    state.networkName,
+    state.limitSubgraph,
+    state.setLimitSubgraph,
+    state.logoMap,
+    state.setDisplayTokenList,
+    state.setNetworkName,
+    state.setChainId,
+  ]);
 
   const [
     tradePoolData,
@@ -139,12 +147,8 @@ export default function Trade() {
     s.setLimitTabSelected,
   ]);
 
-  const {
-    error: networkError,
-    switchNetwork,
-  } = useSwitchNetwork({
-    onSuccess(data) {
-    },
+  const { error: networkError, switchNetwork } = useSwitchNetwork({
+    onSuccess(data) {},
   });
 
   const router = useRouter();
@@ -163,7 +167,6 @@ export default function Trade() {
   //log amount in and out
   const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
   const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
-
 
   const [tokenInInfo, setTokenInInfo] = useState(undefined);
   const [tokenOutInfo, setTokenOutInfo] = useState(undefined);
@@ -364,8 +367,7 @@ export default function Trade() {
       args: [address, getRouterAddress(networkName)],
       chainId: chainId,
       watch: true,
-      enabled: 
-        tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
+      enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
       onError(error) {
         console.log("Error allowance", error);
       },
@@ -387,30 +389,26 @@ export default function Trade() {
   const {
     data: tokenInData,
     refetch: refetchTokenInInfo,
-    isLoading: isTokenInLoading
+    isLoading: isTokenInLoading,
   } = useToken({
-    address: router.query.from as `0x${string}`,
-    enabled: router.query.from != undefined,
+    address:
+      (router.query.from as `0x${string}`) ?? (ZERO_ADDRESS as `0x${string}`),
+    enabled:
+      router.query.from != undefined || router.query.from != ZERO_ADDRESS,
     onSuccess() {
-      if (tokenInData){
+      if (tokenInData) {
         const newTokenIn = {
           ...tokenInData,
           native: isWeth(tokenInData.address, networkName),
-          symbol: isWeth(tokenInData.address, networkName) ? 'ETH' : tokenInData.symbol,
+          symbol: isWeth(tokenInData.address, networkName)
+            ? "ETH"
+            : tokenInData.symbol,
           userRouterAllowance: tokenIn.userRouterAllowance,
-          userBalance: tokenIn.userBalance
-        }
-        if (tokenIn.callId == 2) {
-          setTokenInInfo(tokenInData)
-          setTokenIn(
-            tokenOutData,
-            newTokenIn,
-            "0",
-            false,
-          );
-        }
-      }  
-      else if (router.query.from)
+          userBalance: tokenIn.userBalance,
+        };
+        setTokenInInfo(tokenInData);
+        setTokenIn(tokenOutData, newTokenIn, "0", false);
+      } else if (router.query.from || router.query.from != ZERO_ADDRESS)
         refetchTokenInInfo();
     },
   });
@@ -418,68 +416,63 @@ export default function Trade() {
   const {
     data: tokenOutData,
     refetch: refetchTokenOutInfo,
-    isLoading: isTokenOutLoading
+    isLoading: isTokenOutLoading,
   } = useToken({
-    address: router.query.to as `0x${string}`,
-    enabled: router.query.to != undefined,
+    address: (router.query.to as `0x${string}`) ?? undefined,
+    enabled: router.query.to != undefined || router.query.to != ZERO_ADDRESS,
     onSuccess() {
-      if (tokenOutData){
+      if (tokenOutData) {
         const newTokenOut = {
           ...tokenOutData,
           native: isWeth(tokenOutData.address, networkName),
-          symbol: isWeth(tokenOutData.address, networkName) ? 'ETH' : tokenOutData.symbol,
-          userRouterAllowance: tokenOut.userRouterAllowance
-        }
+          symbol: isWeth(tokenOutData.address, networkName)
+            ? "ETH"
+            : tokenOutData.symbol,
+          userRouterAllowance: tokenOut.userRouterAllowance,
+        };
         if (
-            !addressMatches(router.query.from.toString(), router.query.to.toString()) &&
-            (tokenOut.callId == 2 || tokenOut.address == ZERO_ADDRESS)
+          !addressMatches(
+            router.query.from.toString(),
+            router.query.to.toString()
+          )
         ) {
-          setTokenOutInfo(tokenOutData)
-          setTokenOut(
-            tokenInData,
-            newTokenOut,
-            "0",
-            false
-          );
+          setTokenOutInfo(tokenOutData);
+          setTokenOut(tokenInData, newTokenOut, "0", false);
         }
-      }  
-      else if (router.query.to)
+      } else if (router.query.to || router.query.to != ZERO_ADDRESS)
         refetchTokenOutInfo();
     },
   });
-    
+
   useEffect(() => {
-      if (tokenOutInfo === undefined && router.query.to) {
-        refetchTokenOutInfo();
-      } 
-      if (tokenInInfo === undefined && router.query.from) {
-        refetchTokenInInfo();
-      } 
+    if (tokenOutInfo === undefined && router.query.to) {
+      refetchTokenOutInfo();
+    }
+    if (tokenInInfo === undefined && router.query.from) {
+      refetchTokenInInfo();
+    }
   }, [router.query.to, tokenOutInfo, router.query.from, tokenInInfo]);
-
-
-  
 
   useEffect(() => {
     const updateRouter = async () => {
-      if (tokenIn && tokenOut && tokenOut.address !== ZERO_ADDRESS) {
+      if (
+        tokenIn &&
+        tokenOut &&
+        tokenOut.address != ZERO_ADDRESS &&
+        tokenIn.address != ZERO_ADDRESS
+      ) {
         router.push({
-          pathname: '/',
-          query: { 
-            chain: chainId, 
+          pathname: "/",
+          query: {
+            chain: chainId,
             from: tokenIn.address,
-            to: tokenOut.address
+            to: tokenOut.address,
           },
-        }, undefined, { shallow: true });
-        return true;
+        });
       }
-      return false;
-    }
-    updateRouter()
-    
+    };
+    updateRouter();
   }, [tokenIn.address, tokenOut.address, chainId]);
-
-
 
   return (
     <div className="min-h-[calc(100vh-160px)] w-[48rem] px-3 md:px-0">
@@ -599,54 +592,54 @@ export default function Trade() {
                     </td>
                   </tr>
                 </tbody>
-              ) : 
-              (<tbody className="divide-y divide-grey/70">
-                {allLimitPositions.map((allLimitPosition, index) => {
-                  if (allLimitPosition.id != undefined) {
-                    return (
-                      <UserLimitPool
-                        limitPosition={allLimitPosition}
-                        limitFilledAmount={
-                          limitFilledAmountList.length > 0
-                            ? parseFloat(
-                                ethers.utils.formatUnits(
-                                  limitFilledAmountList[index] ?? "0",
-                                  allLimitPosition.tokenOut.decimals
+              ) : (
+                <tbody className="divide-y divide-grey/70">
+                  {allLimitPositions.map((allLimitPosition, index) => {
+                    if (allLimitPosition.id != undefined) {
+                      return (
+                        <UserLimitPool
+                          limitPosition={allLimitPosition}
+                          limitFilledAmount={
+                            limitFilledAmountList.length > 0
+                              ? parseFloat(
+                                  ethers.utils.formatUnits(
+                                    limitFilledAmountList[index] ?? "0",
+                                    allLimitPosition.tokenOut.decimals
+                                  )
                                 )
-                              )
-                            : parseFloat("0.00")
-                        }
-                        address={address}
-                        href={"/limit/view"}
-                        key={allLimitPosition.id}
-                      />
-                    );
-                  }
-                })}
-              </tbody>)
-            ) : (
-              allHistoricalOrders.length == 0 ? (
-                <tbody>
-                  <tr>
-                    <td className="text-grey1 text-xs w-full  py-10 text-center col-span-5">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-10 py-4 mx-auto"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
-                          clipRule="evenodd"
+                              : parseFloat("0.00")
+                          }
+                          address={address}
+                          href={"/limit/view"}
+                          key={allLimitPosition.id}
                         />
-                      </svg>
-                      Your order history will appear here.
-                    </td>
-                  </tr>
+                      );
+                    }
+                  })}
                 </tbody>
               )
-              : (<tbody className="divide-y divide-grey/70">
+            ) : allHistoricalOrders.length == 0 ? (
+              <tbody>
+                <tr>
+                  <td className="text-grey1 text-xs w-full  py-10 text-center col-span-5">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="w-10 py-4 mx-auto"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Your order history will appear here.
+                  </td>
+                </tr>
+              </tbody>
+            ) : (
+              <tbody className="divide-y divide-grey/70">
                 {allHistoricalOrders.map((allHistoricalOrder, index) => {
                   if (allHistoricalOrder.amountIn != undefined) {
                     return (
@@ -711,7 +704,7 @@ export default function Trade() {
                   }
                 })}
               </tbody>
-            ))}
+            )}
           </table>
         </div>
       </div>
