@@ -1,4 +1,4 @@
-name: Pull Main Changes into Staging and Experimental
+name: Pull Main Changes into Staging and Test
 
 on:
   push:
