@@ -360,11 +360,19 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
           }
         }
         setLiquidityAmount(liquidity);
-        const outputJsbi = JSBI.greaterThan(liquidity, ZERO)
-          ? isToken0
-            ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
-            : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
-          : ZERO;
+        let outputJsbi;
+        if (
+          JSBI.lessThan(rangeSqrtPrice, upperSqrtPrice) &&
+          JSBI.greaterThan(rangeSqrtPrice, lowerSqrtPrice)
+        ) {
+          outputJsbi = JSBI.greaterThan(liquidity, ZERO)
+            ? isToken0
+              ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
+              : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
+            : ZERO;
+        } else {
+          outputJsbi = ZERO;
+        }
         let outputBn = BigNumber.from(String(outputJsbi));
         if (outputBn?.lt(BN_ZERO)) outputBn = BN_ZERO
         // set amount based on inputBn

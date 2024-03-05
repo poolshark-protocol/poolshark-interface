@@ -82,7 +82,7 @@ export default function RangeAddLiqButton({
     enabled: positionId != undefined && poolAddress != ZERO_ADDRESS,
     gasLimit,
     onError(err) {
-      console.log('mint error')  
+      console.log('range add liq error')  
     },
   });
 
