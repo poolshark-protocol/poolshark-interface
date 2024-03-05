@@ -445,22 +445,17 @@ export default function Trade() {
   });
 
   useEffect(() => {
-    if (tokenOutInfo === undefined && router.query.to) {
+    if (router.query.to != ZERO_ADDRESS) {
       refetchTokenOutInfo();
     }
-    if (tokenInInfo === undefined && router.query.from) {
+    if (router.query.from != ZERO_ADDRESS) {
       refetchTokenInInfo();
     }
-  }, [router.query.to, tokenOutInfo, router.query.from, tokenInInfo]);
+  }, [router.query]);
 
   useEffect(() => {
     const updateRouter = async () => {
-      if (
-        tokenIn &&
-        tokenOut &&
-        tokenOut.address != ZERO_ADDRESS &&
-        tokenIn.address != ZERO_ADDRESS
-      ) {
+      if (tokenOut.address != ZERO_ADDRESS && tokenIn.address != ZERO_ADDRESS) {
         router.push({
           pathname: "/",
           query: {
