@@ -407,7 +407,12 @@ export default function Trade() {
           userBalance: tokenIn.userBalance,
         };
         setTokenInInfo(tokenInData);
-        setTokenIn(tokenOutData, newTokenIn, "0", false);
+        if (
+          router.query.from != tokenIn.address ||
+          tokenIn.address == ZERO_ADDRESS
+        ) {
+          setTokenIn(tokenOutData, newTokenIn, "0", false);
+        }
       } else if (router.query.from || router.query.from != ZERO_ADDRESS)
         refetchTokenInInfo();
     },
