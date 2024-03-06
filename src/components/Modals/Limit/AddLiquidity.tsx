@@ -17,10 +17,11 @@ import { getLogoURI, logoMapKey } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
-  const [chainId, logoMap, networkName] = useConfigStore((state) => [
+  const [chainId, logoMap, networkName, limitSubgraph] = useConfigStore((state) => [
     state.chainId,
     state.logoMap,
     state.networkName,
+    state.limitSubgraph,
   ]);
 
   const [
@@ -141,7 +142,8 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
         signer,
         setMintGasFee,
         setMintGasLimit,
-        networkName
+        networkName,
+        limitSubgraph,
       );
     }
   }
