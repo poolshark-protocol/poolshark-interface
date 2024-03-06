@@ -28,6 +28,7 @@ import { parseUnits } from "../../utils/math/valueMath";
 import { chainProperties } from "../../utils/chains";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
+import { convertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function ViewLimit() {
   const [chainId, logoMap, networkName, limitSubgraph, setLimitSubgraph] =
@@ -184,16 +185,15 @@ export default function ViewLimit() {
     address: limitPoolAddress,
     abi: limitPoolABI,
     functionName: "snapshotLimit",
+    // @shax - after abi is typed it says it needs to be an object instead of array
     args: [
-      [
-        address,
-        parseUnits("1", 38),
-        Number(limitPositionData.positionId),
-        BigNumber.from(
-          claimTick ?? 0
-        ),
-        tokenIn.callId == 0,
-      ],
+      {
+        owner: address,
+        burnPercent: convertBigIntAndBigNumber(parseUnits("1", 38)),
+        positionId: Number(limitPositionData.positionId),
+        claim: claimTick ?? 0,
+        zeroForOne: tokenIn.callId == 0,
+      }
     ],
     chainId: chainId,
     watch: needsSnapshot,

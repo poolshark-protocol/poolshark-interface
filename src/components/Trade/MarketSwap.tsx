@@ -31,7 +31,7 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { getRouterAddress } from "../../utils/config";
 import BalanceDisplay from "../Display/BalanceDisplay";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
-import { convertBigIntAndBigNumber } from "../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -300,7 +300,7 @@ export default function MarketSwap() {
     address: getRouterAddress(networkName), //contract address,
     abi: poolsharkRouterABI, // contract abi,
     functionName: "multiQuote",
-    args: [availablePools, quoteParams, true],
+    args: [availablePools, deepConvertBigIntAndBigNumber(quoteParams), true],
     chainId: chainId,
     enabled:
       availablePools != undefined && quoteParams != undefined && !wethCall,
@@ -312,13 +312,9 @@ export default function MarketSwap() {
 
   useEffect(() => {
     let poolQuotesSorted: QuoteResults[] = [];
-    if (data &&  Array.isArray(data) && data[0]) {
+    if (data && data[0]) {
       // format to use BigNumber
-      const poolQuotes = data.map((pq) => ({
-        ...pq,
-        amountIn: convertBigIntAndBigNumber(pq.amountIn),
-        amountOut: convertBigIntAndBigNumber(pq.amountOut),
-      }));
+      const poolQuotes = deepConvertBigIntAndBigNumber(data)
 
       if (
         poolQuotes[0].amountIn?.gt(BN_ZERO) &&

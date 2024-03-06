@@ -326,8 +326,8 @@ export default function ViewCover() {
       {
         owner: address,
         positionId: Number(coverPositionData.positionId),
-        burnPercent: BigNumber.from("0"),
-        claim: BigNumber.from(claimTick),
+        burnPercent: BigInt(0),
+        claim: claimTick,
         zeroForOne: Boolean(coverPositionData.zeroForOne),
       },
     ],

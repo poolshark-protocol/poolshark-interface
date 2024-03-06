@@ -9,6 +9,7 @@ import { vFinABI } from "../../abis/evm/vFin";
 import { parseUnits } from "../../utils/math/valueMath";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
+import { convertBigIntAndBigNumber } from "../../utils/misc";
   
   export default function VestFinButton({
     vFinAddress,
@@ -36,7 +37,7 @@ import { chainProperties } from "../../utils/chains";
       address: tellerAddress,
       abi: bondTellerABI,
       functionName: "balanceOf",
-      args: [address, bondTokenId],
+      args: [address, convertBigIntAndBigNumber(bondTokenId)],
       chainId: chainId,
       watch: true,
       enabled: tellerAddress != undefined
@@ -48,6 +49,7 @@ import { chainProperties } from "../../utils/chains";
       },
     });
 
+    // @shax
     useEffect(() => {
       if (bondBalanceData) {
         setBondBalance(BigNumber.from(bondBalanceData.toString()));

@@ -25,6 +25,7 @@ import { vFinABI } from "../../abis/evm/vFin";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { numFormat } from "../../utils/math/valueMath";
 import RedeemBondButton from "../../components/Buttons/RedeemBondButton";
+import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function Bond() {
   const { address, isConnected } = useAccount();
@@ -106,7 +107,8 @@ export default function Bond() {
     address: bondProtocolConfig["vFinAddress"],
     abi: vFinABI,
     functionName: "vestPositions",
-    args: [vestingPositionId],
+    // @shax - is vestingPositionId a BigNumber
+    args: [convertBigIntAndBigNumber(vestingPositionId as BigNumber)],
     chainId: chainId,
     watch: true,
     enabled: bondProtocolConfig["vFinAddress"] != undefined
@@ -123,6 +125,7 @@ export default function Bond() {
     address: bondProtocolConfig["vFinAddress"],
     abi: vFinABI,
     functionName: "viewClaim",
+    // @shax - here vestingPositionId is expected to be a number
     args: [vestingPositionId],
     chainId: chainId,
     watch: true,
@@ -139,7 +142,7 @@ export default function Bond() {
 
   useEffect(() => {
     if (vestedPosition != undefined) {
-      if (vestedPosition[0]?.gt(BN_ZERO)) {
+      if (convertBigIntAndBigNumber(vestedPosition[0])?.gt(BN_ZERO)) {
         setVestedAmount(parseFloat(formatUnits(vestedPosition[0] ?? 0, 18)));
       }
     }
@@ -247,7 +250,7 @@ export default function Bond() {
 
   useEffect(() => {
     if (marketPurchaseData) {
-      setMarketPurchase(marketPurchaseData);
+      setMarketPurchase(deepConvertBigIntAndBigNumber(marketPurchaseData));
       setNeedsMarketPurchaseData(false);
     }
   }, [marketPurchaseData]);
@@ -267,7 +270,7 @@ export default function Bond() {
 
   useEffect(() => {
     if (currentCapacityData) {
-      setCurrentCapacity(currentCapacityData);
+      setCurrentCapacity(convertBigIntAndBigNumber(currentCapacityData as bigint));
       setNeedsCapacityData(false);
     }
   }, [currentCapacityData]);
@@ -315,7 +318,7 @@ export default function Bond() {
     address: bondProtocolConfig["tellerAddress"],
     abi: bondTellerABI,
     functionName: "balanceOf",
-    args: [address, bondTokenId],
+    args: [address, convertBigIntAndBigNumber(bondTokenId)],
     chainId: chainId,
     watch: true,
     enabled: bondTokenId != undefined
@@ -328,7 +331,7 @@ export default function Bond() {
 
   useEffect(() => {
     if (bondTokenBalanceData) {
-      setBondTokenBalance(bondTokenBalanceData);
+      setBondTokenBalance(convertBigIntAndBigNumber(bondTokenBalanceData as bigint));
       setNeedsBondTokenData(false);
     }
   }, [bondTokenBalanceData]);
