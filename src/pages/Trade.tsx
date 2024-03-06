@@ -418,7 +418,8 @@ export default function Trade() {
     refetch: refetchTokenOutInfo,
     isLoading: isTokenOutLoading,
   } = useToken({
-    address: (router.query.to as `0x${string}`) ?? undefined,
+    address:
+      (router.query.to as `0x${string}`) ?? (ZERO_ADDRESS as `0x${string}`),
     enabled: router.query.to != undefined || router.query.to != ZERO_ADDRESS,
     onSuccess() {
       if (tokenOutData) {
@@ -429,14 +430,13 @@ export default function Trade() {
             ? "ETH"
             : tokenOutData.symbol,
           userRouterAllowance: tokenOut.userRouterAllowance,
+          userBalance: tokenOut.userBalance,
         };
+        setTokenOutInfo(tokenOutData);
         if (
-          !addressMatches(
-            router.query.from.toString(),
-            router.query.to.toString()
-          )
+          router.query.to != tokenOut.address ||
+          tokenOut.address == ZERO_ADDRESS
         ) {
-          setTokenOutInfo(tokenOutData);
           setTokenOut(tokenInData, newTokenOut, "0", false);
         }
       } else if (router.query.to || router.query.to != ZERO_ADDRESS)
@@ -453,19 +453,20 @@ export default function Trade() {
     }
   }, [router.query]);
 
+  const updateRouter = () => {
+    if (tokenOut.address != ZERO_ADDRESS && tokenIn.address != ZERO_ADDRESS) {
+      router.push({
+        pathname: "/",
+        query: {
+          chain: chainId,
+          from: tokenIn.address,
+          to: tokenOut.address,
+        },
+      });
+    }
+  };
+
   useEffect(() => {
-    const updateRouter = async () => {
-      if (tokenOut.address != ZERO_ADDRESS && tokenIn.address != ZERO_ADDRESS) {
-        router.push({
-          pathname: "/",
-          query: {
-            chain: chainId,
-            from: tokenIn.address,
-            to: tokenOut.address,
-          },
-        });
-      }
-    };
     updateRouter();
   }, [tokenIn.address, tokenOut.address, chainId]);
 
