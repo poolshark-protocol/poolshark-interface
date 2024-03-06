@@ -394,7 +394,7 @@ export default function Trade() {
     address:
       (router.query.from as `0x${string}`) ?? (ZERO_ADDRESS as `0x${string}`),
     enabled:
-      router.query.from != undefined || router.query.from != ZERO_ADDRESS,
+      router.query.from != undefined && router.query.from != ZERO_ADDRESS,
     onSuccess() {
       if (tokenInData) {
         const newTokenIn = {
@@ -425,7 +425,7 @@ export default function Trade() {
   } = useToken({
     address:
       (router.query.to as `0x${string}`) ?? (ZERO_ADDRESS as `0x${string}`),
-    enabled: router.query.to != undefined || router.query.to != ZERO_ADDRESS,
+    enabled: router.query.to != undefined && router.query.to != ZERO_ADDRESS,
     onSuccess() {
       if (tokenOutData) {
         const newTokenOut = {
