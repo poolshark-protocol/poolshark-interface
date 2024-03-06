@@ -532,7 +532,8 @@ export default function MarketSwap() {
         signer,
         isConnected,
         setSwapGasFee,
-        setSwapGasLimit
+        setSwapGasLimit,
+        limitSubgraph,
       );
     } else {
       setSwapGasLimit(BN_ZERO);
@@ -549,7 +550,8 @@ export default function MarketSwap() {
         signer,
         isConnected,
         setSwapGasFee,
-        setSwapGasLimit
+        setSwapGasLimit,
+        limitSubgraph,
       );
     }
   }

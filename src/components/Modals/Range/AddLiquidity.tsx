@@ -29,10 +29,11 @@ import { getRouterAddress } from "../../../utils/config";
 import BalanceDisplay from "../../Display/BalanceDisplay";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
-  const [chainId, networkName, logoMap] = useConfigStore((state) => [
+  const [chainId, networkName, logoMap, limitSubgraph] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
     state.logoMap,
+    state.limitSubgraph,
   ]);
 
   const [
@@ -354,11 +355,19 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
           }
         }
         setLiquidityAmount(liquidity);
-        const outputJsbi = JSBI.greaterThan(liquidity, ZERO)
-          ? isToken0
-            ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
-            : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
-          : ZERO;
+        let outputJsbi;
+        if (
+          JSBI.lessThan(rangeSqrtPrice, upperSqrtPrice) &&
+          JSBI.greaterThan(rangeSqrtPrice, lowerSqrtPrice)
+        ) {
+          outputJsbi = JSBI.greaterThan(liquidity, ZERO)
+            ? isToken0
+              ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
+              : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
+            : ZERO;
+        } else {
+          outputJsbi = ZERO;
+        }
         let outputBn = BigNumber.from(String(outputJsbi));
         if (outputBn?.lt(BN_ZERO)) outputBn = BN_ZERO
         // set amount based on inputBn
@@ -435,6 +444,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       signer,
       rangePositionData.staked,
       networkName,
+      limitSubgraph,
       rangePositionData.positionId
     );
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));

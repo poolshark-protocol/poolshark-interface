@@ -20,10 +20,12 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
     chainId,
     networkName,
     logoMap,
+    limitSubgraph,
   ] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
     state.logoMap,
+    state.limitSubgraph,
   ]);
   
   const [
@@ -166,7 +168,8 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
       burnPercent,
       staked,
       networkName,
-      signer
+      signer,
+      limitSubgraph,
     );
     if (
       newBurnGasFee.gasUnits.gt(BN_ZERO) &&

@@ -84,7 +84,7 @@ export default function RangeAddLiqButton({
       gasLimit: gasLimit,
     },
     onError(err) {
-      console.log('mint error')  
+      console.log('range add liq error')  
     },
   });
 
