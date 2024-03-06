@@ -687,7 +687,11 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       //tokenIn
       tokenIn: {
         ...initialTradeState.tokenIn,
-        address: chainProperties[chainIdsToNames[chainId]]["wethAddress"],
+        address: chainProperties[chainIdsToNames[chainId]].wethAddress,
+        name: chainProperties[chainIdsToNames[chainId]]["nativeCurrency"]["name"],
+        symbol: chainProperties[chainIdsToNames[chainId]]["nativeCurrency"]["symbol"],
+        decimals: chainProperties[chainIdsToNames[chainId]]["nativeCurrency"]["decimals"],
+        native: true,
       },
       //tokenOut
       tokenOut: initialTradeState.tokenOut,
