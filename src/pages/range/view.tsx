@@ -437,12 +437,12 @@ export default function ViewRange() {
           <div className="flex items-center gap-x-3">
             <div className="flex items-center">
               {isLoading ? (
-                <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
+                <div className="w-[50px] h-[50px] rounded-full animate-pulse bg-grey/60" />
               ) : (
                 <img height="50" width="50" src={tokenIn.logoURI} />
               )}
               {isLoading ? (
-                <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
+                <div className="w-[50px] h-[50px] rounded-full animate-pulse ml-[-12px] bg-grey/60" />
               ) : (
                 <img
                   height="50"

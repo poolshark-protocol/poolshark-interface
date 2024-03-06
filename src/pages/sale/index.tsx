@@ -15,9 +15,10 @@ import { baseToken, token } from "../../utils/types";
 import JSBI from "jsbi";
 
 export default function Bond() {
-  const [priceFill, setPriceFill] = useState("50%");
-  const [price, setPrice] = useState(".");
-  const [ethReceived, setEthReceived] = useState(".");
+  const [priceFill, setPriceFill] = useState("100%");
+  const [isLoading, setIsLoading] = useState(true);
+  const [price, setPrice] = useState("");
+  const [ethReceived, setEthReceived] = useState("");
   const [ethTotal, setEthTotal] = useState(formatUnits(getExpectedAmountOutFromInput(64620, 69720, false, parseUnits("1000000", 18)), 18));
   const [ethUsdPrice, setEthUsdPrice] = useState(0);
   const startSqrtPrice = TickMath.getSqrtRatioAtTick(69720);
@@ -104,18 +105,21 @@ export default function Bond() {
   });
 
   useEffect(() => {
-    if (isNaN(parseFloat(ethReceived)) || parseFloat(startUsdPrice) == 0 || parseFloat(endUsdPrice) == 0) return
-    const liquidity = JSBI.BigInt(saleConfig.limitLiquidity)
-    const ethAmount = JSBI.BigInt(parseUnits(ethReceived, 18))
-    const currentSqrtPrice = TickMath.getNewSqrtPrice(startSqrtPrice, liquidity, ethAmount, true, true)
-    const currentPrice = parseFloat(TickMath.getPriceStringAtSqrtPrice(currentSqrtPrice, wethToken, finToken))
-    const currentUsdPrice = (ethUsdPrice / currentPrice).toFixed(2)
-    const percentFill = (parseFloat(currentUsdPrice) - parseFloat(startUsdPrice)) / (parseFloat(endUsdPrice) - parseFloat(startUsdPrice))
-    //setPriceFill((100 - percentFill * 100) + '%')
-    console.log('current price', TickMath.getPriceStringAtSqrtPrice(currentSqrtPrice, wethToken, finToken))
-    console.log('current usd price', (ethUsdPrice / currentPrice).toFixed(2))
-    console.log('percent fill', percentFill * 100)
-    console.log('price fill', (100 - percentFill * 100) + '%')
+    (async () => {
+      if (isNaN(parseFloat(ethReceived)) || parseFloat(startUsdPrice) == 0 || parseFloat(endUsdPrice) == 0) return
+      const liquidity = JSBI.BigInt(saleConfig.limitLiquidity)
+      const ethAmount = JSBI.BigInt(parseUnits(ethReceived, 18))
+      const currentSqrtPrice = TickMath.getNewSqrtPrice(startSqrtPrice, liquidity, ethAmount, true, true)
+      const currentPrice = parseFloat(TickMath.getPriceStringAtSqrtPrice(currentSqrtPrice, wethToken, finToken))
+      const currentUsdPrice = (ethUsdPrice / currentPrice).toFixed(2)
+      const percentFill = (parseFloat(currentUsdPrice) - parseFloat(startUsdPrice)) / (parseFloat(endUsdPrice) - parseFloat(startUsdPrice))
+      setPriceFill((100 - percentFill * 100) + '%')
+      console.log('current price', TickMath.getPriceStringAtSqrtPrice(currentSqrtPrice, wethToken, finToken))
+      console.log('current usd price', (ethUsdPrice / currentPrice).toFixed(2))
+      console.log('percent fill', percentFill * 100)
+      console.log('price fill', (100 - percentFill * 100) + '%')
+      setIsLoading(false);
+    })();
     // 1. get starting sqrt price - DONE
     // 2. set constant position liquidity - DONE
     // 3. amount will match ethReceived - DONE
@@ -171,9 +175,14 @@ export default function Bond() {
               </div>
               <div className="flex text-xs text-[#999999] items-center gap-x-3">
                 STATUS:{" "}
+                {isLoading ? (
+                <div className="w-[117px] h-[20px] rounded-[4px] bg-grey/60" />
+              ) : (
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
                   {(parseFloat(ethReceived) / parseFloat(ethTotal) * 100).toFixed(2)}% FILLED
                 </span>
+              )}
+                
               </div>
             </div>
           </div>
@@ -198,26 +207,46 @@ export default function Bond() {
                 <span className="text-main2/60 text-[13px]">
                   CURRENT PRICE
                 </span>
+                {isLoading ? (
+                <div className="h-[40px] w-36 bg-main/60 animate-pulse rounded-[4px]" />
+              ) : (
                 <span className="text-main2 lg:text-4xl text-3xl">
                   {price}
                 </span>
+              )}
+                
               </div>
               <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-4 h-32">
                 <span className="text-grey1 text-[13px]">TOTAL VALUE SOLD</span>
+                {isLoading ? (
+                <div className="h-[40px] w-[70%] bg-grey/30 animate-pulse rounded-[4px]" />
+              ) : (
                 <span className="text-white text-center xl:text-4xl md:text-3xl text-2xl">
                   ${(new Intl.NumberFormat('en-US')).format(parseFloat((parseFloat(ethReceived) * ethUsdPrice).toFixed(2)))}
-                 <span className="text-grey2"> / ${(new Intl.NumberFormat('en-US')).format(parseFloat((parseFloat(ethTotal) * ethUsdPrice).toFixed(2)))}</span>
+                 <span className="text-grey2 md:text-base text-sm"> / ${(new Intl.NumberFormat('en-US')).format(parseFloat((parseFloat(ethTotal) * ethUsdPrice).toFixed(2)))}</span>
                 </span>
+              )}
+                
               </div>
             </div>
           </div>
           <div className="mt-10  grid relative bg-dark border border-grey md:h-[350px] flex items-end">
-            <div className="bg-black border-grey border px-5 py-2 rounded-[4px] absolute text-xs bottom-6 lg:bottom-16 left-5">
+          {isLoading ? (
+                <div className="w-[157px] h-[34px] absolute bottom-6 lg:bottom-16 left-5 bg-grey/20 animate-pulse rounded-[4px]" />
+              ) : (
+                <div className="bg-black border-grey border px-5 py-2 rounded-[4px] absolute text-xs bottom-6 lg:bottom-16 left-5">
               <span className="text-white/70">Start Price:</span> ${startUsdPrice}
             </div>
-            <div className="bg-black border-grey border px-5 py-2 rounded-[4px] absolute text-xs bottom-6 md:bottom-auto md:top-4 right-5">
+              )}
+              {isLoading ? (
+                <div className="w-[157px] h-[34px] absolute bottom-6 md:bottom-auto md:top-4 right-5 bg-grey/20 animate-pulse rounded-[4px]" />
+              ) : (
+                <div className="bg-black border-grey border px-5 py-2 rounded-[4px] absolute text-xs bottom-6 md:bottom-auto md:top-4 right-5">
             <span className="text-white/70">End Price:</span> ${endUsdPrice}
             </div>
+              )}
+            
+            
           <div className="svg-container bottom-0" style={{ position: 'relative', width: '100%', height: '300px' }}>
   <div className="absolute w-full h-full bottom-0 left-0 p-5">
     <svg
@@ -269,7 +298,7 @@ export default function Bond() {
           }
 
           .animatedFill {
-            animation: fillAnimation 3s forwards; /* Adjust time as needed */
+            animation: fillAnimation 2s forwards; /* Adjust time as needed */
           }
           .grid {
             background-image: radial-gradient(rgba(44, 46, 51, 0.4) 2px, transparent 2px);
