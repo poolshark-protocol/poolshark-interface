@@ -399,10 +399,12 @@ export default function Trade() {
       if (tokenInData) {
         const newTokenIn = {
           ...tokenInData,
-          native: isWeth(tokenInData.address, networkName),
-          symbol: isWeth(tokenInData.address, networkName)
-            ? "ETH"
-            : tokenInData.symbol,
+          native: isWeth(tokenInData.address, networkName)
+            ? router.query.fromSymbol == "ETH"
+              ? true
+              : false
+            : false,
+          symbol: router.query.fromSymbol,
           userRouterAllowance: tokenIn.userRouterAllowance,
           userBalance: tokenIn.userBalance,
         };
@@ -430,10 +432,12 @@ export default function Trade() {
       if (tokenOutData) {
         const newTokenOut = {
           ...tokenOutData,
-          native: isWeth(tokenOutData.address, networkName),
-          symbol: isWeth(tokenOutData.address, networkName)
-            ? "ETH"
-            : tokenOutData.symbol,
+          native: isWeth(tokenOutData.address, networkName)
+            ? router.query.fromSymbol == "WETH"
+              ? true
+              : false
+            : false,
+          symbol: router.query.toSymbol,
           userRouterAllowance: tokenOut.userRouterAllowance,
           userBalance: tokenOut.userBalance,
         };
@@ -448,6 +452,7 @@ export default function Trade() {
         refetchTokenOutInfo();
     },
   });
+
 
   useEffect(() => {
     if (router.query.to != ZERO_ADDRESS) {
@@ -465,7 +470,9 @@ export default function Trade() {
         query: {
           chain: chainId,
           from: tokenIn.address,
+          fromSymbol: tokenIn.symbol,
           to: tokenOut.address,
+          toSymbol: tokenOut.symbol,
         },
       });
     }
@@ -473,7 +480,13 @@ export default function Trade() {
 
   useEffect(() => {
     updateRouter();
-  }, [tokenIn.address, tokenOut.address, chainId]);
+  }, [
+    tokenIn.address,
+    tokenIn.symbol,
+    tokenOut.address,
+    tokenOut.symbol,
+    chainId,
+  ]);
 
   return (
     <div className="min-h-[calc(100vh-160px)] w-[48rem] px-3 md:px-0">
