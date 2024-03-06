@@ -191,9 +191,9 @@ export default function Bond() {
         <div className=" w-full mt-8 gap-10">
           <div className="border h-min border-grey rounded-[4px] w-full p-5 pb-7">
             <div className="flex justify-between">
-              <h1 className="uppercase text-white">STATISTICS</h1>
+              <h1 className="uppercase text-white mb-2">STATISTICS</h1>
             </div>
-            <div className="flex flex-row gap-6 mt-2">
+            <div className="flex md:flex-row flex-col gap-6 mt-2">
               <div className="border w-full border-main rounded-[4px] flex flex-col w-full items-center justify-center gap-y-4 h-32 bg-main1 ">
                 <span className="text-main2/60 text-[13px]">
                   CURRENT PRICE
@@ -211,11 +211,11 @@ export default function Bond() {
               </div>
             </div>
           </div>
-          <div className="mt-10  grid relative bg-dark border border-grey h-[350px] flex items-end">
-            <div className="bg-black border-grey border px-5 py-2 rounded-[4px] absolute text-xs bottom-16 left-5">
+          <div className="mt-10  grid relative bg-dark border border-grey md:h-[350px] flex items-end">
+            <div className="bg-black border-grey border px-5 py-2 rounded-[4px] absolute text-xs bottom-6 lg:bottom-16 left-5">
               <span className="text-white/70">Start Price:</span> ${startUsdPrice}
             </div>
-            <div className="bg-black border-grey border px-5 py-2 rounded-[4px] absolute text-xs top-4 right-5">
+            <div className="bg-black border-grey border px-5 py-2 rounded-[4px] absolute text-xs bottom-6 md:bottom-auto md:top-4 right-5">
             <span className="text-white/70">End Price:</span> ${endUsdPrice}
             </div>
           <div className="svg-container bottom-0" style={{ position: 'relative', width: '100%', height: '300px' }}>
