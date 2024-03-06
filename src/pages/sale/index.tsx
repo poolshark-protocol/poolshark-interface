@@ -15,7 +15,7 @@ import { baseToken, token } from "../../utils/types";
 import JSBI from "jsbi";
 
 export default function Bond() {
-  const [priceFill, setPriceFill] = useState("100%");
+  const [priceFill, setPriceFill] = useState("50%");
   const [price, setPrice] = useState(".");
   const [ethReceived, setEthReceived] = useState(".");
   const [ethTotal, setEthTotal] = useState(formatUnits(getExpectedAmountOutFromInput(64620, 69720, false, parseUnits("1000000", 18)), 18));
@@ -60,6 +60,7 @@ export default function Bond() {
     fetchFinUsdPrice();
     fetchEthUsdPrice();
   }, [networkName]);
+
 
   useEffect(() => {
     if (!ethUsdPrice) return
@@ -110,7 +111,7 @@ export default function Bond() {
     const currentPrice = parseFloat(TickMath.getPriceStringAtSqrtPrice(currentSqrtPrice, wethToken, finToken))
     const currentUsdPrice = (ethUsdPrice / currentPrice).toFixed(2)
     const percentFill = (parseFloat(currentUsdPrice) - parseFloat(startUsdPrice)) / (parseFloat(endUsdPrice) - parseFloat(startUsdPrice))
-    setPriceFill((100 - percentFill * 100) + '%')
+    //setPriceFill((100 - percentFill * 100) + '%')
     console.log('current price', TickMath.getPriceStringAtSqrtPrice(currentSqrtPrice, wethToken, finToken))
     console.log('current usd price', (ethUsdPrice / currentPrice).toFixed(2))
     console.log('percent fill', percentFill * 100)
@@ -210,7 +211,7 @@ export default function Bond() {
               </div>
             </div>
           </div>
-          <div className="mt-10 relative bg-dark border border-grey h-[350px] flex items-end">
+          <div className="mt-10  grid relative bg-dark border border-grey h-[350px] flex items-end">
             <div className="bg-black border-grey border px-5 py-2 rounded-[4px] absolute text-xs bottom-16 left-5">
               <span className="text-white/70">Start Price:</span> ${startUsdPrice}
             </div>
@@ -233,7 +234,7 @@ export default function Bond() {
       />
     </svg>
   </div>
-  <div className="absolute w-full h-full bottom-0 left-0 p-5" style={{ clipPath: `inset(0 ${priceFill} 0 0)` }}>
+  <div className="absolute w-full h-full bottom-0 left-0 p-5 animatedFill" style={{ animationPlayState: 'running' }}>
     <svg
       width="100%"
       height="100%"
@@ -256,6 +257,27 @@ export default function Bond() {
           </div>
         </div>
       </div>
+      <style>
+        {`
+          @keyframes fillAnimation {
+            from {
+              clip-path: inset(0 100% 0 0);
+            }
+            to {
+              clip-path: inset(0 ${priceFill} 0 0);
+            }
+          }
+
+          .animatedFill {
+            animation: fillAnimation 3s forwards; /* Adjust time as needed */
+          }
+          .grid {
+            background-image: radial-gradient(rgba(44, 46, 51, 0.4) 2px, transparent 2px);
+background-size: 20px 20px;
+background-color: #0B0C0C;
+          }
+        `}
+      </style>
     </div>
   );
 }
