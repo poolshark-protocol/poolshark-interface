@@ -18,7 +18,6 @@ export default function SelectToken(props) {
   const [customInput, setCustomInput] = useState("");
   const [tokenInfo, setTokenInfo] = useState(undefined);
 
-
   const [
     chainId,
     networkName,

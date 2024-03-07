@@ -31,6 +31,16 @@ function ChainImage({ chainId }) {
                 }`}
             />
         )
+    } else if (chainId == 2525) {
+        return (
+            <img
+                style={{ width: 17, height: 17 }}
+                src="https://poolshark-token-lists.s3.amazonaws.com/images/in_evm_alt.svg"
+                className={`aspect-square ${
+                    chainId === 534351 && "saturate-0"
+                }`}
+            />
+        )
     } else {
         return (
             <></>
