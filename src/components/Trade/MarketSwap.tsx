@@ -217,6 +217,8 @@ export default function MarketSwap() {
     }
   }, [tokenIn.address, tokenOut.address]);
 
+  // console.log('token in:', tokenIn)
+
   const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
     if (isAmountIn) {
       if (bnValue.gt(BN_ZERO)) {

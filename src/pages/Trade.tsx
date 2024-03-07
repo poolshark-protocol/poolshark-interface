@@ -404,7 +404,9 @@ export default function Trade() {
               ? true
               : false
             : false,
-          symbol: router.query.fromSymbol,
+          symbol: isWeth(tokenInData.address, networkName)
+            ? chainProperties[networkName].nativeCurrency.symbol
+            : tokenInData.symbol,
           userRouterAllowance: tokenIn.userRouterAllowance,
           userBalance: tokenIn.userBalance,
         };
@@ -437,7 +439,9 @@ export default function Trade() {
               ? true
               : false
             : false,
-          symbol: router.query.toSymbol,
+          symbol: isWeth(tokenInData.address, networkName)
+            ? chainProperties[networkName].nativeCurrency.symbol
+            : tokenOutData.symbol,
           userRouterAllowance: tokenOut.userRouterAllowance,
           userBalance: tokenOut.userBalance,
         };
@@ -452,7 +456,6 @@ export default function Trade() {
         refetchTokenOutInfo();
     },
   });
-
 
   useEffect(() => {
     if (router.query.to != ZERO_ADDRESS) {
