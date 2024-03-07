@@ -5,6 +5,7 @@ import { ConnectWalletButton } from "./Buttons/ConnectWalletButton";
 import Trade from "./Icons/TradeIcon";
 import Range from "./Icons/RangeIcon";
 import { useConfigStore } from "../hooks/useConfigStore";
+import { saleConfig } from "../pages/_app";
 
 interface NavOptions {
   create?: boolean;
@@ -15,6 +16,8 @@ export default function Navbar({ create, setCreate }: NavOptions) {
   const router = useRouter();
 
   const [chainId] = useConfigStore((state) => [state.chainId]);
+
+  console.log('chain id:', chainId)
 
   return (
     <div className="py-2 mx-auto w-full border-b border-grey">
@@ -96,7 +99,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                   </div>
                 </Link>
               )}
-              {chainId === 34443 || chainId === 42161 || chainId === 534352 && (
+              {(chainId === 34443 || chainId === 42161 || chainId === 534352) && (
                 <Link href="/earn">
                   <div
                     className={
@@ -120,7 +123,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                   </div>
                 </Link>
               )}
-              {(chainId === 34443 || chainId == 421614) && (
+              {(chainId === saleConfig.chainId) && (
                 <Link href="/sale">
                   <div
                     className={
@@ -178,7 +181,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                 RANGE
               </div>
             </Link>
-            {chainId === 34443 && (
+            {chainId === saleConfig.chainId && (
               <Link href="/sale">
                 <div
                   className={
@@ -238,7 +241,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                 </div>
               </Link>
             )}
-            {chainId === 34443 || chainId === 42161 || chainId === 534352 ? (
+            {(chainId === 34443 || chainId === 42161 || chainId === 534352) ? (
               <Link href="/earn">
                 <div
                   className={

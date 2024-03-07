@@ -3,16 +3,18 @@ import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import { useEffect, useState } from "react";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import Link from "next/link";
-import { chainProperties, supportedNetworkNames } from "../../utils/chains";
+import { chainIdsToNames, chainProperties, supportedNetworkNames } from "../../utils/chains";
 import { fetchTokenPrice } from "../../utils/queries";
 import { limitPoolABI } from "../../abis/evm/limitPool";
-import { useContractRead } from "wagmi";
+import { useContractRead, useSwitchNetwork } from "wagmi";
 import { parseUnits } from "../../utils/math/valueMath";
 import { getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
 import { formatUnits } from "ethers/lib/utils.js";
 import { TickMath } from "../../utils/math/tickMath";
 import { baseToken, token } from "../../utils/types";
 import JSBI from "jsbi";
+import { useRouter } from 'next/router';
+import { saleConfig } from "../_app";
 
 export default function Bond() {
   const [priceFill, setPriceFill] = useState("100%");
@@ -25,53 +27,64 @@ export default function Bond() {
   const endSqrtPrice = TickMath.getSqrtRatioAtTick(64620);
   const [startUsdPrice, setStartUsdPrice] = useState("0.00");
   const [endUsdPrice, setEndUsdPrice] = useState("0.00");
-  const saleConfig = chainProperties["fin-token"]["sale"]
+  const router = useRouter();
   const wethToken: baseToken = {address: saleConfig.wethAddress as `0x${string}`, decimals: 18}
   const finToken: baseToken = {address: saleConfig.finAddress as `0x${string}`, decimals: 18}
 
-  const [chainId, networkName, logoMap, limitSubgraph, setLimitSubgraph] =
+  const [chainId, networkName, logoMap, limitSubgraph, setLimitSubgraph, setNetworkName] =
     useConfigStore((state) => [
       state.chainId,
       state.networkName,
       state.logoMap,
       state.limitSubgraph,
       state.setLimitSubgraph,
+      state.setNetworkName,
     ]);
-  const [marketData, setMarketData] = useState([]);
-  const [bondProtocolConfig, setBondProtocolConfig] = useState({});
+
+  const {
+    chains,
+    error: networkError,
+    switchNetwork,
+  } = useSwitchNetwork({});
 
   useEffect(() => {
+    if (chainId != saleConfig.chainId && switchNetwork) {
+      setNetworkName(chainIdsToNames[saleConfig.chainId]);
+      switchNetwork(saleConfig.chainId)
+    }
+  }, [chainId, switchNetwork]);
+
+  useEffect(() => {
+    setIsLoading(true)
+    if (networkName != chainIdsToNames[saleConfig.chainId]) {
+      return
+    }
     const fetchFinUsdPrice = async () => {
       const data = await fetchTokenPrice(limitSubgraph, saleConfig.finAddress)
-      if (data["data"]) {
-        const priceString = data["data"]["tokens"][0]["usdPrice"]
+      if (data["data"] && chainId == saleConfig.chainId) {
+        const priceString = data["data"]["tokens"][0]?.usdPrice
         const newPrice = parseFloat(priceString).toFixed(2) 
         setPrice("$" + newPrice) 
       }
     };
     const fetchEthUsdPrice = async () => {
       const data = await fetchTokenPrice(limitSubgraph, saleConfig.wethAddress)
-      if (data["data"]) {
-        const priceString = data["data"]["tokens"][0]["usdPrice"]
-        const newPrice = parseFloat(priceString) 
+      if (data["data"] && chainId == saleConfig.chainId) {
+        const priceString = data["data"]["tokens"][0]?.usdPrice
+        const newPrice = parseFloat(priceString)
         setEthUsdPrice(newPrice)
       }
     };
-    console.log('eth total', ethTotal)
     fetchFinUsdPrice();
     fetchEthUsdPrice();
-  }, [networkName]);
+  }, [networkName, chainId]);
 
 
   useEffect(() => {
     if (!ethUsdPrice) return
-
     const startPrice = parseFloat(TickMath.getPriceStringAtSqrtPrice(startSqrtPrice, wethToken, finToken))
-    console.log('start price', ethUsdPrice / startPrice)
     setStartUsdPrice(`${(ethUsdPrice / startPrice).toFixed(2)}`)
-
     const endPrice = parseFloat(TickMath.getPriceStringAtSqrtPrice(endSqrtPrice, wethToken, finToken))
-    console.log('end price', ethUsdPrice / endPrice)
     setEndUsdPrice(`${(ethUsdPrice / endPrice).toFixed(2)}`)
   }, [ethUsdPrice]);
 
@@ -93,8 +106,7 @@ export default function Bond() {
     enabled:
       chainId == saleConfig.chainId,
     onSuccess(data) {
-      console.log("Success price filled amount", data);
-      // setNeedsSnapshot(false);
+      // console.log("Success price filled amount", data);
     },
     onError(error) {
       console.log("Error price Limit", error);
@@ -114,35 +126,13 @@ export default function Bond() {
       const currentUsdPrice = (ethUsdPrice / currentPrice).toFixed(2)
       const percentFill = (parseFloat(currentUsdPrice) - parseFloat(startUsdPrice)) / (parseFloat(endUsdPrice) - parseFloat(startUsdPrice))
       setPriceFill((100 - percentFill * 100) + '%')
-      console.log('current price', TickMath.getPriceStringAtSqrtPrice(currentSqrtPrice, wethToken, finToken))
-      console.log('current usd price', (ethUsdPrice / currentPrice).toFixed(2))
-      console.log('percent fill', percentFill * 100)
-      console.log('price fill', (100 - percentFill * 100) + '%')
       setIsLoading(false);
     })();
-    // 1. get starting sqrt price - DONE
-    // 2. set constant position liquidity - DONE
-    // 3. amount will match ethReceived - DONE
-    // 4. zeroForOne matches config - DONE
-    // 5. exactIn...not sure
-    // 6. set price fill % based on (currentPrice - startPrice) / (endPrice - startPrice)
-    // const startSqrtPrice = chainProperties["fin-token"]["sale"]["finIsToken0"] ? TickMath.getSqrtPriceAtPriceString()
-    // const filledSqrtPrice = TickMath.getNewSqrtPrice())
   }, [ethReceived, startUsdPrice, endUsdPrice]);
 
   useEffect(() => {
-    // 1. get starting sqrt price - DONE
-    // 2. set constant position liquidity
-    // 3. amount will match ethReceived
-    // 4. zeroForOne matches config
-    // 5. exactIn...not sure
-    // 6. set price fill % based on (currentPrice - startPrice) / (endPrice - startPrice)
-    // const startSqrtPrice = chainProperties["fin-token"]["sale"]["finIsToken0"] ? TickMath.getSqrtPriceAtPriceString()
-    // const filledSqrtPrice = TickMath.getNewSqrtPrice())
     if (!filledAmount || !filledAmount[0]) return
     setEthReceived(formatUnits(filledAmount[0], 18))
-    console.log('eth filled', formatUnits(filledAmount[0], 18))
-    // setPriceFill((100 - parseFloat(formatUnits(filledAmount[0], 18)) / parseFloat(ethTotal) * 100).toFixed(2) + '%')
   }, [filledAmount]);
 
   return (
