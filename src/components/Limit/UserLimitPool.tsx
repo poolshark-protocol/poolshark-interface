@@ -214,17 +214,25 @@ export default function UserLimitPool({
         </div>
       </td>
       <td className="md:table-cell hidden">
-        <div
-          className={`text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]`}
-        >
-          <span className="z-50 px-3">
-            {filledPercent}
-            % Filled
-          </span>
+        {filledPercent === "100" ? (
+          <button onClick={(e) => e.stopPropagation()} className="bg-main1 text-[11px] border border-main text-main2 rounded-[4px] h-7 w-full">
+            Click to Claim
+          </button>
+        ) : (
           <div
-          style={{ width: filledPercent + "%"}}
-           className="h-full bg-grey/60 absolute left-0" />
-        </div>
+            className={`text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]`}
+          >
+            <span className="z-50 px-3">
+              {filledPercent}% Filled
+            </span>
+            <div
+              style={{ width: filledPercent + "%" }}
+              className="h-full bg-grey/60 absolute left-0"
+            />
+          </div>
+        )}
+      
+        
       </td>
       <td className="text-grey1 text-left pl-3 text-xs md:table-cell hidden">
         {timeDifference(limitPosition.timestamp) != "" ? timeDifference(limitPosition.timestamp): "0m "} ago
