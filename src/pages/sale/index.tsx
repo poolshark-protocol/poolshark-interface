@@ -47,15 +47,20 @@ export default function Bond() {
     switchNetwork,
   } = useSwitchNetwork({});
 
+  
+  useEffect(() => {
+    setIsLoading(true)
+    setNetworkName(chainIdsToNames[chainId])
+  }, [chainId]);
+
   useEffect(() => {
     if (chainId != saleConfig.chainId && switchNetwork) {
-      setNetworkName(chainIdsToNames[saleConfig.chainId]);
+      
       switchNetwork(saleConfig.chainId)
     }
   }, [chainId, switchNetwork, networkName]);
 
   useEffect(() => {
-    setIsLoading(true)
     if (networkName != chainIdsToNames[saleConfig.chainId]) {
       return
     }
@@ -128,7 +133,7 @@ export default function Bond() {
       setPriceFill((100 - percentFill * 100) + '%')
       setIsLoading(false);
     })();
-  }, [ethReceived, startUsdPrice, endUsdPrice]);
+  }, [ethReceived, startUsdPrice, endUsdPrice, networkName]);
 
   useEffect(() => {
     if (!filledAmount || !filledAmount[0]) return
@@ -191,7 +196,7 @@ export default function Bond() {
               className="bg-main1 hover:opacity-80 transition-all border whitespace-nowrap w-full rounded-full text-center border-main transition-all py-2.5 px-20 text-sm uppercase cursor-pointer text-[13px] text-main2"
               onClick={() => handleClick()}
             >
-              {networkName == chainIdsToNames[saleConfig.chainId] ? "BUY FIN" : "SWITCH TO " + chainProperties[networkName]["chainName"]}
+              {networkName == chainIdsToNames[saleConfig.chainId] ? "BUY FIN" : "SWITCH TO " + chainProperties[saleConfig.networkName]["chainName"]}
             </button>
             </Link>
           </div>
