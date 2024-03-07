@@ -16,6 +16,7 @@ import { parseUnits } from "../../utils/math/valueMath";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
+import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function LimitRemoveLiqButton({
   poolAddress,
@@ -112,17 +113,17 @@ export default function LimitRemoveLiqButton({
     abi: limitPoolABI,
     functionName: "burnLimit",
     args: [
-      {
+      deepConvertBigIntAndBigNumber({
         to: address,
         burnPercent: burnPercent,
         positionId: positionId,
         claim: BigNumber.from(claimTick ?? 0),
         zeroForOne: zeroForOne
-      },
+      }),
     ],
     enabled: positionId != undefined && claimTick != undefined,
     chainId: chainId,
-    gasLimit,
+    gasLimit: convertBigIntAndBigNumber(gasLimit),
   });
 
   const { data, isSuccess, write } = useContractWrite(config);

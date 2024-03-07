@@ -12,6 +12,7 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { gasEstimateRangeUnstake } from "../../utils/gas";
 import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
+import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
   
   // unstake position
   // add liquidity while staked
@@ -79,15 +80,15 @@ const [
         abi: rangeStakerABI,
         functionName: "unstakeRange",
         args: [
-            {
+           deepConvertBigIntAndBigNumber({
                 to: address,
                 pool: rangePoolAddress,
                 positionId: positionId,
-            }
+            })
         ],
         chainId: chainId,
         enabled: rangePoolAddress != undefined,
-        gasLimit: unstakeGasLimit,
+        gasLimit: convertBigIntAndBigNumber(unstakeGasLimit),
         onSuccess() {},
         onError() {
           console.log('error unstaked', rangePoolAddress, positionId)

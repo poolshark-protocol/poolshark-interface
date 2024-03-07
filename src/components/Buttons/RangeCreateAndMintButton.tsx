@@ -12,6 +12,7 @@ import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { getRangeMintButtonMsgValue, getRangeMintInputData } from "../../utils/buttons";
 import { chainProperties } from "../../utils/chains";
+import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
   
 
 export default function RangeCreateAndMintButton({
@@ -75,15 +76,15 @@ export default function RangeCreateAndMintButton({
     abi: poolsharkRouterABI,
     functionName: "createLimitPoolAndMint",
     args: [
-      {
+      deepConvertBigIntAndBigNumber({
         poolTypeId: poolTypeId,
         tokenIn: token0.address,
         tokenOut: token1.address,
         startPrice: startPrice,
         swapFee: feeTier,
-      }, // pool params
+      }), // pool params
       [
-        {
+        deepConvertBigIntAndBigNumber({
           to: to,
           lower: lower,
           upper: upper,
@@ -91,18 +92,18 @@ export default function RangeCreateAndMintButton({
           amount0: amount0,
           amount1: amount1,
           callbackData: getRangeMintInputData(rangeMintParams.stakeFlag, chainProperties[networkName]['rangeStakerAddress'])
-        },
+        }),
       ], // range positions
       [], // limit positions
     ],
     chainId: chainId,
-    gasLimit,
-    value: getRangeMintButtonMsgValue(
-        tokenIn.native,
-        tokenOut.native,
-        rangeMintParams.tokenInAmount,
-        rangeMintParams.tokenOutAmount
-      ),
+    gasLimit: convertBigIntAndBigNumber(gasLimit),
+    value: convertBigIntAndBigNumber(getRangeMintButtonMsgValue(
+      tokenIn.native,
+      tokenOut.native,
+      rangeMintParams.tokenInAmount,
+      rangeMintParams.tokenOutAmount
+    )),
     onSuccess() {},
     onError() {
       setErrorDisplay(true);

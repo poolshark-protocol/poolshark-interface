@@ -83,8 +83,9 @@ import { convertBigIntAndBigNumber } from "../../utils/misc";
       abi: vFinABI,
       functionName: "exchangeBond",
       args: [
-        bondBalance, // exchange entire balance
-        0            // creates new vFIN position
+        // exchange entire balance
+        convertBigIntAndBigNumber(bondBalance), 
+        0 // creates new vFIN position
       ],
       chainId: chainId,
       enabled: bondBalance != undefined

@@ -13,6 +13,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { parseUnits } from "../../utils/math/valueMath";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
+import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function CoverRemoveLiqButton({
   disabled,
@@ -46,18 +47,18 @@ export default function CoverRemoveLiqButton({
     abi: coverPoolABI,
     functionName: "burn",
     args: [
-      {
+      deepConvertBigIntAndBigNumber({
         to: address,
         burnPercent: burnPercent,
         positionId: positionId,
         claim: claim,
         zeroForOne: zeroForOne,
         sync: true,
-      },
+      }),
     ],
     chainId: chainId,
     enabled: positionId != undefined,
-    gasLimit,
+    gasLimit: convertBigIntAndBigNumber(gasLimit),
   });
 
   const { data, isSuccess, write } = useContractWrite(config);

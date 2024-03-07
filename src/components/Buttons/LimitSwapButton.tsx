@@ -12,6 +12,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
+import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function LimitSwapButton({
   disabled,
@@ -60,7 +61,7 @@ export default function LimitSwapButton({
     args: [
       [poolAddress],
       [
-        {
+        deepConvertBigIntAndBigNumber({
           to: to,
           amount: amount,
           mintPercent: mintPercent,
@@ -69,16 +70,16 @@ export default function LimitSwapButton({
           upper: upper,
           zeroForOne: zeroForOne,
           callbackData: ethers.utils.formatBytes32String(""),
-        },
+        }),
       ],
     ],
     chainId: chainId,
     enabled: poolAddress != undefined && poolAddress != ZERO_ADDRESS,
-      gasLimit,
-      value: getLimitSwapButtonMsgValue(
-        tokenIn.native,
-        amount
-      ),
+    gasLimit: convertBigIntAndBigNumber(gasLimit),
+    value: convertBigIntAndBigNumber(getLimitSwapButtonMsgValue(
+      tokenIn.native,
+      amount
+    ))
   });
 
   const { data, write } = useContractWrite(config);

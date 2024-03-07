@@ -9,6 +9,7 @@ import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 import { toast } from "sonner";
+import { convertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function RangeMintApproveButton({
   routerAddress,
@@ -35,7 +36,7 @@ export default function RangeMintApproveButton({
     functionName: "approve",
     args: [
       routerAddress,
-      amount
+      convertBigIntAndBigNumber(amount)
     ],
     chainId: chainId,
   });

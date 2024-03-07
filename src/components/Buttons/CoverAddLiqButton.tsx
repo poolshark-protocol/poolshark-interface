@@ -13,6 +13,7 @@ import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
+import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function CoverAddLiqButton({
   poolAddress,
@@ -58,8 +59,7 @@ export default function CoverAddLiqButton({
     functionName: "multiMintCover",
     args: [
       [poolAddress],
-      [
-        {
+      [deepConvertBigIntAndBigNumber({
           positionId: positionId,
           to: toAddress,
           amount: amount,
@@ -67,12 +67,12 @@ export default function CoverAddLiqButton({
           upper: upper,
           zeroForOne: zeroForOne,
           callbackData: ethers.utils.formatBytes32String(""),
-        },
+        }),
       ],
     ],
     enabled: amount.gt(BN_ZERO) && poolAddress != undefined && positionId != undefined,
     chainId: chainId,
-    gasLimit
+    gasLimit: convertBigIntAndBigNumber(gasLimit)
   });
 
   const { data, isSuccess, write } = useContractWrite(config);

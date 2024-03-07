@@ -15,6 +15,7 @@ import { useEffect } from "react";
 import { BigNumber, ethers } from "ethers";
 import { formatCurrency } from "@usedapp/core/dist/esm/src/model";
 import { BN_ZERO } from "../../utils/math/constants";
+import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 declare global {
   interface Window {
@@ -65,20 +66,20 @@ export default function SwapRouterButton({
     address: routerAddress,
     abi: poolsharkRouterABI,
     functionName: "multiSwapSplit",
-    args: [
+    args: deepConvertBigIntAndBigNumber([
       poolAddresses,
       swapParams[0],
       BN_ZERO,
       1897483712
-    ],
+    ]),
     enabled: poolAddresses.length > 0 && swapParams.length > 0,
     chainId: chainId,
-    gasLimit: gasLimit,
-    value: getSwapRouterButtonMsgValue(
+    gasLimit: convertBigIntAndBigNumber(gasLimit),
+    value: convertBigIntAndBigNumber(getSwapRouterButtonMsgValue(
       tokenInNative,
       tokenOutNative,
       amountIn
-    ),
+    )),
   });
 
   const { data, write } = useContractWrite(config);

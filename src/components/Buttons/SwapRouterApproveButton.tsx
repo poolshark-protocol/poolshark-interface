@@ -15,6 +15,7 @@ import {
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
+import { convertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function SwapRouterApproveButton({
   routerAddress,
@@ -47,7 +48,7 @@ export default function SwapRouterApproveButton({
     functionName: "approve",
     args: [
       routerAddress,
-      amount
+      convertBigIntAndBigNumber(amount)
     ],
     chainId: chainId,
   });

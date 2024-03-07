@@ -16,6 +16,7 @@ import { useRouter } from "next/router";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
+import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function LimitSwapBurnButton({
   poolAddress,
@@ -100,16 +101,16 @@ export default function LimitSwapBurnButton({
     abi: limitPoolABI,
     functionName: "burnLimit",
     args: [
-      {
+      deepConvertBigIntAndBigNumber({
         to: address,
         burnPercent: burnPercent,
         positionId: positionId,
         claim: BigNumber.from(claimTick),
         zeroForOne: zeroForOne,
-      },
+      }),
     ],
     chainId: chainId,
-    gasLimit,
+    gasLimit: convertBigIntAndBigNumber(gasLimit),
   });
 
   const { data, isSuccess, write } = useContractWrite(config);

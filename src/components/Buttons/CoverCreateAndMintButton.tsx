@@ -17,6 +17,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { formatBytes32String } from "ethers/lib/utils.js";
 import { coverPoolTypes } from "../../utils/pools";
 import { getCoverMintButtonMsgValue } from "../../utils/buttons";
+import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function CoverCreateAndMintButton({
   routerAddress,
@@ -63,16 +64,16 @@ export default function CoverCreateAndMintButton({
     abi: poolsharkRouterABI,
     functionName: "createCoverPoolAndMint",
     args: [
-      {
+      deepConvertBigIntAndBigNumber({
         poolType: coverPoolTypes['constant-product']['poolshark'],
         tokenIn: tokenIn.address,
         tokenOut: tokenOut.address,
         feeTier: volTier.feeAmount,
         tickSpread: volTier.tickSpread,
         twapLength: volTier.twapLength,
-      }, // pool params
+      }), // pool params
       twapReady ? [
-            {
+            deepConvertBigIntAndBigNumber({
               to: to,
               amount: amount,
               positionId: newPositionId,
@@ -80,10 +81,10 @@ export default function CoverCreateAndMintButton({
               upper: BigNumber.from(roundTick(Number(upper), tickSpacing)),
               zeroForOne: zeroForOne,
               callbackData: ethers.utils.formatBytes32String(""),
-            },
+            }),
           ] : [], // cover positions
     ],
-    gasLimit,
+    gasLimit: convertBigIntAndBigNumber(gasLimit),
     value: getCoverMintButtonMsgValue(tokenIn.native, amount),
     enabled: !disabled,
     chainId: chainId,

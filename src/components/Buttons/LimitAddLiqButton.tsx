@@ -10,6 +10,7 @@ import { ethers } from "ethers";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
+import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
   
   export default function LimitAddLiqButton({
     disabled,
@@ -53,7 +54,7 @@ import { chainProperties } from "../../utils/chains";
       functionName: "multiMintLimit",
       args: [
         [poolAddress],
-        [{
+        [deepConvertBigIntAndBigNumber({
           to: to,
           amount: amount,
           mintPercent: mintPercent,
@@ -62,11 +63,11 @@ import { chainProperties } from "../../utils/chains";
           upper: upper,
           zeroForOne: zeroForOne,
           callbackData: ethers.utils.formatBytes32String('')
-        }]
+        })]
       ],
       chainId: chainId,
       enabled: positionId != undefined,
-      gasLimit,
+      gasLimit: convertBigIntAndBigNumber(gasLimit),
     });
   
     const { data, write } = useContractWrite(config);

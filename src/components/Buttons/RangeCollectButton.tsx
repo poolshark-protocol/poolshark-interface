@@ -12,6 +12,7 @@ import { rangeStakerABI } from '../../abis/evm/rangeStaker';
 import { chainProperties } from '../../utils/chains';
 import { getRangeStakerAddress } from '../../utils/config';
 import { toast } from "sonner";
+import { deepConvertBigIntAndBigNumber } from '../../utils/misc';
 
 export default function RangeCollectButton({ poolAddress, address, positionId, staked }) {
 
@@ -38,11 +39,11 @@ export default function RangeCollectButton({ poolAddress, address, positionId, s
       abi: rangePoolABI,
       functionName: "burnRange",
       enabled: positionId != undefined && staked != undefined && !staked,
-      args:[[
-          address,
-          positionId,
-          BN_ONE
-        ]],
+      args:[deepConvertBigIntAndBigNumber([
+        address,
+        positionId,
+        BN_ONE
+      ])],
       chainId: chainId,
       onError(err) {
         console.log('collect error')
@@ -55,11 +56,11 @@ export default function RangeCollectButton({ poolAddress, address, positionId, s
     functionName: "burnRangeStake",
     args: [
       poolAddress,
-      {
+      deepConvertBigIntAndBigNumber({
         to: address,
         positionId: positionId,
         burnPercent: BN_ONE
-      }
+      })
     ],
     chainId: chainId,
     enabled: poolAddress != ZERO_ADDRESS && staked != undefined && staked,
