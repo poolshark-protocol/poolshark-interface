@@ -405,7 +405,9 @@ export default function Trade() {
               : false
             : false,
           symbol: isWeth(tokenInData.address, networkName)
-            ? chainProperties[networkName].nativeCurrency.symbol
+            ? router.query.fromSymbol == "WETH"
+              ? router.query.fromSymbol
+              : chainProperties[networkName].nativeCurrency.symbol
             : tokenInData.symbol,
           userRouterAllowance: tokenIn.userRouterAllowance,
           userBalance: tokenIn.userBalance,
@@ -440,7 +442,9 @@ export default function Trade() {
               : false
             : false,
           symbol: isWeth(tokenInData.address, networkName)
-            ? chainProperties[networkName].nativeCurrency.symbol
+            ? router.query.toSymbol == "WETH"
+              ? router.query.toSymbol
+              : chainProperties[networkName].nativeCurrency.symbol
             : tokenOutData.symbol,
           userRouterAllowance: tokenOut.userRouterAllowance,
           userBalance: tokenOut.userBalance,
