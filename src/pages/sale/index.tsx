@@ -52,7 +52,7 @@ export default function Bond() {
       setNetworkName(chainIdsToNames[saleConfig.chainId]);
       switchNetwork(saleConfig.chainId)
     }
-  }, [chainId, switchNetwork]);
+  }, [chainId, switchNetwork, networkName]);
 
   useEffect(() => {
     setIsLoading(true)
@@ -135,6 +135,14 @@ export default function Bond() {
     setEthReceived(formatUnits(filledAmount[0], 18))
   }, [filledAmount]);
 
+  const handleClick = () => {
+    if (chainId == saleConfig.chainId) {
+      router.push(`/?chain=${chainProperties["fin-token"]["sale"]["chainId"]}&from=${chainProperties["fin-token"]["sale"]["wethAddress"]}&to=${chainProperties["fin-token"]["sale"]["finAddress"]}`)
+    } else {
+      setNetworkName(chainIdsToNames[saleConfig.chainId]);
+    }
+  };
+
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
@@ -181,8 +189,9 @@ export default function Bond() {
             <Link href={`/?chain=${chainProperties["fin-token"]["sale"]["chainId"]}&from=${chainProperties["fin-token"]["sale"]["wethAddress"]}&to=${chainProperties["fin-token"]["sale"]["finAddress"]}`}>
             <button
               className="bg-main1 hover:opacity-80 transition-all border whitespace-nowrap w-full rounded-full text-center border-main transition-all py-2.5 px-20 text-sm uppercase cursor-pointer text-[13px] text-main2"
+              onClick={() => handleClick()}
             >
-              BUY FIN
+              {networkName == chainIdsToNames[saleConfig.chainId] ? "BUY FIN" : "SWITCH TO " + chainProperties[networkName]["chainName"]}
             </button>
             </Link>
           </div>

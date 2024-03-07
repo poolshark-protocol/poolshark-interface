@@ -128,6 +128,14 @@ export const chainIdsToNames = {
   2525: "injective-evm",
 };
 
+export const chainIdsToFullNames = {
+  421614: "Arbitrum Sepolia",
+  42161: "arbitrum-one",
+  534352: "scroll",
+  34443: "mode",
+  2525: "injective-evm",
+};
+
 export const supportedChainIds = {
   421614: "arbitrumSepolia",
   42161: "arbitrum",
@@ -179,7 +187,7 @@ export const chainProperties = {
     }
   },
   "arbitrum-sepolia": {
-    chainName: "Arbitrum Sepolia Test Network",
+    chainName: "Arbitrum Sepolia",
 		sdkSupport: {
 			alchemy: false,
 			swing: false
