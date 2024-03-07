@@ -399,23 +399,20 @@ export default function Trade() {
       if (tokenInData) {
         const newTokenIn = {
           ...tokenInData,
-          native: isWeth(tokenInData.address, networkName)
-            ? router.query.fromSymbol == "ETH"
+          native:
+            router.query.fromSymbol ==
+            chainProperties[networkName].nativeCurrency.symbol
               ? true
-              : false
-            : false,
-          symbol: isWeth(tokenInData.address, networkName)
-            ? router.query.fromSymbol == "WETH"
-              ? router.query.fromSymbol
-              : chainProperties[networkName].nativeCurrency.symbol
-            : tokenInData.symbol,
+              : false,
+          symbol: router.query.fromSymbol ?? tokenInData.symbol,
           userRouterAllowance: tokenIn.userRouterAllowance,
           userBalance: tokenIn.userBalance,
         };
         setTokenInInfo(tokenInData);
         if (
+          tokenIn.address == ZERO_ADDRESS ||
           router.query.from != tokenIn.address ||
-          tokenIn.address == ZERO_ADDRESS
+          router.query.fromSymbol != tokenIn.symbol
         ) {
           setTokenIn(tokenOutData, newTokenIn, "0", false);
         }
@@ -436,23 +433,20 @@ export default function Trade() {
       if (tokenOutData) {
         const newTokenOut = {
           ...tokenOutData,
-          native: isWeth(tokenOutData.address, networkName)
-            ? router.query.fromSymbol == "WETH"
+          native:
+            router.query.toSymbol ==
+            chainProperties[networkName].nativeCurrency.symbol
               ? true
-              : false
-            : false,
-          symbol: isWeth(tokenInData.address, networkName)
-            ? router.query.toSymbol == "WETH"
-              ? router.query.toSymbol
-              : chainProperties[networkName].nativeCurrency.symbol
-            : tokenOutData.symbol,
+              : false,
+          symbol: router.query.toSymbol ?? tokenOutData.symbol,
           userRouterAllowance: tokenOut.userRouterAllowance,
           userBalance: tokenOut.userBalance,
         };
         setTokenOutInfo(tokenOutData);
         if (
+          tokenOut.address == ZERO_ADDRESS ||
           router.query.to != tokenOut.address ||
-          tokenOut.address == ZERO_ADDRESS
+          router.query.toSymbol != tokenOut.symbol
         ) {
           setTokenOut(tokenInData, newTokenOut, "0", false);
         }
@@ -471,6 +465,8 @@ export default function Trade() {
   }, [router.query]);
 
   const updateRouter = () => {
+    console.log("tokenIn", tokenIn);
+    console.log("tokenOut", tokenOut);
     if (tokenOut.address != ZERO_ADDRESS && tokenIn.address != ZERO_ADDRESS) {
       router.push({
         pathname: "/",
@@ -486,7 +482,9 @@ export default function Trade() {
   };
 
   useEffect(() => {
-    updateRouter();
+    if (tokenIn.callId != 2) {
+      updateRouter();
+    }
   }, [
     tokenIn.address,
     tokenIn.symbol,
