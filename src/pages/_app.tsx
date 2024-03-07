@@ -16,6 +16,7 @@ import {
   chainIdToRpc,
   scroll,
   mode,
+  injectiveEvm,
 } from "../utils/chains";
  
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -25,7 +26,7 @@ import { Toaster } from "sonner";
 import ConfigWrapper from "../components/ConfigWrapper";
 
 const { chains, publicClient } = configureChains(
-  [mode, arbitrum, scroll, arbitrumSepolia],
+  [mode, injectiveEvm, arbitrum, scroll, arbitrumSepolia],
   [
     jsonRpcProvider({
       rpc: (chain) => ({
