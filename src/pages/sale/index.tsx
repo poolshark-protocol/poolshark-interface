@@ -16,7 +16,7 @@ import JSBI from "jsbi";
 import { useRouter } from 'next/router';
 import { saleConfig } from "../_app";
 
-export default function Bond() {
+export default function Sale() {
   const [priceFill, setPriceFill] = useState("100%");
   const [isLoading, setIsLoading] = useState(true);
   const [price, setPrice] = useState("");
