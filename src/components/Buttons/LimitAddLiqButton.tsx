@@ -10,7 +10,7 @@ import { ethers } from "ethers";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
-import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
   
   export default function LimitAddLiqButton({
     disabled,
@@ -67,7 +67,7 @@ import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../
       ],
       chainId: chainId,
       enabled: positionId != undefined,
-      gasLimit: convertBigIntAndBigNumber(gasLimit),
+      gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
     });
   
     const { data, write } = useContractWrite(config);

@@ -10,9 +10,9 @@ export function useCopyElementUseEffect(event, setCopied) {
 }
 
 
-export function convertBigIntAndBigNumber(input: bigint): BigNumber;
-export function convertBigIntAndBigNumber(input: BigNumber): bigint;
-export function convertBigIntAndBigNumber(input) {
+function convertBigIntAndBigNumber(input: bigint): BigNumber;
+function convertBigIntAndBigNumber(input: BigNumber): bigint;
+function convertBigIntAndBigNumber(input) {
   if (BigNumber.isBigNumber(input)) {
     return BigInt(input.toString());
   }

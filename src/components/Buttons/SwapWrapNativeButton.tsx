@@ -12,7 +12,7 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { useEffect } from "react";
 import { chainProperties } from "../../utils/chains";
 import { toast } from "sonner";
-import { convertBigIntAndBigNumber } from "../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
   
   export default function SwapWrapNativeButton({
     disabled,
@@ -47,8 +47,8 @@ import { convertBigIntAndBigNumber } from "../../utils/misc";
       args: [],
       enabled: routerAddress != undefined && wethAddress != ZERO_ADDRESS,
       chainId: chainId,
-      gasLimit: convertBigIntAndBigNumber(gasLimit),
-      value: convertBigIntAndBigNumber(amountIn),
+      gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
+      value: deepConvertBigIntAndBigNumber(amountIn),
     });
   
     const { data, write } = useContractWrite(config);

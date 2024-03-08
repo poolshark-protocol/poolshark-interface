@@ -15,7 +15,7 @@ import { BN_ZERO } from "../../utils/math/constants";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { getCoverMintButtonMsgValue } from "../../utils/buttons";
-import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function CoverMintButton({
   routerAddress,
@@ -72,7 +72,7 @@ export default function CoverMintButton({
         }),
       ],
     ],
-    gasLimit: convertBigIntAndBigNumber(gasLimit),
+    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
     value: getCoverMintButtonMsgValue(
       tokenIn.native,
       amount

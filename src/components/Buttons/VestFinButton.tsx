@@ -9,7 +9,7 @@ import { vFinABI } from "../../abis/evm/vFin";
 import { parseUnits } from "../../utils/math/valueMath";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
-import { convertBigIntAndBigNumber } from "../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
   
   export default function VestFinButton({
     vFinAddress,
@@ -37,7 +37,7 @@ import { convertBigIntAndBigNumber } from "../../utils/misc";
       address: tellerAddress,
       abi: bondTellerABI,
       functionName: "balanceOf",
-      args: [address, convertBigIntAndBigNumber(bondTokenId)],
+      args: [address, deepConvertBigIntAndBigNumber(bondTokenId)],
       chainId: chainId,
       watch: true,
       enabled: tellerAddress != undefined
@@ -84,7 +84,7 @@ import { convertBigIntAndBigNumber } from "../../utils/misc";
       functionName: "exchangeBond",
       args: [
         // exchange entire balance
-        convertBigIntAndBigNumber(bondBalance), 
+        deepConvertBigIntAndBigNumber(bondBalance), 
         0 // creates new vFIN position
       ],
       chainId: chainId,

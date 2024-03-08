@@ -28,7 +28,7 @@ import { parseUnits } from "../../utils/math/valueMath";
 import { chainProperties } from "../../utils/chains";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
-import { convertBigIntAndBigNumber } from "../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function ViewLimit() {
   const [chainId, logoMap, networkName, limitSubgraph, setLimitSubgraph] =
@@ -189,7 +189,7 @@ export default function ViewLimit() {
     args: [
       {
         owner: address,
-        burnPercent: convertBigIntAndBigNumber(parseUnits("1", 38)),
+        burnPercent: deepConvertBigIntAndBigNumber(parseUnits("1", 38)),
         positionId: Number(limitPositionData.positionId),
         claim: claimTick ?? 0,
         zeroForOne: tokenIn.callId == 0,

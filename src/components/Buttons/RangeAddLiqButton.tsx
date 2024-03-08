@@ -15,7 +15,7 @@ import { chainProperties } from "../../utils/chains";
 import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
-import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function RangeAddLiqButton({
   routerAddress,
@@ -81,7 +81,7 @@ export default function RangeAddLiqButton({
     ],
     chainId: chainId,
     enabled: positionId != undefined && poolAddress != ZERO_ADDRESS,
-    gasLimit: convertBigIntAndBigNumber(gasLimit),
+    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
     onError(err) {
       console.log('range add liq error')  
     },

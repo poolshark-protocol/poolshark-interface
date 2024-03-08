@@ -21,7 +21,7 @@ import { useCoverStore } from "../../../hooks/useCoverStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getLogoURI } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
-import { convertBigIntAndBigNumber } from "../../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
@@ -91,7 +91,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     onSettled(data, error) {},
   });
 
-  const allowanceInCover = useMemo(() =>convertBigIntAndBigNumber(allowanceInCoverInt), [allowanceInCoverInt]);
+  const allowanceInCover = useMemo(() =>deepConvertBigIntAndBigNumber(allowanceInCoverInt), [allowanceInCoverInt]);
 
   useEffect(() => {
     if (isConnected && allowanceInCover)

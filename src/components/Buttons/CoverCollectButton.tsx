@@ -13,7 +13,7 @@ import { gasEstimateCoverBurn } from "../../utils/gas";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
-import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function CoverCollectButton({
   poolAddress,
@@ -78,7 +78,7 @@ export default function CoverCollectButton({
     )],
     chainId: chainId,
     enabled: positionId != undefined,
-    gasLimit: convertBigIntAndBigNumber(gasLimit)
+    gasLimit: deepConvertBigIntAndBigNumber(gasLimit)
   });
 
   const { data, isSuccess, write } = useContractWrite(config);

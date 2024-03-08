@@ -35,7 +35,7 @@ import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 import { getRouterAddress } from "../../utils/config";
-import { convertBigIntAndBigNumber } from "../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 
 export default function CoverExistingPool({ goBack }) {
@@ -172,7 +172,7 @@ export default function CoverExistingPool({ goBack }) {
   });
 
   const allowanceInCover = 
-    useMemo(() => convertBigIntAndBigNumber(allowanceInCoverInt), [allowanceInCoverInt]);
+    useMemo(() => deepConvertBigIntAndBigNumber(allowanceInCoverInt), [allowanceInCoverInt]);
 
   useEffect(() => {
     if (allowanceInCover) {

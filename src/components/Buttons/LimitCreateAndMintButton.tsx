@@ -13,7 +13,7 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
-import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
   
   export default function LimitCreateAndMintButton({
     disabled,
@@ -88,8 +88,8 @@ import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../
       ],
       enabled: feeTier != undefined && gasLimit.gt(BN_ZERO),
       chainId: chainId,
-      gasLimit: convertBigIntAndBigNumber(gasLimit),
-      value: convertBigIntAndBigNumber(getLimitSwapButtonMsgValue(
+      gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
+      value: deepConvertBigIntAndBigNumber(getLimitSwapButtonMsgValue(
         tokenIn.native,
         amount
       )),

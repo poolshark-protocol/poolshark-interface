@@ -12,7 +12,7 @@ import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { getRangeMintButtonMsgValue, getRangeMintInputData } from "../../utils/buttons";
 import { chainProperties } from "../../utils/chains";
-import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
   
 
 export default function RangeCreateAndMintButton({
@@ -97,8 +97,8 @@ export default function RangeCreateAndMintButton({
       [], // limit positions
     ],
     chainId: chainId,
-    gasLimit: convertBigIntAndBigNumber(gasLimit),
-    value: convertBigIntAndBigNumber(getRangeMintButtonMsgValue(
+    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
+    value: deepConvertBigIntAndBigNumber(getRangeMintButtonMsgValue(
       tokenIn.native,
       tokenOut.native,
       rangeMintParams.tokenInAmount,

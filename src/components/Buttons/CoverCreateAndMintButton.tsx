@@ -17,7 +17,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { formatBytes32String } from "ethers/lib/utils.js";
 import { coverPoolTypes } from "../../utils/pools";
 import { getCoverMintButtonMsgValue } from "../../utils/buttons";
-import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function CoverCreateAndMintButton({
   routerAddress,
@@ -84,7 +84,7 @@ export default function CoverCreateAndMintButton({
             }),
           ] : [], // cover positions
     ],
-    gasLimit: convertBigIntAndBigNumber(gasLimit),
+    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
     value: getCoverMintButtonMsgValue(tokenIn.native, amount),
     enabled: !disabled,
     chainId: chainId,

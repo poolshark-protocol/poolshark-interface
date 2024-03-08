@@ -49,7 +49,7 @@ import {
   ArrowTopRightOnSquareIcon,
   SparklesIcon,
 } from "@heroicons/react/20/solid";
-import { convertBigIntAndBigNumber } from "../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { XOctagon } from "lucide-react";
 
 export default function AddLiquidity({}) {
@@ -466,8 +466,8 @@ export default function AddLiquidity({}) {
     });
 
   useEffect(() => {
-    setTokenInAllowance(convertBigIntAndBigNumber(allowanceInRange));
-    setTokenOutAllowance(convertBigIntAndBigNumber(allowanceOutRange));
+    setTokenInAllowance(deepConvertBigIntAndBigNumber(allowanceInRange));
+    setTokenOutAllowance(deepConvertBigIntAndBigNumber(allowanceOutRange));
   }, [allowanceInRange, allowanceOutRange]);
 
   ////////////////////////////////Token Balances

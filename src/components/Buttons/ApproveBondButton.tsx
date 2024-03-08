@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { BN_ZERO } from "../../utils/math/constants";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
-import { convertBigIntAndBigNumber } from "../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
   
   export default function ApproveBondButton({
     tellerAddress,
@@ -30,7 +30,7 @@ import { convertBigIntAndBigNumber } from "../../utils/misc";
       functionName: "approve",
       args: [
         tellerAddress,
-        convertBigIntAndBigNumber(inputAmount),
+        deepConvertBigIntAndBigNumber(inputAmount),
       ],
       chainId: chainId,
       enabled: tellerAddress != undefined && inputAmount?.gt(BN_ZERO),

@@ -31,7 +31,7 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import inputFilter from "../utils/inputFilter";
 import { addressMatches, getRouterAddress, isWeth } from "../utils/config";
 import { Network } from "alchemy-sdk";
-import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../utils/misc";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -377,7 +377,7 @@ export default function Trade() {
 
   useEffect(() => {
     if (allowanceInRouter) {
-      setTokenInTradeAllowance(convertBigIntAndBigNumber(allowanceInRouter));
+      setTokenInTradeAllowance(deepConvertBigIntAndBigNumber(allowanceInRouter));
     }
   }, [allowanceInRouter]);
 

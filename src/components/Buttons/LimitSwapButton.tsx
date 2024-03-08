@@ -12,7 +12,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
-import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function LimitSwapButton({
   disabled,
@@ -75,8 +75,8 @@ export default function LimitSwapButton({
     ],
     chainId: chainId,
     enabled: poolAddress != undefined && poolAddress != ZERO_ADDRESS && amount?.gt(0),
-    gasLimit: convertBigIntAndBigNumber(gasLimit),
-    value: convertBigIntAndBigNumber(getLimitSwapButtonMsgValue(
+    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
+    value: deepConvertBigIntAndBigNumber(getLimitSwapButtonMsgValue(
       tokenIn.native,
       amount
     ))

@@ -35,7 +35,7 @@ import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 import { getRouterAddress } from "../../utils/config";
-import { convertBigIntAndBigNumber } from "../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 
 export default function CreateCover(props: any) {
@@ -162,7 +162,7 @@ export default function CreateCover(props: any) {
     onSettled(data, error) {},
   });
 
-  const allowanceInCover = useMemo(() =>convertBigIntAndBigNumber(allowanceInCoverInt), [allowanceInCoverInt]);
+  const allowanceInCover = useMemo(() =>deepConvertBigIntAndBigNumber(allowanceInCoverInt), [allowanceInCoverInt]);
 
   useEffect(() => {
     if (allowanceInCover) {

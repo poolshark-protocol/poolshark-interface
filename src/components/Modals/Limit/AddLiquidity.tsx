@@ -15,7 +15,7 @@ import { useConfigStore } from "../../../hooks/useConfigStore";
 import { parseUnits } from "../../../utils/math/valueMath";
 import { getLogoURI, logoMapKey } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
-import { convertBigIntAndBigNumber } from "../../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
@@ -124,7 +124,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   }, [bnInput, tokenIn.userBalance, disabled]);
 
   useEffect(() => {
-    if (tokenInAllowance) setAllowanceIn(convertBigIntAndBigNumber(tokenInAllowance));
+    if (tokenInAllowance) setAllowanceIn(deepConvertBigIntAndBigNumber(tokenInAllowance));
   }, [tokenInAllowance]);
 
   useEffect(() => {

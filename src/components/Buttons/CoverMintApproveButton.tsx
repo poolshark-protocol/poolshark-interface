@@ -9,7 +9,7 @@ import { useCoverStore } from '../../hooks/useCoverStore'
 import { useConfigStore } from '../../hooks/useConfigStore'
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
-import { convertBigIntAndBigNumber } from '../../utils/misc'
+import { deepConvertBigIntAndBigNumber } from '../../utils/misc'
 
 export default function CoverMintApproveButton({
   routerAddress,
@@ -35,7 +35,7 @@ export default function CoverMintApproveButton({
     address: approveToken,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [routerAddress, convertBigIntAndBigNumber(amount)],
+    args: [routerAddress, deepConvertBigIntAndBigNumber(amount)],
     enabled: approveToken != undefined && routerAddress != undefined,
     chainId: chainId,
   })

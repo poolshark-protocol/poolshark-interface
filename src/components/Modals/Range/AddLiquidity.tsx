@@ -26,7 +26,7 @@ import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getLogoURI, logoMapKey } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 import BalanceDisplay from "../../Display/BalanceDisplay";
-import { convertBigIntAndBigNumber } from "../../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
@@ -169,8 +169,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   });
 
 
-  const tokenInAllowance  = useMemo(() =>convertBigIntAndBigNumber(tokenInAllowanceInt), [tokenInAllowanceInt]);
-  const tokenOutAllowance = useMemo(() =>convertBigIntAndBigNumber(tokenOutAllowanceInt), [tokenOutAllowanceInt]);
+  const tokenInAllowance  = useMemo(() =>deepConvertBigIntAndBigNumber(tokenInAllowanceInt), [tokenInAllowanceInt]);
+  const tokenOutAllowance = useMemo(() =>deepConvertBigIntAndBigNumber(tokenOutAllowanceInt), [tokenOutAllowanceInt]);
 
   useEffect(() => {
     setTokenInAllowance(tokenInAllowance);

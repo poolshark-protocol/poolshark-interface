@@ -13,7 +13,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { parseUnits } from "../../utils/math/valueMath";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
-import { convertBigIntAndBigNumber, deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function CoverRemoveLiqButton({
   disabled,
@@ -58,7 +58,7 @@ export default function CoverRemoveLiqButton({
     ],
     chainId: chainId,
     enabled: positionId != undefined,
-    gasLimit: convertBigIntAndBigNumber(gasLimit),
+    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
   });
 
   const { data, isSuccess, write } = useContractWrite(config);
