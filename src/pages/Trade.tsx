@@ -393,10 +393,9 @@ export default function Trade() {
   } = useToken({
     address:
       (router.query.from as `0x${string}`) ?? (ZERO_ADDRESS as `0x${string}`),
-    enabled:
-      router.query.from != undefined && router.query.from != ZERO_ADDRESS,
+    enabled: router.query.from != ZERO_ADDRESS,
     onSuccess() {
-      if (tokenInData) {
+      if (tokenInData && router.query.fromSymbol && router.query.from) {
         const newTokenIn = {
           ...tokenInData,
           native:
@@ -405,19 +404,17 @@ export default function Trade() {
               ? true
               : false,
           symbol: router.query.fromSymbol ?? tokenInData.symbol,
-          userRouterAllowance: tokenIn.userRouterAllowance,
-          userBalance: tokenIn.userBalance,
         };
         setTokenInInfo(tokenInData);
         if (
-          tokenIn.address == ZERO_ADDRESS ||
           router.query.from != tokenIn.address ||
           router.query.fromSymbol != tokenIn.symbol
         ) {
           setTokenIn(tokenOutData, newTokenIn, "0", false);
         }
-      } else if (router.query.from || router.query.from != ZERO_ADDRESS)
+      } else {
         refetchTokenInInfo();
+      }
     },
   });
 
@@ -428,9 +425,9 @@ export default function Trade() {
   } = useToken({
     address:
       (router.query.to as `0x${string}`) ?? (ZERO_ADDRESS as `0x${string}`),
-    enabled: router.query.to != undefined && router.query.to != ZERO_ADDRESS,
+    enabled: router.query.to != ZERO_ADDRESS,
     onSuccess() {
-      if (tokenOutData) {
+      if (tokenOutData && router.query.toSymbol && router.query.to) {
         const newTokenOut = {
           ...tokenOutData,
           native:
@@ -439,52 +436,53 @@ export default function Trade() {
               ? true
               : false,
           symbol: router.query.toSymbol ?? tokenOutData.symbol,
-          userRouterAllowance: tokenOut.userRouterAllowance,
-          userBalance: tokenOut.userBalance,
         };
         setTokenOutInfo(tokenOutData);
         if (
-          tokenOut.address == ZERO_ADDRESS ||
           router.query.to != tokenOut.address ||
           router.query.toSymbol != tokenOut.symbol
         ) {
           setTokenOut(tokenInData, newTokenOut, "0", false);
         }
-      } else if (router.query.to || router.query.to != ZERO_ADDRESS)
+      } else {
         refetchTokenOutInfo();
+      }
     },
   });
 
   useEffect(() => {
-    if (router.query.to != ZERO_ADDRESS) {
+    if (router.query.to) {
       refetchTokenOutInfo();
     }
-    if (router.query.from != ZERO_ADDRESS) {
+    if (router.query.from) {
       refetchTokenInInfo();
     }
   }, [router.query]);
 
   const updateRouter = () => {
-    console.log("tokenIn", tokenIn);
-    console.log("tokenOut", tokenOut);
-    if (tokenOut.address != ZERO_ADDRESS && tokenIn.address != ZERO_ADDRESS) {
-      router.push({
-        pathname: "/",
-        query: {
-          chain: chainId,
-          from: tokenIn.address,
-          fromSymbol: tokenIn.symbol,
-          to: tokenOut.address,
-          toSymbol: tokenOut.symbol,
-        },
-      });
-    }
+    router.push({
+      pathname: "/",
+      query: {
+        chain: chainId,
+        from: tokenIn.address,
+        fromSymbol: tokenIn.symbol,
+        to: tokenOut.address,
+        toSymbol: tokenOut.symbol,
+      },
+    });
   };
 
   useEffect(() => {
-    if (tokenIn.callId != 2) {
+    console.log("tokenIn", tokenIn);
+    console.log("tokenOut", tokenOut);
+    if (
+      tokenIn.symbol != tokenOut.symbol &&
+      tokenIn.callId != 2 &&
+      tokenOut.callId != 2 &&
+      tokenIn.address != ZERO_ADDRESS &&
+      tokenOut.address != ZERO_ADDRESS
+    )
       updateRouter();
-    }
   }, [
     tokenIn.address,
     tokenIn.symbol,
