@@ -9,12 +9,14 @@ import { useEffect } from "react";
 import { fetchSeason1Rewards } from "../../utils/queries";
 import { useEarnStore } from "../../hooks/useEarnStore";
 import { chainProperties } from "../../utils/chains";
+import { useState } from "react";
 
 export default function Earn() {
 
   const { address, isConnected } = useAccount();
   const provider = useProvider();
   const signer = new ethers.VoidSigner(address, provider);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [
     chainId,
@@ -108,6 +110,7 @@ export default function Earn() {
         setUserSeason1Points(undefined)
       }
     }
+    setIsLoading(false)
   }
 
   return (
@@ -163,9 +166,13 @@ export default function Earn() {
                     <span className="text-grey1 text-xs uppercase">
                       LP Rewards
                     </span>
-                    <span className="text-white text-2xl md:text-3xl">
-                      {userSeason1FIN.whitelistedFeesUsd === 0 || !userSeason1FIN ? 0 : userSeason1FIN.whitelistedFeesUsd.toFixed(2)}
-                    </span>
+                    {isLoading ?
+                    <div className="h-[36px] rounded-[4px] w-40 bg-grey/60 animate-pulse" />
+                     : <span className="text-white text-2xl md:text-3xl">
+                     {userSeason1FIN.whitelistedFeesUsd === 0 || !userSeason1FIN ? 0 : userSeason1FIN.whitelistedFeesUsd.toFixed(2)}
+                   </span>
+                    }
+                    
                   </div>
                   {/* <div className="border border-grey w-full rounded-[4px] bg-black flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs uppercase">
