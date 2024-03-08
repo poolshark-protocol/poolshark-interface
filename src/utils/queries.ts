@@ -1098,21 +1098,25 @@ export const fetchSeason1Rewards = (
     const poolsQuery = `
     { 
       userSeasonRewards(
-        first: 1
-        where: {id:"${userAddress.toLowerCase()}"}
+        first: 2
+        where: {id_in: ["${userAddress.toLowerCase() + '-0-1'}", "${userAddress.toLowerCase() + '-0-2'}"]}
       ) {
+        season
+        block
+        whitelistedFeesUsd
         volumeTradedUsd
         nonWhitelistedFeesUsd
         stakingPoints
-        whitelistedFeesUsd
       }
       totalSeasonRewards(
-        first: 1
+        first: 2
       ) {
+        season
+        block
+        whitelistedFeesUsd
         volumeTradedUsd
         nonWhitelistedFeesUsd
         stakingPoints
-        whitelistedFeesUsd
       }
     }
   `;

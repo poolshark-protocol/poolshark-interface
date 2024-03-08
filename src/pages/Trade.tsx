@@ -393,7 +393,7 @@ export default function Trade() {
   } = useToken({
     address:
       (router.query.from as `0x${string}`) ?? (ZERO_ADDRESS as `0x${string}`),
-    enabled: router.query.from != ZERO_ADDRESS,
+    enabled: router.query.from != ZERO_ADDRESS && tokenOut.callId != 2,
     onSuccess() {
       if (tokenInData && router.query.fromSymbol && router.query.from) {
         const newTokenIn = {
@@ -410,7 +410,7 @@ export default function Trade() {
           router.query.from != tokenIn.address ||
           router.query.fromSymbol != tokenIn.symbol
         ) {
-          setTokenIn(tokenOutData, newTokenIn, "0", false);
+          setTokenIn(tokenOut, newTokenIn, "0", false);
         }
       } else {
         refetchTokenInInfo();
@@ -425,7 +425,7 @@ export default function Trade() {
   } = useToken({
     address:
       (router.query.to as `0x${string}`) ?? (ZERO_ADDRESS as `0x${string}`),
-    enabled: router.query.to != ZERO_ADDRESS,
+    enabled: router.query.to != ZERO_ADDRESS && tokenIn.callId != 2,
     onSuccess() {
       if (tokenOutData && router.query.toSymbol && router.query.to) {
         const newTokenOut = {
@@ -442,7 +442,7 @@ export default function Trade() {
           router.query.to != tokenOut.address ||
           router.query.toSymbol != tokenOut.symbol
         ) {
-          setTokenOut(tokenInData, newTokenOut, "0", false);
+          setTokenOut(tokenIn, newTokenOut, "0", false);
         }
       } else {
         refetchTokenOutInfo();
