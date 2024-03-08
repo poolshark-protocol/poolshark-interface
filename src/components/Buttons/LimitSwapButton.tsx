@@ -74,7 +74,7 @@ export default function LimitSwapButton({
       ],
     ],
     chainId: chainId,
-    enabled: poolAddress != undefined && poolAddress != ZERO_ADDRESS,
+    enabled: poolAddress != undefined && poolAddress != ZERO_ADDRESS && amount?.gt(0),
     gasLimit: convertBigIntAndBigNumber(gasLimit),
     value: convertBigIntAndBigNumber(getLimitSwapButtonMsgValue(
       tokenIn.native,
