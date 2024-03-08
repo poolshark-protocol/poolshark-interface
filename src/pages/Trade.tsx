@@ -148,6 +148,8 @@ export default function Trade() {
 
   const router = useRouter();
 
+  const [isLoading, setIsLoading] = useState(true);
+
   //false order history is selected, true when active orders is selected
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
 
@@ -265,6 +267,7 @@ export default function Trade() {
     } catch (error) {
       console.log("limit error", error);
     }
+    setIsLoading(false)
   }
 
   async function mapUserLimitSnapshotList() {
@@ -532,6 +535,7 @@ export default function Trade() {
         </div>
       </div>
       {/* from here is to stay on trade */}
+      {!isDisconnected && (
       <div className="md:mb-20 mb-32 w-full">
         <div className="flex md:flex-row flex-col gap-y-3 item-end justify-between w-full">
           <h1 className="mt-1.5">Orders</h1>
@@ -558,7 +562,7 @@ export default function Trade() {
             </button>
           </div>
         </div>
-        <div className="overflow-hidden rounded-[4px] mt-3 bg-dark  border border-grey">
+        <div className={`overflow-hidden rounded-[4px] mt-3 bg-dark  border border-grey ${isLoading && "animate-pulse"}`}>
           <table className="w-full table-auto rounded-[4px]">
             <thead
               className={`h-10 ${allLimitPositions.length === 0 && "hidden"}`}
@@ -566,8 +570,8 @@ export default function Trade() {
               <tr className="text-[11px] text-grey1/90 mb-3 leading-normal">
                 <th className="text-left pl-3 uppercase">Sell</th>
                 <th className="text-left uppercase">Buy</th>
-                <th className="text-left uppercase">Avg. Price</th>
-                <th className="text-left md:table-cell hidden uppercase">
+                <th className={`text-left uppercase ${activeOrdersSelected && "md:table-cell hidden"}`}>Avg. Price</th>
+                <th className={`text-left uppercase ${!activeOrdersSelected && "md:table-cell hidden"}`}>
                   Status
                 </th>
                 <th className="text-left md:table-cell hidden pl-2 uppercase">
@@ -576,6 +580,8 @@ export default function Trade() {
               </tr>
             </thead>
             {activeOrdersSelected ? (
+                            isLoading ? (<div className="h-[300px]">
+              </div>) : (
               allLimitPositions.length === 0 ? (
                 <tbody>
                   <tr>
@@ -620,7 +626,7 @@ export default function Trade() {
                     );
                   }
                 })}
-              </tbody>)
+              </tbody>))
             ) : (
               allHistoricalOrders.length == 0 ? (
                 <tbody>
@@ -712,6 +718,7 @@ export default function Trade() {
           </table>
         </div>
       </div>
+      )}
       <Transition appear show={isSettingsOpen} as={Fragment}>
         <Dialog
           as="div"
