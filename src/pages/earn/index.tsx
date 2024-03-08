@@ -9,8 +9,6 @@ import { useEffect, useState } from "react";
 import { fetchSeasonRewards } from "../../utils/queries";
 import { useEarnStore } from "../../hooks/useEarnStore";
 import { chainProperties } from "../../utils/chains";
-import { useState } from "react";
-
 export default function Earn() {
 
   const { address, isConnected } = useAccount();
