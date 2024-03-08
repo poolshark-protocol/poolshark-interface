@@ -6,7 +6,7 @@ import { ethers } from "ethers";
 import { useAccount, useProvider } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useEffect, useState } from "react";
-import { fetchSeason1Rewards } from "../../utils/queries";
+import { fetchSeasonRewards } from "../../utils/queries";
 import { useEarnStore } from "../../hooks/useEarnStore";
 import { chainProperties } from "../../utils/chains";
 
@@ -33,59 +33,77 @@ export default function Earn() {
 
   const [
     tokenClaim,
-    userSeason1FINTotal,
-    userSeason1FIN,
-    totalSeason1FIN,
-    userSeason1Points,
-    totalSeason1Points,
     setTokenClaim,
-    setUserSeason1FIN,
-    setUserSeason1FINTotal,
-    setUserSeason1Points,
-    setTotalSeason1Points
+    userSeason0Block1FINTotal,
+    userSeason0Block1FIN,
+    totalSeason0Block1FIN,
+    userSeason0Block1Points,
+    totalSeason0Block1Points,
+    setUserSeason0Block1FIN,
+    setUserSeason0Block1FINTotal,
+    setUserSeason0Block1Points,
+    setTotalSeason0Block1Points,
+    userSeason0Block2FINTotal,
+    userSeason0Block2FIN,
+    totalSeason0Block2FIN,
+    userSeason0Block2Points,
+    totalSeason0Block2Points,
+    // setUserSeason0Block2FIN,
+    // setUserSeason0Block2FINTotal,
+    // setUserSeason0Block2Points,
+    // setTotalSeason0Block2Points
   ] = useEarnStore((state) => [
     state.tokenClaim,
-    state.userSeason1FINTotal,
-    state.userSeason1FIN,
-    state.totalSeason1FIN,
-    state.userSeason1Points,
-    state.totalSeason1Points,
     state.setTokenClaim,
-    state.setUserSeason1FIN,
-    state.setUserSeason1FINTotal,
-    state.setUserSeason1Points,
-    state.setTotalSeason1Points,
+    state.userSeason0Block1FINTotal,
+    state.userSeason0Block1FIN,
+    state.totalSeason0Block1FIN,
+    state.userSeason0Block1Points,
+    state.totalSeason0Block1Points,
+    state.setUserSeason0Block1FIN,
+    state.setUserSeason0Block1FINTotal,
+    state.setUserSeason0Block1Points,
+    state.setTotalSeason0Block1Points,
+    state.userSeason0Block2FINTotal,
+    state.userSeason0Block2FIN,
+    state.totalSeason0Block2FIN,
+    state.userSeason0Block2Points,
+    state.totalSeason0Block2Points,
+    // state.setUserSeason0Block2FIN,
+    // state.setUserSeason0Block2FINTotal,
+    // state.setUserSeason0Block2Points,
+    // state.setTotalSeason0Block2Points,
   ]);
 
   useEffect(() => {
     if (isConnected) {
-      if (userSeason1Points && 
+      if (userSeason0Block1Points && 
             chainProperties[networkName]?.season0Rewards) {
         const totalSeason0Rewards = chainProperties[networkName]
                                         ?.season0Rewards?.block1?.whitelistedFeesUsd
         const userFINRewards = {
           whitelistedFeesUsd:
-            userSeason1Points.whitelistedFeesUsd > 0
+            userSeason0Block1Points.whitelistedFeesUsd > 0
             ? (totalSeason0Rewards ?? 0)
-              * userSeason1Points.whitelistedFeesUsd
-              / totalSeason1Points.whitelistedFeesUsd
+              * userSeason0Block1Points.whitelistedFeesUsd
+              / totalSeason0Block1Points.whitelistedFeesUsd
             : 0,
         }
-        setUserSeason1FIN(userFINRewards)
-        setUserSeason1FINTotal(
+        setUserSeason0Block1FIN(userFINRewards)
+        setUserSeason0Block1FINTotal(
           userFINRewards.whitelistedFeesUsd
         )
       } else {
         const userFINRewards = {
           whitelistedFeesUsd: 0,
         }
-        setUserSeason1FIN(userFINRewards)
-        setUserSeason1FINTotal(0)
+        setUserSeason0Block1FIN(userFINRewards)
+        setUserSeason0Block1FINTotal(0)
       }
     }
   }, [
-    userSeason1Points,
-    totalSeason1Points
+    userSeason0Block1Points,
+    totalSeason0Block1Points
   ]);
 
   useEffect(() => {
@@ -98,15 +116,25 @@ export default function Earn() {
   ]);
 
   async function updateSeasonRewards() {
-    const data = await fetchSeason1Rewards(limitSubgraph, address);
+    const data = await fetchSeasonRewards(limitSubgraph, address);
     if (data["data"]) {
-      if (data["data"].totalSeasonRewards?.length == 1) {
-        setTotalSeason1Points(data["data"].totalSeasonRewards[0])
+      const season0Block1Total = data["data"].totalSeasonRewards.find((rewards) => {
+        console.log('rewards check:', rewards)
+        return rewards.season == 0 && rewards.block == 1
+      })
+      console.log('season 0 block 1:', season0Block1Total)
+      if (season0Block1Total) {
+        setTotalSeason0Block1Points(season0Block1Total)
       }
-      if (data["data"].userSeasonRewards?.length == 1) {
-        setUserSeason1Points(data["data"].userSeasonRewards[0])
+      const season0Block1User = data["data"].userSeasonRewards.find((rewards) => {
+        console.log('rewards check:', rewards)
+        return rewards.season == 0 && rewards.block == 1
+      })
+      if (season0Block1User) {
+        setUserSeason0Block1Points(season0Block1User)
       } else {
-        setUserSeason1Points(undefined)
+        setTotalSeason0Block1Points(undefined)
+        setUserSeason0Block1Points(undefined)
       }
     }
   }
@@ -166,7 +194,7 @@ export default function Earn() {
                       Trading Rewards
                     </span>
                     <span className="text-white text-2xl md:text-3xl">
-                      {userSeason1FIN.volumeTradedUsd ? userSeason1FIN.volumeTradedUsd.toPrecision(6) : 0}
+                      {userSeason0Block1FIN.volumeTradedUsd ? userSeason0Block1FIN.volumeTradedUsd.toPrecision(6) : 0}
                     </span>
                   </div> */}
 
@@ -175,7 +203,7 @@ export default function Earn() {
                       LP Rewards
                     </span>
                     <span className="text-white text-2xl md:text-3xl">
-                      {block === "Block 1" && (userSeason1FIN?.whitelistedFeesUsd === 0 ? 0 : userSeason1FIN.whitelistedFeesUsd.toFixed(2))}
+                      {block === "Block 1" && (userSeason0Block1FIN?.whitelistedFeesUsd === 0 ? (0).toFixed(2) : userSeason0Block1FIN.whitelistedFeesUsd.toFixed(2))}
                       {block === "Block 2" && ("0.00")}
                     </span>
                   </div>
@@ -184,7 +212,7 @@ export default function Earn() {
                       FIN Staking Rewards
                     </span>
                     <span className="text-white text-2xl md:text-3xl">
-                      {userSeason1FIN.stakingPoints.toPrecision(6)}
+                      {userSeason0Block1FIN.stakingPoints.toPrecision(6)}
                     </span>
                   </div> */}
                     {/* <div className="border border-main w-full rounded-[4px] bg-main1 flex flex-col w-full items-center justify-center gap-y-3 h-32">
@@ -192,13 +220,13 @@ export default function Earn() {
                         Total Rewards
                       </span>
                       <span className="text-main2 text-2xl md:text-3xl">
-                      {userSeason1FINTotal === 0 ? 0 : userSeason1FINTotal.toPrecision(6)}
+                      {userSeason0Block1FINTotal === 0 ? 0 : userSeason0Block1FINTotal.toPrecision(6)}
                       </span>
                     </div> */}
                 </div>
                 <div className="flex items-center justify-between mt-5">
                 <h1 className="text-grey1 text-sm">Total across all blocks</h1>
-                <span>50 oFIN</span>
+                <span>{(userSeason0Block1FIN?.whitelistedFeesUsd === 0 ? (0).toFixed(2) : userSeason0Block1FIN.whitelistedFeesUsd.toFixed(2))} oFIN</span>
                 </div>
               </div>
               <div className="border h-full bg-dark border-grey rounded-[4px] w-full p-5">
