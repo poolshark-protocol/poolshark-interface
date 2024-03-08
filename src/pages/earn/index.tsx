@@ -9,13 +9,13 @@ import { useEffect, useState } from "react";
 import { fetchSeasonRewards } from "../../utils/queries";
 import { useEarnStore } from "../../hooks/useEarnStore";
 import { chainProperties } from "../../utils/chains";
-
 export default function Earn() {
 
   const { address, isConnected } = useAccount();
   const [ block, setBlock ] = useState("Block 1")
   const provider = useProvider();
   const signer = new ethers.VoidSigner(address, provider);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [
     chainId,
@@ -155,6 +155,7 @@ export default function Earn() {
         setUserSeason0Block2Points(undefined)
       }
     }
+    setIsLoading(false)
   }
   const blocks = ["Block 1", "Block 2"];
 
@@ -220,10 +221,13 @@ export default function Earn() {
                     <span className="text-grey1 text-xs uppercase">
                       LP Rewards
                     </span>
-                    <span className="text-white text-2xl md:text-3xl">
-                      {block === "Block 1" && (userSeason0Block1FIN?.whitelistedFeesUsd === 0 ? (0).toFixed(2) : userSeason0Block1FIN.whitelistedFeesUsd.toFixed(2))}
-                      {block === "Block 2" && (userSeason0Block2FIN?.whitelistedFeesUsd === 0 ? (0).toFixed(2) : userSeason0Block2FIN.whitelistedFeesUsd.toFixed(2))}
-                    </span>
+                    {isLoading ?
+                    <div className="h-[36px] rounded-[4px] w-40 bg-grey/60 animate-pulse" />
+                     : <span className="text-white text-2xl md:text-3xl">
+                     {block === "Block 1" && (userSeason0Block1FIN?.whitelistedFeesUsd === 0 ? (0).toFixed(2) : userSeason0Block1FIN.whitelistedFeesUsd.toFixed(2))}
+                     {block === "Block 2" && (userSeason0Block2FIN?.whitelistedFeesUsd === 0 ? (0).toFixed(2) : userSeason0Block2FIN.whitelistedFeesUsd.toFixed(2))}
+                   </span>
+                    }
                   </div>
                   {/* <div className="border border-grey w-full rounded-[4px] bg-black flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs uppercase">

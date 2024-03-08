@@ -220,11 +220,11 @@ export default function SelectToken(props) {
                       value={customInput}
                       onChange={(e) => setCustomInput(e.target.value)}
                     ></input>
-                    <div className="flex justify-between flex-wrap mt-4 gap-y-2">
-                      {displayTokenList?.map((coin) => {
+                    <div className="grid grid-cols-3 gap-x-4 mt-4 grid-rows-2 gap-y-2">
+                      {displayTokenList?.slice(0, 6).map((coin) => {
                         if (
-                          customInput.toLowerCase() == "" ||
-                          customInput.toLowerCase() == " " ||
+                          customInput.toLowerCase() === "" ||
+                          customInput.toLowerCase() === " " ||
                           coin.symbol
                             .toLowerCase()
                             .includes(customInput.toLowerCase()) ||

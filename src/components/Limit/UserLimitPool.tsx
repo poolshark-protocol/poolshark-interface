@@ -179,7 +179,7 @@ export default function UserLimitPool({
             limitPosition.tokenOut.symbol}
         </div>
       </td>
-      <td className="text-left text-xs">
+      <td className="text-left text-xs md:table-cell hidden">
         <div className="flex flex-col">
           <span>
             <span className="text-grey1">
@@ -213,7 +213,7 @@ export default function UserLimitPool({
           </span>
         </div>
       </td>
-      <td className="md:table-cell hidden">
+      <td className="pr-2 md:pr-0">
         <div
           className={`text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]`}
         >
