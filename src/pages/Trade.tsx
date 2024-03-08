@@ -535,6 +535,7 @@ export default function Trade() {
         </div>
       </div>
       {/* from here is to stay on trade */}
+      {!isDisconnected && (
       <div className="md:mb-20 mb-32 w-full">
         <div className="flex md:flex-row flex-col gap-y-3 item-end justify-between w-full">
           <h1 className="mt-1.5">Orders</h1>
@@ -717,6 +718,7 @@ export default function Trade() {
           </table>
         </div>
       </div>
+      )}
       <Transition appear show={isSettingsOpen} as={Fragment}>
         <Dialog
           as="div"
