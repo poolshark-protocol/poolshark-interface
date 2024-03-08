@@ -70,6 +70,10 @@ type EarnAction = {
     setUserSeason0Block1FINTotal: (userSeason0Block1FINTotal: number) => void;
     setUserSeason0Block1Points: (userSeason0Block1Points: any) => void;
     setTotalSeason0Block1Points: (totalSeason0Block1Points: any) => void;
+    setUserSeason0Block2FIN: (userSeason0Block2FIN: any) => void;
+    setUserSeason0Block2FINTotal: (userSeason0Block2FINTotal: number) => void;
+    setUserSeason0Block2Points: (userSeason0Block2Points: any) => void;
+    setTotalSeason0Block2Points: (totalSeason0Block2Points: any) => void;
 }
 
 const initialEarnState: EarnState = {

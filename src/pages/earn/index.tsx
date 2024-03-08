@@ -48,10 +48,10 @@ export default function Earn() {
     totalSeason0Block2FIN,
     userSeason0Block2Points,
     totalSeason0Block2Points,
-    // setUserSeason0Block2FIN,
-    // setUserSeason0Block2FINTotal,
-    // setUserSeason0Block2Points,
-    // setTotalSeason0Block2Points
+    setUserSeason0Block2FIN,
+    setUserSeason0Block2FINTotal,
+    setUserSeason0Block2Points,
+    setTotalSeason0Block2Points
   ] = useEarnStore((state) => [
     state.tokenClaim,
     state.setTokenClaim,
@@ -69,10 +69,10 @@ export default function Earn() {
     state.totalSeason0Block2FIN,
     state.userSeason0Block2Points,
     state.totalSeason0Block2Points,
-    // state.setUserSeason0Block2FIN,
-    // state.setUserSeason0Block2FINTotal,
-    // state.setUserSeason0Block2Points,
-    // state.setTotalSeason0Block2Points,
+    state.setUserSeason0Block2FIN,
+    state.setUserSeason0Block2FINTotal,
+    state.setUserSeason0Block2Points,
+    state.setTotalSeason0Block2Points,
   ]);
 
   useEffect(() => {
@@ -135,6 +135,24 @@ export default function Earn() {
       } else {
         setTotalSeason0Block1Points(undefined)
         setUserSeason0Block1Points(undefined)
+      }
+      const season0Block2Total = data["data"].totalSeasonRewards.find((rewards) => {
+        console.log('rewards check:', rewards)
+        return rewards.season == 0 && rewards.block == 1
+      })
+      console.log('season 0 block 1:', season0Block2Total)
+      if (season0Block2Total) {
+        setTotalSeason0Block2Points(season0Block2Total)
+      }
+      const season0Block2User = data["data"].userSeasonRewards.find((rewards) => {
+        console.log('rewards check:', rewards)
+        return rewards.season == 0 && rewards.block == 1
+      })
+      if (season0Block2User) {
+        setUserSeason0Block2Points(season0Block2User)
+      } else {
+        setTotalSeason0Block2Points(undefined)
+        setUserSeason0Block2Points(undefined)
       }
     }
   }
@@ -204,7 +222,7 @@ export default function Earn() {
                     </span>
                     <span className="text-white text-2xl md:text-3xl">
                       {block === "Block 1" && (userSeason0Block1FIN?.whitelistedFeesUsd === 0 ? (0).toFixed(2) : userSeason0Block1FIN.whitelistedFeesUsd.toFixed(2))}
-                      {block === "Block 2" && ("0.00")}
+                      {block === "Block 2" && (userSeason0Block2FIN?.whitelistedFeesUsd === 0 ? (0).toFixed(2) : userSeason0Block2FIN.whitelistedFeesUsd.toFixed(2))}
                     </span>
                   </div>
                   {/* <div className="border border-grey w-full rounded-[4px] bg-black flex flex-col w-full items-center justify-center gap-y-3 h-32">
@@ -226,7 +244,7 @@ export default function Earn() {
                 </div>
                 <div className="flex items-center justify-between mt-5">
                 <h1 className="text-grey1 text-sm">Total across all blocks</h1>
-                <span>{(userSeason0Block1FIN?.whitelistedFeesUsd === 0 ? (0).toFixed(2) : userSeason0Block1FIN.whitelistedFeesUsd.toFixed(2))} oFIN</span>
+                <span>{((userSeason0Block1FIN?.whitelistedFeesUsd + userSeason0Block2FIN?.whitelistedFeesUsd) === 0 ? (0).toFixed(2) : (userSeason0Block1FIN.whitelistedFeesUsd + userSeason0Block2FIN?.whitelistedFeesUsd).toFixed(2))} oFIN</span>
                 </div>
               </div>
               <div className="border h-full bg-dark border-grey rounded-[4px] w-full p-5">
