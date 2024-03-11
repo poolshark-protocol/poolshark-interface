@@ -49,7 +49,6 @@ import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
       },
     });
 
-    // @shax
     useEffect(() => {
       if (bondBalanceData) {
         setBondBalance(BigNumber.from(bondBalanceData.toString()));
