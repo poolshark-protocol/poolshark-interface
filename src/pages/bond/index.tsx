@@ -107,8 +107,7 @@ export default function Bond() {
     address: bondProtocolConfig["vFinAddress"],
     abi: vFinABI,
     functionName: "vestPositions",
-    // @shax - is vestingPositionId a BigNumber
-    args: [deepConvertBigIntAndBigNumber(vestingPositionId as BigNumber)],
+    args: [BigInt(vestingPositionId)],
     chainId: chainId,
     watch: true,
     enabled: bondProtocolConfig["vFinAddress"] != undefined
@@ -125,7 +124,6 @@ export default function Bond() {
     address: bondProtocolConfig["vFinAddress"],
     abi: vFinABI,
     functionName: "viewClaim",
-    // @shax - here vestingPositionId is expected to be a number
     args: [vestingPositionId],
     chainId: chainId,
     watch: true,

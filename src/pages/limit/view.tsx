@@ -185,7 +185,6 @@ export default function ViewLimit() {
     address: limitPoolAddress,
     abi: limitPoolABI,
     functionName: "snapshotLimit",
-    // @shax - after abi is typed it says it needs to be an object instead of array
     args: [
       {
         owner: address,
