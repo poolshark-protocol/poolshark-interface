@@ -55,12 +55,14 @@ export const getRangePoolFromFactory = (
   client: LimitSubgraph,
   tokenA?: string,
   tokenB?: string,
-  poolTypeId?: number,
+  poolTypeId?: number
 ) => {
   const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
   const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
   return new Promise(function (resolve) {
-    const getPool = poolTypeId == undefined ?`
+    const getPool =
+      poolTypeId == undefined
+        ? `
         {
           limitPools(
             where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}},
@@ -86,7 +88,7 @@ export const getRangePoolFromFactory = (
           }
         }
         `
-      :`
+        : `
       {
         limitPools(
           where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}, poolType: "${poolTypeId}"},
@@ -170,7 +172,7 @@ export const getCoverPoolFromFactory = (
     const client = new ApolloClient({
       uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
       cache: new InMemoryCache(),
-    }); 
+    });
     client
       ?.query({ query: gql(getPool) })
       .then((data) => {
@@ -193,7 +195,9 @@ export const getLimitPoolFromFactory = (
   const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
   const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
   return new Promise(function (resolve) {
-    const getPool = poolTypeId == undefined ? `
+    const getPool =
+      poolTypeId == undefined
+        ? `
         {
             limitPools(
               where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}},
@@ -244,7 +248,7 @@ export const getLimitPoolFromFactory = (
             }
           }
          `
-      : `
+        : `
       {
           limitPools(
             where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}, poolType:"${poolTypeId}"},
@@ -1023,7 +1027,7 @@ export const fetchTokenPrice = (
         `;
     client
       ?.query({
-        query: gql(tokenQuery)
+        query: gql(tokenQuery),
       })
       .then((data) => {
         resolve(data);
@@ -1049,18 +1053,19 @@ export const fetchEthPrice = (client: LimitSubgraph): Promise<number> => {
         query: gql(ethPrice),
       })
       .then((data) => {
-        console.log('data check:', data["data"])
         resolve(data["data"]?.basePrices[0]?.USD ?? 0);
         /* console.log(data) */
       })
       .catch((err) => {
         resolve(err);
       });
-    
   });
 };
 
-export const fetchUserVFinPositions = (client: LimitSubgraph, ownerAddress: string) => {
+export const fetchUserVFinPositions = (
+  client: LimitSubgraph,
+  ownerAddress: string
+) => {
   return new Promise(function (resolve) {
     const userVestingQuery = `
         {
@@ -1085,7 +1090,10 @@ export const fetchUserVFinPositions = (client: LimitSubgraph, ownerAddress: stri
   });
 };
 
-export const fetchSeasonRewards = (client: LimitSubgraph, userAddress: string) => {
+export const fetchSeason1Rewards = (
+  client: LimitSubgraph,
+  userAddress: string
+) => {
   return new Promise(function (resolve) {
     const poolsQuery = `
     { 
@@ -1124,7 +1132,11 @@ export const fetchSeasonRewards = (client: LimitSubgraph, userAddress: string) =
   });
 };
 
-export const fetchUserBonds = (marketId: string, recipient: string, subgraphUrl: string) => {
+export const fetchUserBonds = (
+  marketId: string,
+  recipient: string,
+  subgraphUrl: string
+) => {
   return new Promise(function (resolve) {
     const userBondsQuery = `
         {
@@ -1272,7 +1284,7 @@ export const fetchBondMarket = (marketId: string, subgraphUrl: string) => {
 
 export const fetchFinTokenData = (client: FinSubgraph) => {
   return new Promise(function (resolve) {
-    const finTokenAddress = chainProperties["fin-token"]["tokenAddress"]
+    const finTokenAddress = chainProperties["fin-token"]["tokenAddress"];
     const finQuery = `
     { 
       tokens(

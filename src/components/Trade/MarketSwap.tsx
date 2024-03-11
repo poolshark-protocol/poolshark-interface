@@ -735,16 +735,7 @@ export default function MarketSwap() {
               <>{(0).toFixed(2)}</>
             )}
           </span>
-          <span>
-            {tokenOut?.address != ZERO_ADDRESS ? (
-              "Balance: " +
-              (!isNaN(tokenOut?.userBalance) && tokenOut.userBalance > 0
-                ? numFormat(tokenOut.userBalance, 5)
-                : "0.00")
-            ) : (
-              <></>
-            )}
-          </span>
+          <BalanceDisplay token={tokenOut}></BalanceDisplay>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
           {<div>{inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)}</div>}
