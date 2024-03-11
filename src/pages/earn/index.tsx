@@ -76,23 +76,22 @@ export default function Earn() {
 
   useEffect(() => {
     if (isConnected) {
-      if (
-        userSeason0Block1Points &&
-        chainProperties[networkName]?.season0Rewards
-      ) {
-        const totalSeason0Rewards =
-          chainProperties[networkName]?.season0Rewards?.block1
-            ?.whitelistedFeesUsd;
+      if (userSeason0Block1Points && 
+            chainProperties[networkName]?.season0Rewards?.block1) {
+        const totalSeason0Block1Rewards = chainProperties[networkName]
+                                        ?.season0Rewards?.block1?.whitelistedFeesUsd
         const userFINRewards = {
           whitelistedFeesUsd:
             userSeason0Block1Points.whitelistedFeesUsd > 0
-              ? ((totalSeason0Rewards ?? 0) *
-                  userSeason0Block1Points.whitelistedFeesUsd) /
-                totalSeason0Block1Points.whitelistedFeesUsd
-              : 0,
-        };
-        setUserSeason0Block1FIN(userFINRewards);
-        setUserSeason0Block1FINTotal(userFINRewards.whitelistedFeesUsd);
+            ? (totalSeason0Block1Rewards ?? 0)
+              * userSeason0Block1Points.whitelistedFeesUsd
+              / totalSeason0Block1Points.whitelistedFeesUsd
+            : 0,
+        }
+        setUserSeason0Block1FIN(userFINRewards)
+        setUserSeason0Block1FINTotal(
+          userFINRewards.whitelistedFeesUsd
+        )
       } else {
         const userFINRewards = {
           whitelistedFeesUsd: 0,
@@ -100,8 +99,36 @@ export default function Earn() {
         setUserSeason0Block1FIN(userFINRewards);
         setUserSeason0Block1FINTotal(0);
       }
+      if (userSeason0Block2Points &&
+            chainProperties[networkName]?.season0Rewards?.block2) {
+              const totalSeason0Block2Rewards = chainProperties[networkName]
+                                              ?.season0Rewards?.block2?.whitelistedFeesUsd
+              const userFINRewards = {
+                whitelistedFeesUsd:
+                  userSeason0Block2Points.whitelistedFeesUsd > 0
+                  ? (totalSeason0Block2Rewards ?? 0)
+                    * userSeason0Block2Points.whitelistedFeesUsd
+                    / totalSeason0Block2Points.whitelistedFeesUsd
+                  : 0,
+              }
+              setUserSeason0Block2FIN(userFINRewards)
+              setUserSeason0Block2FINTotal(
+                userFINRewards.whitelistedFeesUsd
+              )
+      } else {
+        const userFINRewards = {
+          whitelistedFeesUsd: 0,
+        }
+        setUserSeason0Block2FIN(userFINRewards)
+        setUserSeason0Block2FINTotal(0)
+      }
     }
-  }, [userSeason0Block1Points, totalSeason0Block1Points]);
+  }, [
+    userSeason0Block1Points,
+    totalSeason0Block1Points,
+    userSeason0Block2Points,
+    totalSeason0Block2Points
+  ]);
 
   useEffect(() => {
     if (isConnected) {
@@ -112,44 +139,30 @@ export default function Earn() {
   async function updateSeasonRewards() {
     const data = await fetchSeason1Rewards(limitSubgraph, address);
     if (data["data"]) {
-      const season0Block1Total = data["data"].totalSeasonRewards.find(
-        (rewards) => {
-          console.log("rewards check:", rewards);
-          return rewards.season == 0 && rewards.block == 1;
-        }
-      );
-      console.log("season 0 block 1:", season0Block1Total);
+      const season0Block1Total = data["data"].totalSeasonRewards.find((rewards) => {
+        return rewards.season == 0 && rewards.block == 1
+      })
       if (season0Block1Total) {
         setTotalSeason0Block1Points(season0Block1Total);
       }
-      const season0Block1User = data["data"].userSeasonRewards.find(
-        (rewards) => {
-          console.log("rewards check:", rewards);
-          return rewards.season == 0 && rewards.block == 1;
-        }
-      );
+      const season0Block1User = data["data"].userSeasonRewards.find((rewards) => {
+        return rewards.season == 0 && rewards.block == 1
+      })
       if (season0Block1User) {
         setUserSeason0Block1Points(season0Block1User);
       } else {
         setTotalSeason0Block1Points(undefined);
         setUserSeason0Block1Points(undefined);
       }
-      const season0Block2Total = data["data"].totalSeasonRewards.find(
-        (rewards) => {
-          console.log("rewards check:", rewards);
-          return rewards.season == 0 && rewards.block == 1;
-        }
-      );
-      console.log("season 0 block 1:", season0Block2Total);
+      const season0Block2Total = data["data"].totalSeasonRewards.find((rewards) => {
+        return rewards.season == 0 && rewards.block == 2
+      })
       if (season0Block2Total) {
         setTotalSeason0Block2Points(season0Block2Total);
       }
-      const season0Block2User = data["data"].userSeasonRewards.find(
-        (rewards) => {
-          console.log("rewards check:", rewards);
-          return rewards.season == 0 && rewards.block == 1;
-        }
-      );
+      const season0Block2User = data["data"].userSeasonRewards.find((rewards) => {
+        return rewards.season == 0 && rewards.block == 2
+      })
       if (season0Block2User) {
         setUserSeason0Block2Points(season0Block2User);
       } else {
