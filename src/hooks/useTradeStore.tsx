@@ -256,8 +256,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     if (tokenOut?.address != initialTradeState.tokenOut.address) {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to initialState
       if (
-        newTokenIn.address?.toLowerCase() == tokenOut.address?.toLowerCase() &&
-        newTokenIn.native == tokenOut.native
+        newTokenIn.address?.toLowerCase() == tokenOut?.address?.toLowerCase() &&
+        newTokenIn.native == tokenOut?.native
       ) {
         set((state) => ({
           tokenIn: {
@@ -302,13 +302,13 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           tokenIn: {
             ...newTokenIn,
             callId:
-              newTokenIn.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
+              newTokenIn.address.localeCompare(tokenOut?.address) < 0 ? 0 : 1,
             native: newTokenIn.native ?? false,
           },
           tokenOut: {
             ...state.tokenOut,
             callId:
-              tokenOut.address.localeCompare(newTokenIn.address) < 0 ? 0 : 1,
+              tokenOut?.address.localeCompare(newTokenIn.address) < 0 ? 0 : 1,
           },
           amountIn: isAmountIn
             ? parseUnits(amount, newTokenIn.decimals)
@@ -319,9 +319,9 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           needsPairUpdate: true,
           needsSetAmounts: true,
           wethCall:
-            newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase(),
+            newTokenIn.address.toLowerCase() == tokenOut?.address.toLowerCase(),
           limitPriceOrder:
-            newTokenIn.address.localeCompare(tokenOut.address) < 0,
+            newTokenIn.address.localeCompare(tokenOut?.address) < 0,
         }));
       }
     } else {
