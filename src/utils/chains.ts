@@ -215,7 +215,7 @@ export const chainProperties = {
     coverSubgraphUrl:
       "",
     limitSubgraphUrl:
-      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-arbitrum-season0-block2/0.2.9/gn",
+      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-arbitrum-season0-block2/0.3.0/gn",
     bondProtocol: {
       auctioneerAddress: "0xf7f9a96cdbfefd70bda14a8f30ec503b16bce9b1",
       tellerAddress: "0x007f7735baf391e207e3aa380bb53c4bd9a5fed6",
@@ -269,7 +269,7 @@ export const chainProperties = {
     coverSubgraphUrl:
       "",
     limitSubgraphUrl:
-      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-scroll-season0-block2/0.2.9/gn",
+      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-scroll-season0-block2/0.3.0/gn",
     whitelistedPools: [
       "0xb14917888ba92937be3d89094f83a62904ebc9dd", // ETH-USDT 0.1%
     ],
@@ -309,7 +309,7 @@ export const chainProperties = {
     coverSubgraphUrl:
       "",
     limitSubgraphUrl:
-      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-mode-season0-block2/0.2.9/gn",
+      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-mode-season0-block2/0.3.0/gn",
     whitelistedPools: [
       '0xfc16003afdff37580c9de7deeeb87f9c65b6908a', // WETH-USDT 0.1%
       '0xc20b141edd79f912897651eba9a2bca6b17dc7f1', // WETH-USDC 0.1%
