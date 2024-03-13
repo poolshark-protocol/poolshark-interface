@@ -400,6 +400,7 @@ export default function Trade() {
     onSuccess() {
       if (tokenInData) {
         const newTokenIn = {
+          ...tokenIn,
           ...tokenInData,
           native:
             router.query.fromSymbol ==
@@ -426,6 +427,7 @@ export default function Trade() {
     onSuccess() {
       if (tokenOutData) {
         const newTokenOut = {
+          ...tokenOut,
           ...tokenOutData,
           native:
             router.query.toSymbol ==
