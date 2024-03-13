@@ -14,7 +14,7 @@ import { limitPoolABI } from "../../abis/evm/limitPool";
 import { getClaimTick, mapUserLimitPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Limit/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Limit/AddLiquidity";
-import { fetchLimitTokenUSDPrice, getLogo, MapKey } from "../../utils/tokens";
+import { fetchLimitTokenUSDPrice, getLogo } from "../../utils/tokens";
 import { fetchLimitPositions } from "../../utils/queries";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
