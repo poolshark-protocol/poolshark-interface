@@ -203,7 +203,6 @@ export const fetchTokenMetadata = async (
         setListedTokenList(coins.listed_tokens);
         setDisplayTokenList(coins.listed_tokens);
       }
-      console.log('search tokens', response.data.search_tokens)
       //search tokens
       for (let i = 0; i < coins.search_tokens?.length; i++) {
         coins.search_tokens[i].address = coins.search_tokens[i].id;
