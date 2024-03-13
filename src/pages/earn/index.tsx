@@ -198,11 +198,13 @@ export default function Earn() {
                 <br />
                 Step 1: Deposit liquidity on supported pairs
                 <br />
-                Step 2: Track your oFIN using this page
+                Step 2: Compound or Collect on all positions
                 <br />
-                Step 3: Claim your oFIN when the drop starts
+                Step 3: Track your oFIN using this page
                 <br />
-                Step 4: Convert your oFIN to FIN
+                Step 4: Claim your oFIN when the drop starts
+                <br />
+                Step 5: Convert your oFIN to FIN
                 <br />
               </p>
             </div>
@@ -257,11 +259,11 @@ export default function Earn() {
                         {block === "Block 1" &&
                           (userSeason0Block1FIN?.whitelistedFeesUsd === 0
                             ? (0).toFixed(2)
-                            : formatOFin(userSeason0Block1FIN.whitelistedFeesUsd.toString(), 6))}
+                            : formatOFin(userSeason0Block1FIN.whitelistedFeesUsd.toString(), 8))}
                         {block === "Block 2" &&
                           (userSeason0Block2FIN?.whitelistedFeesUsd === 0
                             ? (0).toFixed(2)
-                            : formatOFin(userSeason0Block1FIN.whitelistedFeesUsd.toString(), 6))}
+                            : formatOFin(userSeason0Block1FIN.whitelistedFeesUsd.toString(), 8))}
                       </span>
                     )}
                   </div>
@@ -294,7 +296,7 @@ export default function Earn() {
                       : formatOFin(
                           String(userSeason0Block1FIN.whitelistedFeesUsd +
                           userSeason0Block2FIN?.whitelistedFeesUsd)
-                        , 6)}{" "}
+                        , 8)}{" "}
                     oFIN
                   </span>
                 </div>
