@@ -6,7 +6,6 @@ import { token } from "../types"
 export const numFormat = (num, precision: number) =>
   `${1 * parseFloat(Number(num).toPrecision(precision))}`;
 
-
 export const numStringFormat = (numString: string, precision: number) =>
   `${1 * parseFloat(parseFloat(numString).toPrecision(precision))}`;
 

@@ -341,10 +341,6 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         amountIn: isAmountIn
           ? parseUnits(amount, newTokenIn.decimals)
           : state.amountIn,
-        userRouterAllowance: newTokenIn.address == state.tokenIn.address ? state.tokenIn.userRouterAllowance
-                                                                         : BN_ZERO,
-        userBalance: newTokenIn.address == state.tokenIn.address ? state.tokenIn.userBalance
-                                                                 : BN_ZERO,
         pairSelected: false,
         wethCall: false,
         needsAllowanceIn: !newTokenIn.native,
