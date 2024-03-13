@@ -754,7 +754,8 @@ export default function LimitSwap() {
           signer,
           setMintFee,
           setMintGasLimit,
-          networkName
+          networkName,
+          limitSubgraph
         );
       } else {
         await gasEstimateLimitCreateAndMint(
@@ -771,7 +772,8 @@ export default function LimitSwap() {
           signer,
           setMintFee,
           setMintGasLimit,
-          networkName
+          networkName,
+          limitSubgraph
         );
       }
   }
@@ -786,7 +788,8 @@ export default function LimitSwap() {
         signer,
         isConnected,
         setSwapGasFee,
-        setSwapGasLimit
+        setSwapGasLimit,
+        limitSubgraph
       );
     }
   }

@@ -23,6 +23,12 @@ export const scroll: Chain = {
       ],
     },
   },
+  blockExplorers: {
+    default: {
+      name: "Scrollscan",
+      url: "https://scrollscan.com/"
+    }
+  }
 };
 
 export const mode: Chain = {
@@ -46,6 +52,41 @@ export const mode: Chain = {
       ],
     },
   },
+  blockExplorers: {
+    default: {
+      name: "Mode Explorer",
+      url: "https://explorer.mode.network/"
+    }
+  }
+};
+
+export const injectiveEvm: Chain = {
+  id: 2525,
+  name: "Injective EVM",
+  network: "injective-evm",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Injective",
+    symbol: "INJ",
+  },
+  rpcUrls: {
+    default: {
+      http: [
+        "https://inevm.calderachain.xyz/http",
+      ],
+    },
+    public: {
+      http: [
+        "https://inevm.calderachain.xyz/http",
+      ],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: "inEVM Caldera Explorer",
+      url: "https://inevm.calderaexplorer.xyz/"
+    }
+  }
 };
 
 export const arbitrumSepolia: Chain = {
@@ -69,6 +110,12 @@ export const arbitrumSepolia: Chain = {
       ],
     },
   },
+  blockExplorers: {
+    default: {
+      name: "Sepolia Arbiscan",
+      url: "https://sepolia.arbiscan.io/"
+    }
+  }
 };
 
 export const defaultNetwork = "arbitrum-one";
@@ -78,6 +125,7 @@ export const chainIdsToNames = {
   42161: "arbitrum-one",
   534352: "scroll",
   34443: "mode",
+  2525: "injective-evm",
 };
 
 export const supportedChainIds = {
@@ -85,6 +133,7 @@ export const supportedChainIds = {
   42161: "arbitrum",
   534352: "scroll",
   34443: "mode",
+  2525: "injective-evm",
 };
 
 export const supportedNetworkNames = {
@@ -92,6 +141,7 @@ export const supportedNetworkNames = {
   arbitrum: "arbitrum-one",
   scroll: "scroll",
   mode: "mode",
+  ["injective-evm"]: "injective-evm"
 };
 
 export const chainIdToRpc = {
@@ -103,6 +153,8 @@ export const chainIdToRpc = {
     "https://chaotic-cosmopolitan-replica.scroll-mainnet.quiknode.pro/8ef882241d10f392fcbb1b1b051cd8cda1eaacf9/",
   34443:
     "https://mainnet.mode.network",
+  2525:
+    "https://inevm.calderachain.xyz/http",
 };
 
 export const alchemyNetworks = {
@@ -139,7 +191,7 @@ export const chainProperties = {
     coverSubgraphUrl:
       "",
     limitSubgraphUrl:
-      "https://arbitrum-goerli.graph-eu.p2pify.com/871e9ed9089def9ec3ed8b54d340e36e/limit-arbitrum-sepolia",
+      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-arb-sepolia-season0-block2/0.2.9/gn",
   },
   "arbitrum-one": {
     sdkSupport: {
@@ -163,7 +215,7 @@ export const chainProperties = {
     coverSubgraphUrl:
       "",
     limitSubgraphUrl:
-      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-arbitrum-season0-block1/0.2.6/gn",
+      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-arbitrum-season0-block2/0.3.0/gn",
     bondProtocol: {
       auctioneerAddress: "0xf7f9a96cdbfefd70bda14a8f30ec503b16bce9b1",
       tellerAddress: "0x007f7735baf391e207e3aa380bb53c4bd9a5fed6",
@@ -187,6 +239,9 @@ export const chainProperties = {
     season0Rewards: {
       block1: {
         whitelistedFeesUsd: 40000
+      },
+      block2: {
+        whitelistedFeesUsd: 10000
       }
     },
   },
@@ -214,7 +269,7 @@ export const chainProperties = {
     coverSubgraphUrl:
       "",
     limitSubgraphUrl:
-      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-scroll/0.2.5/gn",
+      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-scroll-season0-block2/0.3.0/gn",
     whitelistedPools: [
       "0xb14917888ba92937be3d89094f83a62904ebc9dd", // ETH-USDT 0.1%
     ],
@@ -224,6 +279,9 @@ export const chainProperties = {
     season0Rewards: {
       block1: {
         whitelistedFeesUsd: 20000
+      },
+      block2: {
+        whitelistedFeesUsd: 5000
       }
     },
   },
@@ -251,7 +309,7 @@ export const chainProperties = {
     coverSubgraphUrl:
       "",
     limitSubgraphUrl:
-      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-mode/0.2.5/gn",
+      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-mode-season0-block2/0.3.0/gn",
     whitelistedPools: [
       '0xfc16003afdff37580c9de7deeeb87f9c65b6908a', // WETH-USDT 0.1%
       '0xc20b141edd79f912897651eba9a2bca6b17dc7f1', // WETH-USDC 0.1%
@@ -273,6 +331,54 @@ export const chainProperties = {
     season0Rewards: {
       block1: {
         whitelistedFeesUsd: 60000
+      },
+      block2: {
+        whitelistedFeesUsd: 100000
+      }
+    },
+  },
+  "injective-evm": {
+    chainName: "Injective EVM",
+		sdkSupport: {
+			alchemy: false,
+			swing: false
+    },
+    explorerUrl: "https://explorer.inevm.com",
+    nativeCurrency: {
+      name: "INJ",
+      symbol: "INJ",
+      decimals: 18,
+    },
+    wethAddress: "0x69011706b3f6c6eaed7d2bc13801558b4fd94cbf" as `0x${string}`,
+    daiAddress: "0x8358d8291e3bedb04804975eea0fe9fe0fafb147" as `0x${string}`,
+    finAddress: "0x66864e3954daC74b9377Ef25E4B47Ca47423688E" as `0x${string}`,
+    routerAddress:
+      "0x125D13B5245127b97d44Ac2F7b819763e2A190be" as `0x${string}`,
+    rangeStakerAddress:
+      "0xde95e92dd151c39eb51cfae80fdff4d6c32c1fad" as `0x${string}`,
+    coverPoolFactory:
+      ZERO_ADDRESS as `0x${string}`,
+    coverSubgraphUrl:
+      "",
+    limitSubgraphUrl:
+      "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-inevm-season0-block1/0.2.9/gn",
+    whitelistedPools: [
+    ],
+    whitelistedPairs: [
+    ],
+    usdStables: [
+      '0x8358d8291e3bedb04804975eea0fe9fe0fafb147', // USDC
+      '0x97423a68bae94b5de52d767a17abcc54c157c0e5'  // USDT
+    ],
+    stablePools: [
+      '0x00a5a1f32231040e998b56b158bcb1933fa73ee8' // USDC-USDT 0.1%
+    ],
+    season0Rewards: {
+      block1: {
+        whitelistedFeesUsd: 0
+      },
+      block2: {
+        whitelistedFeesUsd: 5000
       }
     },
   },

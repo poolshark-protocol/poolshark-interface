@@ -57,14 +57,16 @@ export default function RangePool({ rangePool, href }) {
       const whitelistedIndex = getWhitelistedIndex(rangePool, networkName)
       if (whitelistedFeesData[whitelistedIndex] && whitelistedFeesTotal) {
         const rewardsPercent = whitelistedFeesData[whitelistedIndex] / whitelistedFeesTotal
-        const totalOFinRewards = chainProperties[networkName]?.season0Rewards?.block1?.whitelistedFeesUsd ?? 0
+        const totalOFinRewards = chainProperties[networkName]?.season0Rewards?.block2?.whitelistedFeesUsd ?? 0
         setOFinRewards(rewardsPercent * totalOFinRewards)
       }
     }
   }, [whitelistedFeesData, whitelistedFeesTotal, networkName]);
 
   useEffect(() => {
-    setFeeApy(parseFloat((rangePool.feesUsd * 365 / rangePool.tvlUsd * 100).toFixed(2)))
+    const feeYield = rangePool.tvlUsd > 0 ? parseFloat((rangePool.feesUsd * 365 / rangePool.tvlUsd * 100).toFixed(2))
+                                          : 0
+    setFeeApy(feeYield)
   }, [rangePool.feesUsd]);
 
   useEffect(() => {

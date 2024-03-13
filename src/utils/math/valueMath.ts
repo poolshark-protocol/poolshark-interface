@@ -6,9 +6,17 @@ import { token } from "../types"
 export const numFormat = (num, precision: number) =>
   `${1 * parseFloat(Number(num).toPrecision(precision))}`;
 
-export const numStringFormat = (numString: string, precision: number) =>
-  `${1 * parseFloat(parseFloat(numString).toPrecision(precision))}`;
+export const numStringFormat = (numString: string, precision: number, fixed?: number): string => {
+  if (isNaN(parseFloat(numString))) return "0.00";
+  if (parseFloat(numString) < 1) return `${1 * parseFloat(parseFloat(numString).toFixed(fixed))}`;
+  return `${1 * parseFloat(parseFloat(numString).toPrecision(precision))}`;
+}
 
+export const formatOFin = (numString: string, fixed: number): string => {
+  if (isNaN(parseFloat(numString))) return "0.00";
+  if (parseFloat(numString) < 1) return `${1 * parseFloat(parseFloat(numString).toFixed(fixed))}`;
+  else return `${1 * parseFloat(parseFloat(numString).toFixed(2))}`;
+}
 
 export function formatUsdValue(usdValueString: string): string {
     const usdValue = parseFloat(usdValueString)
@@ -51,7 +59,11 @@ export function parseUnits(value: string, decimals: number): BigNumber {
     const decimalCount = (floatValue.toString().split('e-')[0]).split('.')[1].length
     const exponentialCount = Number(floatValue.toString().split('e-')[1])
     const decimalPlaces = decimalCount + exponentialCount
-    if (decimalPlaces > decimals || decimalPlaces >= 16) value = floatValue.toFixed(decimals)
+    if (decimalPlaces > decimals || decimalPlaces >= 16) {
+      value = floatValue.toFixed(decimals)
+    } else {
+      value = floatValue.toFixed(decimalPlaces)
+    }
   } else if (floatValue.toString().indexOf('.') != -1) {
     // example: 1.36
     const decimalPlaces = floatValue.toString().split('.')[1].length
@@ -59,7 +71,11 @@ export function parseUnits(value: string, decimals: number): BigNumber {
   } else if (floatValue.toString().indexOf('e-') != -1) {
     // example: 1e-7
     const decimalPlaces = Number(floatValue.toString().split('e-')[1])
-    if (decimalPlaces > decimals || decimalPlaces >= 16) value = floatValue.toFixed(decimals)
+    if (decimalPlaces > decimals || decimalPlaces >= 16) {
+      value = floatValue.toFixed(decimals)
+    } else {
+      value = floatValue.toFixed(decimalPlaces)
+    }
   } else {
     // if float is 1.[15]1 parseFloat will round to 1
     // thus we truncate using fixed decimals
