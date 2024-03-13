@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { fetchSeason1Rewards } from "../../utils/queries";
 import { useEarnStore } from "../../hooks/useEarnStore";
 import { chainProperties } from "../../utils/chains";
+import { formatOFin } from "../../utils/math/valueMath";
 export default function Earn() {
   const { address, isConnected } = useAccount();
   const [block, setBlock] = useState("Block 1");
@@ -197,11 +198,13 @@ export default function Earn() {
                 <br />
                 Step 1: Deposit liquidity on supported pairs
                 <br />
-                Step 2: Track your oFIN using this page
+                Step 2: Compound or Collect on all positions
                 <br />
-                Step 3: Claim your oFIN when the drop starts
+                Step 3: Track your oFIN using this page
                 <br />
-                Step 4: Convert your oFIN to FIN
+                Step 4: Claim your oFIN when the drop starts
+                <br />
+                Step 5: Convert your oFIN to FIN
                 <br />
               </p>
             </div>
@@ -256,15 +259,11 @@ export default function Earn() {
                         {block === "Block 1" &&
                           (userSeason0Block1FIN?.whitelistedFeesUsd === 0
                             ? (0).toFixed(2)
-                            : userSeason0Block1FIN.whitelistedFeesUsd.toFixed(
-                                2
-                              ))}
+                            : formatOFin(userSeason0Block1FIN.whitelistedFeesUsd.toString(), 8))}
                         {block === "Block 2" &&
                           (userSeason0Block2FIN?.whitelistedFeesUsd === 0
                             ? (0).toFixed(2)
-                            : userSeason0Block2FIN.whitelistedFeesUsd.toFixed(
-                                2
-                              ))}
+                            : formatOFin(userSeason0Block1FIN.whitelistedFeesUsd.toString(), 8))}
                       </span>
                     )}
                   </div>
@@ -294,10 +293,10 @@ export default function Earn() {
                       userSeason0Block2FIN?.whitelistedFeesUsd ===
                     0
                       ? (0).toFixed(2)
-                      : (
-                          userSeason0Block1FIN.whitelistedFeesUsd +
-                          userSeason0Block2FIN?.whitelistedFeesUsd
-                        ).toFixed(2)}{" "}
+                      : formatOFin(
+                          String(userSeason0Block1FIN.whitelistedFeesUsd +
+                          userSeason0Block2FIN?.whitelistedFeesUsd)
+                        , 8)}{" "}
                     oFIN
                   </span>
                 </div>
@@ -351,12 +350,12 @@ export default function Earn() {
                 {block === "Block 2" && (
                   <span
                     className={`text-xs w-5 flex items-center justify-center ${
-                      new Date() > new Date("2024-03-09")
+                      new Date() > new Date("2024-03-15")
                         ? "text-white"
                         : "text-grey1"
                     }`}
                   >
-                    03/09
+                    03/15
                   </span>
                 )}
 
@@ -364,12 +363,12 @@ export default function Earn() {
                 {block === "Block 1" && (
                   <span
                     className={`text-xs w-5 flex items-center justify-center ${
-                      new Date() > new Date("2024-03-09")
+                      new Date() > new Date("2024-03-15")
                         ? "text-white"
                         : "text-grey1"
                     }`}
                   >
-                    03/09
+                    03/15
                   </span>
                 )}
                 {block === "Block 2" && (
@@ -417,7 +416,7 @@ export default function Earn() {
                 {block === "Block 2" && (
                   <div
                     className={`w-6 h-6 aspect-square ${
-                      new Date() > new Date("2024-03-09")
+                      new Date() > new Date("2024-03-15")
                         ? "bg-main2"
                         : "bg-main"
                     } rounded-full`}
@@ -427,7 +426,7 @@ export default function Earn() {
                 {block === "Block 1" && (
                   <div
                     className={`w-full h-[2px] aspect-square ${
-                      new Date() > new Date("2024-03-09")
+                      new Date() > new Date("2024-03-15")
                         ? "bg-main2"
                         : "bg-main"
                     }`}
@@ -446,7 +445,7 @@ export default function Earn() {
                 {block === "Block 1" && (
                   <div
                     className={`w-6 h-6 aspect-square ${
-                      new Date() > new Date("2024-03-09")
+                      new Date() > new Date("2024-03-15")
                         ? "bg-main2"
                         : "bg-main"
                     } rounded-full`}
@@ -496,7 +495,7 @@ export default function Earn() {
                 <div className="w-full h-[2px]" />
                 <span
                   className={`text-xs w-5 flex items-center justify-center ${
-                    new Date() > new Date("2024-03-09")
+                    new Date() > new Date("2024-03-15")
                       ? "text-white"
                       : "text-grey1"
                   }`}
