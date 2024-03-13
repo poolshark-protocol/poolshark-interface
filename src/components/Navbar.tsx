@@ -17,8 +17,6 @@ export default function Navbar({ create, setCreate }: NavOptions) {
 
   const [chainId] = useConfigStore((state) => [state.chainId]);
 
-  console.log('chain id:', chainId)
-
   return (
     <div className="py-2 mx-auto w-full border-b border-grey">
       <div className="relative flex items-center justify-between h-16 w-full container mx-auto md:px-0 px-3">

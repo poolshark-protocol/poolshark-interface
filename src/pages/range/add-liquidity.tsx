@@ -50,6 +50,7 @@ import {
   SparklesIcon,
 } from "@heroicons/react/20/solid";
 import { XOctagon } from "lucide-react";
+import { getLogo } from "../../utils/tokens";
 
 export default function AddLiquidity({}) {
   const [
@@ -837,11 +838,11 @@ export default function AddLiquidity({}) {
                   <div className="flex items-center">
                     <img
                       className="md:w-6 w-6"
-                      src={logoMap[logoMapKey(tokenIn)]}
+                      src={getLogo(tokenIn, logoMap)}
                     />
                     <img
                       className="md:w-6 w-6 -ml-2"
-                      src={logoMap[logoMapKey(tokenOut)]}
+                      src={getLogo(tokenOut, logoMap)}
                     />
                   </div>
                   <span className="text-white text-xs">
@@ -1262,7 +1263,7 @@ export default function AddLiquidity({}) {
                         <span className="text-grey2 flex items-center gap-x-1">
                           <img
                             className="md:w-4"
-                            src={logoMap[logoMapKey(tokenIn)]}
+                            src={getLogo(tokenIn, logoMap)}
                           />
                           {tokenIn.symbol}
                         </span>
@@ -1278,7 +1279,7 @@ export default function AddLiquidity({}) {
                         <span className="text-grey2 flex items-center gap-x-1">
                           <img
                             className=" w-4"
-                            src={logoMap[logoMapKey(tokenOut)]}
+                            src={getLogo(tokenOut, logoMap)}
                           />
                           {tokenOut.symbol}
                         </span>
