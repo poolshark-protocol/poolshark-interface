@@ -386,8 +386,6 @@ export default function Trade() {
     }
   }, [allowanceInRouter]);
 
-  console.log('token in allowance', tokenIn.userRouterAllowance)
-
   ///////////////////////
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
