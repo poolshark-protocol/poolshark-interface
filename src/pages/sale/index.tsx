@@ -15,6 +15,8 @@ import { baseToken, token } from "../../utils/types";
 import JSBI from "jsbi";
 import { useRouter } from 'next/router';
 import { saleConfig } from "../_app";
+import { redirect } from "next/dist/server/api-utils";
+import { useTradeStore } from "../../hooks/useTradeStore";
 
 export default function Sale() {
   const [priceFill, setPriceFill] = useState("100%");
@@ -41,6 +43,13 @@ export default function Sale() {
       state.setNetworkName,
     ]);
 
+
+  const [resetTradeLimitParams] =
+    useTradeStore((state) => [
+      state.resetTradeLimitParams,
+    ]);
+
+
   const {
     chains,
     error: networkError,
@@ -49,6 +58,7 @@ export default function Sale() {
 
   
   useEffect(() => {
+    resetTradeLimitParams(chainId)
     setIsLoading(true)
     setNetworkName(chainIdsToNames[chainId])
   }, [chainId]);
@@ -140,9 +150,8 @@ export default function Sale() {
     setEthReceived(formatUnits(filledAmount[0], 18))
   }, [filledAmount]);
 
-  const handleClick = () => {
+  const handleClick = async () => {
     if (chainId == saleConfig.chainId) {
-      console.log('push to router')
       router.push(`/?chain=${chainProperties["fin-token"]["sale"]["chainId"]}&from=${chainProperties["fin-token"]["sale"]["wethAddress"]}&fromSymbol=ETH&to=${chainProperties["fin-token"]["sale"]["finAddress"]}&toSymbol=FIN`)
     } else {
       setNetworkName(chainIdsToNames[saleConfig.chainId]);
@@ -192,12 +201,25 @@ export default function Sale() {
           </div>
 
           <div className="flex items-center gap-x-4 w-full md:w-auto">
-            <button
-              className="bg-main1 hover:opacity-80 transition-all border whitespace-nowrap w-full rounded-full text-center border-main transition-all py-2.5 px-20 text-sm uppercase cursor-pointer text-[13px] text-main2"
-              onClick={() => handleClick()}
-            >
-              {networkName == chainIdsToNames[saleConfig.chainId] ? "BUY FIN" : "SWITCH TO " + chainProperties[saleConfig.networkName]["chainName"]}
-            </button>
+          {
+            networkName == chainIdsToNames[saleConfig.chainId] ?
+              (
+                <Link href={`/?chain=${chainProperties["fin-token"]["sale"]["chainId"]}&from=${chainProperties["fin-token"]["sale"]["wethAddress"]}&fromSymbol=ETH&to=${chainProperties["fin-token"]["sale"]["finAddress"]}&toSymbol=FIN`}>
+                <button
+                  className="bg-main1 hover:opacity-80 transition-all border whitespace-nowrap w-full rounded-full text-center border-main transition-all py-2.5 px-20 text-sm uppercase cursor-pointer text-[13px] text-main2"
+                >
+                  {"BUY FIN"}
+                </button>
+                </Link>
+              ) : (
+                <button
+                  className="bg-main1 hover:opacity-80 transition-all border whitespace-nowrap w-full rounded-full text-center border-main transition-all py-2.5 px-20 text-sm uppercase cursor-pointer text-[13px] text-main2"
+                  onClick={() => handleClick()}
+                >
+                  {"SWITCH TO " + chainProperties[saleConfig.networkName]["chainName"]}
+                </button>
+              )
+          }
           </div>
         </div>
         <div className=" w-full mt-8 gap-10">

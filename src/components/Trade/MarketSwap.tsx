@@ -76,6 +76,7 @@ export default function MarketSwap() {
     setNeedsAllowanceIn,
     switchDirection,
     setTradeButtonState,
+    resetTradeLimitParams,
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
@@ -104,6 +105,7 @@ export default function MarketSwap() {
     s.setNeedsAllowanceIn,
     s.switchDirection,
     s.setTradeButtonState,
+    s.resetTradeLimitParams,
   ]);
 
   const [setRangeTokenIn, setRangeTokenOut] = useRangeLimitStore((state) => [
@@ -131,6 +133,7 @@ export default function MarketSwap() {
 
   useEffect(() => {
     if (limitTabSelected) return;
+    resetTradeLimitParams(chainId);
     setDisplayIn("");
     setAmountIn(BN_ZERO);
     setDisplayOut("");
