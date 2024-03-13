@@ -33,6 +33,7 @@ export default function Sale() {
   const wethToken: baseToken = {address: saleConfig.wethAddress as `0x${string}`, decimals: 18}
   const finToken: baseToken = {address: saleConfig.finAddress as `0x${string}`, decimals: 18}
 
+
   const [chainId, networkName, logoMap, limitSubgraph, setLimitSubgraph, setNetworkName] =
     useConfigStore((state) => [
       state.chainId,

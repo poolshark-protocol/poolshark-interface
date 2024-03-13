@@ -439,7 +439,7 @@ export default function ViewRange() {
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full animate-pulse bg-grey/60" />
               ) : (
-                <img height="50" width="50" src={tokenIn.logoURI} />
+                <img height="50" width="50" src={getLogo(tokenIn, logoMap)} />
               )}
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full animate-pulse ml-[-12px] bg-grey/60" />
@@ -448,7 +448,7 @@ export default function ViewRange() {
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={tokenOut.logoURI}
+                  src={getLogo(tokenOut, logoMap)}
                 />
               )}
             </div>
@@ -561,7 +561,7 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenIn.logoURI} />
+                        <img height="25" width="25" src={getLogo(tokenIn, logoMap)} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -591,7 +591,7 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenOut.logoURI} />
+                        <img height="25" width="25" src={getLogo(tokenOut, logoMap)} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -722,7 +722,7 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenIn.logoURI} />
+                        <img height="25" width="25" src={getLogo(tokenIn, logoMap)} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -752,7 +752,7 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenOut.logoURI} />
+                        <img height="25" width="25" src={getLogo(tokenOut, logoMap)} />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
