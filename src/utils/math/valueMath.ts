@@ -6,11 +6,9 @@ import { token } from "../types"
 export const numFormat = (num, precision: number) =>
   `${1 * parseFloat(Number(num).toPrecision(precision))}`;
 
-export const numStringFormat = (numString: string, precision: number, fixed?: number): string => {
-  if (isNaN(parseFloat(numString))) return "0.00";
-  if (parseFloat(numString) < 1) return `${1 * parseFloat(parseFloat(numString).toFixed(fixed))}`;
-  return `${1 * parseFloat(parseFloat(numString).toPrecision(precision))}`;
-}
+
+export const numStringFormat = (numString: string, precision: number) =>
+  `${1 * parseFloat(parseFloat(numString).toPrecision(precision))}`;
 
 export const formatOFin = (numString: string, fixed: number): string => {
   if (isNaN(parseFloat(numString))) return "0.00";
