@@ -19,12 +19,14 @@ import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
-  const [chainId, logoMap, networkName, limitSubgraph] = useConfigStore((state) => [
-    state.chainId,
-    state.logoMap,
-    state.networkName,
-    state.limitSubgraph,
-  ]);
+  const [chainId, logoMap, networkName, limitSubgraph] = useConfigStore(
+    (state) => [
+      state.chainId,
+      state.logoMap,
+      state.networkName,
+      state.limitSubgraph,
+    ],
+  );
 
   const [
     limitPoolAddress,
@@ -124,7 +126,8 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   }, [bnInput, tokenIn.userBalance, disabled]);
 
   useEffect(() => {
-    if (tokenInAllowance) setAllowanceIn(deepConvertBigIntAndBigNumber(tokenInAllowance));
+    if (tokenInAllowance)
+      setAllowanceIn(deepConvertBigIntAndBigNumber(tokenInAllowance));
   }, [tokenInAllowance]);
 
   useEffect(() => {
@@ -195,17 +198,17 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                       {!isNaN(tokenIn.USDPrice) &&
                       !isNaN(
                         parseFloat(
-                          ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                        )
+                          ethers.utils.formatUnits(bnInput, tokenIn.decimals),
+                        ),
                       )
                         ? Number(
                             tokenIn.USDPrice *
                               parseFloat(
                                 ethers.utils.formatUnits(
                                   bnInput,
-                                  tokenIn.decimals
-                                )
-                              )
+                                  tokenIn.decimals,
+                                ),
+                              ),
                           ).toFixed(2)
                         : "0.00"}
                     </span>
@@ -225,7 +228,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                             maxBalance(
                               tokenIn.userBalance.toString(),
                               "0",
-                              tokenIn.decimals
+                              tokenIn.decimals,
                             );
                           }}
                           className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
@@ -234,7 +237,11 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                         </button>
                       ) : null}
                       <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                        <img height="28" width="25" src={logoMap[logoMapKey(tokenIn)]} />
+                        <img
+                          height="28"
+                          width="25"
+                          src={logoMap[logoMapKey(tokenIn)]}
+                        />
                         {tokenIn.symbol}
                       </div>
                     </div>
@@ -243,9 +250,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                 {isConnected ? (
                   allowanceIn.lt(bnInput) ? (
                     <SwapRouterApproveButton
-                      routerAddress={
-                        getRouterAddress(networkName)
-                      }
+                      routerAddress={getRouterAddress(networkName)}
                       approveToken={tokenIn.address}
                       amount={bnInput}
                       tokenSymbol={tokenIn.symbol}
@@ -255,9 +260,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                       disabled={disabled || mintGasLimit.lte(BN_ZERO)}
                       to={address}
                       poolAddress={limitPoolAddress}
-                      routerAddress={
-                        getRouterAddress(networkName)
-                      }
+                      routerAddress={getRouterAddress(networkName)}
                       lower={Number(limitPositionData.min)}
                       upper={Number(limitPositionData.max)}
                       positionId={BigNumber.from(limitPositionData.positionId)}

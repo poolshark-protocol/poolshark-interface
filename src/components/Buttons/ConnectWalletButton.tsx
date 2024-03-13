@@ -112,9 +112,7 @@ export const ConnectWalletButton = ({ xl = false, center = false }: Props) => {
                           </div>
                         )}
                         */}
-                        {<ChainImage
-                          chainId={chain?.id}
-                        />}
+                        {<ChainImage chainId={chain?.id} />}
                       </button>
                       <button
                         onClick={openAccountModal}

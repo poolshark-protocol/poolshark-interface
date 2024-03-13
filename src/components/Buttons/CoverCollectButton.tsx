@@ -25,12 +25,9 @@ export default function CoverCollectButton({
   signer,
   snapshotAmount,
 }) {
-  const [
-    chainId,
-    networkName
-  ] = useConfigStore((state) => [
+  const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
   ]);
   const [toastId, setToastId] = useState(null);
 
@@ -39,7 +36,7 @@ export default function CoverCollectButton({
       state.setNeedsBalance,
       state.setNeedsRefetch,
       state.setNeedsPosRefetch,
-    ]
+    ],
   );
   const [gasLimit, setGasLimit] = useState(BN_ZERO);
 
@@ -64,7 +61,7 @@ export default function CoverCollectButton({
       BN_ZERO,
       claim,
       zeroForOne,
-      signer
+      signer,
     );
     setGasLimit(newBurnGasFee.gasUnits.mul(250).div(100));
   }
@@ -73,12 +70,19 @@ export default function CoverCollectButton({
     address: poolAddress,
     abi: coverPoolABI,
     functionName: "burn",
-    args: [deepConvertBigIntAndBigNumber([
-      address, BigNumber.from(0), positionId, claim, zeroForOne, true]
-    )],
+    args: [
+      deepConvertBigIntAndBigNumber([
+        address,
+        BigNumber.from(0),
+        positionId,
+        claim,
+        zeroForOne,
+        true,
+      ]),
+    ],
     chainId: chainId,
     enabled: positionId != undefined,
-    gasLimit: deepConvertBigIntAndBigNumber(gasLimit)
+    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
   });
 
   const { data, isSuccess, write } = useContractWrite(config);
@@ -86,11 +90,15 @@ export default function CoverCollectButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      toast.success("Your transaction was successful",{
+      toast.success("Your transaction was successful", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank",
+            ),
         },
       });
       setNeedsBalance(true);
@@ -98,25 +106,36 @@ export default function CoverCollectButton({
       setNeedsPosRefetch(true);
     },
     onError() {
-      toast.error("Your transaction failed",{
+      toast.error("Your transaction failed", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank",
+            ),
         },
       });
     },
   });
 
   useEffect(() => {
-    if(isLoading) {
-      const newToastId = toast.loading("Your transaction is being confirmed...",{
-        action: {
-          label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+    if (isLoading) {
+      const newToastId = toast.loading(
+        "Your transaction is being confirmed...",
+        {
+          action: {
+            label: "View",
+            onClick: () =>
+              window.open(
+                `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+                "_blank",
+              ),
+          },
         },
-      });
-      newToastId
+      );
+      newToastId;
       setToastId(newToastId);
     }
   }, [isLoading]);

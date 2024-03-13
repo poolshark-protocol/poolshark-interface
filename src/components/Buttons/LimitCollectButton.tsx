@@ -53,7 +53,7 @@ export default function LimitCollectButton({
         burnPercent: BN_ZERO,
         positionId: positionId,
         claim: claim,
-        zeroForOne: zeroForOne
+        zeroForOne: zeroForOne,
       }),
     ],
     chainId: chainId,
@@ -66,11 +66,15 @@ export default function LimitCollectButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      toast.success("Your transaction was successful",{
+      toast.success("Your transaction was successful", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank",
+            ),
         },
       });
       setNeedsBalanceIn(true);
@@ -81,25 +85,36 @@ export default function LimitCollectButton({
       }, 10000);
     },
     onError() {
-      toast.error("Your transaction failed",{
+      toast.error("Your transaction failed", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank",
+            ),
         },
       });
     },
   });
 
   useEffect(() => {
-    if(isLoading) {
-      const newToastId = toast.loading("Your transaction is being confirmed...",{
-        action: {
-          label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+    if (isLoading) {
+      const newToastId = toast.loading(
+        "Your transaction is being confirmed...",
+        {
+          action: {
+            label: "View",
+            onClick: () =>
+              window.open(
+                `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+                "_blank",
+              ),
+          },
         },
-      });
-      newToastId
+      );
+      newToastId;
       setToastId(newToastId);
     }
   }, [isLoading]);
@@ -113,7 +128,13 @@ export default function LimitCollectButton({
           address ? write?.() : null;
         }}
       >
-        {gasLimit.lte(BN_ZERO) && !disabled ? <Loader /> : disabled ? "Nothing to collect" : "Collect position"}
+        {gasLimit.lte(BN_ZERO) && !disabled ? (
+          <Loader />
+        ) : disabled ? (
+          "Nothing to collect"
+        ) : (
+          "Collect position"
+        )}
       </button>
     </>
   );

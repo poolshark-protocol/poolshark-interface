@@ -13,12 +13,10 @@ export default function PositionMintModal({
   successDisplay,
   type,
 }) {
-
   const [isOpen, setIsOpen] = useState(false);
   const [buttonWait, setButtonWait] = useState(false);
 
-  const [chainId, networkName,] =
-  useConfigStore((state) => [
+  const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
   ]);
@@ -31,13 +29,12 @@ export default function PositionMintModal({
 
   useEffect(() => {
     if (successDisplay) {
-      setButtonWait(true)
+      setButtonWait(true);
       setTimeout(() => {
-        setButtonWait(false)
-      }, 1000)
+        setButtonWait(false);
+      }, 1000);
     }
   }, [successDisplay, isLoading, errorDisplay]);
-
 
   const router = useRouter();
 
@@ -154,27 +151,34 @@ export default function PositionMintModal({
                   }`}
                 >
                   <a href={type === "range" ? "/range" : "/cover"}>
-                  <button
-                  disabled={buttonWait}
-                    className="disabled:opacity-50 whitespace-nowrap text-xs flex items-center gap-x-2 text-grey1 hover:text-white hover:underline transition-all"
-                  >
-                    {buttonWait ? <div className="my-0.5 flex items-center gap-x-2"><Loader/> Loading...</div> : <><svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                      className="w-6 h-6"
+                    <button
+                      disabled={buttonWait}
+                      className="disabled:opacity-50 whitespace-nowrap text-xs flex items-center gap-x-2 text-grey1 hover:text-white hover:underline transition-all"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
-                      />
-                    </svg>
-                    Go back</>}
-                    
-                  </button>
+                      {buttonWait ? (
+                        <div className="my-0.5 flex items-center gap-x-2">
+                          <Loader /> Loading...
+                        </div>
+                      ) : (
+                        <>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth="1.5"
+                            stroke="currentColor"
+                            className="w-6 h-6"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
+                            />
+                          </svg>
+                          Go back
+                        </>
+                      )}
+                    </button>
                   </a>
                   <a
                     target="_blank"

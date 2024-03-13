@@ -14,7 +14,11 @@ import { limitPoolABI } from "../../abis/evm/limitPool";
 import { getClaimTick, mapUserLimitPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Limit/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Limit/AddLiquidity";
-import { fetchLimitTokenUSDPrice, getLogoURI, logoMapKey } from "../../utils/tokens";
+import {
+  fetchLimitTokenUSDPrice,
+  getLogoURI,
+  logoMapKey,
+} from "../../utils/tokens";
 import { fetchLimitPositions } from "../../utils/queries";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
@@ -41,7 +45,7 @@ export default function ViewLimit() {
     ]);
 
   const [setNeedsTradeSnapshot, setNeedsTradePosRefetch] = useTradeStore(
-    (state) => [state.setNeedsSnapshot, state.setNeedsPosRefetch]
+    (state) => [state.setNeedsSnapshot, state.setNeedsPosRefetch],
   );
 
   const [
@@ -121,9 +125,9 @@ export default function ViewLimit() {
             .toString()
             .substring(
               limitPoolAddress.toString().length - 4,
-              limitPoolAddress.toString().length
+              limitPoolAddress.toString().length,
             )
-      : undefined
+      : undefined,
   );
 
   const [collectGasLimit, setCollectGasLimit] = useState(BN_ZERO);
@@ -136,14 +140,14 @@ export default function ViewLimit() {
         fetchLimitTokenUSDPrice(
           limitPoolData,
           tokenIn,
-          setTokenInLimitUSDPrice
+          setTokenInLimitUSDPrice,
         );
       }
       if (tokenOut.address) {
         fetchLimitTokenUSDPrice(
           limitPoolData,
           tokenOut,
-          setTokenOutLimitUSDPrice
+          setTokenOutLimitUSDPrice,
         );
       }
     }
@@ -166,8 +170,8 @@ export default function ViewLimit() {
             .toString()
             .substring(
               limitPoolAddress.toString().length - 4,
-              limitPoolAddress.toString().length
-            )
+              limitPoolAddress.toString().length,
+            ),
       );
       setNeedsSnapshot(true);
       setLimitPoolFromVolatility(
@@ -175,7 +179,7 @@ export default function ViewLimit() {
         limitPositionData.tokenOut,
         limitPositionData.feeTier,
         limitSubgraph,
-        limitPositionData.poolType
+        limitPositionData.poolType,
       );
     }
   }, [limitPositionData.tokenIn]);
@@ -192,7 +196,7 @@ export default function ViewLimit() {
         positionId: Number(limitPositionData.positionId),
         claim: claimTick ?? 0,
         zeroForOne: tokenIn.callId == 0,
-      }
+      },
     ],
     chainId: chainId,
     watch: needsSnapshot,
@@ -216,7 +220,7 @@ export default function ViewLimit() {
         limitPositionData?.max?.toString(),
         claimTick.toString(),
         tokenIn.callId == 0,
-        router.isReady
+        router.isReady,
       );
     },
     onSettled(data, error) {
@@ -227,10 +231,10 @@ export default function ViewLimit() {
   useEffect(() => {
     if (filledAmount) {
       setLimitFilledAmount(
-        ethers.utils.formatUnits(filledAmount[0], tokenOut.decimals)
+        ethers.utils.formatUnits(filledAmount[0], tokenOut.decimals),
       );
       setCurrentAmountOut(
-        ethers.utils.formatUnits(filledAmount[1], tokenIn.decimals)
+        ethers.utils.formatUnits(filledAmount[1], tokenIn.decimals),
       );
     }
   }, [filledAmount]);
@@ -248,7 +252,7 @@ export default function ViewLimit() {
       if (claimTick == undefined) {
         updateClaimTick();
       } else {
-        console.log('claim tick check', claimTick)
+        console.log("claim tick check", claimTick);
         setTimeout(() => {
           updateClaimTick();
         }, 10000);
@@ -272,7 +276,7 @@ export default function ViewLimit() {
         Number(limitPositionData.epochLast),
         false,
         limitSubgraph,
-        setLimitAddLiqDisabled
+        setLimitAddLiqDisabled,
       );
       if (aux != undefined) {
         setClaimTick(aux);
@@ -281,7 +285,7 @@ export default function ViewLimit() {
             ? claimTick - Number(limitPositionData.min) >=
                 Number(limitPositionData.tickSpacing)
             : Number(limitPositionData.max) - claimTick >=
-                Number(limitPositionData.tickSpacing)
+                Number(limitPositionData.tickSpacing),
         );
       }
     }
@@ -292,17 +296,17 @@ export default function ViewLimit() {
     try {
       const data = await fetchLimitPositions(
         limitSubgraph,
-        address?.toLowerCase()
+        address?.toLowerCase(),
       );
       if (data["data"].limitPositions) {
         const mappedPositions = mapUserLimitPositions(
-          data["data"].limitPositions
+          data["data"].limitPositions,
         );
         setAllLimitPositions(mappedPositions);
         const positionId = limitPositionData.id ?? router.query.id;
         if (positionId == undefined) return;
         const position = mappedPositions.find(
-          (position) => position.id == positionId
+          (position) => position.id == positionId,
         );
         if (position != undefined) {
           setLimitPoolAddress(position.poolId);
@@ -380,7 +384,11 @@ export default function ViewLimit() {
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
               ) : (
-                <img height="50" width="50" src={logoMap[logoMapKey(tokenIn)]} />
+                <img
+                  height="50"
+                  width="50"
+                  src={logoMap[logoMapKey(tokenIn)]}
+                />
               )}
               {isLoading ? (
                 <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
@@ -436,7 +444,7 @@ export default function ViewLimit() {
                       {TickMath.getPriceStringAtTick(
                         Number(limitPositionData.min),
                         tokenIn,
-                        tokenOut
+                        tokenOut,
                       )}
                       {tokenOut.symbol}
                     </>
@@ -449,7 +457,7 @@ export default function ViewLimit() {
                       {TickMath.getPriceStringAtTick(
                         Number(limitPositionData.max),
                         tokenIn,
-                        tokenOut
+                        tokenOut,
                       )}
                       {tokenOut.symbol}
                     </>
@@ -518,7 +526,11 @@ export default function ViewLimit() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={logoMap[logoMapKey(tokenIn)]} />
+                        <img
+                          height="25"
+                          width="25"
+                          src={logoMap[logoMapKey(tokenIn)]}
+                        />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -543,29 +555,29 @@ export default function ViewLimit() {
                       TickMath.getPriceStringAtSqrtPrice(
                         JSBI.BigInt(Number(limitPoolData.poolPrice)),
                         tokenIn,
-                        tokenOut
-                      )
+                        tokenOut,
+                      ),
                     ) <
                       parseFloat(
                         TickMath.getPriceStringAtTick(
                           Number(limitPositionData.min),
                           tokenIn,
-                          tokenOut
-                        )
+                          tokenOut,
+                        ),
                       ) ||
                     parseFloat(
                       TickMath.getPriceStringAtSqrtPrice(
                         JSBI.BigInt(Number(limitPoolData.poolPrice)),
                         tokenIn,
-                        tokenOut
-                      )
+                        tokenOut,
+                      ),
                     ) >=
                       parseFloat(
                         TickMath.getPriceStringAtTick(
                           Number(limitPositionData.max),
                           tokenIn,
-                          tokenOut
-                        )
+                          tokenOut,
+                        ),
                       ) ? (
                       <span className="text-yellow-600 text-xs bg-yellow-900/30 px-4 py-1 rounded-[4px]">
                         OUT OF RANGE
@@ -606,12 +618,12 @@ export default function ViewLimit() {
                             Number(
                               priceDirection
                                 ? limitPositionData.min
-                                : limitPositionData.max
+                                : limitPositionData.max,
                             ),
                             tokenIn,
-                            tokenOut
+                            tokenOut,
                           ),
-                          priceDirection
+                          priceDirection,
                         )
                       )}
                     </span>
@@ -640,12 +652,12 @@ export default function ViewLimit() {
                             Number(
                               priceDirection
                                 ? limitPositionData.max
-                                : limitPositionData.min
+                                : limitPositionData.min,
                             ),
                             tokenIn,
-                            tokenOut
+                            tokenOut,
                           ),
-                          priceDirection
+                          priceDirection,
                         )
                       )}
                     </span>
@@ -668,9 +680,9 @@ export default function ViewLimit() {
                         TickMath.getPriceStringAtSqrtPrice(
                           JSBI.BigInt(Number(limitPoolData.poolPrice)),
                           tokenIn,
-                          tokenOut
+                          tokenOut,
                         ),
-                        priceDirection
+                        priceDirection,
                       )
                     ) : (
                       "0.00"
@@ -697,12 +709,12 @@ export default function ViewLimit() {
                           limitPositionData.min,
                           limitPositionData.max,
                           limitPositionData.tokenIn.id.localeCompare(
-                            limitPositionData.tokenOut.id
+                            limitPositionData.tokenOut.id,
                           ) < 0,
-                          BigNumber.from(limitPositionData.liquidity)
+                          BigNumber.from(limitPositionData.liquidity),
                         ),
-                        limitPositionData.tokenOut.decimals
-                      )
+                        limitPositionData.tokenOut.decimals,
+                      ),
                     ).toFixed(2)}
                   </span>
                 </span>
@@ -731,19 +743,19 @@ export default function ViewLimit() {
                                 ? limitPositionData.min
                                 : roundUp(
                                     claimTick,
-                                    limitPositionData.tickSpacing
+                                    limitPositionData.tickSpacing,
                                   ),
                               limitPositionData.zeroForOne
                                 ? roundDown(
                                     claimTick,
-                                    limitPositionData.tickSpacing
+                                    limitPositionData.tickSpacing,
                                   )
                                 : limitPositionData.max,
                               limitPositionData.zeroForOne,
-                              BigNumber.from(limitPositionData.liquidity)
+                              BigNumber.from(limitPositionData.liquidity),
                             ),
-                            limitPositionData.tokenOut.decimals
-                          )
+                            limitPositionData.tokenOut.decimals,
+                          ),
                         ) * tokenOut.USDPrice
                       ).toFixed(2)}
                     </span>
@@ -764,14 +776,14 @@ export default function ViewLimit() {
                           limitPositionData.zeroForOne
                             ? roundDown(
                                 claimTick,
-                                limitPositionData.tickSpacing
+                                limitPositionData.tickSpacing,
                               )
                             : limitPositionData.max,
                           limitPositionData.zeroForOne,
-                          BigNumber.from(limitPositionData.liquidity)
+                          BigNumber.from(limitPositionData.liquidity),
                         ),
-                        limitPositionData.tokenOut.decimals
-                      )
+                        limitPositionData.tokenOut.decimals,
+                      ),
                     ).toFixed(2)
                   ) : (
                     "0.00"
@@ -781,7 +793,11 @@ export default function ViewLimit() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={logoMap[logoMapKey(tokenOut)]} />
+                        <img
+                          height="25"
+                          width="25"
+                          src={logoMap[logoMapKey(tokenOut)]}
+                        />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />

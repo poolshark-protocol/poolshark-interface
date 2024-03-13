@@ -74,12 +74,15 @@ export default function LimitSwapButton({
       ],
     ],
     chainId: chainId,
-    enabled: poolAddress != undefined && poolAddress != ZERO_ADDRESS && amount?.gt(0) && lower?.lt(upper),
+    enabled:
+      poolAddress != undefined &&
+      poolAddress != ZERO_ADDRESS &&
+      amount?.gt(0) &&
+      lower?.lt(upper),
     gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
-    value: deepConvertBigIntAndBigNumber(getLimitSwapButtonMsgValue(
-      tokenIn.native,
-      amount
-    ))
+    value: deepConvertBigIntAndBigNumber(
+      getLimitSwapButtonMsgValue(tokenIn.native, amount),
+    ),
   });
 
   const { data, write } = useContractWrite(config);
@@ -87,11 +90,15 @@ export default function LimitSwapButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      toast.success("Your transaction was successful",{
+      toast.success("Your transaction was successful", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank",
+            ),
         },
       });
       resetAfterSwap();
@@ -105,46 +112,54 @@ export default function LimitSwapButton({
       closeModal();
     },
     onError() {
-      toast.error("Your transaction failed",{
+      toast.error("Your transaction failed", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank",
+            ),
         },
       });
     },
   });
 
   useEffect(() => {
-    if(isLoading) {
-      const newToastId = toast.loading("Your transaction is being confirmed...",{
-        action: {
-          label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+    if (isLoading) {
+      const newToastId = toast.loading(
+        "Your transaction is being confirmed...",
+        {
+          action: {
+            label: "View",
+            onClick: () =>
+              window.open(
+                `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+                "_blank",
+              ),
+          },
         },
-      });
-      newToastId
+      );
+      newToastId;
       setToastId(newToastId);
     }
   }, [isLoading]);
 
-
   const ConfirmTransaction = () => {
-      write?.();
+    write?.();
     window.safary?.track({
-      eventType: 'swap',
-      eventName: 'swap-limit',
+      eventType: "swap",
+      eventName: "swap-limit",
       parameters: {
         fromAmount: Number(ethers.utils.formatEther(amount)),
-        fromCurrency: (tokenIn.symbol as string),
-        toCurrency: (tokenOut.symbol as string),
-        contractAddress: (routerAddress as string),
-        chainId: (chainId as number) || '',
+        fromCurrency: tokenIn.symbol as string,
+        toCurrency: tokenOut.symbol as string,
+        contractAddress: routerAddress as string,
+        chainId: (chainId as number) || "",
       },
-    })
-    
+    });
   };
-
 
   return (
     <>

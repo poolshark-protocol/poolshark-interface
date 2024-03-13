@@ -11,7 +11,10 @@ import { ethers } from "ethers";
 import PositionMintModal from "../Modals/PositionMint";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { getRangeMintButtonMsgValue, getRangeMintInputData } from "../../utils/buttons";
+import {
+  getRangeMintButtonMsgValue,
+  getRangeMintInputData,
+} from "../../utils/buttons";
 import { chainProperties } from "../../utils/chains";
 import { getRangeStakerAddress } from "../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
@@ -30,14 +33,11 @@ export default function RangeMintButton({
   setSuccessDisplay,
   setErrorDisplay,
   setIsLoading,
-  setTxHash
+  setTxHash,
 }) {
-  const [
-    chainId,
-    networkName
-  ] = useConfigStore((state) => [
+  const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
   ]);
 
   const [
@@ -80,20 +80,24 @@ export default function RangeMintButton({
           positionId: positionId,
           amount0: amount0,
           amount1: amount1,
-          callbackData: getRangeMintInputData(rangeMintParams.stakeFlag, getRangeStakerAddress(networkName)),
+          callbackData: getRangeMintInputData(
+            rangeMintParams.stakeFlag,
+            getRangeStakerAddress(networkName),
+          ),
         }),
       ],
     ],
     chainId: chainId,
     gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
-    value: deepConvertBigIntAndBigNumber(getRangeMintButtonMsgValue(
-      tokenIn.native,
-      tokenOut.native,
-      rangeMintParams.tokenInAmount,
-      rangeMintParams.tokenOutAmount
-    )),
-    onSuccess() {
-    },
+    value: deepConvertBigIntAndBigNumber(
+      getRangeMintButtonMsgValue(
+        tokenIn.native,
+        tokenOut.native,
+        rangeMintParams.tokenInAmount,
+        rangeMintParams.tokenOutAmount,
+      ),
+    ),
+    onSuccess() {},
     onError() {
       setErrorDisplay(true);
     },
@@ -122,37 +126,32 @@ export default function RangeMintButton({
   });
 
   useEffect(() => {
-    if(isLoading) {
-      setIsLoading(true)
+    if (isLoading) {
+      setIsLoading(true);
     } else {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }, [isLoading]);
-  
+
   useEffect(() => {
-    setTxHash(data?.hash)
+    setTxHash(data?.hash);
   }, [data]);
 
-
-
   const ConfirmTransaction = () => {
-      write?.();
-      window.safary?.track({
-        eventType: 'range',
-        eventName: 'range-mint',
-        parameters: {
-          amount0: (Number(ethers.utils.formatEther(amount0))),
-          amount1: Number(ethers.utils.formatEther(amount1)),
-          poolAddress: (poolAddress as string),
-          routerAddress: (routerAddress as string),
-          lower: (lower as string),
-          upper: (upper as string)
-        },
-      })
-    
+    write?.();
+    window.safary?.track({
+      eventType: "range",
+      eventName: "range-mint",
+      parameters: {
+        amount0: Number(ethers.utils.formatEther(amount0)),
+        amount1: Number(ethers.utils.formatEther(amount1)),
+        poolAddress: poolAddress as string,
+        routerAddress: routerAddress as string,
+        lower: lower as string,
+        upper: upper as string,
+      },
+    });
   };
-
-
 
   return (
     <>
@@ -161,7 +160,7 @@ export default function RangeMintButton({
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center flex items-center justify-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         onClick={ConfirmTransaction}
       >
-        {gasLimit.lte(BN_ZERO) && !disabled ? <Loader/> : buttonMessage}
+        {gasLimit.lte(BN_ZERO) && !disabled ? <Loader /> : buttonMessage}
       </button>
     </>
   );

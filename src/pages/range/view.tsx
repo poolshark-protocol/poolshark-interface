@@ -108,9 +108,9 @@ export default function ViewRange() {
           "..." +
           rangePoolAddress.substring(
             rangePoolAddress.length - 4,
-            rangePoolAddress.length
+            rangePoolAddress.length,
           )
-      : undefined
+      : undefined,
   );
 
   ////////////////////////Addresses
@@ -122,9 +122,9 @@ export default function ViewRange() {
             "..." +
             rangePoolAddress.substring(
               rangePoolAddress.length - 4,
-              rangePoolAddress.length
+              rangePoolAddress.length,
             )
-        : undefined
+        : undefined,
     );
     if (tokenIn.address && tokenOut.address) {
       setPriceOrder(tokenIn.callId == 0);
@@ -155,7 +155,7 @@ export default function ViewRange() {
       limitSubgraph,
       undefined,
       undefined,
-      rangePositionData.poolType
+      rangePositionData.poolType,
     );
   }, [router.query.feeTier]);
 
@@ -176,18 +176,18 @@ export default function ViewRange() {
       if (rangePoolData != undefined) {
         if (!isNaN(tokenIn.USDPrice)) {
           setAmount0Usd(
-            parseFloat((amount0 * tokenIn.USDPrice).toPrecision(6))
+            parseFloat((amount0 * tokenIn.USDPrice).toPrecision(6)),
           );
           setAmount0FeesUsd(
-            parseFloat((amount0Fees * tokenIn.USDPrice).toFixed(2))
+            parseFloat((amount0Fees * tokenIn.USDPrice).toFixed(2)),
           );
         }
         if (!isNaN(tokenOut.USDPrice)) {
           setAmount1Usd(
-            parseFloat((amount1 * tokenOut.USDPrice).toPrecision(6))
+            parseFloat((amount1 * tokenOut.USDPrice).toPrecision(6)),
           );
           setAmount1FeesUsd(
-            parseFloat((amount1Fees * tokenOut.USDPrice).toFixed(2))
+            parseFloat((amount1Fees * tokenOut.USDPrice).toFixed(2)),
           );
         }
       }
@@ -228,13 +228,13 @@ export default function ViewRange() {
       const data = await fetchRangePositions(limitSubgraph, address);
       if (data["data"].rangePositions) {
         const mappedPositions = mapUserRangePositions(
-          data["data"].rangePositions
+          data["data"].rangePositions,
         );
         setAllRangePositions(mappedPositions);
 
         const positionId = rangePositionData.id ?? router.query.id;
         const position = mappedPositions.find(
-          (position) => position.id == positionId
+          (position) => position.id == positionId,
         );
         if (position != undefined) {
           const tokenInNew = {
@@ -261,7 +261,7 @@ export default function ViewRange() {
             limitSubgraph,
             undefined,
             undefined,
-            position.poolType
+            position.poolType,
           );
         }
       }
@@ -279,14 +279,14 @@ export default function ViewRange() {
         fetchRangeTokenUSDPrice(
           rangePoolData,
           tokenIn,
-          setTokenInRangeUSDPrice
+          setTokenInRangeUSDPrice,
         );
       }
       if (tokenOut.address) {
         fetchRangeTokenUSDPrice(
           rangePoolData,
           tokenOut,
-          setTokenOutRangeUSDPrice
+          setTokenOutRangeUSDPrice,
         );
       }
     }
@@ -298,15 +298,15 @@ export default function ViewRange() {
         TickMath.getPriceStringAtTick(
           Number(rangePositionData.min),
           tokenIn,
-          tokenOut
-        )
+          tokenOut,
+        ),
       );
       setUpperPrice(
         TickMath.getPriceStringAtTick(
           Number(rangePositionData.max),
           tokenIn,
-          tokenOut
-        )
+          tokenOut,
+        ),
       );
     }
   }, [tokenIn, tokenOut, rangePositionData.min, rangePositionData.max]);
@@ -327,10 +327,10 @@ export default function ViewRange() {
         parseFloat(lowerPrice) < parseFloat(upperPrice)
       ) {
         const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
-          Number(rangePositionData.min)
+          Number(rangePositionData.min),
         );
         const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
-          Number(rangePositionData.max)
+          Number(rangePositionData.max),
         );
         const rangeSqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
         const liquidity = JSBI.BigInt(rangePositionData.userLiquidity);
@@ -339,16 +339,16 @@ export default function ViewRange() {
           upperSqrtPrice,
           rangeSqrtPrice,
           liquidity,
-          true
+          true,
         );
         // set amount based on bnInput
         const amount0Bn = BigNumber.from(String(amounts.token0Amount));
         const amount1Bn = BigNumber.from(String(amounts.token1Amount));
         setAmount0(
-          parseFloat(ethers.utils.formatUnits(amount0Bn, tokenIn.decimals))
+          parseFloat(ethers.utils.formatUnits(amount0Bn, tokenIn.decimals)),
         );
         setAmount1(
-          parseFloat(ethers.utils.formatUnits(amount1Bn, tokenOut.decimals))
+          parseFloat(ethers.utils.formatUnits(amount1Bn, tokenOut.decimals)),
         );
       }
     } catch (error) {
@@ -386,10 +386,10 @@ export default function ViewRange() {
     try {
       if (feesOwed) {
         const fees0 = parseFloat(
-          ethers.utils.formatUnits(feesOwed[2] ?? "0", tokenIn.decimals)
+          ethers.utils.formatUnits(feesOwed[2] ?? "0", tokenIn.decimals),
         );
         const fees1 = parseFloat(
-          ethers.utils.formatUnits(feesOwed[3] ?? "0", tokenOut.decimals)
+          ethers.utils.formatUnits(feesOwed[3] ?? "0", tokenOut.decimals),
         );
         setAmount0Fees(fees0);
         setAmount1Fees(fees1);
@@ -643,7 +643,7 @@ export default function ViewRange() {
                       ) : (
                         invertPrice(
                           priceOrder ? lowerPrice : upperPrice,
-                          priceOrder
+                          priceOrder,
                         )
                       )}
                     </span>
@@ -661,7 +661,7 @@ export default function ViewRange() {
                       ) : (
                         invertPrice(
                           priceOrder ? upperPrice : lowerPrice,
-                          priceOrder
+                          priceOrder,
                         )
                       )}
                     </span>
@@ -682,9 +682,9 @@ export default function ViewRange() {
                         TickMath.getPriceStringAtSqrtPrice(
                           JSBI.BigInt(rangePositionData.price),
                           tokenIn,
-                          tokenOut
+                          tokenOut,
                         ),
-                        priceOrder
+                        priceOrder,
                       )
                     ) : null}
                   </span>

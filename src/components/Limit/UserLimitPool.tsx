@@ -63,7 +63,7 @@ export default function UserLimitPool({
       Number(limitPosition.epochLast),
       false,
       limitSubgraph,
-      undefined
+      undefined,
     );
     setClaimTick(tick);
   };
@@ -95,7 +95,7 @@ export default function UserLimitPool({
       tokenOutNew,
       limitPosition.feeTier.toString(),
       limitSubgraph,
-      limitPosition.poolType
+      limitPosition.poolType,
     );
     router.push({
       pathname: href,
@@ -118,14 +118,16 @@ export default function UserLimitPool({
             parseInt(limitPosition.max),
             limitPosition.tokenIn.id.localeCompare(limitPosition.tokenOut.id) <
               0,
-            BigNumber.from(limitPosition.liquidity)
-          )
+            BigNumber.from(limitPosition.liquidity),
+          ),
         ),
-        limitPosition.tokenOut.decimals
-      )
+        limitPosition.tokenOut.decimals,
+      ),
     )
   ).toFixed(1);
-  const filledPercent = filledPercentRaw.endsWith('.0') ? filledPercentRaw.slice(0, -2) : filledPercentRaw;
+  const filledPercent = filledPercentRaw.endsWith(".0")
+    ? filledPercentRaw.slice(0, -2)
+    : filledPercentRaw;
 
   return (
     <tr
@@ -145,12 +147,12 @@ export default function UserLimitPool({
                 parseInt(limitPosition.min),
                 parseInt(limitPosition.max),
                 limitPosition.tokenIn.id.localeCompare(
-                  limitPosition.tokenOut.id
+                  limitPosition.tokenOut.id,
                 ) < 0,
-                BigNumber.from(limitPosition.liquidity)
+                BigNumber.from(limitPosition.liquidity),
               ),
-              limitPosition.tokenIn.decimals
-            )
+              limitPosition.tokenIn.decimals,
+            ),
           ).toFixed(3) +
             " " +
             limitPosition.tokenIn.symbol}
@@ -168,12 +170,12 @@ export default function UserLimitPool({
                 parseInt(limitPosition.min),
                 parseInt(limitPosition.max),
                 limitPosition.tokenIn.id.localeCompare(
-                  limitPosition.tokenOut.id
+                  limitPosition.tokenOut.id,
                 ) < 0,
-                BigNumber.from(limitPosition.liquidity)
+                BigNumber.from(limitPosition.liquidity),
               ),
-              limitPosition.tokenOut.decimals
-            )
+              limitPosition.tokenOut.decimals,
+            ),
           ).toPrecision(6) +
             " " +
             limitPosition.tokenOut.symbol}
@@ -192,21 +194,21 @@ export default function UserLimitPool({
                 parseInt(limitPosition.min),
                 parseInt(limitPosition.max),
                 limitPosition.tokenIn.id.localeCompare(
-                  limitPosition.tokenOut.id
+                  limitPosition.tokenOut.id,
                 ) < 0,
                 BigNumber.from(limitPosition.liquidity),
                 getExpectedAmountIn(
                   parseInt(limitPosition.min),
                   parseInt(limitPosition.max),
                   limitPosition.tokenIn.id.localeCompare(
-                    limitPosition.tokenOut.id
+                    limitPosition.tokenOut.id,
                   ) < 0,
-                  BigNumber.from(limitPosition.liquidity)
-                )
+                  BigNumber.from(limitPosition.liquidity),
+                ),
               ).toPrecision(6),
               limitPosition.tokenIn.id.localeCompare(
-                limitPosition.tokenOut.id
-              ) < 0
+                limitPosition.tokenOut.id,
+              ) < 0,
             ) +
               " " +
               limitPosition.tokenOut.symbol}
@@ -217,18 +219,18 @@ export default function UserLimitPool({
         <div
           className={`text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]`}
         >
-          <span className="z-50 px-3">
-            {filledPercent}
-            % Filled
-          </span>
+          <span className="z-50 px-3">{filledPercent}% Filled</span>
           <div
-          style={{ width: filledPercent + "%"}}
-           className="h-full bg-grey/60 absolute left-0" />
+            style={{ width: filledPercent + "%" }}
+            className="h-full bg-grey/60 absolute left-0"
+          />
         </div>
       </td>
       <td className="text-grey1 text-left pl-3 text-xs md:table-cell hidden">
-        {timeDifference(limitPosition.timestamp) != "" ? timeDifference(limitPosition.timestamp): "0m "} ago
-        
+        {timeDifference(limitPosition.timestamp) != ""
+          ? timeDifference(limitPosition.timestamp)
+          : "0m "}{" "}
+        ago
       </td>
       <td className="text-sm text-grey1 md:table-cell hidden">
         {/* <LimitSwapBurnButton

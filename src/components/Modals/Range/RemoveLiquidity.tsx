@@ -15,19 +15,21 @@ import { parseUnits } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getLogoURI, logoMapKey } from "../../../utils/tokens";
 
-export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked }) {
-  const [
-    chainId,
-    networkName,
-    logoMap,
-    limitSubgraph,
-  ] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-    state.logoMap,
-    state.limitSubgraph,
-  ]);
-  
+export default function RangeRemoveLiquidity({
+  isOpen,
+  setIsOpen,
+  signer,
+  staked,
+}) {
+  const [chainId, networkName, logoMap, limitSubgraph] = useConfigStore(
+    (state) => [
+      state.chainId,
+      state.networkName,
+      state.logoMap,
+      state.limitSubgraph,
+    ],
+  );
+
   const [
     rangePoolAddress,
     rangePositionData,
@@ -54,13 +56,13 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
   const [amount1, setAmount1] = useState(BN_ZERO);
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0;
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(
-    JSBI.BigInt(rangePositionData.price)
+    JSBI.BigInt(rangePositionData.price),
   );
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
-    Number(rangePositionData.min)
+    Number(rangePositionData.min),
   );
   const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
-    Number(rangePositionData.max)
+    Number(rangePositionData.max),
   );
 
   useEffect(() => {
@@ -107,7 +109,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
           upperSqrtPrice,
           rangeSqrtPrice,
           liquidity,
-          true
+          true,
         );
         // set amount based on liquidity math
         const amount0Bn = BigNumber.from(String(amounts.token0Amount));
@@ -118,9 +120,9 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
             Number(
               ethers.utils.formatUnits(
                 tokenOrder ? amount0Bn : amount1Bn,
-                tokenOrder ? tokenIn.decimals : tokenOut.decimals
-              )
-            ).toPrecision(6)
+                tokenOrder ? tokenIn.decimals : tokenOut.decimals,
+              ),
+            ).toPrecision(6),
           );
         setAmount0(amount0Bn);
         setAmount1(amount1Bn);
@@ -160,7 +162,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
   ]);
 
   async function updateGasFee() {
-    if (rangePositionData.staked == undefined) return
+    if (rangePositionData.staked == undefined) return;
     const newBurnGasFee = await gasEstimateRangeBurn(
       rangePositionData.poolId,
       address,
@@ -271,8 +273,8 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
                       {Number(
                         tokenIn.USDPrice *
                           parseFloat(
-                            ethers.utils.formatUnits(amount0, tokenIn.decimals)
-                          )
+                            ethers.utils.formatUnits(amount0, tokenIn.decimals),
+                          ),
                       ).toFixed(2)}
                     </span>
                   </div>
@@ -288,7 +290,11 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
                         MAX
                       </button>
                       <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                        <img height="28" width="25" src={logoMap[logoMapKey(tokenIn)]} />
+                        <img
+                          height="28"
+                          width="25"
+                          src={logoMap[logoMapKey(tokenIn)]}
+                        />
                         {tokenIn.symbol}
                       </div>
                     </div>
@@ -301,7 +307,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
                       {(
                         tokenOut.USDPrice *
                         parseFloat(
-                          ethers.utils.formatUnits(amount1, tokenOut.decimals)
+                          ethers.utils.formatUnits(amount1, tokenOut.decimals),
                         )
                       ).toFixed(2)}
                     </span>
@@ -309,7 +315,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
                   <div className="flex items-end justify-between mt-2 mb-3">
                     <span className="text-3xl">
                       {Number(
-                        ethers.utils.formatUnits(amount1, tokenOut.decimals)
+                        ethers.utils.formatUnits(amount1, tokenOut.decimals),
                       ).toPrecision(5)}
                     </span>
                     <div className="flex items-center gap-x-2">
@@ -320,7 +326,11 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer, staked
                         MAX
                       </button>
                       <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                        <img height="28" width="25" src={logoMap[logoMapKey(tokenOut)]} />
+                        <img
+                          height="28"
+                          width="25"
+                          src={logoMap[logoMapKey(tokenOut)]}
+                        />
                         {tokenOut.symbol}
                       </div>
                     </div>

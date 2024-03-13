@@ -1,10 +1,5 @@
 import { useState, useEffect, Fragment } from "react";
-import {
-  erc20ABI,
-  useAccount,
-  useContractRead,
-  useBalance,
-} from "wagmi";
+import { erc20ABI, useAccount, useContractRead, useBalance } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { chainProperties } from "../utils/chains";
 import { ZERO_ADDRESS } from "../utils/math/constants";
@@ -180,7 +175,7 @@ export default function Trade() {
       getLimitTokenUsdPrice(
         tokenIn.address,
         setTokenInTradeUSDPrice,
-        limitSubgraph
+        limitSubgraph,
       );
     }
   }, [tokenIn.address]);
@@ -193,7 +188,7 @@ export default function Trade() {
       getLimitTokenUsdPrice(
         tokenOut.address,
         setTokenOutTradeUSDPrice,
-        limitSubgraph
+        limitSubgraph,
       );
     }
   }, [tokenOut.address]);
@@ -203,7 +198,10 @@ export default function Trade() {
     address: getRouterAddress(networkName),
     abi: poolsharkRouterABI,
     functionName: "multiSnapshotLimit",
-    args: [limitPoolAddressList, deepConvertBigIntAndBigNumber(limitPositionSnapshotList)],
+    args: [
+      limitPoolAddressList,
+      deepConvertBigIntAndBigNumber(limitPositionSnapshotList),
+    ],
     chainId: chainId,
     watch: needsSnapshot,
     enabled:
@@ -225,7 +223,8 @@ export default function Trade() {
 
   useEffect(() => {
     if (filledAmountListInt) {
-      const filledAmountList = deepConvertBigIntAndBigNumber(filledAmountListInt)
+      const filledAmountList =
+        deepConvertBigIntAndBigNumber(filledAmountListInt);
       setLimitFilledAmountList(filledAmountList[0]);
       setCurrentAmountOutList(filledAmountList[1]);
     }
@@ -257,14 +256,14 @@ export default function Trade() {
     try {
       const data = await fetchLimitPositions(
         limitSubgraph,
-        address?.toLowerCase()
+        address?.toLowerCase(),
       );
       if (data["data"]) {
         setAllLimitPositions(
-          mapUserLimitPositions(data["data"].limitPositions)
+          mapUserLimitPositions(data["data"].limitPositions),
         );
         setAllHistoricalOrders(
-          mapUserHistoricalOrders(data["data"].historicalOrders)
+          mapUserHistoricalOrders(data["data"].historicalOrders),
         );
       }
     } catch (error) {
@@ -284,7 +283,7 @@ export default function Trade() {
           mappedLimitSnapshotParams[i][0] = address;
           mappedLimitSnapshotParams[i][1] = parseUnits("1", 38);
           mappedLimitSnapshotParams[i][2] = BigNumber.from(
-            allLimitPositions[i].positionId
+            allLimitPositions[i].positionId,
           );
           mappedLimitSnapshotParams[i][3] = BigNumber.from(
             await getClaimTick(
@@ -292,17 +291,17 @@ export default function Trade() {
               Number(allLimitPositions[i].min),
               Number(allLimitPositions[i].max),
               allLimitPositions[i].tokenIn.id.localeCompare(
-                allLimitPositions[i].tokenOut.id
+                allLimitPositions[i].tokenOut.id,
               ) < 0,
               Number(allLimitPositions[i].epochLast),
               false,
               limitSubgraph,
-              undefined
-            )
+              undefined,
+            ),
           );
           mappedLimitSnapshotParams[i][4] =
             allLimitPositions[i].tokenIn.id.localeCompare(
-              allLimitPositions[i].tokenOut.id
+              allLimitPositions[i].tokenOut.id,
             ) < 0;
         }
         setLimitPoolAddressList(mappedLimitPoolAddresses);
@@ -348,14 +347,14 @@ export default function Trade() {
       setTokenInBalance(
         !isNaN(parseFloat(tokenInBal?.formatted.toString()))
           ? tokenInBal?.formatted.toString()
-          : "0.00"
+          : "0.00",
       );
     }
     if (isConnected && tokenOutBal) {
       setTokenOutBalance(
         !isNaN(parseFloat(tokenOutBal?.formatted.toString()))
           ? tokenOutBal?.formatted.toString()
-          : "0.00"
+          : "0.00",
       );
     }
   }, [tokenInBal, tokenOutBal]);
@@ -382,7 +381,9 @@ export default function Trade() {
 
   useEffect(() => {
     if (allowanceInRouter) {
-      setTokenInTradeAllowance(deepConvertBigIntAndBigNumber(allowanceInRouter));
+      setTokenInTradeAllowance(
+        deepConvertBigIntAndBigNumber(allowanceInRouter),
+      );
     }
   }, [allowanceInRouter]);
 
@@ -633,8 +634,8 @@ export default function Trade() {
                                 ? parseFloat(
                                     ethers.utils.formatUnits(
                                       limitFilledAmountList[index] ?? "0",
-                                      allLimitPosition.tokenOut.decimals
-                                    )
+                                      allLimitPosition.tokenOut.decimals,
+                                    ),
                                   )
                                 : parseFloat("0.00")
                             }
@@ -683,7 +684,7 @@ export default function Trade() {
                                 src={logoMap[allHistoricalOrder.tokenIn.id]}
                               />
                               {parseFloat(allHistoricalOrder.amountIn).toFixed(
-                                3
+                                3,
                               ) +
                                 " " +
                                 allHistoricalOrder.tokenIn.symbol}
@@ -696,7 +697,7 @@ export default function Trade() {
                                 src={logoMap[allHistoricalOrder.tokenOut.id]}
                               />
                               {parseFloat(allHistoricalOrder.amountOut).toFixed(
-                                3
+                                3,
                               ) +
                                 " " +
                                 allHistoricalOrder.tokenOut.symbol}
@@ -709,7 +710,7 @@ export default function Trade() {
                                   1 {allHistoricalOrder.tokenIn.symbol} ={" "}
                                 </span>
                                 {parseFloat(
-                                  allHistoricalOrder.averagePrice
+                                  allHistoricalOrder.averagePrice,
                                 ).toPrecision(5) +
                                   " " +
                                   allHistoricalOrder.tokenOut.symbol}
@@ -724,7 +725,7 @@ export default function Trade() {
                           </td>
                           <td className="text-grey1 text-left pl-3 text-xs md:table-cell hidden">
                             {timeDifference(
-                              allHistoricalOrder.completedAtTimestamp
+                              allHistoricalOrder.completedAtTimestamp,
                             )}{" "}
                             ago
                           </td>

@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from "react";
 const InfoIcon = (props) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -14,5 +14,5 @@ const InfoIcon = (props) => (
       clipRule="evenodd"
     />
   </svg>
-)
-export default InfoIcon
+);
+export default InfoIcon;

@@ -10,10 +10,12 @@ import { BigNumber, ethers } from "ethers";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { getRangeMintButtonMsgValue, getRangeMintInputData } from "../../utils/buttons";
+import {
+  getRangeMintButtonMsgValue,
+  getRangeMintInputData,
+} from "../../utils/buttons";
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
-  
 
 export default function RangeCreateAndMintButton({
   disabled,
@@ -34,14 +36,11 @@ export default function RangeCreateAndMintButton({
   setSuccessDisplay,
   setErrorDisplay,
   setIsLoading,
-  setTxHash
+  setTxHash,
 }) {
-  const [
-    chainId,
-    networkName
-  ] = useConfigStore((state) => [
+  const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
   ]);
 
   const [
@@ -91,19 +90,24 @@ export default function RangeCreateAndMintButton({
           positionId: positionId,
           amount0: amount0,
           amount1: amount1,
-          callbackData: getRangeMintInputData(rangeMintParams.stakeFlag, chainProperties[networkName]['rangeStakerAddress'])
+          callbackData: getRangeMintInputData(
+            rangeMintParams.stakeFlag,
+            chainProperties[networkName]["rangeStakerAddress"],
+          ),
         }),
       ], // range positions
       [], // limit positions
     ],
     chainId: chainId,
     gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
-    value: deepConvertBigIntAndBigNumber(getRangeMintButtonMsgValue(
-      tokenIn.native,
-      tokenOut.native,
-      rangeMintParams.tokenInAmount,
-      rangeMintParams.tokenOutAmount
-    )),
+    value: deepConvertBigIntAndBigNumber(
+      getRangeMintButtonMsgValue(
+        tokenIn.native,
+        tokenOut.native,
+        rangeMintParams.tokenInAmount,
+        rangeMintParams.tokenOutAmount,
+      ),
+    ),
     onSuccess() {},
     onError() {
       setErrorDisplay(true);
@@ -137,35 +141,33 @@ export default function RangeCreateAndMintButton({
   });
 
   useEffect(() => {
-    if(isLoading) {
-      setIsLoading(true)
+    if (isLoading) {
+      setIsLoading(true);
     } else {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }, [isLoading]);
-  
-  useEffect(() => {
-    setTxHash(data?.hash)
-  }, [data]);
 
+  useEffect(() => {
+    setTxHash(data?.hash);
+  }, [data]);
 
   const ConfirmTransaction = () => {
     write?.();
     window.safary?.track({
-      eventType: 'range',
-      eventName: 'range-mint',
+      eventType: "range",
+      eventName: "range-mint",
       parameters: {
-        amount0: (Number(ethers.utils.formatEther(amount0))),
-        amount1: (Number(ethers.utils.formatEther(amount1))),
-        feeTier: (feeTier as string),
-        routerAddress: (routerAddress as string),
-        lower: (lower as string),
-        upper: (upper as string),
-        startPrice: (startPrice as string)
+        amount0: Number(ethers.utils.formatEther(amount0)),
+        amount1: Number(ethers.utils.formatEther(amount1)),
+        feeTier: feeTier as string,
+        routerAddress: routerAddress as string,
+        lower: lower as string,
+        upper: upper as string,
+        startPrice: startPrice as string,
       },
-    })
-  
-};
+    });
+  };
 
   return (
     <>
@@ -174,7 +176,9 @@ export default function RangeCreateAndMintButton({
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         onClick={ConfirmTransaction}
       >
-        {buttonMessage != undefined && buttonMessage != '' ? buttonMessage : 'CREATE POOL AND MINT'}
+        {buttonMessage != undefined && buttonMessage != ""
+          ? buttonMessage
+          : "CREATE POOL AND MINT"}
       </button>
     </>
   );

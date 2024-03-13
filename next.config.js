@@ -3,8 +3,8 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   images: {
-    domains: ['poolshark-token-lists.s3.amazonaws.com'],
+    domains: ["poolshark-token-lists.s3.amazonaws.com"],
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

@@ -1,11 +1,6 @@
-import * as React from "react"
+import * as React from "react";
 const Cover = (props) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={22}
-    height={23}
-    {...props}
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width={22} height={23} {...props}>
     <g clipPath="url(#a)">
       <path
         fill="currentColor"
@@ -20,5 +15,5 @@ const Cover = (props) => (
       </clipPath>
     </defs>
   </svg>
-)
-export default Cover
+);
+export default Cover;

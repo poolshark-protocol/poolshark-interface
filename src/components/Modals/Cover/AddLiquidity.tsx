@@ -1,21 +1,14 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import {
-  useAccount,
-  erc20ABI,
-  useBalance,
-} from "wagmi";
+import { useAccount, erc20ABI, useBalance } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import CoverAddLiqButton from "../../Buttons/CoverAddLiqButton";
 import { ethers } from "ethers";
 import { useContractRead } from "wagmi";
 import { BN_ZERO } from "../../../utils/math/constants";
 import CoverMintApproveButton from "../../Buttons/CoverMintApproveButton";
-import {
-  chainIdsToNames,
-  chainProperties,
-} from "../../../utils/chains";
+import { chainIdsToNames, chainProperties } from "../../../utils/chains";
 import { gasEstimateCoverMint } from "../../../utils/gas";
 import { useCoverStore } from "../../../hooks/useCoverStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
@@ -25,14 +18,10 @@ import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
-  const [
-    chainId,
-    logoMap,
-    networkName
-  ] = useConfigStore((state) => [
+  const [chainId, logoMap, networkName] = useConfigStore((state) => [
     state.chainId,
     state.logoMap,
-    state.networkName
+    state.networkName,
   ]);
 
   const [
@@ -68,7 +57,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const { bnInput, inputBox, maxBalance } = useInputBox();
   const signer = useEthersSigner();
   const { isConnected } = useAccount();
-  const [stateChainName, setStateChainName] = useState(); 
+  const [stateChainName, setStateChainName] = useState();
   const [buttonState, setButtonState] = useState("");
   const [disabled, setDisabled] = useState(true);
 
@@ -91,7 +80,10 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     onSettled(data, error) {},
   });
 
-  const allowanceInCover = useMemo(() =>deepConvertBigIntAndBigNumber(allowanceInCoverInt), [allowanceInCoverInt]);
+  const allowanceInCover = useMemo(
+    () => deepConvertBigIntAndBigNumber(allowanceInCoverInt),
+    [allowanceInCoverInt],
+  );
 
   useEffect(() => {
     if (isConnected && allowanceInCover)
@@ -113,7 +105,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   useEffect(() => {
     if (isConnected && tokenInBal) {
       setTokenInBalance(
-        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+        parseFloat(tokenInBal?.formatted.toString()).toFixed(2),
       );
     }
   }, [tokenInBal]);
@@ -141,7 +133,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   }, [bnInput, tokenIn.userBalance, disabled]);
 
   useEffect(() => {
-    setStateChainName(chainIdsToNames[chainId]); 
+    setStateChainName(chainIdsToNames[chainId]);
   }, [chainId]);
 
   ////////////////////////////////Gas Fees Estimation
@@ -170,7 +162,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
       bnInput,
       signer,
       networkName,
-      coverPositionData.positionId
+      coverPositionData.positionId,
     );
     setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
@@ -222,65 +214,67 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                     className="w-7 cursor-pointer"
                   />
                 </div>
-                  <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2 mb-5">
-                    <div className="flex items-end justify-between text-[11px] text-grey1">
-                      <span>
-                        ~$
-                        {Number(
-                          tokenIn.coverUSDPrice *
-                            parseFloat(
-                              ethers.utils.formatUnits(
-                                bnInput,
-                                tokenIn.decimals
-                              )
-                            )
-                        ).toFixed(2)}
-                      </span>
-                      <span>
-                        BALANCE: {isNaN(tokenIn.userBalance)
-                              ? "0.00"
-                              : Number(tokenIn.userBalance).toPrecision(5)}
-                      </span>
-                    </div>
-                    <div className="flex items-end justify-between mt-2 mb-3">
-                      {inputBox("0", tokenIn)}
-                      <div className="flex items-center gap-x-2">
-                        {isConnected && stateChainName === networkName ? (
-                          <button
+                <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2 mb-5">
+                  <div className="flex items-end justify-between text-[11px] text-grey1">
+                    <span>
+                      ~$
+                      {Number(
+                        tokenIn.coverUSDPrice *
+                          parseFloat(
+                            ethers.utils.formatUnits(bnInput, tokenIn.decimals),
+                          ),
+                      ).toFixed(2)}
+                    </span>
+                    <span>
+                      BALANCE:{" "}
+                      {isNaN(tokenIn.userBalance)
+                        ? "0.00"
+                        : Number(tokenIn.userBalance).toPrecision(5)}
+                    </span>
+                  </div>
+                  <div className="flex items-end justify-between mt-2 mb-3">
+                    {inputBox("0", tokenIn)}
+                    <div className="flex items-center gap-x-2">
+                      {isConnected && stateChainName === networkName ? (
+                        <button
                           onClick={() => {
-                            maxBalance(tokenIn.userBalance.toString(), "0", tokenIn.decimals);
+                            maxBalance(
+                              tokenIn.userBalance.toString(),
+                              "0",
+                              tokenIn.decimals,
+                            );
                           }}
-                            className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
-                          >
-                            MAX
-                          </button>
-                        ) : null}
-                        <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                          <img height="28" width="25" src={getLogoURI(logoMap, tokenIn)} />
-                          {tokenIn.symbol}
-                        </div>
+                          className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
+                        >
+                          MAX
+                        </button>
+                      ) : null}
+                      <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
+                        <img
+                          height="28"
+                          width="25"
+                          src={getLogoURI(logoMap, tokenIn)}
+                        />
+                        {tokenIn.symbol}
                       </div>
                     </div>
                   </div>
+                </div>
                 {isConnected &&
                 allowanceInCover?.lt(bnInput) &&
                 stateChainName === networkName ? (
                   <CoverMintApproveButton
-                    routerAddress={
-                      getRouterAddress(networkName)
-                    }
+                    routerAddress={getRouterAddress(networkName)}
                     approveToken={tokenIn.address}
                     amount={bnInput}
                     tokenSymbol={tokenIn.symbol}
                   />
-                ) : stateChainName === networkName ? ( 
+                ) : stateChainName === networkName ? (
                   <CoverAddLiqButton
                     disabled={disabled}
                     toAddress={address}
                     poolAddress={coverPoolAddress}
-                    routerAddress={
-                      getRouterAddress(networkName)
-                    }
+                    routerAddress={getRouterAddress(networkName)}
                     address={address}
                     lower={Number(coverPositionData.min)}
                     upper={Number(coverPositionData.max)}

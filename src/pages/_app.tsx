@@ -1,12 +1,12 @@
 import "../styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
-import { midnightTheme, getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import Script from "next/script";
 import {
-  configureChains,
-  createConfig,
-  WagmiConfig,
-} from "wagmi";
+  midnightTheme,
+  getDefaultWallets,
+  RainbowKitProvider,
+} from "@rainbow-me/rainbowkit";
+import Script from "next/script";
+import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { arbitrum } from "wagmi/chains";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import Head from "next/head";
@@ -18,7 +18,7 @@ import {
   mode,
   injectiveEvm,
 } from "../utils/chains";
- 
+
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
 import Safary from "../components/script";
@@ -33,14 +33,14 @@ const { chains, publicClient } = configureChains(
         http: chainIdToRpc[chain.id],
       }),
     }),
-  ]
+  ],
 );
 
 // Rainbow Kit
 const { connectors } = getDefaultWallets({
   appName: "Poolshark UI",
   chains,
-  projectId: '5a973f41c4770ff68f712ffca44a6526'
+  projectId: "5a973f41c4770ff68f712ffca44a6526",
 });
 
 // Wagmi
@@ -60,9 +60,13 @@ function MyApp({ Component, pageProps }) {
       <Safary />
       <Toaster richColors theme="dark" />
       <WagmiConfig config={wagmiClient}>
-        <RainbowKitProvider chains={chains} initialChain={mode} theme={midnightTheme({
-          accentColor: '#0E76FD'
-        })}>
+        <RainbowKitProvider
+          chains={chains}
+          initialChain={mode}
+          theme={midnightTheme({
+            accentColor: "#0E76FD",
+          })}
+        >
           {/* <ApolloProvider client={apolloClient}> */}
           <ConfigWrapper>
             <Component {...pageProps} />

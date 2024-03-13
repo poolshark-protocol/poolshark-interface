@@ -21,14 +21,14 @@ export type QuoteParams = {
   amount: BigNumber;
   exactIn: boolean;
   zeroForOne: boolean;
-}
+};
 
 export type QuoteResults = {
   amountIn: BigNumber;
   amountOut: BigNumber;
   pool: string;
   priceAfter: BigNumber;
-}
+};
 
 export type SwapParams = {
   to: string;
@@ -36,8 +36,8 @@ export type SwapParams = {
   amount: BigNumber;
   exactIn: boolean;
   zeroForOne: boolean;
-  callbackData: string
-}
+  callbackData: string;
+};
 
 export type tokenSwap = {
   callId: number;
@@ -82,12 +82,12 @@ export type oFin = {
   strikeDisplay: string;
   strikePrice: number;
   profitUsd: number;
-}
+};
 
 export type RangePool24HData = {
   volumeUsd: number;
   feesUsd: number;
-}
+};
 
 export type token = tokenCover | tokenRangeLimit | tokenSwap;
 

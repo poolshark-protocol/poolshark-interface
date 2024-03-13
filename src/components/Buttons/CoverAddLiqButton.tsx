@@ -31,12 +31,9 @@ export default function CoverAddLiqButton({
   tokenSymbol,
   setIsOpen,
 }) {
-  const [
-    chainId,
-    networkName
-  ] = useConfigStore((state) => [
+  const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
   ]);
   const [
     coverPoolData,
@@ -59,7 +56,8 @@ export default function CoverAddLiqButton({
     functionName: "multiMintCover",
     args: [
       [poolAddress],
-      [deepConvertBigIntAndBigNumber({
+      [
+        deepConvertBigIntAndBigNumber({
           positionId: positionId,
           to: toAddress,
           amount: amount,
@@ -70,9 +68,10 @@ export default function CoverAddLiqButton({
         }),
       ],
     ],
-    enabled: amount.gt(BN_ZERO) && poolAddress != undefined && positionId != undefined,
+    enabled:
+      amount.gt(BN_ZERO) && poolAddress != undefined && positionId != undefined,
     chainId: chainId,
-    gasLimit: deepConvertBigIntAndBigNumber(gasLimit)
+    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
   });
 
   const { data, isSuccess, write } = useContractWrite(config);
@@ -80,11 +79,15 @@ export default function CoverAddLiqButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      toast.success("Your transaction was successful",{
+      toast.success("Your transaction was successful", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank",
+            ),
         },
       });
       setNeedsAllowance(true);
@@ -98,25 +101,36 @@ export default function CoverAddLiqButton({
       }, 1000);
     },
     onError() {
-      toast.error("Your transaction failed",{
+      toast.error("Your transaction failed", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank",
+            ),
         },
       });
     },
   });
 
   useEffect(() => {
-    if(isLoading) {
-      const newToastId = toast.loading("Your transaction is being confirmed...",{
-        action: {
-          label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+    if (isLoading) {
+      const newToastId = toast.loading(
+        "Your transaction is being confirmed...",
+        {
+          action: {
+            label: "View",
+            onClick: () =>
+              window.open(
+                `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+                "_blank",
+              ),
+          },
         },
-      });
-      newToastId
+      );
+      newToastId;
       setToastId(newToastId);
     }
   }, [isLoading]);
@@ -133,11 +147,7 @@ export default function CoverAddLiqButton({
         ) : disabled ? (
           <>
             {buttonState === "amount" ? <>Input Amount</> : <></>}
-            {buttonState === "balance" ? (
-              <>Low {tokenSymbol} Balance</>
-            ) : (
-              <></>
-            )}
+            {buttonState === "balance" ? <>Low {tokenSymbol} Balance</> : <></>}
           </>
         ) : (
           <> Add Liquidity</>

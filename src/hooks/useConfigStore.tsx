@@ -1,5 +1,10 @@
 import { create } from "zustand";
-import { CoverSubgraph, FinSubgraph, LimitSubgraph, oFin } from "../utils/types";
+import {
+  CoverSubgraph,
+  FinSubgraph,
+  LimitSubgraph,
+  oFin,
+} from "../utils/types";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { logoMapKey } from "../utils/tokens";
 import { chainProperties } from "../utils/chains";
@@ -11,7 +16,7 @@ type ConfigState = {
   oFin: oFin;
   limitSubgraph: LimitSubgraph;
   coverSubgraph: CoverSubgraph;
-  coverFactoryAddress: '0x${string}';
+  coverFactoryAddress: "0x${string}";
   finToken: any;
   listedtokenList: any;
   searchtokenList: any;
@@ -33,8 +38,9 @@ type ConfigAction = {
   setDisplayTokenList: (displayTokenList: any) => void;
 };
 
-const finDataNetworkName = chainProperties["fin-token"]["networkName"]
-const finDataSubgraphUrl = chainProperties[finDataNetworkName]["limitSubgraphUrl"]
+const finDataNetworkName = chainProperties["fin-token"]["networkName"];
+const finDataSubgraphUrl =
+  chainProperties[finDataNetworkName]["limitSubgraphUrl"];
 
 const initialConfigState: ConfigState = {
   //
@@ -45,15 +51,15 @@ const initialConfigState: ConfigState = {
     uri: finDataSubgraphUrl,
   }),
   oFin: {
-    strikeDisplay: '1.5',
+    strikeDisplay: "1.5",
     strikePrice: 1.5,
-    profitUsd: 0.5
+    profitUsd: 0.5,
   },
   limitSubgraph: undefined,
   coverSubgraph: undefined,
   coverFactoryAddress: undefined,
   finToken: {
-    usdPrice: 0
+    usdPrice: 0,
   },
   listedtokenList: undefined,
   searchtokenList: undefined,
@@ -100,7 +106,7 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
       }),
     }));
   },
-  setCoverFactoryAddress(coverFactoryAddress: '0x${string}') {
+  setCoverFactoryAddress(coverFactoryAddress: "0x${string}") {
     set(() => ({
       coverFactoryAddress: coverFactoryAddress,
     }));
@@ -111,18 +117,20 @@ export const useConfigStore = create<ConfigState & ConfigAction>((set) => ({
       oFin: {
         ...state.oFin,
         profitUsd: finToken.usdPrice - state.oFin.strikePrice,
-      }
+      },
     }));
   },
   setOFinStrikePrice: (strikePrice: string) => {
-    const newStrikePrice = !isNaN(parseFloat(strikePrice)) ? parseFloat(strikePrice) : 1.5
+    const newStrikePrice = !isNaN(parseFloat(strikePrice))
+      ? parseFloat(strikePrice)
+      : 1.5;
     set((state) => ({
       oFin: {
         ...state.oFin,
         strikePrice: newStrikePrice,
         strikeDisplay: strikePrice,
-        profitUsd: state.finToken.usdPrice - newStrikePrice
-      }
+        profitUsd: state.finToken.usdPrice - newStrikePrice,
+      },
     }));
   },
   setListedTokenList: (listedtokenList: any) => {

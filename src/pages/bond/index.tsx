@@ -42,18 +42,19 @@ export default function Bond() {
     useState(true);
   const [needsBondTokenData, setNeedsBondTokenData] = useState(true);
 
-  const [chainId, networkName, logoMap, limitSubgraph, setLimitSubgraph] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-    state.logoMap,
-    state.limitSubgraph,
-    state.setLimitSubgraph,
-  ]);
+  const [chainId, networkName, logoMap, limitSubgraph, setLimitSubgraph] =
+    useConfigStore((state) => [
+      state.chainId,
+      state.networkName,
+      state.logoMap,
+      state.limitSubgraph,
+      state.setLimitSubgraph,
+    ]);
 
   const [tokenAllowance, setTokenAllowance] = useState(undefined);
 
-  const vestStartTime = 1702314000  // Dec 11th, 2023 @ 5pm UTC
-  const vestEndTime   = 1707498000  // Feb 9th, 2024 @ 5pm UTC
+  const vestStartTime = 1702314000; // Dec 11th, 2023 @ 5pm UTC
+  const vestEndTime = 1707498000; // Feb 9th, 2024 @ 5pm UTC
 
   const [allUserBonds, setAllUserBonds] = useState([]);
   const [marketData, setMarketData] = useState([]);
@@ -65,13 +66,15 @@ export default function Bond() {
     useState(undefined);
   const [maxAmountAccepted, setMaxAmountAccepted] = useState(undefined);
   const [bondTokenBalance, setBondTokenBalance] = useState(undefined);
-  const bondTokenId = BigNumber.from('50041069287616932026042816520963973508955622977186811114648766172172485699723')
+  const bondTokenId = BigNumber.from(
+    "50041069287616932026042816520963973508955622977186811114648766172172485699723",
+  );
   const [bondProtocolConfig, setBondProtocolConfig] = useState({});
 
   useEffect(() => {
     setBondProtocolConfig(
       chainProperties[networkName]?.bondProtocol ??
-        chainProperties["arbitrum-one"]?.bondProtocol
+        chainProperties["arbitrum-one"]?.bondProtocol,
     );
   }, [networkName]);
 
@@ -83,9 +86,9 @@ export default function Bond() {
             .toString()
             .substring(
               bondProtocolConfig["tellerAddress"].toString().length - 4,
-              bondProtocolConfig["tellerAddress"].toString().length
+              bondProtocolConfig["tellerAddress"].toString().length,
             )
-      : undefined
+      : undefined,
   );
 
   const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
@@ -99,9 +102,14 @@ export default function Bond() {
   //                       (Math.floor((new Date()).getTime() / 1000) - vestStartTime) // current - start
   //                       / (vestEndTime - vestStartTime) * 100                       // divided by
   //                     ).toFixed(2)                                                  // end - start
-  const vestPercent = "100.00"
+  const vestPercent = "100.00";
 
-  console.log('bond balance', bondTokenBalance?.toString(), vestingPositionId == undefined, bondTokenBalance?.gt(BN_ZERO))
+  console.log(
+    "bond balance",
+    bondTokenBalance?.toString(),
+    vestingPositionId == undefined,
+    bondTokenBalance?.gt(BN_ZERO),
+  );
 
   const { data: vestedPosition } = useContractRead({
     address: bondProtocolConfig["vFinAddress"],
@@ -110,11 +118,11 @@ export default function Bond() {
     args: [BigInt(vestingPositionId)],
     chainId: chainId,
     watch: true,
-    enabled: bondProtocolConfig["vFinAddress"] != undefined
-              && vestingPositionId != undefined
-              && chainId == 42161,
-    onSuccess() {
-    },
+    enabled:
+      bondProtocolConfig["vFinAddress"] != undefined &&
+      vestingPositionId != undefined &&
+      chainId == 42161,
+    onSuccess() {},
     onError() {
       console.log("vestPositions error");
     },
@@ -127,11 +135,12 @@ export default function Bond() {
     args: [vestingPositionId],
     chainId: chainId,
     watch: true,
-    enabled: bondProtocolConfig["vFinAddress"] != undefined
-              && vestingPositionId != undefined
-              && chainId == 42161,
+    enabled:
+      bondProtocolConfig["vFinAddress"] != undefined &&
+      vestingPositionId != undefined &&
+      chainId == 42161,
     onSuccess() {
-      console.log('current claim:', viewClaimData?.toString())
+      console.log("current claim:", viewClaimData?.toString());
     },
     onError() {
       console.log("vestPositions error");
@@ -147,9 +156,10 @@ export default function Bond() {
   }, [vestedPosition]);
 
   useEffect(() => {
-
     if (viewClaimData != undefined) {
-      setVestedClaimAmount(parseFloat(formatUnits(viewClaimData?.toString(), 18)))
+      setVestedClaimAmount(
+        parseFloat(formatUnits(viewClaimData?.toString(), 18)),
+      );
     }
     // if (vestedPosition != undefined) {
     //   if (vestedPosition[0]?.gt(BN_ZERO)) {
@@ -161,20 +171,23 @@ export default function Bond() {
   async function getUserVesting() {
     try {
       if (isConnected && vestingPositionId == undefined) {
-        const data = await fetchUserVFinPositions(
-          limitSubgraph,
-          address,
-        );
-        const chainConstants = chainProperties[networkName] ? chainProperties[networkName]
-                                                            : chainProperties['arbitrum'];
-        setLimitSubgraph(chainConstants['limitSubgraphUrl'])
+        const data = await fetchUserVFinPositions(limitSubgraph, address);
+        const chainConstants = chainProperties[networkName]
+          ? chainProperties[networkName]
+          : chainProperties["arbitrum"];
+        setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
         if (data["data"] && data["data"]["vfinPositions"]?.length == 1) {
           setVestingPositionId(data["data"]["vfinPositions"][0].positionId);
         }
-        setNeedsVestingPosition(false)
+        setNeedsVestingPosition(false);
       }
     } catch (error) {
-      console.log("vesting position subgraph error", limitSubgraph, address, error);
+      console.log(
+        "vesting position subgraph error",
+        limitSubgraph,
+        address,
+        error,
+      );
     }
   }
 
@@ -184,7 +197,7 @@ export default function Bond() {
         const data = await fetchUserBonds(
           bondProtocolConfig["marketId"].toString(),
           address.toLowerCase(),
-          bondProtocolConfig["subgraphUrl"]
+          bondProtocolConfig["subgraphUrl"],
         );
         if (data["data"]) {
           setAllUserBonds(mapUserBondPurchases(data["data"].bondPurchases));
@@ -200,7 +213,7 @@ export default function Bond() {
       if (bondProtocolConfig["marketId"] != undefined) {
         const data = await fetchBondMarket(
           bondProtocolConfig["marketId"].toString(),
-          bondProtocolConfig["subgraphUrl"]
+          bondProtocolConfig["subgraphUrl"],
         );
         if (data["data"]) {
           setMarketData(mapBondMarkets(data["data"].markets));
@@ -268,7 +281,9 @@ export default function Bond() {
 
   useEffect(() => {
     if (currentCapacityData) {
-      setCurrentCapacity(deepConvertBigIntAndBigNumber(currentCapacityData as bigint));
+      setCurrentCapacity(
+        deepConvertBigIntAndBigNumber(currentCapacityData as bigint),
+      );
       setNeedsCapacityData(false);
     }
   }, [currentCapacityData]);
@@ -319,9 +334,8 @@ export default function Bond() {
     args: [address, deepConvertBigIntAndBigNumber(bondTokenId)],
     chainId: chainId,
     watch: true,
-    enabled: bondTokenId != undefined
-              && address != undefined
-              && chainId == 42161,
+    enabled:
+      bondTokenId != undefined && address != undefined && chainId == 42161,
     onError() {
       console.log("balanceOf error", address, bondTokenId);
     },
@@ -329,7 +343,9 @@ export default function Bond() {
 
   useEffect(() => {
     if (bondTokenBalanceData) {
-      setBondTokenBalance(deepConvertBigIntAndBigNumber(bondTokenBalanceData as bigint));
+      setBondTokenBalance(
+        deepConvertBigIntAndBigNumber(bondTokenBalanceData as bigint),
+      );
       setNeedsBondTokenData(false);
     }
   }, [bondTokenBalanceData]);
@@ -345,7 +361,7 @@ export default function Bond() {
   useEffect(() => {
     if (marketPriceData && marketScaleData && ethPrice) {
       const baseScale = BigNumber.from("10").pow(
-        BigNumber.from("36").add(18).sub(18)
+        BigNumber.from("36").add(18).sub(18),
       );
       const shift = Number(baseScale) / Number(marketScaleData);
       const price = Number(marketPriceData) * shift;
@@ -382,7 +398,11 @@ export default function Bond() {
         <div className="flex md:flex-row flex-col justify-between w-full items-start md:items-center gap-y-5">
           <div className="flex items-center gap-x-4">
             <div className="">
-              <img height="70" width="70" src="https://poolshark-token-lists.s3.amazonaws.com/images/fin_icon.png" />
+              <img
+                height="70"
+                width="70"
+                src="https://poolshark-token-lists.s3.amazonaws.com/images/fin_icon.png"
+              />
             </div>
             <div className="flex flex-col gap-y-2">
               <div className="flex text-lg items-center text-white">
@@ -486,7 +506,9 @@ export default function Bond() {
                 </span>
                 <span className="text-white text-center xl:text-4xl md:text-3xl text-2xl">
                   $
-                  {marketData[0] != undefined && ethPrice != undefined && chainId == 42161
+                  {marketData[0] != undefined &&
+                  ethPrice != undefined &&
+                  chainId == 42161
                     ? (marketData[0].totalBondedAmount * ethPrice).toFixed(2)
                     : "0"}{" "}
                   <span className="text-grey1">
@@ -530,7 +552,7 @@ export default function Bond() {
              
             </div>
             */}
-                            {/* <h1 className="uppercase text-white">VEST BOND</h1>
+            {/* <h1 className="uppercase text-white">VEST BOND</h1>
                 <p className="text-sm text-grey3 font-light mt-1">
                 Exchange your FIN bonds for an equal 60-day vest ending 02/09/2024.
                 </p>
@@ -544,41 +566,45 @@ export default function Bond() {
                 /> */}
           </div>
           <div className="flex gap-y-5 flex-col w-full lg:w-1/2 relative">
-          {vestingPositionId == undefined &&
-          <div className="bg-black/60 backdrop-blur-[4px] w-full h-full absolute z-50 px-5 flex items-center justify-center ">
-            <div className="flex w-full flex-col gap-y-8 items-start justify-center bg-dark border border-grey rounded-[4px] p-5">
-              <div className="">
-                <h1 className="uppercase text-white">{bondTokenBalance?.gt(BN_ZERO) ? "REDEEM" : "VEST"} BOND</h1>
-                <p className="text-sm text-grey3 font-light mt-1">
-                {bondTokenBalance?.gt(BN_ZERO) ? "Redeem your FIN bonds 1:1 for FIN." : "Exchange your FIN bonds for an equal 60-day vest ending 02/09/2024."}
-                </p>
+            {vestingPositionId == undefined && (
+              <div className="bg-black/60 backdrop-blur-[4px] w-full h-full absolute z-50 px-5 flex items-center justify-center ">
+                <div className="flex w-full flex-col gap-y-8 items-start justify-center bg-dark border border-grey rounded-[4px] p-5">
+                  <div className="">
+                    <h1 className="uppercase text-white">
+                      {bondTokenBalance?.gt(BN_ZERO) ? "REDEEM" : "VEST"} BOND
+                    </h1>
+                    <p className="text-sm text-grey3 font-light mt-1">
+                      {bondTokenBalance?.gt(BN_ZERO)
+                        ? "Redeem your FIN bonds 1:1 for FIN."
+                        : "Exchange your FIN bonds for an equal 60-day vest ending 02/09/2024."}
+                    </p>
+                  </div>
+                  {bondTokenBalance?.gt(BN_ZERO) ? (
+                    <RedeemBondButton
+                      tellerAddress={bondProtocolConfig["tellerAddress"]} // use teller address
+                      tokenId={bondProtocolConfig["bondTokenId"]}
+                      amount={bondTokenBalance}
+                      setNeedsBondTokenData={setNeedsBondTokenData}
+                      disabled={false}
+                    />
+                  ) : (
+                    <VestFinButton
+                      vFinAddress={bondProtocolConfig["vFinAddress"]}
+                      tellerAddress={bondProtocolConfig["tellerAddress"]} // use teller address
+                      bondTokenId={bondProtocolConfig["bondTokenId"]}
+                      needsVestingPosition={needsVestingPosition}
+                      setNeedsVestingPosition={setNeedsVestingPosition}
+                    />
+                  )}
+                </div>
               </div>
-              {
-                bondTokenBalance?.gt(BN_ZERO) ? (
-                  <RedeemBondButton
-                  tellerAddress={bondProtocolConfig['tellerAddress']} // use teller address
-                  tokenId={bondProtocolConfig['bondTokenId']}
-                  amount={bondTokenBalance}
-                  setNeedsBondTokenData={setNeedsBondTokenData}
-                  disabled={false}
-                />
-                ) : (
-                  <VestFinButton
-                    vFinAddress={bondProtocolConfig['vFinAddress']}
-                    tellerAddress={bondProtocolConfig['tellerAddress']} // use teller address
-                    bondTokenId={bondProtocolConfig['bondTokenId']}
-                    needsVestingPosition={needsVestingPosition}
-                    setNeedsVestingPosition={setNeedsVestingPosition}
-                  />
-                )
-              }
-            </div>
-          </div>}
+            )}
             <div className="border relative bg-dark border-grey rounded-[4px] w-full p-5 pb-7 h-full">
               <div className="">
                 <h1 className="uppercase text-white">CLAIM BOND</h1>
                 <p className="text-sm text-grey3 font-light mt-1">
-                  Vesting ends 02/09/2024. Users can claim vested FIN at any time.
+                  Vesting ends 02/09/2024. Users can claim vested FIN at any
+                  time.
                 </p>
               </div>
               <div className="relative">
@@ -586,7 +612,15 @@ export default function Bond() {
                   <div
                     className={`text-sm text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40`}
                   >
-                    {vestPercent}% VESTED <span className="opacity-50">({numFormat(parseFloat(vestPercent) * vestedAmount / 100, 6)} FIN)</span>
+                    {vestPercent}% VESTED{" "}
+                    <span className="opacity-50">
+                      (
+                      {numFormat(
+                        (parseFloat(vestPercent) * vestedAmount) / 100,
+                        6,
+                      )}{" "}
+                      FIN)
+                    </span>
                   </div>
                   <div
                     style={{ width: vestPercent + "%" }}
@@ -596,19 +630,34 @@ export default function Bond() {
                 <div className="flex flex-col bg-black gap-y-4 border-grey/70 border rounded-[4px] text-xs pt-5 pb-3 px-2 mt-5">
                   <div className="flex justify-between w-full text-grey1 px-3">
                     VESTED
-                    <span className="text-grey1">{parseFloat(vestPercent) * vestedAmount / 100} FIN</span>
+                    <span className="text-grey1">
+                      {(parseFloat(vestPercent) * vestedAmount) / 100} FIN
+                    </span>
                   </div>
                   <div className="flex justify-between w-full text-grey1 px-3">
                     CLAIMED
-                    <span className="text-grey1">{(parseFloat(vestPercent) * vestedAmount / 100 - vestedClaimAmount).toFixed(2)} FIN</span>
+                    <span className="text-grey1">
+                      {(
+                        (parseFloat(vestPercent) * vestedAmount) / 100 -
+                        vestedClaimAmount
+                      ).toFixed(2)}{" "}
+                      FIN
+                    </span>
                   </div>
                   <div className="w-full bg-grey h-[1px]" />
                   <div className="flex justify-between w-full text-main2 bg-main1 py-3 border border-main/30 px-3 rounded-[4px]">
-                    AVAILABLE TO CLAIM <span className="text-main2">{vestedClaimAmount.toFixed(2)} FIN</span>
+                    AVAILABLE TO CLAIM{" "}
+                    <span className="text-main2">
+                      {vestedClaimAmount.toFixed(2)} FIN
+                    </span>
                   </div>
                 </div>
                 <div className="mt-6">
-                  <ClaimFinButton claimAmount={vestedClaimAmount} vFinAddress={bondProtocolConfig['vFinAddress']} positionId={vestingPositionId} />
+                  <ClaimFinButton
+                    claimAmount={vestedClaimAmount}
+                    vFinAddress={bondProtocolConfig["vFinAddress"]}
+                    positionId={vestingPositionId}
+                  />
                 </div>
               </div>
             </div>
@@ -691,7 +740,7 @@ export default function Bond() {
                               >
                                 <td className="pl-3 py-2 text-grey1">
                                   {convertTimestampToDateFormat(
-                                    userBond.timestamp
+                                    userBond.timestamp,
                                   )}
                                 </td>
                                 <td className="">
@@ -722,7 +771,7 @@ export default function Bond() {
                             <td className="">0.94 FIN</td>*/}
                                 <td className="">
                                   {convertTimestampToDateFormat(
-                                    userBond.timestamp + marketData[0]?.vesting
+                                    userBond.timestamp + marketData[0]?.vesting,
                                   )}
                                 </td>
                                 <td className="text-grey1 text-right pr-2 md:pr-0 md:w-40">
@@ -748,7 +797,7 @@ export default function Bond() {
                                                 .substring(
                                                   userBond.id.toString()
                                                     .length - 4,
-                                                  userBond.id.toString().length
+                                                  userBond.id.toString().length,
                                                 )
                                             : undefined}
                                         </span>
@@ -809,7 +858,7 @@ export default function Bond() {
                               >
                                 <td className="pl-3 py-2 text-grey1">
                                   {convertTimestampToDateFormat(
-                                    userBond.timestamp
+                                    userBond.timestamp,
                                   )}
                                 </td>
                                 <td className="">
@@ -838,9 +887,7 @@ export default function Bond() {
                                 </td>
                                 {/*<td className="">0.9%</td>
                             <td className="">0.94 FIN</td>*/}
-                                <td className="">
-                                  {"02/09/2024"}
-                                </td>
+                                <td className="">{"02/09/2024"}</td>
                                 <td className="text-grey1 text-right pr-2 md:pr-0 md:w-40 ">
                                   <a
                                     href={
@@ -862,7 +909,7 @@ export default function Bond() {
                                               .substring(
                                                 userBond.id.toString().length -
                                                   4,
-                                                userBond.id.toString().length
+                                                userBond.id.toString().length,
                                               )
                                           : undefined}
                                       </span>

@@ -155,7 +155,7 @@ export default function MarketSwap() {
           setTokenInTradeUSDPrice,
           setTokenOutTradeUSDPrice,
           setTradePoolPrice,
-          setTradePoolLiquidity
+          setTradePoolLiquidity,
         );
       }
     }, quoteRefetchDelay);
@@ -173,7 +173,7 @@ export default function MarketSwap() {
       tradePoolData,
       setTradePoolData,
       setTokenInTradeUSDPrice,
-      setTokenOutTradeUSDPrice
+      setTokenOutTradeUSDPrice,
     );
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
@@ -254,7 +254,11 @@ export default function MarketSwap() {
 
   const handleInputBox = (e) => {
     if (e.target.name.startsWith("tokenIn")) {
-      const [value, bnValue] = inputHandler(e, tokenIn, e.target.name.endsWith("Max"));
+      const [value, bnValue] = inputHandler(
+        e,
+        tokenIn,
+        e.target.name.endsWith("Max"),
+      );
       if (!pairSelected) {
         setDisplayIn(value);
         setDisplayOut("");
@@ -273,7 +277,11 @@ export default function MarketSwap() {
       }
       setExactIn(true);
     } else if (e.target.name.startsWith("tokenOut")) {
-      const [value, bnValue] = inputHandler(e, tokenOut, e.target.name.endsWith("Max"));
+      const [value, bnValue] = inputHandler(
+        e,
+        tokenOut,
+        e.target.name.endsWith("Max"),
+      );
       if (!pairSelected) {
         setDisplayOut(value);
         setDisplayIn("");
@@ -316,7 +324,7 @@ export default function MarketSwap() {
     let poolQuotesSorted: QuoteResults[] = [];
     if (data && data[0]) {
       // format to use BigNumber
-      const poolQuotes = deepConvertBigIntAndBigNumber(data)
+      const poolQuotes = deepConvertBigIntAndBigNumber(data);
 
       if (
         poolQuotes[0].amountIn?.gt(BN_ZERO) &&
@@ -329,11 +337,11 @@ export default function MarketSwap() {
               parseFloat(
                 ethers.utils.formatUnits(
                   poolQuotes[0].amountOut.toString(),
-                  tokenOut.decimals
-                )
+                  tokenOut.decimals,
+                ),
               ),
-              5
-            )
+              5,
+            ),
           );
         } else {
           // add up amount outs
@@ -341,32 +349,34 @@ export default function MarketSwap() {
           let amountOutTotal: BigNumber = BN_ZERO;
           for (let i = 0; poolQuotes[i] != undefined; i++) {
             // copy to sorted array
-            poolQuotesSorted[i] = poolQuotes[i]
+            poolQuotesSorted[i] = poolQuotes[i];
             amountOutTotal = amountOutTotal.add(poolQuotes[i]?.amountOut);
           }
           // sort by exchange rate
           poolQuotesSorted = poolQuotesSorted.sort((n1, n2) => {
-            const exchangeRate1 = n1.amountOut.mul(Q96_BI).div(n1.amountIn)
-            const exchangeRate2 = n2.amountOut.mul(Q96_BI).div(n2.amountIn)
+            const exchangeRate1 = n1.amountOut.mul(Q96_BI).div(n1.amountIn);
+            const exchangeRate2 = n2.amountOut.mul(Q96_BI).div(n2.amountIn);
             if (exchangeRate1.lt(exchangeRate2)) {
-                return  1;
+              return 1;
             }
             if (exchangeRate1.gte(exchangeRate2)) {
-                return -1;
+              return -1;
             }
-            return  0;
+            return 0;
           });
           // then filter for low amount out
-          poolQuotesSorted = poolQuotesSorted.filter((n1) => n1.amountOut.gte(amountOut));
+          poolQuotesSorted = poolQuotesSorted.filter((n1) =>
+            n1.amountOut.gte(amountOut),
+          );
           // then sort by least amount in
           poolQuotesSorted = poolQuotesSorted.sort((n1, n2) => {
             if (n1.amountIn.gt(n2.amountIn)) {
-                return  1;
+              return 1;
             }
             if (n1.amountIn.lte(n2.amountIn)) {
-                return -1;
+              return -1;
             }
-            return  0;
+            return 0;
           });
           if (poolQuotesSorted.length > 0) {
             setAmountIn(poolQuotesSorted[0]?.amountIn ?? BN_ZERO);
@@ -375,15 +385,15 @@ export default function MarketSwap() {
                 parseFloat(
                   ethers.utils.formatUnits(
                     poolQuotesSorted[0]?.amountIn.toString(),
-                    tokenIn.decimals
-                  )
+                    tokenIn.decimals,
+                  ),
                 ),
-                5
-              )
+                5,
+              ),
             );
           } else {
-            setAmountIn(BN_ZERO)
-            setDisplayIn('')
+            setAmountIn(BN_ZERO);
+            setDisplayIn("");
           }
           if (amountOutTotal.lt(amountOut)) {
             setAmountOut(amountOutTotal);
@@ -392,11 +402,11 @@ export default function MarketSwap() {
                 parseFloat(
                   ethers.utils.formatUnits(
                     amountOutTotal.toString(),
-                    tokenOut.decimals
-                  )
+                    tokenOut.decimals,
+                  ),
                 ),
-                5
-              )
+                5,
+              ),
             );
           }
         }
@@ -433,8 +443,8 @@ export default function MarketSwap() {
           TickMath.getPriceStringAtSqrtPrice(
             poolQuotes[0].priceAfter,
             tokenIn,
-            tokenOut
-          )
+            tokenOut,
+          ),
         );
         // set price impact
         if (
@@ -444,8 +454,8 @@ export default function MarketSwap() {
             TickMath.getPriceStringAtSqrtPrice(
               tradePoolData.poolPrice,
               tokenIn,
-              tokenOut
-            )
+              tokenOut,
+            ),
           );
           let priceDiff =
             (Math.abs(basePrice - currentPrice) * 100) / currentPrice;
@@ -458,7 +468,7 @@ export default function MarketSwap() {
         const limitPriceJsbi: JSBI = TickMath.getSqrtPriceAtPriceString(
           limitPrice.toString(),
           tokenIn,
-          tokenOut
+          tokenOut,
         );
         const priceLimitBn = BigNumber.from(String(limitPriceJsbi));
         const params: SwapParams = {
@@ -521,7 +531,7 @@ export default function MarketSwap() {
       (tokenIn.userRouterAllowance?.gte(amountIn) ||
         (tokenIn.native &&
           parseUnits(tokenIn.userBalance?.toString(), tokenIn.decimals).gte(
-            amountIn
+            amountIn,
           ))) &&
       !wethCall
     ) {
@@ -592,10 +602,10 @@ export default function MarketSwap() {
                     parseFloat(
                       ethers.utils.formatUnits(
                         amountOut ?? BN_ZERO,
-                        tokenOut.decimals
-                      )
+                        tokenOut.decimals,
+                      ),
                     ),
-                    5
+                    5,
                   )
                 : "Select Token"}
             </div>
@@ -621,11 +631,11 @@ export default function MarketSwap() {
             <div className="ml-auto text-xs">
               {numFormat(
                 (parseFloat(
-                  ethers.utils.formatUnits(amountOut, tokenOut.decimals)
+                  ethers.utils.formatUnits(amountOut, tokenOut.decimals),
                 ) *
                   (100 - parseFloat(tradeSlippage))) /
                   100,
-                5
+                5,
               )}
             </div>
           </div>
@@ -701,7 +711,7 @@ export default function MarketSwap() {
           switchDirection(
             exactIn,
             exactIn ? displayIn : displayOut,
-            exactIn ? setAmountIn : setAmountOut
+            exactIn ? setAmountIn : setAmountOut,
           );
         }}
         className="flex items-center justify-center w-full pt-10 pb-3"
@@ -782,7 +792,7 @@ export default function MarketSwap() {
               pairSelected,
               tradePoolData?.poolPrice,
               tokenIn,
-              tokenOut
+              tokenOut,
             ) +
               " " +
               tokenOut.symbol}

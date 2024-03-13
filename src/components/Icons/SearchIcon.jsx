@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from "react";
 const SearchIcon = (props) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -15,5 +15,5 @@ const SearchIcon = (props) => (
       d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607z"
     />
   </svg>
-)
-export default SearchIcon
+);
+export default SearchIcon;
