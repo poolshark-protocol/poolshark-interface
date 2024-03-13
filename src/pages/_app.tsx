@@ -183,8 +183,8 @@ function MyApp({ Component, pageProps }) {
             )}
             {!isLoading ? (
               <div className="font-Jetbrains">
-                <div className="bg-main2 md:text-sm text-xs md:flex-row flex-col text-center w-full py-1.5 text-sm flex items-center justify-center">
-                  Please migrate your Range positions from the Legacy pools
+                <div className="bg-main2 px-3 md:text-sm text-xs md:flex-row flex-col text-center w-full py-1.5 text-sm flex items-center justify-center">
+                 <span>Please migrate your Range positions from the Legacy pools
                   to the Current pools.{" "}
                   <a
                     href="https://twitter.com/PoolsharkLabs/status/1758144346011140569"
@@ -194,6 +194,7 @@ function MyApp({ Component, pageProps }) {
                   >
                     Click here to read why and how to do it
                   </a>
+                  </span>
                 </div>
                 <Component {...pageProps} />
               </div>
