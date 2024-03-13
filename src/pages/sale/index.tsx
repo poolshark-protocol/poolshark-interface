@@ -21,10 +21,10 @@ export default function Sale() {
   const [isLoading, setIsLoading] = useState(true);
   const [price, setPrice] = useState("");
   const [ethReceived, setEthReceived] = useState("");
-  const [ethTotal, setEthTotal] = useState(formatUnits(getExpectedAmountOutFromInput(64620, 69720, false, parseUnits("1000000", 18)), 18));
+  const [ethTotal, setEthTotal] = useState(formatUnits(getExpectedAmountOutFromInput(saleConfig.limitLP.lower, saleConfig.limitLP.upper, false, parseUnits("1000000", 18)), 18));
   const [ethUsdPrice, setEthUsdPrice] = useState(0);
-  const startSqrtPrice = TickMath.getSqrtRatioAtTick(69720);
-  const endSqrtPrice = TickMath.getSqrtRatioAtTick(64620);
+  const startSqrtPrice = TickMath.getSqrtRatioAtTick(saleConfig.limitLP.upper);
+  const endSqrtPrice = TickMath.getSqrtRatioAtTick(saleConfig.limitLP.lower);
   const [startUsdPrice, setStartUsdPrice] = useState("0.00");
   const [endUsdPrice, setEndUsdPrice] = useState("0.00");
   const router = useRouter();
@@ -102,7 +102,7 @@ export default function Sale() {
         owner: saleConfig.ownerAddress,
         burnPercent: parseUnits("1", 38),
         positionId: saleConfig.limitPositionId,
-        claim: saleConfig.finIsToken0 ? (-69720) : 69720,
+        claim: saleConfig.finIsToken0 ? (-saleConfig.limitLP.upper) : saleConfig.limitLP.upper,
         zeroForOne: saleConfig.finIsToken0,
       }
     ],
@@ -124,7 +124,7 @@ export default function Sale() {
   useEffect(() => {
     (async () => {
       if (isNaN(parseFloat(ethReceived)) || parseFloat(startUsdPrice) == 0 || parseFloat(endUsdPrice) == 0) return
-      const liquidity = JSBI.BigInt(saleConfig.limitLiquidity)
+      const liquidity = JSBI.BigInt(saleConfig.limitLP.liquidity)
       const ethAmount = JSBI.BigInt(parseUnits(ethReceived, 18))
       const currentSqrtPrice = TickMath.getNewSqrtPrice(startSqrtPrice, liquidity, ethAmount, true, true)
       const currentPrice = parseFloat(TickMath.getPriceStringAtSqrtPrice(currentSqrtPrice, wethToken, finToken))
@@ -142,7 +142,8 @@ export default function Sale() {
 
   const handleClick = () => {
     if (chainId == saleConfig.chainId) {
-      router.push(`/?chain=${chainProperties["fin-token"]["sale"]["chainId"]}&from=${chainProperties["fin-token"]["sale"]["wethAddress"]}&to=${chainProperties["fin-token"]["sale"]["finAddress"]}`)
+      console.log('push to router')
+      router.push(`/?chain=${chainProperties["fin-token"]["sale"]["chainId"]}&from=${chainProperties["fin-token"]["sale"]["wethAddress"]}&fromSymbol=ETH&to=${chainProperties["fin-token"]["sale"]["finAddress"]}&toSymbol=FIN`)
     } else {
       setNetworkName(chainIdsToNames[saleConfig.chainId]);
     }
@@ -191,14 +192,12 @@ export default function Sale() {
           </div>
 
           <div className="flex items-center gap-x-4 w-full md:w-auto">
-            <Link href={`/?chain=${chainProperties["fin-token"]["sale"]["chainId"]}&from=${chainProperties["fin-token"]["sale"]["wethAddress"]}&to=${chainProperties["fin-token"]["sale"]["finAddress"]}`}>
             <button
               className="bg-main1 hover:opacity-80 transition-all border whitespace-nowrap w-full rounded-full text-center border-main transition-all py-2.5 px-20 text-sm uppercase cursor-pointer text-[13px] text-main2"
               onClick={() => handleClick()}
             >
               {networkName == chainIdsToNames[saleConfig.chainId] ? "BUY FIN" : "SWITCH TO " + chainProperties[saleConfig.networkName]["chainName"]}
             </button>
-            </Link>
           </div>
         </div>
         <div className=" w-full mt-8 gap-10">

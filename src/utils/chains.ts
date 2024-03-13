@@ -178,13 +178,17 @@ export const chainProperties = {
       chainId: 421614,
       networkName: "arbitrum-sepolia",
       wethAddress: "0x414b73f989e7ca0653b5c98186749a348405e6d5",
-      finAddress: "0x85972e3a58a4b03cc3c36e8a05e4ca5c16f92068",
-      explorerUrl: "https://sepolia.arbiscan.io/address/0x85972e3a58a4b03cc3c36e8a05e4ca5c16f92068",
-      poolAddress: "0xd9c7b32d38ad4b105321d3409b0f4641d80f38d7",
+      finAddress: "0xbfc8300da2cf7d487690267f5867c7fc0f8c2b20",
+      explorerUrl: "https://sepolia.arbiscan.io/address/0xbfc8300da2cf7d487690267f5867c7fc0f8c2b20",
+      poolAddress: "0x7c85696ee5bc7253d401f97a30093c851a5fbadc",
       ownerAddress: "0xBd5db4c7D55C086107f4e9D17c4c34395D1B1E1E",
       limitPositionId: 3,
       finIsToken0: false,
-      limitLiquidity: 136081951222855622138474
+      limitLP: {
+        lower: 66330,
+        upper: 71460,
+        liquidity: 124103332944179176980774,
+      },
     }
   },
   "arbitrum-sepolia": {
