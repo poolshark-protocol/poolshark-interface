@@ -60,7 +60,7 @@ function MyApp({ Component, pageProps }) {
       <Safary />
       <Toaster richColors theme="dark" />
       <WagmiConfig config={wagmiClient}>
-        <RainbowKitProvider chains={chains} initialChain={mode} theme={midnightTheme({
+        <RainbowKitProvider chains={chains} theme={midnightTheme({
           accentColor: '#0E76FD'
         })}>
           {/* <ApolloProvider client={apolloClient}> */}
