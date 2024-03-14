@@ -62,7 +62,6 @@ function MyApp({ Component, pageProps }) {
       <WagmiConfig config={wagmiClient}>
         <RainbowKitProvider
           chains={chains}
-          initialChain={mode}
           theme={midnightTheme({
             accentColor: "#0E76FD",
           })}
