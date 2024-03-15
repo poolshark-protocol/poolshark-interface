@@ -52,6 +52,8 @@ const wagmiClient = createClient({
   autoConnect: true,
 });
 
+export const saleConfig = chainProperties["fin-token"]["sale"]
+
 function MyApp({ Component, pageProps }) {
   const [isLoading, setIsLoading] = useState(true);
   const { address, isConnected } = useAccount();
