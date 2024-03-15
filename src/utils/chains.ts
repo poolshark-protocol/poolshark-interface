@@ -175,13 +175,13 @@ export const chainProperties = {
     networkName: "arbitrum-one",
     tokenAddress: "0x903ca00944d0b51e50d9f4fc96167c89f211542a",
     sale: {
-      chainId: 421614,
-      networkName: "arbitrum-sepolia",
-      wethAddress: "0x414b73f989e7ca0653b5c98186749a348405e6d5",
-      finAddress: "0xcdae9ccca886f8c02f4195722630b8afc468f0ff",
-      explorerUrl: "https://sepolia.arbiscan.io/address/0xcdae9ccca886f8c02f4195722630b8afc468f0ff",
-      poolAddress: "0xac8c5ca95e961981a651522665d9c3cbb58a2cee",
-      ownerAddress: "0xBd5db4c7D55C086107f4e9D17c4c34395D1B1E1E",
+      chainId: 34443,
+      networkName: "mode",
+      wethAddress: "0x4200000000000000000000000000000000000006",
+      finAddress: "0x4e3323f51476d8df7c675f5db982029cfc7fcfcf", //
+      explorerUrl: "https://explorer.mode.network/address/0x4e3323f51476d8df7c675f5db982029cfc7fcfcf", //
+      poolAddress: "0x48a53902e92978848f411f976943d68aba3a054d", //
+      ownerAddress: "0x5e2656F87f09503B5343480627934B07cB194a65",
       limitPositionId: 3,
       finIsToken0: false,
       limitLP: {
