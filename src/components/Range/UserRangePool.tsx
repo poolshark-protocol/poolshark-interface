@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { TickMath } from "../../utils/math/tickMath";
-import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice, getLogo } from "../../utils/tokens";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
@@ -264,11 +264,11 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
               <div className="flex items-center">
                 <img
                   className="w-[25px] h-[25px] aspect-square shrink-0"
-                  src={logoMap[rangePosition.tokenZero.id]}
+                  src={getLogo(rangePosition.tokenZero, logoMap)}
                 />
                 <img
                   className="w-[25px] h-[25px] ml-[-8px] aspect-square shrink-0"
-                  src={logoMap[rangePosition.tokenOne.id]}
+                  src={getLogo(rangePosition.tokenOne, logoMap)}
                 />
               </div>
               <span className="text-white text-xs flex items-center gap-x-1.5 whitespace-nowrap">
