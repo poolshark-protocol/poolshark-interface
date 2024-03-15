@@ -15,7 +15,7 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
 import CoverCreateAndMintButton from "../Buttons/CoverCreateAndMintButton";
-import { fetchCoverTokenUSDPrice, getLogoURI } from "../../utils/tokens";
+import { fetchCoverTokenUSDPrice, getLogo } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
 import {
   gasEstimateCoverCreateAndMint,
@@ -676,7 +676,7 @@ export default function CoverExistingPool({ goBack }) {
         <div className="flex justify-between md:justify-start gap-x-4 items-center">
           <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
             <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
-              <img className="md:w-7 w-6" src={getLogoURI(logoMap, tokenIn)} />
+              <img className="md:w-7 w-6" src={getLogo(logoMap, tokenIn)} />
               {tokenIn.symbol}
             </div>
           </button>
@@ -688,7 +688,7 @@ export default function CoverExistingPool({ goBack }) {
           />
           <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
             <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
-              <img className="md:w-7 w-6" src={getLogoURI(logoMap, tokenOut)} />
+              <img className="md:w-7 w-6" src={getLogo(logoMap, tokenOut)} />
               {tokenOut.symbol}
             </div>
           </button>

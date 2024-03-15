@@ -128,6 +128,14 @@ export const chainIdsToNames = {
   2525: "injective-evm",
 };
 
+export const chainIdsToFullNames = {
+  421614: "Arbitrum Sepolia",
+  42161: "arbitrum-one",
+  534352: "scroll",
+  34443: "mode",
+  2525: "injective-evm",
+};
+
 export const supportedChainIds = {
   421614: "arbitrumSepolia",
   42161: "arbitrum",
@@ -166,9 +174,25 @@ export const chainProperties = {
   "fin-token": {
     networkName: "arbitrum-one",
     tokenAddress: "0x903ca00944d0b51e50d9f4fc96167c89f211542a",
+    sale: {
+      chainId: 34443,
+      networkName: "mode",
+      wethAddress: "0x4200000000000000000000000000000000000006",
+      finAddress: "0x4e3323f51476d8df7c675f5db982029cfc7fcfcf", //
+      explorerUrl: "https://explorer.mode.network/address/0x4e3323f51476d8df7c675f5db982029cfc7fcfcf", //
+      poolAddress: "0x48a53902e92978848f411f976943d68aba3a054d", //
+      ownerAddress: "0x5e2656F87f09503B5343480627934B07cB194a65",
+      limitPositionId: 3,
+      finIsToken0: false,
+      limitLP: {
+        lower: 66330,
+        upper: 71460,
+        liquidity: 124103332944179176980774,
+      },
+    }
   },
   "arbitrum-sepolia": {
-    chainName: "Arbitrum Sepolia Test Network",
+    chainName: "Arbitrum Sepolia",
 		sdkSupport: {
 			alchemy: false,
 			swing: false
@@ -181,13 +205,13 @@ export const chainProperties = {
     },
     wethAddress: "0x414b73f989e7ca0653b5c98186749a348405e6d5" as `0x${string}`,
     daiAddress: "0x9f479560cd8a531e6c0fe04521cb246264fe6b71" as `0x${string}`,
-    finAddress: "0xcd453b942f35adf0364d89c05a892518825c1c3b",
+    finAddress: "0x85972e3a58a4b03cc3c36e8a05e4ca5c16f92068",
     routerAddress:
-      "0x86d7513c703767595a2b33f6379e2a7a591f3c6e" as `0x${string}`,
+      "0xa801ca07b20ef56251739d9b3197bfd02cfa20e8" as `0x${string}`,
     rangeStakerAddress:
       "0x62e0671022af1b2e705f08b282767c57d29c7c4c" as `0x${string}`,
     coverPoolFactory:
-      "0x5c032AEC3a62AEC6a337D5f2aaA94905ecCBF06B" as `0x${string}`,
+      ZERO_ADDRESS as `0x${string}`,
     coverSubgraphUrl:
       "",
     limitSubgraphUrl:

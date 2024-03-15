@@ -50,6 +50,8 @@ const wagmiClient = createConfig({
   autoConnect: true,
 });
 
+export const saleConfig = chainProperties["fin-token"]["sale"]
+
 function MyApp({ Component, pageProps }) {
   return (
     <>
