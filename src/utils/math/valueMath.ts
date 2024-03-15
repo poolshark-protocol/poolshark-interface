@@ -9,6 +9,11 @@ export const numFormat = (num, precision: number) =>
 export const numStringFormat = (numString: string, precision: number) =>
   `${1 * parseFloat(parseFloat(numString).toPrecision(precision))}`;
 
+export const formatOFin = (numString: string, fixed: number): string => {
+  if (isNaN(parseFloat(numString))) return "0.00";
+  if (parseFloat(numString) < 1) return `${1 * parseFloat(parseFloat(numString).toFixed(fixed))}`;
+  else return `${1 * parseFloat(parseFloat(numString).toFixed(2))}`;
+}
 
 export function formatUsdValue(usdValueString: string): string {
     const usdValue = parseFloat(usdValueString)
