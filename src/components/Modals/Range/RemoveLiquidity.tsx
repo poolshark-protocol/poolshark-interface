@@ -13,7 +13,7 @@ import { useAccount } from "wagmi";
 import { gasEstimateRangeBurn } from "../../../utils/gas";
 import { parseUnits } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
-import { getLogoURI, logoMapKey } from "../../../utils/tokens";
+import { getLogo, logoMapKey } from "../../../utils/tokens";
 
 export default function RangeRemoveLiquidity({
   isOpen,
@@ -293,7 +293,7 @@ export default function RangeRemoveLiquidity({
                         <img
                           height="28"
                           width="25"
-                          src={logoMap[logoMapKey(tokenIn)]}
+                          src={getLogo(tokenIn, logoMap)}
                         />
                         {tokenIn.symbol}
                       </div>
@@ -329,7 +329,7 @@ export default function RangeRemoveLiquidity({
                         <img
                           height="28"
                           width="25"
-                          src={logoMap[logoMapKey(tokenOut)]}
+                          src={getLogo(tokenOut, logoMap)}
                         />
                         {tokenOut.symbol}
                       </div>

@@ -13,6 +13,7 @@ import { getWhitelistedIndex, isWhitelistedPool } from "../../utils/config";
 import { useEffect, useState } from "react";
 import { chainProperties } from "../../utils/chains";
 import inputFilter from "../../utils/inputFilter";
+import { getLogo } from "../../utils/tokens";
 
 export default function RangePool({ rangePool, href }) {
   const [
@@ -147,11 +148,11 @@ export default function RangePool({ rangePool, href }) {
             <div className="flex items-center">
               <img
                 className="w-[25px] h-[25px]"
-                src={logoMap[rangePool.tokenZero.id]}
+                src={getLogo(rangePool.tokenZero, logoMap)}
               />
               <img
                 className="w-[25px] h-[25px] ml-[-8px]"
-                src={logoMap[rangePool.tokenOne.id]}
+                src={getLogo(rangePool.tokenOne, logoMap)}
               />
             </div>
             <span className="text-white text-xs flex items-center gap-x-1.5 whitespace-nowrap">

@@ -17,6 +17,7 @@ import {
   scroll,
   mode,
   injectiveEvm,
+  chainProperties,
 } from "../utils/chains";
 
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -49,6 +50,8 @@ const wagmiClient = createConfig({
   publicClient,
   autoConnect: true,
 });
+
+export const saleConfig = chainProperties["fin-token"]["sale"];
 
 function MyApp({ Component, pageProps }) {
   return (

@@ -9,7 +9,7 @@ import { useCoverStore } from "../../../hooks/useCoverStore";
 import { gasEstimateCoverBurn } from "../../../utils/gas";
 import { parseUnits } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
-import { getLogoURI } from "../../../utils/tokens";
+import { getLogo } from "../../../utils/tokens";
 
 export default function CoverRemoveLiquidity({
   isOpen,
@@ -256,7 +256,7 @@ export default function CoverRemoveLiquidity({
                         <img
                           height="28"
                           width="25"
-                          src={getLogoURI(logoMap, tokenIn)}
+                          src={getLogo(logoMap, tokenIn)}
                         />
                         {tokenIn.symbol}
                       </div>

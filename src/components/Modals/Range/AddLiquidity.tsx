@@ -23,11 +23,11 @@ import { gasEstimateRangeMint } from "../../../utils/gas";
 import { useRouter } from "next/router";
 import { inputHandler } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
-import { getLogoURI, logoMapKey } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 import BalanceDisplay from "../../Display/BalanceDisplay";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
+import { getLogo } from "../../../utils/tokens";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [chainId, networkName, logoMap, limitSubgraph] = useConfigStore(
@@ -568,7 +568,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                           <img
                             height="28"
                             width="25"
-                            src={logoMap[logoMapKey(tokenIn)]}
+                            src={getLogo(tokenIn, logoMap)}
                           />
                           {tokenIn.symbol}
                         </div>
@@ -624,7 +624,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                           <img
                             height="28"
                             width="25"
-                            src={logoMap[logoMapKey(tokenOut)]}
+                            src={getLogo(tokenOut, logoMap)}
                           />
                           {tokenOut.symbol}
                         </div>

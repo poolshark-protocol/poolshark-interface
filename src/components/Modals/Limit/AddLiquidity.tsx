@@ -13,7 +13,7 @@ import { gasEstimateMintLimit } from "../../../utils/gas";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { parseUnits } from "../../../utils/math/valueMath";
-import { getLogoURI, logoMapKey } from "../../../utils/tokens";
+import { getLogo, logoMapKey } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
@@ -240,7 +240,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                         <img
                           height="28"
                           width="25"
-                          src={logoMap[logoMapKey(tokenIn)]}
+                          src={getLogo(tokenIn, logoMap)}
                         />
                         {tokenIn.symbol}
                       </div>

@@ -115,7 +115,7 @@ export default function Bond() {
     address: bondProtocolConfig["vFinAddress"],
     abi: vFinABI,
     functionName: "vestPositions",
-    args: [BigInt(vestingPositionId)],
+    args: [vestingPositionId != undefined && BigInt(vestingPositionId)],
     chainId: chainId,
     watch: true,
     enabled:

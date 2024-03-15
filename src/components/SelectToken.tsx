@@ -9,7 +9,7 @@ import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
 import { useAccount, useToken } from "wagmi";
 import { useConfigStore } from "../hooks/useConfigStore";
-import { defaultTokenLogo, logoMapKey } from "../utils/tokens";
+import { defaultTokenLogo, getLogo, logoMapKey } from "../utils/tokens";
 import { isAddress } from "@ethersproject/address";
 import { deepConvertBigIntAndBigNumber } from "../utils/misc";
 
@@ -314,8 +314,8 @@ export default function SelectToken(props) {
               className="md:w-6 w-6"
               src={
                 props.type == "in"
-                  ? logoMap[logoMapKey(props.tokenIn)]
-                  : logoMap[logoMapKey(props.tokenOut)]
+                  ? getLogo(props.tokenIn, logoMap)
+                  : getLogo(props.tokenOut, logoMap)
               }
             />
           ) : (

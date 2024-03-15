@@ -2,7 +2,7 @@ import { useState, useEffect, Fragment } from "react";
 import { erc20ABI, useAccount, useContractRead, useBalance } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { chainProperties } from "../utils/chains";
-import { ZERO_ADDRESS } from "../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import { getLimitTokenUsdPrice } from "../utils/tokens";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { useTradeStore } from "../hooks/useTradeStore";

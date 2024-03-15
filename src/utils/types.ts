@@ -89,6 +89,11 @@ export type RangePool24HData = {
   feesUsd: number;
 };
 
+export type baseToken = {
+  address: `0x${string}`;
+  decimals: number;
+};
+
 export type token = tokenCover | tokenRangeLimit | tokenSwap;
 
 export type LimitSubgraph = ApolloClient<NormalizedCacheObject>;

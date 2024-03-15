@@ -12,7 +12,7 @@ import { chainIdsToNames, chainProperties } from "../../../utils/chains";
 import { gasEstimateCoverMint } from "../../../utils/gas";
 import { useCoverStore } from "../../../hooks/useCoverStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
-import { getLogoURI } from "../../../utils/tokens";
+import { getLogo } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
@@ -253,7 +253,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                         <img
                           height="28"
                           width="25"
-                          src={getLogoURI(logoMap, tokenIn)}
+                          src={getLogo(logoMap, tokenIn)}
                         />
                         {tokenIn.symbol}
                       </div>

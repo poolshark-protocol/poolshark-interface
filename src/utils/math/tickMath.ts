@@ -7,7 +7,13 @@ import { priceToString, scale } from "./priceMath";
 import { BigNumber } from "ethers";
 import { PrecisionMath } from "./precisionMath";
 import { DyDxMath } from "./dydxMath";
-import { token, tokenCover, tokenRangeLimit, tokenSwap } from "../types";
+import {
+  baseToken,
+  token,
+  tokenCover,
+  tokenRangeLimit,
+  tokenSwap,
+} from "../types";
 
 function mulShift(val: JSBI, mulBy: string): JSBI {
   return JSBI.signedRightShift(
@@ -197,8 +203,8 @@ export abstract class TickMath {
 
   public static getPriceStringAtTick(
     tick: number,
-    tokenA: token,
-    tokenB: token,
+    tokenA: baseToken,
+    tokenB: baseToken,
     tickSpacing?: number,
   ): string {
     if (isNaN(tick)) return "0.00";
@@ -247,8 +253,8 @@ export abstract class TickMath {
 
   public static getPriceStringAtSqrtPrice(
     sqrtPrice: JSBI,
-    tokenA: token,
-    tokenB: token,
+    tokenA: baseToken,
+    tokenB: baseToken,
   ): string {
     const sqrtPriceBD = JSBD.BigDecimal(sqrtPrice.toString());
     // square sqrtPrice

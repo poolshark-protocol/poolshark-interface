@@ -11,7 +11,7 @@ import { useContractRead } from "wagmi";
 import RemoveLiquidity from "../../components/Modals/Range/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Range/AddLiquidity";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { fetchRangeTokenUSDPrice, getLogoURI } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice, getLogo } from "../../utils/tokens";
 import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
@@ -438,18 +438,18 @@ export default function ViewRange() {
           <div className="flex items-center gap-x-3">
             <div className="flex items-center">
               {isLoading ? (
-                <div className="w-[50px] h-[50px] rounded-full bg-grey/60" />
+                <div className="w-[50px] h-[50px] rounded-full animate-pulse bg-grey/60" />
               ) : (
-                <img height="50" width="50" src={tokenIn.logoURI} />
+                <img height="50" width="50" src={getLogo(tokenIn, logoMap)} />
               )}
               {isLoading ? (
-                <div className="w-[50px] h-[50px] rounded-full ml-[-12px] bg-grey/60" />
+                <div className="w-[50px] h-[50px] rounded-full animate-pulse ml-[-12px] bg-grey/60" />
               ) : (
                 <img
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={tokenOut.logoURI}
+                  src={getLogo(tokenOut, logoMap)}
                 />
               )}
             </div>
@@ -562,7 +562,11 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenIn.logoURI} />
+                        <img
+                          height="25"
+                          width="25"
+                          src={getLogo(tokenIn, logoMap)}
+                        />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -592,7 +596,11 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenOut.logoURI} />
+                        <img
+                          height="25"
+                          width="25"
+                          src={getLogo(tokenOut, logoMap)}
+                        />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -723,7 +731,11 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenIn.logoURI} />
+                        <img
+                          height="25"
+                          width="25"
+                          src={getLogo(tokenIn, logoMap)}
+                        />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
@@ -753,7 +765,11 @@ export default function ViewRange() {
                       {isLoading ? (
                         <div className="w-[25px] h-[25px] aspect-square rounded-full bg-grey/60" />
                       ) : (
-                        <img height="25" width="25" src={tokenOut.logoURI} />
+                        <img
+                          height="25"
+                          width="25"
+                          src={getLogo(tokenOut, logoMap)}
+                        />
                       )}
                       {isLoading ? (
                         <div className="h-4 w-full bg-grey/60 animate-pulse rounded-[4px]" />
