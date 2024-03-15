@@ -17,6 +17,7 @@ import {
   scroll,
   mode,
   injectiveEvm,
+  chainProperties,
 } from "../utils/chains";
  
 import { SpeedInsights } from "@vercel/speed-insights/react";
