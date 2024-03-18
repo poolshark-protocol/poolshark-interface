@@ -7,7 +7,6 @@ const nextConfig = {
       protocol: 'https',
       hostname: 'poolshark-token-lists.s3.amazonaws.com',
       port: '',
-      pathname: '**',
     },
   ],
 }
