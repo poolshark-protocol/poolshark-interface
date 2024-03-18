@@ -257,13 +257,13 @@ export default function Earn() {
                     ) : (
                       <span className="text-white text-2xl md:text-3xl">
                         {block === "Block 1" &&
-                          (userSeason0Block1FIN?.whitelistedFeesUsd === 0
-                            ? (0).toFixed(2)
-                            : formatOFin(userSeason0Block1FIN.whitelistedFeesUsd.toString(), 8))}
+                          (userSeason0Block1FIN?.whitelistedFeesUsd > 0
+                            ? formatOFin(userSeason0Block1FIN.whitelistedFeesUsd.toString(), 8)
+                            : (0).toFixed(2))}
                         {block === "Block 2" &&
-                          (userSeason0Block2FIN?.whitelistedFeesUsd === 0
-                            ? (0).toFixed(2)
-                            : formatOFin(userSeason0Block2FIN.whitelistedFeesUsd.toString(), 8))}
+                          (userSeason0Block2FIN?.whitelistedFeesUsd > 0
+                            ? formatOFin(userSeason0Block2FIN.whitelistedFeesUsd.toString(), 8)
+                            : (0).toFixed(2))}
                       </span>
                     )}
                   </div>
