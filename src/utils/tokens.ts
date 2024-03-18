@@ -66,12 +66,13 @@ export const getLimitTokenUsdPrice = async (
   }
 };
 
-export const getLogoURI = (logoMap: any, token: any) => {
+export const getLogo = (token: any, logoMap: any) => {
+  // token.address = token.id ?? ZERO_ADDRESS
   return logoMap[logoMapKey(token)] ?? defaultTokenLogo
 }
 
 export const logoMapKey = (token: any) => {
-  return (token?.address?.toLowerCase() ?? ZERO_ADDRESS) + nativeString(token)
+  return ((token?.address?.toLowerCase() ?? token?.id?.toLowerCase()) ?? ZERO_ADDRESS) + nativeString(token)
 }
 
 export const nativeString = (token: any) => {

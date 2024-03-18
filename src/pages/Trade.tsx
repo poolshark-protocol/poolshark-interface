@@ -8,7 +8,7 @@ import {
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { chainProperties } from "../utils/chains";
-import { ZERO_ADDRESS } from "../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import { getLimitTokenUsdPrice } from "../utils/tokens";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { useTradeStore } from "../hooks/useTradeStore";
@@ -400,6 +400,7 @@ export default function Trade() {
     onSuccess() {
       if (tokenInData) {
         const newTokenIn = {
+          ...tokenIn,
           ...tokenInData,
           native:
             router.query.fromSymbol ==
@@ -426,6 +427,7 @@ export default function Trade() {
     onSuccess() {
       if (tokenOutData) {
         const newTokenOut = {
+          ...tokenOut,
           ...tokenOutData,
           native:
             router.query.toSymbol ==
