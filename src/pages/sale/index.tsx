@@ -105,7 +105,7 @@ export default function Sale() {
   }, [ethUsdPrice]);
 
   const { data: filledAmount } = useContractRead({
-    address: saleConfig.poolAddress,
+    address: saleConfig.poolAddress as `0x${string}`,
     abi: limitPoolABI,
     functionName: "snapshotLimit",
     args: [
