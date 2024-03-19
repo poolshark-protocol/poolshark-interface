@@ -260,7 +260,7 @@ export default function Earn() {
                         {block === "Block 2" &&
                           (userSeason0Block2FIN?.whitelistedFeesUsd === 0
                             ? (0).toFixed(2)
-                            : formatOFin(userSeason0Block1FIN.whitelistedFeesUsd.toString(), 8))}
+                            : formatOFin(userSeason0Block2FIN.whitelistedFeesUsd.toString(), 8))}
                       </span>
                     )}
                   </div>

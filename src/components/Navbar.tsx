@@ -29,7 +29,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                   width={70}
                   height={70}
                   quality="90"
-                  objectFit="contain"
+                  //objectFit="contain"
                   alt="Poolshark logo"
                 />
               </div>
