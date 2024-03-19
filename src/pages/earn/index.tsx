@@ -274,7 +274,7 @@ export default function Earn() {
                           (userSeason0Block2FIN?.whitelistedFeesUsd === 0
                             ? (0).toFixed(2)
                             : formatOFin(
-                                userSeason0Block1FIN.whitelistedFeesUsd.toString(),
+                                userSeason0Block2FIN.whitelistedFeesUsd.toString(),
                                 8,
                               ))}
                       </span>

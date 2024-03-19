@@ -1,11 +1,14 @@
 import { ToastProvider } from "rc-toastr";
-import * as ReactDOM from "react-dom";
 import "rc-toastr/dist/index.css"; // import the css file
 import MyApp from "../pages/_app";
 
+import { createRoot } from "react-dom/client";
+const container = document.getElementById("app");
+const root = createRoot(container);
+
 //review that I added this properly
 
-ReactDOM.render(
+root.render(
   <ToastProvider
     config={{
       position: "top-right",
@@ -14,5 +17,4 @@ ReactDOM.render(
   >
     <MyApp Component={undefined} pageProps={undefined} />
   </ToastProvider>,
-  document.getElementById("root"),
 );
