@@ -3,12 +3,12 @@ name: Format & Lint
 on:
   push:
     branches:
-      - 'main'
-      - 'staging'
+      - "main"
+      - "staging"
   pull_request:
     branches:
-      - 'main'
-      - 'staging'
+      - "main"
+      - "staging"
 
 jobs:
   build:

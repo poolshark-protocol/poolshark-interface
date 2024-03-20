@@ -124,8 +124,8 @@ export default function Range() {
           pools,
           networkName,
           whitelistedFeesData,
-          setWhitelistedFeesData
-        )
+          setWhitelistedFeesData,
+        ),
       );
       setIsPoolsLoading(false);
     }
@@ -161,8 +161,8 @@ export default function Range() {
             setNumLegacyPositions,
             resetNumLegacyPositions,
             setNumCurrentPositions,
-            resetNumCurrentPositions
-          )
+            resetNumCurrentPositions,
+          ),
         );
         setIsPositionsLoading(false);
       }
@@ -231,7 +231,7 @@ export default function Range() {
                     limitSubgraph,
                     undefined,
                     undefined,
-                    limitPoolTypeIds["constant-product-1.1"]
+                    limitPoolTypeIds["constant-product-1.1"],
                   );
                   router.push({
                     pathname: "/range/add-liquidity",
@@ -346,13 +346,13 @@ export default function Range() {
                   !allRangePositions.some(
                     (position) =>
                       position.poolType !=
-                      String(limitPoolTypeIds["constant-product-1.1"])
+                      String(limitPoolTypeIds["constant-product-1.1"]),
                   )) ||
                 (poolType === "Current" &&
                   !allRangePositions.some(
                     (position) =>
                       position.poolType ==
-                      String(limitPoolTypeIds["constant-product-1.1"])
+                      String(limitPoolTypeIds["constant-product-1.1"]),
                   )) ? (
                 <div className="text-grey1 text-xs  py-10 text-center">
                   <svg
@@ -409,7 +409,7 @@ export default function Range() {
                             listedtokenList.find(
                               (element) =>
                                 element.address.toLowerCase() ===
-                                searchTerm.toLowerCase()
+                                searchTerm.toLowerCase(),
                             ) != undefined ||
                             searchTerm === "")
                         ) {
@@ -556,7 +556,7 @@ export default function Range() {
                         .filter((allRangePool) =>
                           lowTVLHidden
                             ? parseFloat(allRangePool.tvlUsd) > 1.0
-                            : true
+                            : true,
                         )
                         .sort((a, b) => {
                           if (sort === "Volume") {

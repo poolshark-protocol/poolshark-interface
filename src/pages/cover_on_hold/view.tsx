@@ -101,9 +101,9 @@ export default function ViewCover() {
             .toString()
             .substring(
               tokenIn.address.toString().length - 4,
-              tokenIn.address.toString().length
+              tokenIn.address.toString().length,
             )
-      : undefined
+      : undefined,
   );
   const [tokenOneDisplay, setTokenOneDisplay] = useState(
     tokenOut.address
@@ -113,9 +113,9 @@ export default function ViewCover() {
             .toString()
             .substring(
               tokenOut.address.toString().length - 4,
-              tokenOut.address.toString().length
+              tokenOut.address.toString().length,
             )
-      : undefined
+      : undefined,
   );
 
   const [poolDisplay, setPoolDisplay] = useState(
@@ -126,9 +126,9 @@ export default function ViewCover() {
             .toString()
             .substring(
               coverPoolAddress.toString().length - 4,
-              coverPoolAddress.toString().length
+              coverPoolAddress.toString().length,
             )
-      : undefined
+      : undefined,
   );
 
   useEffect(() => {
@@ -140,9 +140,9 @@ export default function ViewCover() {
               .toString()
               .substring(
                 coverPoolAddress.toString().length - 4,
-                coverPoolAddress.toString().length
+                coverPoolAddress.toString().length,
               )
-        : undefined
+        : undefined,
     );
   }, [coverPoolAddress]);
 
@@ -185,14 +185,14 @@ export default function ViewCover() {
         fetchCoverTokenUSDPrice(
           coverPoolData,
           tokenIn,
-          setTokenInCoverUSDPrice
+          setTokenInCoverUSDPrice,
         );
       }
       if (tokenOut.address) {
         fetchCoverTokenUSDPrice(
           coverPoolData,
           tokenOut,
-          setTokenOutCoverUSDPrice
+          setTokenOutCoverUSDPrice,
         );
       }
     }
@@ -213,11 +213,11 @@ export default function ViewCover() {
                 TickMath.getPriceStringAtTick(
                   Number(coverPositionData.max),
                   tokenIn,
-                  tokenOut
-                )
+                  tokenOut,
+                ),
               )
-            ).toPrecision(6)
-          )
+            ).toPrecision(6),
+          ),
         );
         setUpperInverse(
           parseFloat(
@@ -227,11 +227,11 @@ export default function ViewCover() {
                 TickMath.getPriceStringAtTick(
                   Number(coverPositionData.min),
                   tokenIn,
-                  tokenOut
-                )
+                  tokenOut,
+                ),
               )
-            ).toPrecision(6)
-          )
+            ).toPrecision(6),
+          ),
         );
         setPriceInverse(
           parseFloat(
@@ -241,11 +241,11 @@ export default function ViewCover() {
                 TickMath.getPriceStringAtTick(
                   Number(coverPositionData.latestTick),
                   tokenIn,
-                  tokenOut
-                )
+                  tokenOut,
+                ),
               )
-            ).toPrecision(6)
-          )
+            ).toPrecision(6),
+          ),
         );
       }
     } catch (error) {
@@ -258,7 +258,7 @@ export default function ViewCover() {
   useEffect(() => {
     const chainConstants = chainProperties[networkName]
       ? chainProperties[networkName]
-      : chainProperties["arbitrum"]; 
+      : chainProperties["arbitrum"];
     setCoverSubgraph(chainConstants["coverSubgraphUrl"]);
     setTimeout(() => {
       if (
@@ -291,13 +291,13 @@ export default function ViewCover() {
         setAllCoverPositions(positionData);
         const positionId = coverPositionData.id ?? router.query.id;
         const position = positionData.find(
-          (position) => position.id == positionId
+          (position) => position.id == positionId,
         );
         setCoverPoolFromVolatility(
           tokenIn,
           tokenOut,
           position.volatilityTier.feeAmount.toString(),
-          coverSubgraph
+          coverSubgraph,
         );
         if (position != undefined) {
           setCoverPositionData({
@@ -349,7 +349,7 @@ export default function ViewCover() {
   useEffect(() => {
     if (filledAmount) {
       setCoverFilledAmount(
-        ethers.utils.formatUnits(filledAmount[3], tokenIn.decimals)
+        ethers.utils.formatUnits(filledAmount[3], tokenIn.decimals),
       );
     }
   }, [filledAmount]);
@@ -393,7 +393,7 @@ export default function ViewCover() {
       true,
       coverSubgraph,
       setCoverAddLiqDisabled,
-      latestTick
+      latestTick,
     );
     setClaimTick(aux);
   }
@@ -436,7 +436,8 @@ export default function ViewCover() {
                 </h1>
                 <a
                   href={
-                    `${chainProperties[networkName]["explorerUrl"]}` + coverPoolAddress
+                    `${chainProperties[networkName]["explorerUrl"]}` +
+                    coverPoolAddress
                   }
                   target="_blank"
                   rel="noreferrer"
@@ -455,7 +456,7 @@ export default function ViewCover() {
                   <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
                     {
                       volTierMap.get(
-                        coverPoolData.volatilityTier?.feeAmount?.toString()
+                        coverPoolData.volatilityTier?.feeAmount?.toString(),
                       )?.volatility
                     }
                     %
@@ -472,7 +473,7 @@ export default function ViewCover() {
                     TickMath.getPriceStringAtTick(
                       Number(coverPositionData.min),
                       tokenIn,
-                      tokenOut
+                      tokenOut,
                     )
                   )}
                   <DoubleArrowIcon />
@@ -486,7 +487,7 @@ export default function ViewCover() {
                     TickMath.getPriceStringAtTick(
                       Number(coverPositionData.max),
                       tokenIn,
-                      tokenOut
+                      tokenOut,
                     )
                   )}
                 </div>
@@ -535,8 +536,8 @@ export default function ViewCover() {
                         Number(
                           ethers.utils.formatUnits(
                             coverPositionData.userFillOut ?? 0,
-                            tokenOrder ? tokenIn.decimals : tokenOut.decimals
-                          )
+                            tokenOrder ? tokenIn.decimals : tokenOut.decimals,
+                          ),
                         ) * tokenIn.coverUSDPrice
                       ).toFixed(2)}
                     </span>
@@ -549,8 +550,8 @@ export default function ViewCover() {
                     Number(
                       ethers.utils.formatUnits(
                         coverPositionData.userFillOut ?? 0,
-                        tokenOrder ? tokenIn.decimals : tokenOut.decimals
-                      )
+                        tokenOrder ? tokenIn.decimals : tokenOut.decimals,
+                      ),
                     ).toFixed(2)
                   )}
                   <div className="flex items-center gap-x-2">
@@ -587,29 +588,29 @@ export default function ViewCover() {
                       TickMath.getPriceStringAtTick(
                         Number(coverPositionData.latestTick),
                         tokenIn,
-                        tokenOut
-                      )
+                        tokenOut,
+                      ),
                     ) <
                       parseFloat(
                         TickMath.getPriceStringAtTick(
                           Number(coverPositionData.min),
                           tokenIn,
-                          tokenOut
-                        )
+                          tokenOut,
+                        ),
                       ) ||
                     parseFloat(
                       TickMath.getPriceStringAtTick(
                         Number(coverPositionData.latestTick),
                         tokenIn,
-                        tokenOut
-                      )
+                        tokenOut,
+                      ),
                     ) >=
                       parseFloat(
                         TickMath.getPriceStringAtTick(
                           Number(coverPositionData.max),
                           tokenIn,
-                          tokenOut
-                        )
+                          tokenOut,
+                        ),
                       ) ? (
                       <span className="text-yellow-600 text-xs bg-yellow-900/30 px-4 py-1 rounded-[4px]">
                         OUT OF RANGE
@@ -650,7 +651,7 @@ export default function ViewCover() {
                         TickMath.getPriceStringAtTick(
                           Number(coverPositionData.min),
                           tokenIn,
-                          tokenOut
+                          tokenOut,
                         )
                       )}
                     </span>
@@ -679,7 +680,7 @@ export default function ViewCover() {
                         TickMath.getPriceStringAtTick(
                           Number(coverPositionData.max),
                           tokenIn,
-                          tokenOut
+                          tokenOut,
                         )
                       )}
                     </span>
@@ -708,7 +709,7 @@ export default function ViewCover() {
                         TickMath.getPriceStringAtTick(
                           Number(coverPositionData?.latestTick),
                           tokenIn,
-                          tokenOut
+                          tokenOut,
                         )
                       )
                     ) : (
@@ -732,8 +733,8 @@ export default function ViewCover() {
                     {Number(
                       ethers.utils.formatUnits(
                         coverPositionData.userFillIn.toString(),
-                        tokenOrder ? tokenOut.decimals : tokenIn.decimals
-                      )
+                        tokenOrder ? tokenOut.decimals : tokenIn.decimals,
+                      ),
                     ).toFixed(2)}
                   </span>
                 </span>

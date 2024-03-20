@@ -28,14 +28,10 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
     state.setMintButtonState,
   ]);
 
-  const [
-    chainId,
-    logoMap,
-    networkName
-  ] = useConfigStore((state) => [
+  const [chainId, logoMap, networkName] = useConfigStore((state) => [
     state.chainId,
     state.logoMap,
-    state.networkName
+    state.networkName,
   ]);
 
   const router = useRouter();
@@ -51,7 +47,7 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
   useEffect(() => {
     setBurnPercent(parseUnits(String(sliderValue), 36));
     setSliderOutput(
-      ((parseFloat(currentAmountOut) * sliderValue) / 100).toPrecision(6)
+      ((parseFloat(currentAmountOut) * sliderValue) / 100).toPrecision(6),
     );
   }, [currentAmountOut, sliderValue]);
 
@@ -174,11 +170,11 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
                     <span>
                       ~$
                       {!isNaN(tokenIn.USDPrice) &&
-                        !isNaN(parseFloat(sliderOutput))
-                          ? (
-                              tokenIn.USDPrice * parseFloat(sliderOutput)
-                            ).toFixed(2)
-                          : "0.00"}
+                      !isNaN(parseFloat(sliderOutput))
+                        ? (tokenIn.USDPrice * parseFloat(sliderOutput)).toFixed(
+                            2,
+                          )
+                        : "0.00"}
                     </span>
                   </div>
                   <div className="flex items-end justify-between mt-2 mb-3">
@@ -191,7 +187,11 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
                         MAX
                       </button>
                       <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                        <img height="28" width="25" src={getLogo(tokenIn, logoMap)} />
+                        <img
+                          height="28"
+                          width="25"
+                          src={getLogo(tokenIn, logoMap)}
+                        />
                         {tokenIn.symbol}
                       </div>
                     </div>

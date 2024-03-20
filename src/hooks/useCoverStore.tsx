@@ -58,7 +58,7 @@ type CoverAction = {
     tokenOut: tokenCover,
     newToken: tokenCover,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
   ) => void;
   setTokenInAmount: (amount: BigNumber) => void;
   setTokenInCoverUSDPrice: (price: number) => void;
@@ -70,7 +70,7 @@ type CoverAction = {
     tokenOut: tokenCover,
     newToken: tokenCover,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
   ) => void;
   setTokenOutAmount: (amount: BigNumber) => void;
   setTokenOutCoverUSDPrice: (price: number) => void;
@@ -104,7 +104,7 @@ type CoverAction = {
     tokenIn: tokenCover,
     tokenOut: tokenCover,
     volatility: any,
-    client: CoverSubgraph
+    client: CoverSubgraph,
   ) => void;
   setMintButtonState: () => void;
   setCoverAddLiqDisabled: (coverAddLiqDisabled: boolean) => void;
@@ -127,12 +127,19 @@ const initialCoverState: CoverState = {
   pairSelected: true,
   //
   tokenIn: {
-    callId: chainProperties[defaultNetwork]["wethAddress"].localeCompare(chainProperties[defaultNetwork]["daiAddress"]) < 0 ? 0 : 1,
+    callId:
+      chainProperties[defaultNetwork]["wethAddress"].localeCompare(
+        chainProperties[defaultNetwork]["daiAddress"],
+      ) < 0
+        ? 0
+        : 1,
     name: "Wrapped Ether",
     symbol: "WETH",
     native: false,
-    
-    logoURI: tokenListsBaseUrl + "/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+
+    logoURI:
+      tokenListsBaseUrl +
+      "/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
     address: chainProperties[defaultNetwork]["wethAddress"],
     decimals: 18,
     userBalance: 0.0,
@@ -141,12 +148,18 @@ const initialCoverState: CoverState = {
   } as tokenCover,
   //
   tokenOut: {
-    callId: chainProperties[defaultNetwork]["daiAddress"].localeCompare(chainProperties[defaultNetwork]["wethAddress"]) < 0 ? 0 : 1,
+    callId:
+      chainProperties[defaultNetwork]["daiAddress"].localeCompare(
+        chainProperties[defaultNetwork]["wethAddress"],
+      ) < 0
+        ? 0
+        : 1,
     name: "DAI",
     symbol: "DAI",
     native: false,
     logoURI:
-      tokenListsBaseUrl + "/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+      tokenListsBaseUrl +
+      "/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
     address: chainProperties[defaultNetwork]["daiAddress"],
     decimals: 18,
     userBalance: 0.0,
@@ -201,7 +214,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     tokenOut,
     newTokenIn: tokenCover,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
   ) => {
     //if tokenOut is selected
     if (tokenOut.symbol != "Select Token") {
@@ -327,7 +340,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     tokenIn,
     newTokenOut: tokenCover,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
   ) => {
     //if tokenIn exists
     if (tokenIn.symbol != "Select Token") {
@@ -366,7 +379,6 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
             ...tokenIn,
             callId:
               tokenIn.address.localeCompare(newTokenOut.address) < 0 ? 0 : 1,
-
           },
           tokenOut: {
             ...newTokenOut,
@@ -546,9 +558,9 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         tokenInAmount: parseUnits(
           formatUnits(
             state.coverMintParams.tokenInAmount,
-            state.tokenIn.decimals
+            state.tokenIn.decimals,
           ),
-          state.tokenOut.decimals
+          state.tokenOut.decimals,
         ),
       },
     }));
@@ -557,13 +569,13 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     tokenIn,
     tokenOut,
     volatility: any,
-    client: CoverSubgraph
+    client: CoverSubgraph,
   ) => {
     try {
       const pool = await getCoverPoolFromFactory(
         client,
         tokenIn.address,
-        tokenOut.address
+        tokenOut.address,
       );
       let dataLength = pool["data"]["coverPools"].length;
       let matchedVolatility = false;
@@ -608,14 +620,14 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
           state.tokenIn,
           state.coverPoolAddress,
           state.inputPoolExists,
-          state.twapReady
+          state.twapReady,
         ),
         disabled: getCoverMintButtonDisabled(
           state.coverMintParams.tokenInAmount,
           state.tokenIn,
           state.coverPoolAddress,
           state.inputPoolExists,
-          state.twapReady
+          state.twapReady,
         ),
       },
     }));

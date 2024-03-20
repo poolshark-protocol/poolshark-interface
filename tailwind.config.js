@@ -2,15 +2,15 @@
 module.exports = {
   darkMode: ["class"],
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
   ],
   prefix: "",
   theme: {
     fontFamily: {
-      'Jetbrains': ['"JetBrains Mono"', 'monospace'],
+      Jetbrains: ['"JetBrains Mono"', "monospace"],
     },
     container: {
       center: true,
@@ -27,7 +27,7 @@ module.exports = {
         background: "#06172D",
         grey: "#2C2E33",
         grey1: "#646364",
-        grey2: '#494949',
+        grey2: "#494949",
         grey3: "#5F5F5F",
         dark: "#0C0C0C",
         border: "hsl(var(--border))",
@@ -81,4 +81,4 @@ module.exports = {
     },
   },
   plugins: [require("tailwindcss-animate")],
-}
+};

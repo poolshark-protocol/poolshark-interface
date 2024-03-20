@@ -2,32 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap");
 
 @layer base {
   @font-face {
-    font-family: 'JetBrains Mono';
+    font-family: "JetBrains Mono";
     font-style: normal;
     font-weight: 400;
     font-display: swap;
-    src: url(https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbV2o-flEEny0FZhsfKu5WU4xD7OwGtT0rU.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    src: url(https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbV2o-flEEny0FZhsfKu5WU4xD7OwGtT0rU.woff2)
+      format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+      U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122,
+      U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
   }
   @font-face {
-    font-family: 'JetBrains Mono';
+    font-family: "JetBrains Mono";
     font-style: normal;
     font-weight: 500;
     font-display: swap;
-    src: url(https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbV2o-flEEny0FZhsfKu5WU4xD7OwGtT0rU.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    src: url(https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbV2o-flEEny0FZhsfKu5WU4xD7OwGtT0rU.woff2)
+      format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+      U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122,
+      U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
   }
   @font-face {
-    font-family: 'JetBrains Mono';
+    font-family: "JetBrains Mono";
     font-style: normal;
     font-weight: 300;
     font-display: swap;
-    src: url(https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbV2o-flEEny0FZhsfKu5WU4xD7OwGtT0rU.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    src: url(https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbV2o-flEEny0FZhsfKu5WU4xD7OwGtT0rU.woff2)
+      format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+      U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122,
+      U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
   }
 }
 
@@ -46,7 +55,7 @@ a {
 
 * {
   box-sizing: border-box;
-  font-family: 'JetBrains Mono';
+  font-family: "JetBrains Mono";
 }
 
 .center {
@@ -57,7 +66,7 @@ a {
 }
 
 .front {
-  z-index: 20
+  z-index: 20;
 }
 
 .fade-out {
@@ -73,24 +82,24 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type=number] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
-
 
 /* CUSTOM RAINBOW */
 [data-rk] .ju367vh0 {
   color: #646464 !important;
-  font-weight: 400 !important
+  font-weight: 400 !important;
 }
 [data-rk] .ju367vdr {
-  border-color: #313131 !important
+  border-color: #313131 !important;
 }
-[data-rk] .ju367v6d, [data-rk] .ju367vb0{
+[data-rk] .ju367v6d,
+[data-rk] .ju367vb0 {
   background: black !important;
 }
-[data-rk] .ju367vdl  {
-  border-color: #313131 !important
+[data-rk] .ju367vdl {
+  border-color: #313131 !important;
 }
 [data-rk] .ju367v8q {
   background: rgba(0, 0, 0, 0.5) !important;
@@ -98,24 +107,24 @@ input[type=number] {
 
 [data-rk] .ju367vgu {
   color: white !important;
-  font-weight: 500 !important
+  font-weight: 500 !important;
 }
 
-.iekbcc0{
-  font-family: 'JetBrains Mono', monospace;
+.iekbcc0 {
+  font-family: "JetBrains Mono", monospace;
 }
 
 [data-rk] .ju367vf9 {
   color: white !important;
 }
-[data-rk] .ju367v8y svg{
+[data-rk] .ju367v8y svg {
   width: 14px !important;
-  height: 14px !important
+  height: 14px !important;
 }
 
 [data-rk] .ju367vbf {
-  background: #0C0C0C !important;
-  border: 1px solid #1C1C1C !important
+  background: #0c0c0c !important;
+  border: 1px solid #1c1c1c !important;
 }
 
 /* width */
@@ -126,14 +135,14 @@ input[type=number] {
 
 /* Track */
 .scrollbar::-webkit-scrollbar-track {
-  background: #0C0C0C;
-  border: 1px solid #FFFFFF1A;
+  background: #0c0c0c;
+  border: 1px solid #ffffff1a;
   border-radius: 100px;
 }
 
 /* Handle */
 .scrollbar::-webkit-scrollbar-thumb {
-  background: #FFFFFF66;
+  background: #ffffff66;
   border-radius: 100px;
 }
 
@@ -141,8 +150,6 @@ input[type=number] {
 .scrollbar::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
-
-
 
 .terms::-webkit-scrollbar {
   width: 6px;

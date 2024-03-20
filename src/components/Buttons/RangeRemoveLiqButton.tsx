@@ -26,12 +26,9 @@ export default function RangeRemoveLiqButton({
   staked,
   disabled,
 }) {
-  const [
-    chainId,
-    networkName
-  ] = useConfigStore((state) => [
+  const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
   ]);
 
   const [
@@ -52,18 +49,15 @@ export default function RangeRemoveLiqButton({
     address: poolAddress,
     abi: rangePoolABI,
     functionName: "burnRange",
-    enabled: positionId != undefined 
-              && staked != undefined 
-              && !staked 
-              && poolAddress != ZERO_ADDRESS,
-    args:[deepConvertBigIntAndBigNumber([
-        address,
-        positionId,
-        burnPercent
-      ])],
+    enabled:
+      positionId != undefined &&
+      staked != undefined &&
+      !staked &&
+      poolAddress != ZERO_ADDRESS,
+    args: [deepConvertBigIntAndBigNumber([address, positionId, burnPercent])],
     chainId: chainId,
     onError(err) {
-      console.log('compound error')
+      console.log("compound error");
     },
   });
 
@@ -76,33 +70,39 @@ export default function RangeRemoveLiqButton({
       deepConvertBigIntAndBigNumber({
         to: address,
         positionId: positionId,
-        burnPercent: burnPercent
-      })
+        burnPercent: burnPercent,
+      }),
     ],
     chainId: chainId,
-    enabled: positionId != undefined 
-              && staked != undefined
-              && staked
-              && poolAddress != ZERO_ADDRESS,
+    enabled:
+      positionId != undefined &&
+      staked != undefined &&
+      staked &&
+      poolAddress != ZERO_ADDRESS,
     onError(err) {
-        console.log('compound stake errored')
+      console.log("compound stake errored");
     },
   });
 
-  const { data: burnData, write: burnWrite } = useContractWrite(burnConfig)
-  const { data: burnStakeData, write: burnStakeWrite } = useContractWrite(burnStakeConfig)
+  const { data: burnData, write: burnWrite } = useContractWrite(burnConfig);
+  const { data: burnStakeData, write: burnStakeWrite } =
+    useContractWrite(burnStakeConfig);
 
-  const data = !staked ? burnData : burnStakeData
-  const write = !staked ? burnWrite : burnStakeWrite
+  const data = !staked ? burnData : burnStakeData;
+  const write = !staked ? burnWrite : burnStakeWrite;
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      toast.success("Your transaction was successful",{
+      toast.success("Your transaction was successful", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank",
+            ),
         },
       });
       setNeedsBalanceIn(true);
@@ -114,25 +114,36 @@ export default function RangeRemoveLiqButton({
       }, 2000);
     },
     onError() {
-      toast.error("Your transaction failed",{
+      toast.error("Your transaction failed", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank",
+            ),
         },
       });
     },
   });
 
   useEffect(() => {
-    if(isLoading) {
-      const newToastId = toast.loading("Your transaction is being confirmed...",{
-        action: {
-          label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+    if (isLoading) {
+      const newToastId = toast.loading(
+        "Your transaction is being confirmed...",
+        {
+          action: {
+            label: "View",
+            onClick: () =>
+              window.open(
+                `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+                "_blank",
+              ),
+          },
         },
-      });
-      newToastId
+      );
+      newToastId;
       setToastId(newToastId);
     }
   }, [isLoading]);
@@ -146,7 +157,7 @@ export default function RangeRemoveLiqButton({
           address ? write?.() : null;
         }}
       >
-        {gasLimit.lte(BN_ZERO) ? <Loader/> : "Remove liquidity"}
+        {gasLimit.lte(BN_ZERO) ? <Loader /> : "Remove liquidity"}
       </button>
     </>
   );

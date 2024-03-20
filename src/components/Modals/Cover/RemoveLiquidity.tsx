@@ -37,11 +37,7 @@ export default function CoverRemoveLiquidity({
     state.setMintButtonState,
   ]);
 
-  const [
-    logoMap,
-  ] = useConfigStore((state) => [
-    state.logoMap,
-  ]);
+  const [logoMap] = useConfigStore((state) => [state.logoMap]);
 
   const router = useRouter();
 
@@ -60,12 +56,12 @@ export default function CoverRemoveLiquidity({
         (parseFloat(
           ethers.utils.formatUnits(
             BigNumber.from(coverPositionData.userFillOut) ?? BN_ZERO,
-            tokenIn.decimals
-          )
+            tokenIn.decimals,
+          ),
         ) *
           sliderValue) /
         100
-      ).toPrecision(6)
+      ).toPrecision(6),
     );
   }, [sliderValue, coverPositionData.userFillOut]);
 
@@ -147,7 +143,7 @@ export default function CoverRemoveLiquidity({
       burnPercent,
       BigNumber.from(claimTick),
       coverPositionData.zeroForOne,
-      signer
+      signer,
     );
     setBurnGasFee(newBurnGasFee.formattedPrice);
     setBurnGasLimit(newBurnGasFee.gasUnits.mul(250).div(100));
@@ -257,7 +253,11 @@ export default function CoverRemoveLiquidity({
                         MAX
                       </button>
                       <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                        <img height="28" width="25" src={getLogo(logoMap, tokenIn)} />
+                        <img
+                          height="28"
+                          width="25"
+                          src={getLogo(logoMap, tokenIn)}
+                        />
                         {tokenIn.symbol}
                       </div>
                     </div>

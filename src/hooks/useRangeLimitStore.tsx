@@ -22,7 +22,11 @@ import {
   chainProperties,
   defaultNetwork,
 } from "../utils/chains";
-import { getUserAllowance, getUserBalance, tokenListsBaseUrl } from "../utils/tokens";
+import {
+  getUserAllowance,
+  getUserBalance,
+  tokenListsBaseUrl,
+} from "../utils/tokens";
 import { getWhitelistedIndex, isWhitelistedPool } from "../utils/config";
 
 type RangeLimitState = {
@@ -111,7 +115,7 @@ type RangeLimitAction = {
     tokenOut: any,
     newToken: any,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
   ) => void;
   setTokenInAmount: (amount: BigNumber) => void;
   setTokenInRangeUSDPrice: (price: number) => void;
@@ -122,7 +126,7 @@ type RangeLimitAction = {
     tokenIn: any,
     newToken: any,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
   ) => void;
   setTokenOutAmount: (amount: BigNumber) => void;
   setTokenOutRangeUSDPrice: (price: number) => void;
@@ -147,14 +151,14 @@ type RangeLimitAction = {
     client: LimitSubgraph,
     poolPrice?: any,
     tickAtPrice?: any,
-    poolTypeId?: any
+    poolTypeId?: any,
   ) => void;
   setLimitPoolFromVolatility: (
     tokenIn: any,
     tokenOut: any,
     volatility: any,
     client: LimitSubgraph,
-    poolTypeId?: number
+    poolTypeId?: number,
   ) => void;
   resetRangeLimitParams: (chainId) => void;
   resetMintParams: () => void;
@@ -185,7 +189,7 @@ type RangeLimitAction = {
   setManualRange: (manualRange: boolean) => void;
   setWhitelistedFeesData: (
     whitelistedFeesData: number[],
-    whitelistedFeesTotal: number
+    whitelistedFeesTotal: number,
   ) => void;
   resetWhitelistedFeesData: () => void;
   setPoolApy: (poolAddress: string, apy: number) => void;
@@ -228,7 +232,7 @@ const initialRangeLimitState: RangeLimitState = {
   tokenIn: {
     callId:
       chainProperties[defaultNetwork]["wethAddress"].localeCompare(
-        chainProperties[defaultNetwork]["daiAddress"]
+        chainProperties[defaultNetwork]["daiAddress"],
       ) < 0
         ? 0
         : 1,
@@ -237,7 +241,8 @@ const initialRangeLimitState: RangeLimitState = {
     native: false,
 
     logoURI:
-      tokenListsBaseUrl + "/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+      tokenListsBaseUrl +
+      "/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
     address: ZERO_ADDRESS,
     decimals: 18,
     userBalance: 0.0,
@@ -248,7 +253,7 @@ const initialRangeLimitState: RangeLimitState = {
   tokenOut: {
     callId:
       chainProperties[defaultNetwork]["daiAddress"].localeCompare(
-        chainProperties[defaultNetwork]["wethAddress"]
+        chainProperties[defaultNetwork]["wethAddress"],
       ) < 0
         ? 0
         : 1,
@@ -256,7 +261,8 @@ const initialRangeLimitState: RangeLimitState = {
     symbol: "DAI",
     native: false,
     logoURI:
-      tokenListsBaseUrl + "/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
+      tokenListsBaseUrl +
+      "/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
     address: ZERO_ADDRESS,
     decimals: 18,
     userBalance: 0.0,
@@ -350,7 +356,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       tokenOut,
       newTokenIn: tokenRangeLimit,
       amount: string,
-      isAmountIn: boolean
+      isAmountIn: boolean,
     ) => {
       //if tokenOut is selected
       if (tokenOut?.symbol != "Select Token") {
@@ -506,7 +512,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       tokenIn,
       newTokenOut: tokenRangeLimit,
       amount: string,
-      isAmountIn: boolean
+      isAmountIn: boolean,
     ) => {
       //if tokenIn exists
       if (
@@ -578,7 +584,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               userBalance: getUserBalance(newTokenOut, state.tokenOut),
               userRouterAllowance: getUserAllowance(
                 newTokenOut,
-                state.tokenOut
+                state.tokenOut,
               ),
             },
             rangeMintParams: {
@@ -740,7 +746,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
             state.tokenIn,
             state.tokenOut,
             state.rangePoolAddress,
-            state.startPrice
+            state.startPrice,
           ),
           disabled: getRangeMintButtonDisabled(
             state.rangeMintParams.tokenInAmount,
@@ -749,7 +755,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
             state.tokenIn,
             state.tokenOut,
             state.rangePoolAddress,
-            state.startPrice
+            state.startPrice,
           ),
         },
       }));
@@ -825,13 +831,13 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       client: LimitSubgraph,
       poolPrice?: any,
       tickAtPrice?: any,
-      poolTypeId?: any
+      poolTypeId?: any,
     ) => {
       try {
         const pool = await getRangePoolFromFactory(
           client,
           tokenIn.address,
-          tokenOut.address
+          tokenOut.address,
         );
         const dataLength = pool["data"]["limitPools"].length;
         let poolFound = false;
@@ -872,13 +878,13 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       tokenOut,
       volatility: any,
       client: LimitSubgraph,
-      poolTypeId?: number
+      poolTypeId?: number,
     ) => {
       try {
         const pool = await getLimitPoolFromFactory(
           client,
           tokenIn.address,
-          tokenOut.address
+          tokenOut.address,
         );
         const dataLength = pool["data"]["limitPools"].length;
         for (let i = 0; i < dataLength; i++) {
@@ -950,7 +956,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     },
     setWhitelistedFeesData: (
       whitelistedFeesData: number[],
-      whitelistedFeesTotal: number
+      whitelistedFeesTotal: number,
     ) => {
       if (whitelistedFeesData) {
         set(() => ({
@@ -1045,5 +1051,5 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         rangePoolData: initialRangeLimitState.rangePoolData,
       }));
     },
-  })
+  }),
 );

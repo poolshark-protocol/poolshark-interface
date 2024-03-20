@@ -2,10 +2,7 @@ import { Fragment, useEffect, useState } from "react";
 import { Transition, Dialog } from "@headlessui/react";
 import RangeMintButton from "../Buttons/RangeMintButton";
 import { BigNumber, ethers } from "ethers";
-import {
-  erc20ABI,
-  useAccount,
-} from "wagmi";
+import { erc20ABI, useAccount } from "wagmi";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButton";
 import { useRouter } from "next/router";
@@ -27,12 +24,14 @@ import { getRouterAddress } from "../../utils/config";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 
 export default function RangePoolPreview() {
-  const [chainId, logoMap, networkName, limitSubgraph] = useConfigStore((state) => [
-    state.chainId,
-    state.logoMap,
-    state.networkName,
-    state.limitSubgraph,
-  ]);
+  const [chainId, logoMap, networkName, limitSubgraph] = useConfigStore(
+    (state) => [
+      state.chainId,
+      state.logoMap,
+      state.networkName,
+      state.limitSubgraph,
+    ],
+  );
 
   const [
     rangePoolAddress,
@@ -59,7 +58,7 @@ export default function RangePoolPreview() {
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState();
   const [tokenOrder, setTokenOrder] = useState(
-    tokenIn.address.localeCompare(tokenOut.address) < 0
+    tokenIn.address.localeCompare(tokenOut.address) < 0,
   );
   const router = useRouter();
   const { address } = useAccount();
@@ -111,16 +110,16 @@ export default function RangePoolPreview() {
                 rangePositionData.lowerPrice,
                 tokenIn,
                 tokenOut,
-                parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
-              )
+                parseInt(rangePoolData.feeTier?.tickSpacing ?? 20),
+              ),
             ),
             BigNumber.from(
               TickMath.getTickAtPriceString(
                 rangePositionData.upperPrice,
                 tokenIn,
                 tokenOut,
-                parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
-              )
+                parseInt(rangePoolData.feeTier?.tickSpacing ?? 20),
+              ),
             ),
             tokenIn,
             tokenOut,
@@ -140,16 +139,16 @@ export default function RangePoolPreview() {
                 rangePositionData.lowerPrice,
                 tokenIn,
                 tokenOut,
-                parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
-              )
+                parseInt(rangePoolData.feeTier?.tickSpacing ?? 20),
+              ),
             ),
             BigNumber.from(
               TickMath.getTickAtPriceString(
                 rangePositionData.upperPrice,
                 tokenIn,
                 tokenOut,
-                parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
-              )
+                parseInt(rangePoolData.feeTier?.tickSpacing ?? 20),
+              ),
             ),
             // pool price set using start price input box
             BigNumber.from(String(rangePoolData?.poolPrice ?? "0")),
@@ -160,7 +159,7 @@ export default function RangePoolPreview() {
             signer,
             rangeMintParams.stakeFlag,
             networkName,
-            limitSubgraph
+            limitSubgraph,
           );
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
@@ -201,7 +200,10 @@ export default function RangePoolPreview() {
                         </div>
                         <div className="flex flex-col md:flex-row items-center gap-x-5 gap-y-3 mt-3 w-full">
                           <button className="flex w-full items-center gap-x-3 bg-dark border border-grey px-4 py-1.5 rounded-[4px]">
-                            <img className="w-7" src={getLogo(tokenIn, logoMap)} />
+                            <img
+                              className="w-7"
+                              src={getLogo(tokenIn, logoMap)}
+                            />
                             {tokenIn.symbol}
                           </button>
                           <button className="flex w-full items-center gap-x-3 bg-dark border border-grey px-4 py-1.5 rounded-[4px]">
@@ -242,8 +244,8 @@ export default function RangePoolPreview() {
                                 {parseFloat(
                                   ethers.utils.formatUnits(
                                     rangeMintParams.tokenInAmount,
-                                    tokenIn.decimals
-                                  )
+                                    tokenIn.decimals,
+                                  ),
                                 ).toPrecision(6)}
                               </div>
                               <div className="flex">
@@ -255,8 +257,8 @@ export default function RangePoolPreview() {
                                         Number(
                                           ethers.utils.formatUnits(
                                             rangeMintParams.tokenInAmount,
-                                            tokenIn.decimals
-                                          )
+                                            tokenIn.decimals,
+                                          ),
                                         )
                                       ).toFixed(2)
                                     : "?.??"}
@@ -290,8 +292,8 @@ export default function RangePoolPreview() {
                                 {parseFloat(
                                   ethers.utils.formatUnits(
                                     rangeMintParams.tokenOutAmount,
-                                    tokenOut.decimals
-                                  )
+                                    tokenOut.decimals,
+                                  ),
                                 ).toPrecision(6)}
                               </div>
                               <div className="flex">
@@ -303,8 +305,8 @@ export default function RangePoolPreview() {
                                         Number(
                                           ethers.utils.formatUnits(
                                             rangeMintParams.tokenOutAmount,
-                                            tokenOut.decimals
-                                          )
+                                            tokenOut.decimals,
+                                          ),
                                         )
                                       ).toFixed(2)
                                     : "?.??"}
@@ -351,7 +353,7 @@ export default function RangePoolPreview() {
                                   priceOrder
                                     ? rangePositionData.lowerPrice
                                     : rangePositionData.upperPrice,
-                                  priceOrder
+                                  priceOrder,
                                 )}
                               </span>
                             </div>
@@ -370,7 +372,7 @@ export default function RangePoolPreview() {
                                   priceOrder
                                     ? rangePositionData.upperPrice
                                     : rangePositionData.lowerPrice,
-                                  priceOrder
+                                  priceOrder,
                                 )}
                               </span>
                             </div>
@@ -383,47 +385,39 @@ export default function RangePoolPreview() {
                       </div>
                       <div className="mt-4">
                         {tokenIn.userRouterAllowance?.lt(
-                          rangeMintParams.tokenInAmount
+                          rangeMintParams.tokenInAmount,
                         ) &&
                         tokenOut.userRouterAllowance?.lt(
-                          rangeMintParams.tokenOutAmount
+                          rangeMintParams.tokenOutAmount,
                         ) &&
                         !tokenIn.native &&
                         !tokenOut.native ? (
                           <RangeMintDoubleApproveButton
-                            routerAddress={
-                              getRouterAddress(networkName)
-                            }
+                            routerAddress={getRouterAddress(networkName)}
                             tokenIn={tokenIn}
                             tokenOut={tokenOut}
                             amount0={rangeMintParams.tokenInAmount}
                             amount1={rangeMintParams.tokenOutAmount}
                           />
                         ) : tokenIn.userRouterAllowance?.lt(
-                            rangeMintParams.tokenInAmount
+                            rangeMintParams.tokenInAmount,
                           ) && !tokenIn.native ? (
                           <RangeMintApproveButton
-                            routerAddress={
-                              getRouterAddress(networkName)
-                            }
+                            routerAddress={getRouterAddress(networkName)}
                             approveToken={tokenIn}
                             amount={rangeMintParams.tokenInAmount}
                           />
                         ) : tokenOut.userRouterAllowance?.lt(
-                            rangeMintParams.tokenOutAmount
+                            rangeMintParams.tokenOutAmount,
                           ) && !tokenOut.native ? (
                           <RangeMintApproveButton
-                            routerAddress={
-                              getRouterAddress(networkName)
-                            }
+                            routerAddress={getRouterAddress(networkName)}
                             approveToken={tokenOut}
                             amount={rangeMintParams.tokenOutAmount}
                           />
                         ) : rangePoolAddress != ZERO_ADDRESS ? (
                           <RangeMintButton
-                            routerAddress={
-                              getRouterAddress(networkName)
-                            }
+                            routerAddress={getRouterAddress(networkName)}
                             to={address}
                             poolAddress={rangePoolAddress}
                             lower={
@@ -436,9 +430,9 @@ export default function RangePoolPreview() {
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
-                                          : 30
-                                      )
-                                    )
+                                          : 30,
+                                      ),
+                                    ),
                                   )
                                 : BN_ZERO
                             }
@@ -452,9 +446,9 @@ export default function RangePoolPreview() {
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
-                                          : 30
-                                      )
-                                    )
+                                          : 30,
+                                      ),
+                                    ),
                                   )
                                 : BN_ZERO
                             }
@@ -481,14 +475,14 @@ export default function RangePoolPreview() {
                           />
                         ) : (
                           <RangeCreateAndMintButton
-                            routerAddress={
-                              getRouterAddress(networkName)
+                            routerAddress={getRouterAddress(networkName)}
+                            poolTypeId={
+                              limitPoolTypeIds["constant-product-1.1"]
                             }
-                            poolTypeId={limitPoolTypeIds["constant-product-1.1"]}
                             token0={tokenIn}
                             token1={tokenOut}
                             startPrice={BigNumber.from(
-                              rangePoolData?.poolPrice ?? "0"
+                              rangePoolData?.poolPrice ?? "0",
                             )}
                             feeTier={rangePoolData.feeTier?.feeAmount ?? 3000}
                             to={address}
@@ -502,9 +496,9 @@ export default function RangePoolPreview() {
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
-                                          : 30
-                                      )
-                                    )
+                                          : 30,
+                                      ),
+                                    ),
                                   )
                                 : BN_ZERO
                             }
@@ -518,9 +512,9 @@ export default function RangePoolPreview() {
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
-                                          : 30
-                                      )
-                                    )
+                                          : 30,
+                                      ),
+                                    ),
                                   )
                                 : BN_ZERO
                             }

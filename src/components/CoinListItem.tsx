@@ -4,7 +4,7 @@ import { getTokenBalance } from "../utils/config";
 
 function CoinListItem({ chooseToken, coin }) {
   const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(
-    coin?.native ? undefined : coin?.address
+    coin?.native ? undefined : coin?.address,
   );
 
   const [chainId] = useConfigStore((state) => [state.chainId]);
@@ -30,9 +30,7 @@ function CoinListItem({ chooseToken, coin }) {
             <span className="text-[11px] text-grey2">{coin.symbol}</span>
           </div>
         </div>
-        <span>
-          {getTokenBalance(chainId, coin, tokenBalanceInfo)}
-        </span>
+        <span>{getTokenBalance(chainId, coin, tokenBalanceInfo)}</span>
       </button>
     </div>
   );

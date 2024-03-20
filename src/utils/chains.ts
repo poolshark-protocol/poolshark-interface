@@ -1,5 +1,5 @@
 import { ZERO_ADDRESS } from "./math/constants";
-import { type Chain } from 'viem'
+import { type Chain } from "viem";
 import { Network } from "alchemy-sdk";
 
 export const scroll: Chain = {
@@ -26,9 +26,9 @@ export const scroll: Chain = {
   blockExplorers: {
     default: {
       name: "Scrollscan",
-      url: "https://scrollscan.com/"
-    }
-  }
+      url: "https://scrollscan.com/",
+    },
+  },
 };
 
 export const mode: Chain = {
@@ -42,22 +42,18 @@ export const mode: Chain = {
   },
   rpcUrls: {
     default: {
-      http: [
-        "https://mainnet.mode.network",
-      ],
+      http: ["https://mainnet.mode.network"],
     },
     public: {
-      http: [
-        "https://mainnet.mode.network",
-      ],
+      http: ["https://mainnet.mode.network"],
     },
   },
   blockExplorers: {
     default: {
       name: "Mode Explorer",
-      url: "https://explorer.mode.network/"
-    }
-  }
+      url: "https://explorer.mode.network/",
+    },
+  },
 };
 
 export const injectiveEvm: Chain = {
@@ -71,22 +67,18 @@ export const injectiveEvm: Chain = {
   },
   rpcUrls: {
     default: {
-      http: [
-        "https://inevm.calderachain.xyz/http",
-      ],
+      http: ["https://inevm.calderachain.xyz/http"],
     },
     public: {
-      http: [
-        "https://inevm.calderachain.xyz/http",
-      ],
+      http: ["https://inevm.calderachain.xyz/http"],
     },
   },
   blockExplorers: {
     default: {
       name: "inEVM Caldera Explorer",
-      url: "https://inevm.calderaexplorer.xyz/"
-    }
-  }
+      url: "https://inevm.calderaexplorer.xyz/",
+    },
+  },
 };
 
 export const arbitrumSepolia: Chain = {
@@ -113,9 +105,9 @@ export const arbitrumSepolia: Chain = {
   blockExplorers: {
     default: {
       name: "Sepolia Arbiscan",
-      url: "https://sepolia.arbiscan.io/"
-    }
-  }
+      url: "https://sepolia.arbiscan.io/",
+    },
+  },
 };
 
 export const defaultNetwork = "arbitrum-one";
@@ -149,7 +141,7 @@ export const supportedNetworkNames = {
   arbitrum: "arbitrum-one",
   scroll: "scroll",
   mode: "mode",
-  ["injective-evm"]: "injective-evm"
+  ["injective-evm"]: "injective-evm",
 };
 
 export const chainIdToRpc = {
@@ -159,16 +151,14 @@ export const chainIdToRpc = {
     "https://arbitrum-sepolia.core.chainstack.com/a0fd1794b40136e3d035e89ecbeca764",
   534352:
     "https://chaotic-cosmopolitan-replica.scroll-mainnet.quiknode.pro/8ef882241d10f392fcbb1b1b051cd8cda1eaacf9/",
-  34443:
-    "https://mainnet.mode.network",
-  2525:
-    "https://inevm.calderachain.xyz/http",
+  34443: "https://mainnet.mode.network",
+  2525: "https://inevm.calderachain.xyz/http",
 };
 
 export const alchemyNetworks = {
-	42161: Network.ARB_MAINNET,
-	421614: Network.ARB_SEPOLIA,
-}
+  42161: Network.ARB_MAINNET,
+  421614: Network.ARB_SEPOLIA,
+};
 
 export const chainProperties = {
   "fin-token": {
@@ -179,7 +169,8 @@ export const chainProperties = {
       networkName: "mode",
       wethAddress: "0x4200000000000000000000000000000000000006",
       finAddress: "0x4e3323f51476d8df7c675f5db982029cfc7fcfcf", //
-      explorerUrl: "https://explorer.mode.network/address/0x4e3323f51476d8df7c675f5db982029cfc7fcfcf", //
+      explorerUrl:
+        "https://explorer.mode.network/address/0x4e3323f51476d8df7c675f5db982029cfc7fcfcf", //
       poolAddress: "0x48a53902e92978848f411f976943d68aba3a054d", //
       ownerAddress: "0x5e2656F87f09503B5343480627934B07cB194a65",
       limitPositionId: 3,
@@ -189,13 +180,13 @@ export const chainProperties = {
         upper: 71460,
         liquidity: 124103332944179176980774,
       },
-    }
+    },
   },
   "arbitrum-sepolia": {
     chainName: "Arbitrum Sepolia",
-		sdkSupport: {
-			alchemy: false,
-			swing: false
+    sdkSupport: {
+      alchemy: false,
+      swing: false,
     },
     explorerUrl: "https://sepolia.arbiscan.io",
     nativeCurrency: {
@@ -210,17 +201,15 @@ export const chainProperties = {
       "0xa801ca07b20ef56251739d9b3197bfd02cfa20e8" as `0x${string}`,
     rangeStakerAddress:
       "0x62e0671022af1b2e705f08b282767c57d29c7c4c" as `0x${string}`,
-    coverPoolFactory:
-      ZERO_ADDRESS as `0x${string}`,
-    coverSubgraphUrl:
-      "",
+    coverPoolFactory: ZERO_ADDRESS as `0x${string}`,
+    coverSubgraphUrl: "",
     limitSubgraphUrl:
       "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-arb-sepolia-season0-block2/0.2.9/gn",
   },
   "arbitrum-one": {
     sdkSupport: {
-			alchemy: false,
-			swing: true
+      alchemy: false,
+      swing: true,
     },
     chainName: "Arbitrum One",
     explorerUrl: "https://arbiscan.io",
@@ -236,8 +225,7 @@ export const chainProperties = {
     rangeStakerAddress:
       "0x0e2b069fa52064a7e0b5a044ba25142203210a13" as `0x${string}`,
     coverPoolFactory: ZERO_ADDRESS as `0x${string}`,
-    coverSubgraphUrl:
-      "",
+    coverSubgraphUrl: "",
     limitSubgraphUrl:
       "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-arbitrum-season0-block2/0.3.0/gn",
     bondProtocol: {
@@ -255,25 +243,25 @@ export const chainProperties = {
         "https://api.thegraph.com/subgraphs/name/bond-protocol/bond-protocol-arbitrum-mainnet",
     },
     whitelistedPools: [
-      '0x7b47619045ae93f9311d0562a43c244c42bfe485' // FIN-WETH 0.3%
+      "0x7b47619045ae93f9311d0562a43c244c42bfe485", // FIN-WETH 0.3%
     ],
     whitelistedPairs: [
-      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1-0x903ca00944d0b51e50d9f4fc96167c89f211542a-0.3%',
+      "0x82af49447d8a07e3bd95bd0d56f35241523fbab1-0x903ca00944d0b51e50d9f4fc96167c89f211542a-0.3%",
     ],
     season0Rewards: {
       block1: {
-        whitelistedFeesUsd: 40000
+        whitelistedFeesUsd: 40000,
       },
       block2: {
-        whitelistedFeesUsd: 10000
-      }
+        whitelistedFeesUsd: 10000,
+      },
     },
   },
-  "scroll": {
+  scroll: {
     chainName: "Scroll Mainnet",
-		sdkSupport: {
-			alchemy: false,
-			swing: false
+    sdkSupport: {
+      alchemy: false,
+      swing: false,
     },
     explorerUrl: "https://scrollscan.com",
     nativeCurrency: {
@@ -288,32 +276,30 @@ export const chainProperties = {
       "0xf04bf4e3e8157ba5b91bfda16e21be770e7ac790" as `0x${string}`,
     rangeStakerAddress:
       "0xebf57cb31ed38e6ccb53fb71ba246ea549c42e51" as `0x${string}`,
-    coverPoolFactory:
-      ZERO_ADDRESS as `0x${string}`,
-    coverSubgraphUrl:
-      "",
+    coverPoolFactory: ZERO_ADDRESS as `0x${string}`,
+    coverSubgraphUrl: "",
     limitSubgraphUrl:
       "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-scroll-season0-block2/0.3.0/gn",
     whitelistedPools: [
       "0xb14917888ba92937be3d89094f83a62904ebc9dd", // ETH-USDT 0.1%
     ],
     whitelistedPairs: [
-      '0x5300000000000000000000000000000000000004-0xf55bec9cafdbe8730f096aa55dad6d22d44099df-0.1%',
+      "0x5300000000000000000000000000000000000004-0xf55bec9cafdbe8730f096aa55dad6d22d44099df-0.1%",
     ],
     season0Rewards: {
       block1: {
-        whitelistedFeesUsd: 20000
+        whitelistedFeesUsd: 20000,
       },
       block2: {
-        whitelistedFeesUsd: 5000
-      }
+        whitelistedFeesUsd: 5000,
+      },
     },
   },
-  "mode": {
+  mode: {
     chainName: "Mode Network",
-		sdkSupport: {
-			alchemy: false,
-			swing: false
+    sdkSupport: {
+      alchemy: false,
+      swing: false,
     },
     explorerUrl: "https://modescan.io",
     nativeCurrency: {
@@ -328,44 +314,42 @@ export const chainProperties = {
       "0x54f66fb1b1776670a512b6a9e61a94e6c2dcd512" as `0x${string}`,
     rangeStakerAddress:
       "0x58d8235108e12e6b725a53b57cd0b00c5edee0da" as `0x${string}`,
-    coverPoolFactory:
-      ZERO_ADDRESS as `0x${string}`,
-    coverSubgraphUrl:
-      "",
+    coverPoolFactory: ZERO_ADDRESS as `0x${string}`,
+    coverSubgraphUrl: "",
     limitSubgraphUrl:
       "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-mode-season0-block2/0.3.0/gn",
     whitelistedPools: [
-      '0xfc16003afdff37580c9de7deeeb87f9c65b6908a', // WETH-USDT 0.1%
-      '0xc20b141edd79f912897651eba9a2bca6b17dc7f1', // WETH-USDC 0.1%
-      '0x7efec766f18d4b79abf5b550bfe59a1bffb37d95' // USDC-USDT 0.1%
+      "0xfc16003afdff37580c9de7deeeb87f9c65b6908a", // WETH-USDT 0.1%
+      "0xc20b141edd79f912897651eba9a2bca6b17dc7f1", // WETH-USDC 0.1%
+      "0x7efec766f18d4b79abf5b550bfe59a1bffb37d95", // USDC-USDT 0.1%
     ],
     whitelistedPairs: [
-      '0x4200000000000000000000000000000000000006-0xf0f161fda2712db8b566946122a5af183995e2ed-0.1%',
-      '0xd988097fb8612cc24eec14542bc03424c656005f-0xf0f161fda2712db8b566946122a5af183995e2ed-0.1%',
-      '0x4200000000000000000000000000000000000006-0xd988097fb8612cc24eec14542bc03424c656005f-0.1%',
+      "0x4200000000000000000000000000000000000006-0xf0f161fda2712db8b566946122a5af183995e2ed-0.1%",
+      "0xd988097fb8612cc24eec14542bc03424c656005f-0xf0f161fda2712db8b566946122a5af183995e2ed-0.1%",
+      "0x4200000000000000000000000000000000000006-0xd988097fb8612cc24eec14542bc03424c656005f-0.1%",
     ],
     usdStables: [
-      '0xd988097fb8612cc24eec14542bc03424c656005f', // USDC
-      '0xf0f161fda2712db8b566946122a5af183995e2ed', // USDT
-      '0xe7798f023fc62146e8aa1b36da45fb70855a77ea', // DAI
+      "0xd988097fb8612cc24eec14542bc03424c656005f", // USDC
+      "0xf0f161fda2712db8b566946122a5af183995e2ed", // USDT
+      "0xe7798f023fc62146e8aa1b36da45fb70855a77ea", // DAI
     ],
     stablePools: [
-      '0x7efec766f18d4b79abf5b550bfe59a1bffb37d95' // USDC-USDT 0.1%
+      "0x7efec766f18d4b79abf5b550bfe59a1bffb37d95", // USDC-USDT 0.1%
     ],
     season0Rewards: {
       block1: {
-        whitelistedFeesUsd: 60000
+        whitelistedFeesUsd: 60000,
       },
       block2: {
-        whitelistedFeesUsd: 100000
-      }
+        whitelistedFeesUsd: 100000,
+      },
     },
   },
   "injective-evm": {
     chainName: "Injective EVM",
-		sdkSupport: {
-			alchemy: false,
-			swing: false
+    sdkSupport: {
+      alchemy: false,
+      swing: false,
     },
     explorerUrl: "https://explorer.inevm.com",
     nativeCurrency: {
@@ -380,30 +364,26 @@ export const chainProperties = {
       "0x125D13B5245127b97d44Ac2F7b819763e2A190be" as `0x${string}`,
     rangeStakerAddress:
       "0xde95e92dd151c39eb51cfae80fdff4d6c32c1fad" as `0x${string}`,
-    coverPoolFactory:
-      ZERO_ADDRESS as `0x${string}`,
-    coverSubgraphUrl:
-      "",
+    coverPoolFactory: ZERO_ADDRESS as `0x${string}`,
+    coverSubgraphUrl: "",
     limitSubgraphUrl:
       "https://api.goldsky.com/api/public/project_clr6e38ix6mms01vddnnu2ydr/subgraphs/poolshark-limit-inevm-season0-block1/0.2.9/gn",
-    whitelistedPools: [
-    ],
-    whitelistedPairs: [
-    ],
+    whitelistedPools: [],
+    whitelistedPairs: [],
     usdStables: [
-      '0x8358d8291e3bedb04804975eea0fe9fe0fafb147', // USDC
-      '0x97423a68bae94b5de52d767a17abcc54c157c0e5'  // USDT
+      "0x8358d8291e3bedb04804975eea0fe9fe0fafb147", // USDC
+      "0x97423a68bae94b5de52d767a17abcc54c157c0e5", // USDT
     ],
     stablePools: [
-      '0x00a5a1f32231040e998b56b158bcb1933fa73ee8' // USDC-USDT 0.1%
+      "0x00a5a1f32231040e998b56b158bcb1933fa73ee8", // USDC-USDT 0.1%
     ],
     season0Rewards: {
       block1: {
-        whitelistedFeesUsd: 0
+        whitelistedFeesUsd: 0,
       },
       block2: {
-        whitelistedFeesUsd: 5000
-      }
+        whitelistedFeesUsd: 5000,
+      },
     },
   },
 };

@@ -83,7 +83,7 @@ const ConfigWrapper = ({ children }: PropsWithChildren) => {
         chainId,
         address,
         listed_tokens,
-        search_tokens
+        search_tokens,
       ).then();
     }
   }, [listed_tokens, address]);
@@ -96,7 +96,7 @@ const ConfigWrapper = ({ children }: PropsWithChildren) => {
       setListedTokenList,
       setDisplayTokenList,
       setSearchTokenList,
-      setIsLoading
+      setIsLoading,
     );
   }, [chainId]);
 

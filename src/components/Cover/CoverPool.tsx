@@ -43,7 +43,7 @@ export default function CoverPool({ pool, href }) {
       tokenIn,
       tokenOut,
       pool.volatilityTier.feeAmount.toString(),
-      coverSubgraph
+      coverSubgraph,
     );
     router.push({
       pathname: href,

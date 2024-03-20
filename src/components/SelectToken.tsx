@@ -88,7 +88,7 @@ export default function SelectToken(props) {
 
   useEffect(() => {
     if (isOpen) {
-      setCustomInput(""); 
+      setCustomInput("");
       setDisplayTokenList(listedTokenList);
     }
   }, [isOpen]);
@@ -101,7 +101,7 @@ export default function SelectToken(props) {
       logoURI: coin?.logoURI,
       decimals: coin?.decimals,
       native: coin?.native ?? false,
-      userBalance: coin?.balance ?? (coin.userBalance ?? 0),
+      userBalance: coin?.balance ?? coin.userBalance ?? 0,
     };
 
     if (props.amount != undefined && props.isAmountIn != undefined) {
@@ -118,7 +118,7 @@ export default function SelectToken(props) {
             userBalance: coin?.userBalance ?? 0,
           },
           props.amount,
-          props.isAmountIn
+          props.isAmountIn,
         );
       } else {
         props.setTokenOut(
@@ -133,36 +133,30 @@ export default function SelectToken(props) {
             userBalance: coin?.userBalance ?? 0,
           },
           props.amount,
-          props.isAmountIn
+          props.isAmountIn,
         );
       }
     } else {
       if (props.type === "in") {
-        props.setTokenIn(
-          props.tokenOut,
-          {
-            name: coin?.name,
-            address: coin?.address,
-            symbol: coin?.symbol,
-            logoURI: coin?.logoURI,
-            decimals: coin?.decimals,
-            native: coin?.native ?? false,
-            userBalance: coin?.userBalance ?? 0,
-          }
-        );
+        props.setTokenIn(props.tokenOut, {
+          name: coin?.name,
+          address: coin?.address,
+          symbol: coin?.symbol,
+          logoURI: coin?.logoURI,
+          decimals: coin?.decimals,
+          native: coin?.native ?? false,
+          userBalance: coin?.userBalance ?? 0,
+        });
       } else {
-        props.setTokenOut(
-          props.tokenIn,
-          {
-            name: coin?.name,
-            address: coin?.address,
-            symbol: coin?.symbol,
-            logoURI: coin?.logoURI,
-            decimals: coin?.decimals,
-            native: coin?.native ?? false,
-            userBalance: coin?.userBalance ?? 0,
-          }
-        );
+        props.setTokenOut(props.tokenIn, {
+          name: coin?.name,
+          address: coin?.address,
+          symbol: coin?.symbol,
+          logoURI: coin?.logoURI,
+          decimals: coin?.decimals,
+          native: coin?.native ?? false,
+          userBalance: coin?.userBalance ?? 0,
+        });
       }
     }
     closeModal();

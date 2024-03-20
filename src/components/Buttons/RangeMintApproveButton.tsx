@@ -18,12 +18,9 @@ export default function RangeMintApproveButton({
 }) {
   const [toastId, setToastId] = useState(null);
 
-  const [
-    chainId,
-    networkName
-  ] = useConfigStore((state) => [
+  const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
   ]);
 
   const [setNeedsAllowanceIn] = useRangeLimitStore((state) => [
@@ -34,10 +31,7 @@ export default function RangeMintApproveButton({
     address: approveToken.address,
     abi: erc20ABI,
     functionName: "approve",
-    args: [
-      routerAddress,
-      deepConvertBigIntAndBigNumber(amount)
-    ],
+    args: [routerAddress, deepConvertBigIntAndBigNumber(amount)],
     chainId: chainId,
   });
 
@@ -50,35 +44,50 @@ export default function RangeMintApproveButton({
   const { isLoading: isLoadingT0 } = useWaitForTransaction({
     hash: dataT0?.hash,
     onSuccess() {
-      toast.success("Your transaction was successful",{
+      toast.success("Your transaction was successful", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${dataT0?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${dataT0?.hash}`,
+              "_blank",
+            ),
         },
       });
       setNeedsAllowanceIn(true);
     },
     onError() {
-      toast.error("Your transaction failed",{
+      toast.error("Your transaction failed", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${dataT0?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${dataT0?.hash}`,
+              "_blank",
+            ),
         },
       });
     },
   });
 
   useEffect(() => {
-    if(isLoadingT0) {
-      const newToastId = toast.loading("Your transaction is being confirmed...",{
-        action: {
-          label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${dataT0?.hash}`, '_blank'),
+    if (isLoadingT0) {
+      const newToastId = toast.loading(
+        "Your transaction is being confirmed...",
+        {
+          action: {
+            label: "View",
+            onClick: () =>
+              window.open(
+                `${chainProperties[networkName]["explorerUrl"]}/tx/${dataT0?.hash}`,
+                "_blank",
+              ),
+          },
         },
-      });
-      newToastId
+      );
+      newToastId;
       setToastId(newToastId);
     }
   }, [isLoadingT0]);

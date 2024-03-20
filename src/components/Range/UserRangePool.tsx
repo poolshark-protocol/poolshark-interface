@@ -13,12 +13,14 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { formatUsdValue } from "../../utils/math/valueMath";
 
 export default function UserRangePool({ rangePosition, href, isModal }) {
-  const [limitSubgraph, coverSubgraph, logoMap, chainId] = useConfigStore((state) => [
-    state.limitSubgraph,
-    state.coverSubgraph,
-    state.logoMap,
-    state.chainId,
-  ]);
+  const [limitSubgraph, coverSubgraph, logoMap, chainId] = useConfigStore(
+    (state) => [
+      state.limitSubgraph,
+      state.coverSubgraph,
+      state.logoMap,
+      state.chainId,
+    ],
+  );
 
   const [
     rangePoolData,
@@ -102,16 +104,15 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       limitSubgraph,
       tokenInNew.address,
       tokenOutNew.address,
-      rangePosition.poolType
+      rangePosition.poolType,
     );
     if (pool && pool["data"] && pool["data"]["limitPools"]) {
       const dataLength = pool["data"]["limitPools"].length;
       for (let i = 0; i < dataLength; i++) {
         if (
           pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] ==
-          rangePosition.pool.feeTier.feeAmount &&
-          pool["data"]["limitPools"][i]["poolType"] ==
-          rangePosition.poolType
+            rangePosition.pool.feeTier.feeAmount &&
+          pool["data"]["limitPools"][i]["poolType"] == rangePosition.poolType
         ) {
           const poolData = pool["data"]["limitPools"][i];
           setRangePoolData(poolData);
@@ -120,14 +121,14 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
               fetchRangeTokenUSDPrice(
                 poolData,
                 rangeTokenIn,
-                setRangeTokenInUSDPrice
+                setRangeTokenInUSDPrice,
               );
             }
             if (rangeTokenOut.address) {
               fetchRangeTokenUSDPrice(
                 poolData,
                 rangeTokenOut,
-                setTokenOutRangeUSDPrice
+                setTokenOutRangeUSDPrice,
               );
             }
           }
@@ -148,10 +149,10 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
   function setAmounts() {
     try {
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
-        Number(rangePosition.min)
+        Number(rangePosition.min),
       );
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
-        Number(rangePosition.max)
+        Number(rangePosition.max),
       );
       const rangeSqrtPrice = JSBI.BigInt(rangePosition.price);
       const liquidity = JSBI.BigInt(rangePosition.userLiquidity);
@@ -160,31 +161,31 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
         upperSqrtPrice,
         rangeSqrtPrice,
         liquidity,
-        true
+        true,
       );
       // set amount based on bnInput
       const amount0Bn = BigNumber.from(String(amounts.token0Amount));
       const amount1Bn = BigNumber.from(String(amounts.token1Amount));
       setAmount0(
         parseFloat(
-          ethers.utils.formatUnits(amount0Bn, rangePosition.tokenZero.decimals)
-        )
+          ethers.utils.formatUnits(amount0Bn, rangePosition.tokenZero.decimals),
+        ),
       );
       setAmount1(
         parseFloat(
-          ethers.utils.formatUnits(amount1Bn, rangePosition.tokenOne.decimals)
-        )
+          ethers.utils.formatUnits(amount1Bn, rangePosition.tokenOne.decimals),
+        ),
       );
       const token0UsdValue =
         parseFloat(
-          ethers.utils.formatUnits(amount0Bn, rangePosition.tokenZero.decimals)
+          ethers.utils.formatUnits(amount0Bn, rangePosition.tokenZero.decimals),
         ) * rangePosition.tokenZero.usdPrice;
       const token1UsdValue =
         parseFloat(
-          ethers.utils.formatUnits(amount1Bn, rangePosition.tokenOne.decimals)
+          ethers.utils.formatUnits(amount1Bn, rangePosition.tokenOne.decimals),
         ) * rangePosition.tokenOne.usdPrice;
       setTotalUsdValue(
-        parseFloat((token0UsdValue + token1UsdValue).toFixed(2))
+        parseFloat((token0UsdValue + token1UsdValue).toFixed(2)),
       );
     } catch (error) {
       console.log(error);
@@ -219,7 +220,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
         tokenInNew,
         tokenOutNew,
         "1000",
-        coverSubgraph
+        coverSubgraph,
       );
     } else {
       setRangeTokenIn(tokenOutNew, tokenInNew, "0", true);
@@ -233,7 +234,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
         limitSubgraph,
         undefined,
         undefined,
-        rangePosition.poolType
+        rangePosition.poolType,
       );
     }
     router.push({
@@ -242,7 +243,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
         id: rangePosition.id,
         feeTier: rangePosition.pool.feeTier.feeAmount,
         state: router.pathname.includes("/cover") && "range-cover",
-        chainId: chainId
+        chainId: chainId,
       },
     });
   }
@@ -285,13 +286,13 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
               {TickMath.getPriceStringAtTick(
                 Number(rangePosition.min),
                 setTokenAddressFromId(rangePosition.tokenZero),
-                setTokenAddressFromId(rangePosition.tokenOne)
+                setTokenAddressFromId(rangePosition.tokenOne),
               )}{" "}
               -{" "}
               {TickMath.getPriceStringAtTick(
                 Number(rangePosition.max),
                 setTokenAddressFromId(rangePosition.tokenZero),
-                setTokenAddressFromId(rangePosition.tokenOne)
+                setTokenAddressFromId(rangePosition.tokenOne),
               )}{" "}
               <span className="text-grey1">
                 {rangePosition.tokenOne.symbol} PER{" "}

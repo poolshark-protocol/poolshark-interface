@@ -55,7 +55,7 @@ export const getRangePoolFromFactory = (
   client: LimitSubgraph,
   tokenA?: string,
   tokenB?: string,
-  poolTypeId?: number
+  poolTypeId?: number,
 ) => {
   const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
   const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
@@ -130,7 +130,7 @@ export const getRangePoolFromFactory = (
 export const getCoverPoolFromFactory = (
   client: CoverSubgraph,
   tokenA: string,
-  tokenB: string
+  tokenB: string,
 ) => {
   const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
   const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
@@ -190,7 +190,7 @@ export const getLimitPoolFromFactory = (
   client: LimitSubgraph,
   tokenA: string,
   tokenB: string,
-  poolTypeId?: number
+  poolTypeId?: number,
 ) => {
   const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
   const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
@@ -317,7 +317,7 @@ export const getCoverTickIfZeroForOne = (
   lower: number,
   upper: number,
   poolAddress: string,
-  epochLast: number
+  epochLast: number,
 ) => {
   return new Promise(function (resolve) {
     const getTicks = `
@@ -349,7 +349,7 @@ export const getCoverTickIfNotZeroForOne = (
   lower: number,
   upper: number,
   poolAddress: string,
-  epochLast: number
+  epochLast: number,
 ) => {
   return new Promise(function (resolve) {
     const getTicks = `
@@ -381,7 +381,7 @@ export const getLimitTickIfNotZeroForOne = (
   lower: number,
   upper: number,
   poolAddress: string,
-  epochLast: number
+  epochLast: number,
 ) => {
   return new Promise(function (resolve) {
     const getTicks = `
@@ -413,7 +413,7 @@ export const getLimitTickIfZeroForOne = (
   lower: number,
   upper: number,
   poolAddress: string,
-  epochLast: number
+  epochLast: number,
 ) => {
   return new Promise(function (resolve) {
     const getTicks = `
@@ -1012,7 +1012,7 @@ export const fetchUniV3Positions = (address: string) => {
 
 export const fetchTokenPrice = (
   client: LimitSubgraph,
-  tokenAddress: string
+  tokenAddress: string,
 ) => {
   return new Promise(function (resolve) {
     const tokenQuery = `
@@ -1064,7 +1064,7 @@ export const fetchEthPrice = (client: LimitSubgraph): Promise<number> => {
 
 export const fetchUserVFinPositions = (
   client: LimitSubgraph,
-  ownerAddress: string
+  ownerAddress: string,
 ) => {
   return new Promise(function (resolve) {
     const userVestingQuery = `
@@ -1092,14 +1092,16 @@ export const fetchUserVFinPositions = (
 
 export const fetchSeason1Rewards = (
   client: LimitSubgraph,
-  userAddress: string
+  userAddress: string,
 ) => {
   return new Promise(function (resolve) {
     const poolsQuery = `
     { 
       userSeasonRewards(
         first: 2
-        where: {id_in: ["${userAddress.toLowerCase() + '-0-1'}", "${userAddress.toLowerCase() + '-0-2'}"]}
+        where: {id_in: ["${userAddress.toLowerCase() + "-0-1"}", "${
+          userAddress.toLowerCase() + "-0-2"
+        }"]}
       ) {
         season
         block
@@ -1135,7 +1137,7 @@ export const fetchSeason1Rewards = (
 export const fetchUserBonds = (
   marketId: string,
   recipient: string,
-  subgraphUrl: string
+  subgraphUrl: string,
 ) => {
   return new Promise(function (resolve) {
     const userBondsQuery = `

@@ -5,12 +5,12 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'poolshark-token-lists.s3.amazonaws.com',
-        port: '',
+        protocol: "https",
+        hostname: "poolshark-token-lists.s3.amazonaws.com",
+        port: "",
       },
     ],
-  }
-}
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

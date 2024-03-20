@@ -231,7 +231,7 @@ export default function AddLiquidity({}) {
             limitSubgraph,
             undefined,
             undefined,
-            limitPoolTypeIds["constant-product-1.1"]
+            limitPoolTypeIds["constant-product-1.1"],
           );
         } else {
           router.push("/range");
@@ -248,7 +248,7 @@ export default function AddLiquidity({}) {
       const pools = data["data"].limitPools;
       var pool = pools.find(
         (pool) =>
-          pool.id.toLowerCase() == String(router.query.poolId).toLowerCase()
+          pool.id.toLowerCase() == String(router.query.poolId).toLowerCase(),
       );
       //if pool exists
       if (pool) {
@@ -277,7 +277,7 @@ export default function AddLiquidity({}) {
           limitSubgraph,
           undefined,
           undefined,
-          limitPoolTypeIds["constant-product-1.1"]
+          limitPoolTypeIds["constant-product-1.1"],
         );
       } else {
         const tokenInAddress = router.query.tokenIn?.toString();
@@ -286,13 +286,13 @@ export default function AddLiquidity({}) {
           (token) =>
             token.address?.toLowerCase() == tokenInAddress?.toLowerCase() &&
             (token.native?.toString() == router.query.tokenInNative ||
-              token.native == undefined)
+              token.native == undefined),
         );
         const routerTokenOut = searchtokenList.find(
           (token) =>
             token.address?.toLowerCase() == tokenOutAddress?.toLowerCase() &&
             (token.native?.toString() == router.query.tokenOutNative ||
-              token.native == undefined)
+              token.native == undefined),
         );
         setTokenIn(routerTokenOut, routerTokenIn, "0", true);
         setTokenOut(routerTokenIn, routerTokenOut, "0", false);
@@ -303,7 +303,7 @@ export default function AddLiquidity({}) {
           limitSubgraph,
           undefined,
           undefined,
-          limitPoolTypeIds["constant-product-1.1"]
+          limitPoolTypeIds["constant-product-1.1"],
         );
         setRangePoolData({
           ...rangePoolData,
@@ -332,7 +332,7 @@ export default function AddLiquidity({}) {
       limitSubgraph,
       undefined,
       undefined,
-      limitPoolTypeIds["constant-product-1.1"]
+      limitPoolTypeIds["constant-product-1.1"],
     );
   }
 
@@ -345,7 +345,7 @@ export default function AddLiquidity({}) {
       limitSubgraph,
       undefined,
       undefined,
-      limitPoolTypeIds["constant-product-1.1"]
+      limitPoolTypeIds["constant-product-1.1"],
     );
   }
 
@@ -363,10 +363,10 @@ export default function AddLiquidity({}) {
         tickAtPrice,
         setMinInput,
         setMaxInput,
-        rangePoolData?.id
+        rangePoolData?.id,
       );
       setRangePrice(
-        TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut)
+        TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut),
       );
       setRangeSqrtPrice(sqrtPrice);
     } else {
@@ -399,7 +399,7 @@ export default function AddLiquidity({}) {
       getLimitTokenUsdPrice(
         tokenIn.address,
         setTokenInRangeUSDPrice,
-        limitSubgraph
+        limitSubgraph,
       );
     }
   }, [tokenIn.address]);
@@ -412,7 +412,7 @@ export default function AddLiquidity({}) {
       getLimitTokenUsdPrice(
         tokenOut.address,
         setTokenOutRangeUSDPrice,
-        limitSubgraph
+        limitSubgraph,
       );
     }
   }, [tokenOut.address]);
@@ -437,7 +437,7 @@ export default function AddLiquidity({}) {
           address,
           tokenIn.address,
           getRouterAddress(networkName),
-          error
+          error,
         );
       },
     });
@@ -461,7 +461,7 @@ export default function AddLiquidity({}) {
           address,
           tokenOut.address,
           getRouterAddress(networkName),
-          error
+          error,
         );
       },
     });
@@ -521,14 +521,14 @@ export default function AddLiquidity({}) {
         fetchRangeTokenUSDPrice(
           rangePoolData,
           tokenIn,
-          setTokenInRangeUSDPrice
+          setTokenInRangeUSDPrice,
         );
       }
       if (tokenOut.address) {
         fetchRangeTokenUSDPrice(
           rangePoolData,
           tokenOut,
-          setTokenOutRangeUSDPrice
+          setTokenOutRangeUSDPrice,
         );
       }
     }
@@ -570,7 +570,7 @@ export default function AddLiquidity({}) {
         amountInSetLast,
         amountInSetLast
           ? rangeMintParams.tokenInAmount
-          : rangeMintParams.tokenOutAmount
+          : rangeMintParams.tokenOutAmount,
       );
     }
   }, [lowerPrice, upperPrice, rangePrice]);
@@ -610,13 +610,13 @@ export default function AddLiquidity({}) {
         lowerPrice,
         tokenIn,
         tokenOut,
-        parseInt(rangePoolData.feeTier?.tickSpacing ?? "100")
+        parseInt(rangePoolData.feeTier?.tickSpacing ?? "100"),
       );
       const upper = TickMath.getTickAtPriceString(
         upperPrice,
         tokenIn,
         tokenOut,
-        parseInt(rangePoolData.feeTier?.tickSpacing ?? "100")
+        parseInt(rangePoolData.feeTier?.tickSpacing ?? "100"),
       );
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lower);
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upper);
@@ -631,7 +631,7 @@ export default function AddLiquidity({}) {
             isToken0 ? upperSqrtPrice : rangeSqrtPrice,
             rangeSqrtPrice,
             isToken0 ? BN_ZERO : inputBn,
-            isToken0 ? inputBn : BN_ZERO
+            isToken0 ? inputBn : BN_ZERO,
           );
         } else if (JSBI.lessThan(rangeSqrtPrice, lowerSqrtPrice)) {
           // only token0 input allowed
@@ -641,7 +641,7 @@ export default function AddLiquidity({}) {
               upperSqrtPrice,
               rangeSqrtPrice,
               BN_ZERO,
-              inputBn
+              inputBn,
             );
           } else {
             // warn the user the input is invalid
@@ -653,7 +653,7 @@ export default function AddLiquidity({}) {
               upperSqrtPrice,
               rangeSqrtPrice,
               inputBn,
-              BN_ZERO
+              BN_ZERO,
             );
           } else {
             // warn the user the input is invalid
@@ -680,14 +680,14 @@ export default function AddLiquidity({}) {
           setTokenInAmount(inputBn);
           setTokenOutAmount(outputBn);
           const displayValue = parseFloat(
-            ethers.utils.formatUnits(outputBn, tokenOut.decimals)
+            ethers.utils.formatUnits(outputBn, tokenOut.decimals),
           ).toPrecision(6);
           setDisplayOut(parseFloat(displayValue) > 0 ? displayValue : "");
         } else {
           setTokenInAmount(outputBn);
           setTokenOutAmount(inputBn);
           const displayValue = parseFloat(
-            ethers.utils.formatUnits(outputBn, tokenIn.decimals)
+            ethers.utils.formatUnits(outputBn, tokenIn.decimals),
           ).toPrecision(6);
           setDisplayIn(parseFloat(displayValue) > 0 ? displayValue : "");
         }
@@ -730,18 +730,18 @@ export default function AddLiquidity({}) {
           priceOrder ? minInput : maxInput,
           tokenIn,
           tokenOut,
-          rangePoolData.feeTier?.tickSpacing ?? 30
+          rangePoolData.feeTier?.tickSpacing ?? 30,
         ),
-        priceOrder
+        priceOrder,
       );
       const priceUpper = invertPrice(
         roundPrice(
           priceOrder ? maxInput : minInput,
           tokenIn,
           tokenOut,
-          rangePoolData.feeTier?.tickSpacing ?? 30
+          rangePoolData.feeTier?.tickSpacing ?? 30,
         ),
-        priceOrder
+        priceOrder,
       );
       setLowerPrice(priceLower);
       setUpperPrice(priceUpper);
@@ -764,13 +764,13 @@ export default function AddLiquidity({}) {
           TickMath.getSqrtPriceAtPriceString(
             invertPrice(startPrice, priceOrder),
             tokenIn,
-            tokenOut
-          )
+            tokenOut,
+          ),
         ),
         tickAtPrice: TickMath.getTickAtPriceString(
           invertPrice(startPrice, priceOrder),
           tokenIn,
-          tokenOut
+          tokenOut,
         ),
         feeTier: rangePoolData.feeTier,
       });
@@ -796,13 +796,13 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     const priceLower = parseFloat(
-      priceOrder ? lowerPrice : invertPrice(lowerPrice, priceOrder)
+      priceOrder ? lowerPrice : invertPrice(lowerPrice, priceOrder),
     );
     const priceUpper = parseFloat(
-      priceOrder ? upperPrice : invertPrice(upperPrice, priceOrder)
+      priceOrder ? upperPrice : invertPrice(upperPrice, priceOrder),
     );
     const priceRange = parseFloat(
-      priceOrder ? rangePrice : invertPrice(rangePrice, priceOrder)
+      priceOrder ? rangePrice : invertPrice(rangePrice, priceOrder),
     );
     if (!isNaN(priceLower) && !isNaN(priceUpper) && !isNaN(priceRange)) {
       if (priceLower > 0 && priceUpper > 0) {
@@ -875,8 +875,8 @@ export default function AddLiquidity({}) {
                       Number(
                         ethers.utils.formatUnits(
                           rangeMintParams.tokenInAmount,
-                          tokenIn.decimals
-                        )
+                          tokenIn.decimals,
+                        ),
                       )
                     ).toFixed(2)
                   : "?.??"}
@@ -893,7 +893,7 @@ export default function AddLiquidity({}) {
                 tokenIn,
                 "tokenIn",
                 handleInputBox,
-                amountInDisabled
+                amountInDisabled,
               )}
               <div className="flex items-center gap-x-2">
                 <button
@@ -935,8 +935,8 @@ export default function AddLiquidity({}) {
                       Number(
                         ethers.utils.formatUnits(
                           rangeMintParams.tokenOutAmount,
-                          tokenOut.decimals
-                        )
+                          tokenOut.decimals,
+                        ),
                       )
                     ).toFixed(2)
                   : "?.??"}
@@ -953,7 +953,7 @@ export default function AddLiquidity({}) {
                 tokenOut,
                 "tokenOut",
                 handleInputBox,
-                amountOutDisabled
+                amountOutDisabled,
               )}
               <div className="flex items-center gap-x-2 ">
                 <button
@@ -994,21 +994,21 @@ export default function AddLiquidity({}) {
                     TickMath.getPriceStringAtTick(
                       roundTick(
                         -887272,
-                        parseInt(rangePoolData.feeTier?.tickSpacing ?? 30)
+                        parseInt(rangePoolData.feeTier?.tickSpacing ?? 30),
                       ),
                       tokenIn,
-                      tokenOut
-                    )
+                      tokenOut,
+                    ),
                   );
                   setMaxInput(
                     TickMath.getPriceStringAtTick(
                       roundTick(
                         887272,
-                        parseInt(rangePoolData.feeTier?.tickSpacing ?? 30)
+                        parseInt(rangePoolData.feeTier?.tickSpacing ?? 30),
                       ),
                       tokenIn,
-                      tokenOut
-                    )
+                      tokenOut,
+                    ),
                   );
                 }}
               >
@@ -1047,10 +1047,10 @@ export default function AddLiquidity({}) {
                           ? rangePoolData.tickAtPrice - 2232
                           : rangePoolData.tickAtPrice - -2232,
                         tokenIn,
-                        tokenOut
+                        tokenOut,
                       ),
-                      priceOrder
-                    )
+                      priceOrder,
+                    ),
                   );
                   setMaxInput(
                     invertPrice(
@@ -1059,10 +1059,10 @@ export default function AddLiquidity({}) {
                           ? rangePoolData.tickAtPrice - -2232
                           : rangePoolData.tickAtPrice - 2232,
                         tokenIn,
-                        tokenOut
+                        tokenOut,
                       ),
-                      priceOrder
-                    )
+                      priceOrder,
+                    ),
                   );
                 }}
                 className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
@@ -1079,10 +1079,10 @@ export default function AddLiquidity({}) {
                           ? rangePoolData.tickAtPrice - 4055
                           : rangePoolData.tickAtPrice - -4055,
                         tokenIn,
-                        tokenOut
+                        tokenOut,
                       ),
-                      priceOrder
-                    )
+                      priceOrder,
+                    ),
                   );
                   setMaxInput(
                     invertPrice(
@@ -1091,10 +1091,10 @@ export default function AddLiquidity({}) {
                           ? rangePoolData.tickAtPrice - -4055
                           : rangePoolData.tickAtPrice - 4055,
                         tokenIn,
-                        tokenOut
+                        tokenOut,
                       ),
-                      priceOrder
-                    )
+                      priceOrder,
+                    ),
                   );
                 }}
                 className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
@@ -1111,10 +1111,10 @@ export default function AddLiquidity({}) {
                           ? rangePoolData.tickAtPrice - 5596
                           : rangePoolData.tickAtPrice - -5596,
                         tokenIn,
-                        tokenOut
+                        tokenOut,
                       ),
-                      priceOrder
-                    )
+                      priceOrder,
+                    ),
                   );
                   setMaxInput(
                     invertPrice(
@@ -1123,10 +1123,10 @@ export default function AddLiquidity({}) {
                           ? rangePoolData.tickAtPrice - -5596
                           : rangePoolData.tickAtPrice - 5596,
                         tokenIn,
-                        tokenOut
+                        tokenOut,
                       ),
-                      priceOrder
-                    )
+                      priceOrder,
+                    ),
                   );
                 }}
                 className="bg-grey/20 rounded-[4px] border border-grey uppercase text-xs py-3 w-full hover:bg-grey/50 border border-transparent hover:border-grey2 transition-all"
@@ -1243,7 +1243,7 @@ export default function AddLiquidity({}) {
                             !isNaN(parseFloat(startPrice)) &&
                             parseFloat(startPrice) > 0))
                           ? parseFloat(
-                              invertPrice(rangePrice, priceOrder)
+                              invertPrice(rangePrice, priceOrder),
                             ).toPrecision(5) +
                             " " +
                             (priceOrder == (tokenIn.callId == 0)
@@ -1361,7 +1361,7 @@ export default function AddLiquidity({}) {
                     tokenIn,
                     tokenOut,
                     feeTier.tier,
-                    networkName
+                    networkName,
                   ) && <SparklesIcon className="text-main2 w-[16px]" />}
                 </h1>
 

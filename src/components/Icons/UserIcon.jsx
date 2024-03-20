@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from "react";
 const UserIcon = (props) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -13,5 +13,5 @@ const UserIcon = (props) => (
       clipRule="evenodd"
     />
   </svg>
-)
-export default UserIcon
+);
+export default UserIcon;

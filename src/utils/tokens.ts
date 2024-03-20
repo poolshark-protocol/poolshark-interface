@@ -9,7 +9,8 @@ import { BigNumber, ethers } from "ethers";
 import axios from "axios";
 import { numFormat, numStringFormat } from "./math/valueMath";
 
-export const tokenListsBaseUrl = "https://poolshark-token-lists.s3.amazonaws.com/blockchains";
+export const tokenListsBaseUrl =
+  "https://poolshark-token-lists.s3.amazonaws.com/blockchains";
 
 export const defaultTokenLogo =
   tokenListsBaseUrl + "/arbitrum-one/tokenZero.png";
@@ -17,7 +18,7 @@ export const defaultTokenLogo =
 export const fetchRangeTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
   try {
     setTokenUSDPrice(
-      token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice
+      token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice,
     );
   } catch (error) {
     console.log(error);
@@ -27,7 +28,7 @@ export const fetchRangeTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
 export const fetchLimitTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
   try {
     setTokenUSDPrice(
-      token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice
+      token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice,
     );
   } catch (error) {
     console.log(error);
@@ -37,7 +38,7 @@ export const fetchLimitTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
 export const fetchCoverTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
   try {
     setTokenUSDPrice(
-      token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice
+      token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice,
     );
   } catch (error) {
     console.log(error);
@@ -47,7 +48,7 @@ export const fetchCoverTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
 export const getLimitTokenUsdPrice = async (
   tokenAddress: string,
   setTokenUSDPrice,
-  client: LimitSubgraph
+  client: LimitSubgraph,
 ) => {
   try {
     const tokenData = await fetchTokenPrice(client, tokenAddress);
@@ -68,41 +69,45 @@ export const getLimitTokenUsdPrice = async (
 
 export const getLogo = (token: any, logoMap: any) => {
   // token.address = token.id ?? ZERO_ADDRESS
-  return logoMap[logoMapKey(token)] ?? defaultTokenLogo
-}
+  return logoMap[logoMapKey(token)] ?? defaultTokenLogo;
+};
 
 export const logoMapKey = (token: any) => {
-  return ((token?.address?.toLowerCase() ?? token?.id?.toLowerCase()) ?? ZERO_ADDRESS) + nativeString(token)
-}
+  return (
+    (token?.address?.toLowerCase() ??
+      token?.id?.toLowerCase() ??
+      ZERO_ADDRESS) + nativeString(token)
+  );
+};
 
 export const nativeString = (token: any) => {
   if (token?.native == undefined) {
-    return ''
+    return "";
   } else if (token.native) {
-    return '-native'
+    return "-native";
   }
-  return ''
-}
+  return "";
+};
 
 export const getUserBalance = (token: any, currentToken: any) => {
   if (token.address.toLowerCase() == currentToken.address.toLowerCase()) {
-    return currentToken.userBalance ?? 0
+    return currentToken.userBalance ?? 0;
   }
-  return 0
-}
+  return 0;
+};
 
 export const getUserAllowance = (token: any, currentToken: any) => {
   if (token.address.toLowerCase() == currentToken.address.toLowerCase()) {
-    return currentToken.userRouterAllowance ?? BN_ZERO
+    return currentToken.userRouterAllowance ?? BN_ZERO;
   }
-  return BN_ZERO
-}
+  return BN_ZERO;
+};
 
 export const fetchListedTokenBalances = async (
   chainId: number,
   address: string,
   listed_tokens: any,
-  search_tokens: any
+  search_tokens: any,
 ) => {
   // check if alchemy supported
   const config = {
@@ -114,35 +119,31 @@ export const fetchListedTokenBalances = async (
   try {
     // ethBalance = await alchemy.core.getBalance(address);
   } catch (e) {
-    console.log('Alchemy SDK Error:', e)
+    console.log("Alchemy SDK Error:", e);
     // early return - update balances on next fetch
-    return
+    return;
   }
-  const listedIndex = listed_tokens.findIndex(
-    (x) => x.native == true
-  );
-  const searchIndex = search_tokens.findIndex(
-    (x) => x.native == true
-  );
+  const listedIndex = listed_tokens.findIndex((x) => x.native == true);
+  const searchIndex = search_tokens.findIndex((x) => x.native == true);
   if (listedIndex != -1 && ethBalance) {
-    listed_tokens[listedIndex].balance = numStringFormat(ethers.utils.formatUnits(
-      ethBalance,
-      listed_tokens[listedIndex].decimals
-    ), 5);
+    listed_tokens[listedIndex].balance = numStringFormat(
+      ethers.utils.formatUnits(ethBalance, listed_tokens[listedIndex].decimals),
+      5,
+    );
   }
   if (searchIndex != -1 && ethBalance) {
-    search_tokens[searchIndex].balance = numStringFormat(ethers.utils.formatUnits(
-      ethBalance,
-      search_tokens[searchIndex].decimals
-    ), 5);
+    search_tokens[searchIndex].balance = numStringFormat(
+      ethers.utils.formatUnits(ethBalance, search_tokens[searchIndex].decimals),
+      5,
+    );
   }
   let tokenBalances;
   try {
     // tokenBalances = await alchemy.core.getTokenBalances(address);
   } catch (e) {
-    console.log('Alchemy SDK Error:', e)
+    console.log("Alchemy SDK Error:", e);
     // early return - update balances on next fetch
-    return
+    return;
   }
   if (tokenBalances?.tokenBalances?.length != 0) {
     tokenBalances?.tokenBalances?.forEach((token) => {
@@ -150,26 +151,30 @@ export const fetchListedTokenBalances = async (
       const listedIndex = listed_tokens.findIndex(
         (x) =>
           String(x.id).toLowerCase() ===
-          String(token.contractAddress).toLowerCase() &&
-          x.native != true
+            String(token.contractAddress).toLowerCase() && x.native != true,
       );
       const searchIndex = search_tokens.findIndex(
         (x) =>
           String(x.id).toLowerCase() ===
-          String(token.contractAddress).toLowerCase() &&
-          x.native != true
+            String(token.contractAddress).toLowerCase() && x.native != true,
       );
       if (listedIndex != -1) {
-        listed_tokens[listedIndex].balance = numStringFormat(ethers.utils.formatUnits(
-          token.tokenBalance,
-          listed_tokens[listedIndex].decimals
-        ), 5);
+        listed_tokens[listedIndex].balance = numStringFormat(
+          ethers.utils.formatUnits(
+            token.tokenBalance,
+            listed_tokens[listedIndex].decimals,
+          ),
+          5,
+        );
       }
       if (searchIndex != -1) {
-        search_tokens[searchIndex].balance = numStringFormat(ethers.utils.formatUnits(
-          token.tokenBalance,
-          search_tokens[searchIndex].decimals
-        ), 5);
+        search_tokens[searchIndex].balance = numStringFormat(
+          ethers.utils.formatUnits(
+            token.tokenBalance,
+            search_tokens[searchIndex].decimals,
+          ),
+          5,
+        );
       }
     });
   }
@@ -183,14 +188,11 @@ export const fetchTokenMetadata = async (
   setListedTokenList: any,
   setDisplayTokenList: any,
   setSearchTokenList: any,
-  setIsLoading: any
+  setIsLoading: any,
 ) => {
   const chainName = chainIdsToNames[chainId];
   axios
-    .get(
-      tokenListsBaseUrl +
-        `/${chainName ?? "arbitrum-one"}/tokenlist.json`
-    )
+    .get(tokenListsBaseUrl + `/${chainName ?? "arbitrum-one"}/tokenlist.json`)
     .then(function (response) {
       const coins = {
         listed_tokens: response.data.listed_tokens,

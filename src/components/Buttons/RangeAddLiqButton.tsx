@@ -30,12 +30,9 @@ export default function RangeAddLiqButton({
   setIsOpen,
   gasLimit,
 }) {
-  const [
-    chainId,
-    networkName
-  ] = useConfigStore((state) => [
+  const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
   ]);
 
   const [
@@ -59,7 +56,7 @@ export default function RangeAddLiqButton({
   ]);
   const [toastId, setToastId] = useState(null);
 
-  const signer = useEthersSigner()
+  const signer = useEthersSigner();
 
   const { config } = usePrepareContractWrite({
     address: routerAddress,
@@ -75,7 +72,10 @@ export default function RangeAddLiqButton({
           positionId: positionId,
           amount0: amount0,
           amount1: amount1,
-          callbackData: getRangeMintInputData(rangePositionData.staked, getRangeStakerAddress(networkName)),
+          callbackData: getRangeMintInputData(
+            rangePositionData.staked,
+            getRangeStakerAddress(networkName),
+          ),
         }),
       ],
     ],
@@ -83,7 +83,7 @@ export default function RangeAddLiqButton({
     enabled: positionId != undefined && poolAddress != ZERO_ADDRESS,
     gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
     onError(err) {
-      console.log('range add liq error')  
+      console.log("range add liq error");
     },
   });
 
@@ -92,11 +92,15 @@ export default function RangeAddLiqButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      toast.success("Your transaction was successful",{
+      toast.success("Your transaction was successful", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank",
+            ),
         },
       });
       setNeedsAllowanceIn(true);
@@ -112,11 +116,15 @@ export default function RangeAddLiqButton({
       }
     },
     onError() {
-      toast.error("Your transaction failed",{
+      toast.error("Your transaction failed", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank",
+            ),
         },
       });
       setNeedsRefetch(false);
@@ -125,18 +133,25 @@ export default function RangeAddLiqButton({
   });
 
   useEffect(() => {
-    if(isLoading) {
-      const newToastId = toast.loading("Your transaction is being confirmed...",{
-        action: {
-          label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+    if (isLoading) {
+      const newToastId = toast.loading(
+        "Your transaction is being confirmed...",
+        {
+          action: {
+            label: "View",
+            onClick: () =>
+              window.open(
+                `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+                "_blank",
+              ),
+          },
         },
-      });
-      newToastId
+      );
+      newToastId;
       setToastId(newToastId);
     }
   }, [isLoading]);
-  
+
   return (
     <>
       <button
@@ -146,10 +161,13 @@ export default function RangeAddLiqButton({
           address ? write?.() : null;
         }}
       >
-        {(gasLimit?.lte(BN_ZERO) && !rangeMintParams.disabled) ? <Loader/> 
-                                                               : (rangeMintParams.buttonMessage != "Mint Range Position" 
-                                                                  ? rangeMintParams.buttonMessage
-                                                                  : "Add liquidity")}
+        {gasLimit?.lte(BN_ZERO) && !rangeMintParams.disabled ? (
+          <Loader />
+        ) : rangeMintParams.buttonMessage != "Mint Range Position" ? (
+          rangeMintParams.buttonMessage
+        ) : (
+          "Add liquidity"
+        )}
       </button>
     </>
   );
