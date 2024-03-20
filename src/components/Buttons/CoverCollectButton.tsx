@@ -13,6 +13,7 @@ import { gasEstimateCoverBurn } from "../../utils/gas";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function CoverCollectButton({
   poolAddress,
@@ -72,12 +73,12 @@ export default function CoverCollectButton({
     address: poolAddress,
     abi: coverPoolABI,
     functionName: "burn",
-    args: [[address, BigNumber.from(0), positionId, claim, zeroForOne, true]],
+    args: [deepConvertBigIntAndBigNumber([
+      address, BigNumber.from(0), positionId, claim, zeroForOne, true]
+    )],
     chainId: chainId,
     enabled: positionId != undefined,
-    overrides: {
-      gasLimit: gasLimit,
-    },
+    gasLimit: deepConvertBigIntAndBigNumber(gasLimit)
   });
 
   const { data, isSuccess, write } = useContractWrite(config);

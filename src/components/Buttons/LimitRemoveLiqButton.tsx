@@ -3,7 +3,6 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
-  useSigner,
 } from "wagmi";
 import React, { useEffect, useState } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
@@ -16,6 +15,8 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { parseUnits } from "../../utils/math/valueMath";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
+import { useEthersSigner } from "../../utils/viemEthersAdapters";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function LimitRemoveLiqButton({
   poolAddress,
@@ -29,7 +30,7 @@ export default function LimitRemoveLiqButton({
   closeModal,
   setIsOpen,
 }) {
-  const { data: signer } = useSigner();
+  const signer = useEthersSigner()
 
   const [
     chainId,
@@ -112,19 +113,17 @@ export default function LimitRemoveLiqButton({
     abi: limitPoolABI,
     functionName: "burnLimit",
     args: [
-      {
+      deepConvertBigIntAndBigNumber({
         to: address,
         burnPercent: burnPercent,
         positionId: positionId,
         claim: BigNumber.from(claimTick ?? 0),
         zeroForOne: zeroForOne
-      },
+      }),
     ],
     enabled: positionId != undefined && claimTick != undefined,
     chainId: chainId,
-    overrides: {
-      gasLimit: gasLimit,
-    },
+    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
   });
 
   const { data, isSuccess, write } = useContractWrite(config);

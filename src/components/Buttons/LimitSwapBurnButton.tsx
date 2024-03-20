@@ -3,7 +3,6 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
-  useSigner,
 } from "wagmi";
 import React, { useEffect, useState } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
@@ -16,6 +15,8 @@ import { parseUnits } from "../../utils/math/valueMath";
 import { useRouter } from "next/router";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
+import { useEthersSigner } from "../../utils/viemEthersAdapters";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function LimitSwapBurnButton({
   poolAddress,
@@ -27,7 +28,7 @@ export default function LimitSwapBurnButton({
   upper,
   burnPercent,
 }) {
-  const { data: signer } = useSigner();
+  const signer = useEthersSigner()
 
   const [chainId, networkName, limitSubgraph] = useConfigStore((state) => [
     state.chainId,
@@ -100,18 +101,16 @@ export default function LimitSwapBurnButton({
     abi: limitPoolABI,
     functionName: "burnLimit",
     args: [
-      {
+      deepConvertBigIntAndBigNumber({
         to: address,
         burnPercent: burnPercent,
         positionId: positionId,
         claim: BigNumber.from(claimTick),
         zeroForOne: zeroForOne,
-      },
+      }),
     ],
     chainId: chainId,
-    overrides: {
-      gasLimit: gasLimit,
-    },
+    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
   });
 
   const { data, isSuccess, write } = useContractWrite(config);

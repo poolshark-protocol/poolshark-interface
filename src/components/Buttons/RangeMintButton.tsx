@@ -14,6 +14,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { getRangeMintButtonMsgValue, getRangeMintInputData } from "../../utils/buttons";
 import { chainProperties } from "../../utils/chains";
 import { getRangeStakerAddress } from "../../utils/config";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function RangeMintButton({
   disabled,
@@ -72,7 +73,7 @@ export default function RangeMintButton({
     args: [
       [poolAddress],
       [
-        {
+        deepConvertBigIntAndBigNumber({
           to: to,
           lower: lower,
           upper: upper,
@@ -80,19 +81,17 @@ export default function RangeMintButton({
           amount0: amount0,
           amount1: amount1,
           callbackData: getRangeMintInputData(rangeMintParams.stakeFlag, getRangeStakerAddress(networkName)),
-        },
+        }),
       ],
     ],
     chainId: chainId,
-    overrides: {
-      gasLimit: gasLimit,
-      value: getRangeMintButtonMsgValue(
-        tokenIn.native,
-        tokenOut.native,
-        rangeMintParams.tokenInAmount,
-        rangeMintParams.tokenOutAmount
-      )
-    },
+    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
+    value: deepConvertBigIntAndBigNumber(getRangeMintButtonMsgValue(
+      tokenIn.native,
+      tokenOut.native,
+      rangeMintParams.tokenInAmount,
+      rangeMintParams.tokenOutAmount
+    )),
     onSuccess() {
     },
     onError() {

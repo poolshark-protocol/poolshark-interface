@@ -2,6 +2,7 @@ import { useAccount, useContractWrite, usePrepareContractWrite, useWaitForTransa
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { bondTellerABI } from "../../abis/evm/bondTeller";
 import { useState } from "react";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function RedeemBondButton({
   tellerAddress,
@@ -27,7 +28,7 @@ export default function RedeemBondButton({
     functionName: "redeem",
     args: [
       tokenId,
-      amount,
+      deepConvertBigIntAndBigNumber(amount),
     ],
     chainId: chainId,
     onError() {

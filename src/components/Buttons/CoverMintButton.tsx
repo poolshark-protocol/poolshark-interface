@@ -15,6 +15,7 @@ import { BN_ZERO } from "../../utils/math/constants";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { getCoverMintButtonMsgValue } from "../../utils/buttons";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function CoverMintButton({
   routerAddress,
@@ -60,8 +61,7 @@ export default function CoverMintButton({
     functionName: "multiMintCover",
     args: [
       [poolAddress],
-      [
-        {
+      [deepConvertBigIntAndBigNumber({
           to: to,
           amount: amount,
           positionId: newPositionId,
@@ -69,16 +69,14 @@ export default function CoverMintButton({
           upper: BigNumber.from(roundTick(Number(upper), tickSpacing)),
           zeroForOne: zeroForOne,
           callbackData: ethers.utils.formatBytes32String(""),
-        },
+        }),
       ],
     ],
-    overrides: {
-      gasLimit: gasLimit,
-      value: getCoverMintButtonMsgValue(
-        tokenIn.native,
-        amount
-      )
-    },
+    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
+    value: getCoverMintButtonMsgValue(
+      tokenIn.native,
+      amount
+    ),
     enabled: !disabled,
     chainId: chainId,
   });

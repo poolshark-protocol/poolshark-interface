@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useAccount, useProvider } from "wagmi";
+import { useAccount, usePublicClient } from "wagmi";
 import { useRouter } from "next/router";
 import Navbar from "../../components/Navbar";
 import { fetchCoverPositions } from "../../utils/queries";

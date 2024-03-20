@@ -13,6 +13,7 @@ import { gasEstimateRangeStake } from "../../utils/gas";
 import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
 import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 // unstake position
 // add liquidity while staked
@@ -83,17 +84,15 @@ const [
       abi: rangeStakerABI,
       functionName: "stakeRange",
       args: [
-          {
+          deepConvertBigIntAndBigNumber({
               to: address,
               pool: rangePoolAddress,
               positionId: positionId,
-          }
+          })
       ],
       chainId: chainId,
       enabled: positionId != undefined && stakeApproved,
-      overrides: {
-          gasLimit: stakeGasLimit,
-      },
+      gasLimit: deepConvertBigIntAndBigNumber(stakeGasLimit),
       onSuccess() {},
       onError() {
         console.log('error stake')

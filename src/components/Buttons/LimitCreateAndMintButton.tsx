@@ -13,6 +13,7 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
   
   export default function LimitCreateAndMintButton({
     disabled,
@@ -62,7 +63,7 @@ import { chainProperties } from "../../utils/chains";
       abi: poolsharkRouterABI,
       functionName: "createLimitPoolAndMint",
       args: [
-        {
+        deepConvertBigIntAndBigNumber({
             poolTypeId: poolTypeId,
             tokenIn: tokenIn.address,
             tokenOut: tokenOut.address,
@@ -70,10 +71,10 @@ import { chainProperties } from "../../utils/chains";
               Number(zeroForOne ? lower : upper)
             ))),
             swapFee: feeTier ?? 3000
-        },  // pool params
+        }), // pool params
         [], // range positions
         [
-            {
+            deepConvertBigIntAndBigNumber({
                 to: to,
                 amount: amount,
                 mintPercent: mintPercent,
@@ -82,18 +83,16 @@ import { chainProperties } from "../../utils/chains";
                 upper: upper,
                 zeroForOne: zeroForOne,
                 callbackData: ethers.utils.formatBytes32String('')
-            }
+            })
         ], // limit positions
       ],
       enabled: feeTier != undefined && gasLimit.gt(BN_ZERO),
       chainId: chainId,
-      overrides: {
-        gasLimit: gasLimit,
-        value: getLimitSwapButtonMsgValue(
-          tokenIn.native,
-          amount
-        )
-      },
+      gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
+      value: deepConvertBigIntAndBigNumber(getLimitSwapButtonMsgValue(
+        tokenIn.native,
+        amount
+      )),
     });
   
     const { data, write } = useContractWrite(config);

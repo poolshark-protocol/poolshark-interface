@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
-import { useAccount, useContractRead, useProvider, useSigner } from "wagmi";
+import { useAccount, useContractRead } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
@@ -30,6 +30,8 @@ import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { getRouterAddress } from "../../utils/config";
 import BalanceDisplay from "../Display/BalanceDisplay";
+import { useEthersSigner } from "../../utils/viemEthersAdapters";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -126,8 +128,7 @@ export default function MarketSwap() {
 
   const { address, isDisconnected, isConnected } = useAccount();
 
-  const { data: signer } = useSigner();
-  const provider = useProvider();
+  const signer = useEthersSigner();
 
   const router = useRouter();
 
@@ -301,11 +302,11 @@ export default function MarketSwap() {
   const [swapPoolAddresses, setSwapPoolAddresses] = useState<string[]>([]);
   const [swapParams, setSwapParams] = useState<any[]>([]);
 
-  const { data: poolQuotes } = useContractRead({
+  const { data } = useContractRead({
     address: getRouterAddress(networkName), //contract address,
     abi: poolsharkRouterABI, // contract abi,
     functionName: "multiQuote",
-    args: [availablePools, quoteParams, true],
+    args: [availablePools, deepConvertBigIntAndBigNumber(quoteParams), true],
     chainId: chainId,
     enabled:
       availablePools != undefined && quoteParams != undefined && !wethCall,
@@ -317,7 +318,10 @@ export default function MarketSwap() {
 
   useEffect(() => {
     let poolQuotesSorted: QuoteResults[] = [];
-    if (poolQuotes && poolQuotes[0]) {
+    if (data && data[0]) {
+      // format to use BigNumber
+      const poolQuotes = deepConvertBigIntAndBigNumber(data)
+
       if (
         poolQuotes[0].amountIn?.gt(BN_ZERO) &&
         poolQuotes[0].amountOut?.gt(BN_ZERO)
@@ -410,7 +414,7 @@ export default function MarketSwap() {
           setDisplayIn("");
         }
       }
-    } else if (poolQuotes != undefined) {
+    } else if (data != undefined) {
       if (exactIn) {
         setAmountOut(BN_ZERO);
         setDisplayOut("");
@@ -419,7 +423,7 @@ export default function MarketSwap() {
         setDisplayIn("");
       }
     }
-  }, [poolQuotes, quoteParams, tradeSlippage]);
+  }, [data, quoteParams, tradeSlippage]);
 
   function updateSwapParams(poolQuotes: any) {
     const poolAddresses: string[] = [];

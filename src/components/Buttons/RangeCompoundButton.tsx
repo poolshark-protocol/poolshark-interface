@@ -11,6 +11,7 @@ import { rangeStakerABI } from '../../abis/evm/rangeStaker';
 import { chainProperties } from '../../utils/chains';
 import { getRangeStakerAddress } from '../../utils/config';
 import { toast } from "sonner";
+import { deepConvertBigIntAndBigNumber } from '../../utils/misc';
 
 export default function RangeCompoundButton({ poolAddress, address, positionId, staked }) {
 
@@ -29,11 +30,11 @@ export default function RangeCompoundButton({ poolAddress, address, positionId, 
     abi: rangePoolABI,
     functionName: "burnRange",
     enabled: positionId != undefined && staked != undefined && !staked,
-    args:[[
-        address,
-        positionId,
-        BN_ZERO
-      ]],
+    args:[deepConvertBigIntAndBigNumber([
+      address,
+      positionId,
+      BN_ZERO
+    ])],
     chainId: chainId,
     onError(err) {
       console.log('compound error')
@@ -46,11 +47,11 @@ const { config: burnStakeConfig } = usePrepareContractWrite({
   functionName: "burnRangeStake",
   args: [
     poolAddress,
-    {
+    deepConvertBigIntAndBigNumber({
       to: address,
       positionId: positionId,
       burnPercent: BN_ZERO
-    }
+    })
   ],
   chainId: chainId,
   enabled: poolAddress != ZERO_ADDRESS && staked != undefined && staked,

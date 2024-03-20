@@ -1,10 +1,9 @@
 import { Transition, Dialog } from "@headlessui/react";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import {
   useAccount,
   erc20ABI,
-  useSigner,
   useBalance,
 } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
@@ -22,6 +21,8 @@ import { useCoverStore } from "../../../hooks/useCoverStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getLogo } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
+import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
+import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
@@ -65,7 +66,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   ]);
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
-  const { data: signer } = useSigner();
+  const signer = useEthersSigner();
   const { isConnected } = useAccount();
   const [stateChainName, setStateChainName] = useState(); 
   const [buttonState, setButtonState] = useState("");
@@ -73,7 +74,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
 
   ////////////////////////////////Allowances
 
-  const { data: allowanceInCover } = useContractRead({
+  const { data: allowanceInCoverInt } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
@@ -89,6 +90,8 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     },
     onSettled(data, error) {},
   });
+
+  const allowanceInCover = useMemo(() =>deepConvertBigIntAndBigNumber(allowanceInCoverInt), [allowanceInCoverInt]);
 
   useEffect(() => {
     if (isConnected && allowanceInCover)

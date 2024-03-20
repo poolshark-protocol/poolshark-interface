@@ -11,6 +11,7 @@ import { useAccount, useToken } from "wagmi";
 import { useConfigStore } from "../hooks/useConfigStore";
 import { defaultTokenLogo, getLogo, logoMapKey } from "../utils/tokens";
 import { isAddress } from "@ethersproject/address";
+import { deepConvertBigIntAndBigNumber } from "../utils/misc";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
@@ -49,7 +50,7 @@ export default function SelectToken(props) {
     address: customInput as `0x${string}`,
     enabled: isAddress(customInput),
     onSuccess() {
-      if (tokenData) setTokenInfo(tokenData);
+      if (tokenData) setTokenInfo(deepConvertBigIntAndBigNumber(tokenData));
       else refetchTokenInfo();
     },
   });

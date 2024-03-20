@@ -12,6 +12,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { BN_ZERO } from "../../utils/math/constants";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function LimitCollectButton({
   poolAddress,
@@ -47,19 +48,17 @@ export default function LimitCollectButton({
     abi: limitPoolABI,
     functionName: "burnLimit",
     args: [
-      {
+      deepConvertBigIntAndBigNumber({
         to: address,
         burnPercent: BN_ZERO,
         positionId: positionId,
         claim: claim,
         zeroForOne: zeroForOne
-      },
+      }),
     ],
     chainId: chainId,
     enabled: positionId != undefined,
-    overrides: {
-      gasLimit: gasLimit,
-    },
+    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
   });
 
   const { data, isSuccess, write } = useContractWrite(config);

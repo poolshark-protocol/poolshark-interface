@@ -3,12 +3,11 @@ import {
   erc20ABI,
   useAccount,
   useContractRead,
-  useSigner,
   useBalance,
 } from "wagmi";
 import DoubleArrowIcon from "../Icons/DoubleArrowIcon";
 import CoverMintButton from "../Buttons/CoverMintButton";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import JSBI from "jsbi";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
@@ -36,6 +35,9 @@ import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 import { getRouterAddress } from "../../utils/config";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useEthersSigner } from "../../utils/viemEthersAdapters";
+
 export default function CoverExistingPool({ goBack }) {
   const [
     chainId,
@@ -129,7 +131,7 @@ export default function CoverExistingPool({ goBack }) {
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState();
 
-  const { data: signer } = useSigner();
+  const signer = useEthersSigner();
   const { address, isConnected, isDisconnected } = useAccount();
 
   const router = useRouter();
@@ -152,7 +154,7 @@ export default function CoverExistingPool({ goBack }) {
 
   ////////////////////////////////Token Allowances
 
-  const { data: allowanceInCover } = useContractRead({
+  const { data: allowanceInCoverInt } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
@@ -168,6 +170,9 @@ export default function CoverExistingPool({ goBack }) {
     },
     onSettled(data, error) {},
   });
+
+  const allowanceInCover = 
+    useMemo(() => deepConvertBigIntAndBigNumber(allowanceInCoverInt), [allowanceInCoverInt]);
 
   useEffect(() => {
     if (allowanceInCover) {

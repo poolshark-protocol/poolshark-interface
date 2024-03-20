@@ -1,5 +1,5 @@
 import { ZERO_ADDRESS } from "./math/constants";
-import { Chain } from "wagmi";
+import { type Chain } from 'viem'
 import { Network } from "alchemy-sdk";
 
 export const scroll: Chain = {

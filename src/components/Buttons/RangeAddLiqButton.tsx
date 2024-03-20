@@ -2,7 +2,6 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
-  useSigner,
 } from "wagmi";
 import React, { useState, useEffect } from "react";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
@@ -15,6 +14,8 @@ import { getRangeMintInputData } from "../../utils/buttons";
 import { chainProperties } from "../../utils/chains";
 import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
+import { useEthersSigner } from "../../utils/viemEthersAdapters";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function RangeAddLiqButton({
   routerAddress,
@@ -58,7 +59,7 @@ export default function RangeAddLiqButton({
   ]);
   const [toastId, setToastId] = useState(null);
 
-  const { data: signer } = useSigner();
+  const signer = useEthersSigner()
 
   const { config } = usePrepareContractWrite({
     address: routerAddress,
@@ -67,7 +68,7 @@ export default function RangeAddLiqButton({
     args: [
       [poolAddress],
       [
-        {
+        deepConvertBigIntAndBigNumber({
           to: address,
           lower: lower,
           upper: upper,
@@ -75,14 +76,12 @@ export default function RangeAddLiqButton({
           amount0: amount0,
           amount1: amount1,
           callbackData: getRangeMintInputData(rangePositionData.staked, getRangeStakerAddress(networkName)),
-        },
+        }),
       ],
     ],
     chainId: chainId,
     enabled: positionId != undefined && poolAddress != ZERO_ADDRESS,
-    overrides: {
-      gasLimit: gasLimit,
-    },
+    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
     onError(err) {
       console.log('range add liq error')  
     },

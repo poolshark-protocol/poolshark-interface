@@ -2,8 +2,7 @@ import Navbar from "../../components/Navbar";
 import Info from "../../components/Icons/InfoIcon";
 import ClaimRewardsButton from "../../components/Buttons/ClaimRewardsButton";
 import { CheckIcon } from "@heroicons/react/20/solid";
-import { ethers } from "ethers";
-import { useAccount, useProvider } from "wagmi";
+import { useAccount } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useEffect, useState } from "react";
 import { fetchSeason1Rewards } from "../../utils/queries";
@@ -13,8 +12,6 @@ import { formatOFin } from "../../utils/math/valueMath";
 export default function Earn() {
   const { address, isConnected } = useAccount();
   const [block, setBlock] = useState("Block 1");
-  const provider = useProvider();
-  const signer = new ethers.VoidSigner(address, provider);
   const [isLoading, setIsLoading] = useState(true);
 
   const [

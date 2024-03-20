@@ -13,6 +13,7 @@ import { chainProperties } from "../../utils/chains";
 import { rangeStakerABI } from "../../abis/evm/rangeStaker";
 import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function RangeRemoveLiqButton({
   poolAddress,
@@ -55,11 +56,11 @@ export default function RangeRemoveLiqButton({
               && staked != undefined 
               && !staked 
               && poolAddress != ZERO_ADDRESS,
-    args:[[
+    args:[deepConvertBigIntAndBigNumber([
         address,
         positionId,
         burnPercent
-      ]],
+      ])],
     chainId: chainId,
     onError(err) {
       console.log('compound error')
@@ -72,11 +73,11 @@ export default function RangeRemoveLiqButton({
     functionName: "burnRangeStake",
     args: [
       poolAddress,
-      {
+      deepConvertBigIntAndBigNumber({
         to: address,
         positionId: positionId,
         burnPercent: burnPercent
-      }
+      })
     ],
     chainId: chainId,
     enabled: positionId != undefined 

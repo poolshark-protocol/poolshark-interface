@@ -1,7 +1,7 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useAccount, erc20ABI, useSigner, useBalance } from "wagmi";
+import { useAccount, erc20ABI, useBalance } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import LimitAddLiqButton from "../../Buttons/LimitAddLiqButton";
 import { BigNumber, ethers } from "ethers";
@@ -15,6 +15,8 @@ import { useConfigStore } from "../../../hooks/useConfigStore";
 import { parseUnits } from "../../../utils/math/valueMath";
 import { getLogo, logoMapKey } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
+import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
+import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   const [chainId, logoMap, networkName, limitSubgraph] = useConfigStore((state) => [
@@ -47,7 +49,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   ]);
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
-  const { data: signer } = useSigner();
+  const signer = useEthersSigner();
   const { isConnected } = useAccount();
 
   const [allowanceIn, setAllowanceIn] = useState(BN_ZERO);
@@ -122,7 +124,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   }, [bnInput, tokenIn.userBalance, disabled]);
 
   useEffect(() => {
-    if (tokenInAllowance) setAllowanceIn(tokenInAllowance);
+    if (tokenInAllowance) setAllowanceIn(deepConvertBigIntAndBigNumber(tokenInAllowance));
   }, [tokenInAllowance]);
 
   useEffect(() => {

@@ -1,13 +1,12 @@
 import { Transition, Dialog } from "@headlessui/react";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import {
   useAccount,
   erc20ABI,
   useContractRead,
   useBalance,
-  useSigner,
-  useProvider,
+  usePublicClient,
 } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import RangeAddLiqButton from "../../Buttons/RangeAddLiqButton";
@@ -26,6 +25,8 @@ import { inputHandler } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getRouterAddress } from "../../../utils/config";
 import BalanceDisplay from "../../Display/BalanceDisplay";
+import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
+import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 import { getLogo } from "../../../utils/tokens";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
@@ -95,9 +96,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     setDisplay: setDisplay2,
   } = useInputBox();
   const router = useRouter();
-  const provider = useProvider();
+  const provider = usePublicClient();
   const { address } = useAccount();
-  const signer = new ethers.VoidSigner(address, provider);
+  const signer = useEthersSigner();
 
   const [disabled, setDisabled] = useState(false);
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
@@ -133,7 +134,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
 
   ////////////////////////////////Allowances
 
-  const { data: tokenInAllowance } = useContractRead({
+  const { data: tokenInAllowanceInt } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
@@ -150,7 +151,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     },
   });
 
-  const { data: tokenOutAllowance } = useContractRead({
+  const { data: tokenOutAllowanceInt } = useContractRead({
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
@@ -166,6 +167,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       console.log("Error", error);
     },
   });
+
+
+  const tokenInAllowance  = useMemo(() =>deepConvertBigIntAndBigNumber(tokenInAllowanceInt), [tokenInAllowanceInt]);
+  const tokenOutAllowance = useMemo(() =>deepConvertBigIntAndBigNumber(tokenOutAllowanceInt), [tokenOutAllowanceInt]);
 
   useEffect(() => {
     setTokenInAllowance(tokenInAllowance);

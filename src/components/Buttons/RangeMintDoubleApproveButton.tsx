@@ -10,6 +10,7 @@ import { useRangeLimitStore } from '../../hooks/useRangeLimitStore'
 import { useConfigStore } from '../../hooks/useConfigStore'
 import { chainProperties } from "../../utils/chains";
 import { toast } from "sonner";
+import { deepConvertBigIntAndBigNumber } from '../../utils/misc'
 
 export default function RangeMintDoubleApproveButton({
   routerAddress,
@@ -41,7 +42,7 @@ export default function RangeMintDoubleApproveButton({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [routerAddress, amount0],
+    args: [routerAddress, deepConvertBigIntAndBigNumber(amount0)],
     chainId: chainId,
   })
 
@@ -49,7 +50,7 @@ export default function RangeMintDoubleApproveButton({
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [routerAddress, amount1],
+    args: [routerAddress, deepConvertBigIntAndBigNumber(amount1)],
     chainId: chainId,
   })
 

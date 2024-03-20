@@ -4,6 +4,7 @@ import { bondTellerABI } from "../../abis/evm/bondTeller";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function RedeemMulticallBondButton({
   tellerAddress,
@@ -29,7 +30,7 @@ export default function RedeemMulticallBondButton({
     functionName: "redeem",
     args: [
       tokenId,
-      amount,
+      deepConvertBigIntAndBigNumber(amount),
     ],
     chainId: chainId,
     onError() {

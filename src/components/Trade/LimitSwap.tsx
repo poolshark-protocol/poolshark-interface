@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
-import { useAccount, useSigner } from "wagmi";
+import { useAccount } from "wagmi";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
 import LimitSwapButton from "../Buttons/LimitSwapButton";
@@ -49,6 +49,7 @@ import JSBI from "jsbi";
 import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import BalanceDisplay from "../Display/BalanceDisplay";
 import { getRouterAddress } from "../../utils/config";
+import { useEthersSigner } from "../../utils/viemEthersAdapters";
 
 export default function LimitSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -154,9 +155,7 @@ export default function LimitSwap() {
   } = useInputBox();
 
   const { address, isDisconnected, isConnected } = useAccount();
-
-  const { data: signer } = useSigner();
-
+  const signer = useEthersSigner()
   const [priceRangeSelected, setPriceRangeSelected] = useState(false);
 
   const [swapParams, setSwapParams] = useState<any[]>([]);

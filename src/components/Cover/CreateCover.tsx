@@ -4,7 +4,6 @@ import {
   erc20ABI,
   useAccount,
   useContractRead,
-  useSigner,
   useBalance,
 } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
@@ -13,7 +12,7 @@ import {
   chainIdsToNames,
   chainProperties,
 } from "../../utils/chains";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useInputBox from "../../hooks/useInputBox";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import { BigNumber, ethers } from "ethers";
@@ -36,6 +35,8 @@ import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 import { getRouterAddress } from "../../utils/config";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useEthersSigner } from "../../utils/viemEthersAdapters";
 
 export default function CreateCover(props: any) {
   const [chainId, networkName, coverSubgraph, coverFactoryAddress] = useConfigStore((state) => [
@@ -115,7 +116,7 @@ export default function CreateCover(props: any) {
     state.setNeedsLatestTick,
   ]);
 
-  const { data: signer } = useSigner();
+  const signer = useEthersSigner();
   const { address, isConnected, isDisconnected } = useAccount();
   const { setBnInput, bnInput, inputBox, setDisplay, display } = useInputBox();
   const [loadingPrices, setLoadingPrices] = useState(true);
@@ -144,7 +145,7 @@ export default function CreateCover(props: any) {
 
   ////////////////////////////////Token Allowances
 
-  const { data: allowanceInCover } = useContractRead({
+  const { data: allowanceInCoverInt } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
@@ -160,6 +161,8 @@ export default function CreateCover(props: any) {
     },
     onSettled(data, error) {},
   });
+
+  const allowanceInCover = useMemo(() =>deepConvertBigIntAndBigNumber(allowanceInCoverInt), [allowanceInCoverInt]);
 
   useEffect(() => {
     if (allowanceInCover) {
