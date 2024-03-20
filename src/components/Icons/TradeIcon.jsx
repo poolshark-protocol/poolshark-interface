@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from "react";
 const Trade = (props) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -16,5 +16,5 @@ const Trade = (props) => (
       d="M16.697 11.177h1.768v3.314h-1.768zM16.697 20.457h1.768v3.314h-1.768z"
     />
   </svg>
-)
-export default Trade
+);
+export default Trade;

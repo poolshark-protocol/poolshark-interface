@@ -17,7 +17,7 @@ export const getClaimTick = async (
   isCover: boolean,
   client: LimitSubgraph | CoverSubgraph,
   setAddLiqDisabled: any,
-  latestTick?: number
+  latestTick?: number,
 ) => {
   // default to start tick
   let claimTick: number;
@@ -29,20 +29,20 @@ export const getClaimTick = async (
           minLimit,
           maxLimit,
           poolAddress,
-          epochLast
+          epochLast,
         )
       : await getLimitTickIfZeroForOne(
           client,
           minLimit,
           maxLimit,
           poolAddress,
-          epochLast
+          epochLast,
         );
     // check data length
     let claimTickDataLength;
     if (isCover) {
       if (claimTickQuery["data"] && claimTickQuery["data"]["ticks"]) {
-        claimTickDataLength = claimTickQuery["data"]["ticks"]?.length
+        claimTickDataLength = claimTickQuery["data"]["ticks"]?.length;
       }
     } else {
       if (claimTickQuery["data"] && claimTickQuery["data"]["limitTicks"]) {
@@ -83,20 +83,20 @@ export const getClaimTick = async (
           minLimit,
           maxLimit,
           poolAddress,
-          epochLast
+          epochLast,
         )
       : await getLimitTickIfNotZeroForOne(
           client,
           minLimit,
           maxLimit,
           poolAddress,
-          epochLast
+          epochLast,
         );
     // check data length
-    let claimTickDataLength
+    let claimTickDataLength;
     if (isCover) {
       if (claimTickQuery["data"] && claimTickQuery["data"]["ticks"]) {
-        claimTickDataLength = claimTickQuery["data"]["ticks"]?.length
+        claimTickDataLength = claimTickQuery["data"]["ticks"]?.length;
       }
     } else {
       if (claimTickQuery["data"] && claimTickQuery["data"]["limitTicks"]) {
@@ -142,10 +142,10 @@ export function mapUserRangePositions(
 ) {
   const mappedRangePositions = [];
   if (resetNumLegacyPositions) {
-    resetNumLegacyPositions()
+    resetNumLegacyPositions();
   }
   if (resetNumCurrentPositions) {
-    resetNumCurrentPositions()
+    resetNumCurrentPositions();
   }
   rangePositions?.map((rangePosition) => {
     const rangePositionData = {
@@ -171,27 +171,38 @@ export function mapUserRangePositions(
         parseFloat(rangePosition.pool.totalValueLockedUsd) / 1_000_000
       ).toFixed(2),
       volumeUsd: (parseFloat(rangePosition.pool.volumeUsd) / 1_000_000).toFixed(
-        2
+        2,
       ),
       volumeEth: (parseFloat(rangePosition.pool.volumeEth) / 1).toFixed(2),
       userOwnerAddress: rangePosition.owner.replace(/"|'/g, ""),
     };
-    if (setNumLegacyPositions && rangePositionData.poolType != limitPoolTypeIds["constant-product-1.1"]) {
-      setNumLegacyPositions()
+    if (
+      setNumLegacyPositions &&
+      rangePositionData.poolType != limitPoolTypeIds["constant-product-1.1"]
+    ) {
+      setNumLegacyPositions();
     }
-    if (setNumCurrentPositions && rangePositionData.poolType == limitPoolTypeIds["constant-product-1.1"]) {
-      setNumCurrentPositions()
+    if (
+      setNumCurrentPositions &&
+      rangePositionData.poolType == limitPoolTypeIds["constant-product-1.1"]
+    ) {
+      setNumCurrentPositions();
     }
     mappedRangePositions.push(rangePositionData);
   });
   return mappedRangePositions;
 }
 
-export function mapRangePools(rangePools, networkName: string, whitelistedFeesData: number[], setWhitelistedFeesData: any) {
+export function mapRangePools(
+  rangePools,
+  networkName: string,
+  whitelistedFeesData: number[],
+  setWhitelistedFeesData: any,
+) {
   const mappedRangePools = [];
   whitelistedFeesData = [];
   rangePools.map((rangePool) => {
-    const rangePool24hData = mapRangePool24HourData(rangePool)
+    const rangePool24hData = mapRangePool24HourData(rangePool);
     const rangePoolData = {
       poolId: rangePool.id,
       tokenOne: rangePool.token1,
@@ -207,14 +218,14 @@ export function mapRangePools(rangePools, networkName: string, whitelistedFeesDa
     };
     // adds to total fees for oFIN APY calculation
     if (isWhitelistedPool(rangePoolData, networkName)) {
-      const whitelistedIndex = getWhitelistedIndex(rangePoolData, networkName)
+      const whitelistedIndex = getWhitelistedIndex(rangePoolData, networkName);
       if (whitelistedIndex != -1) {
-        whitelistedFeesData[whitelistedIndex] = rangePool24hData.feesUsd
+        whitelistedFeesData[whitelistedIndex] = rangePool24hData.feesUsd;
         let whitelistedFeesTotal = 0;
-        for (let i = 0; i< whitelistedFeesData.length; i++) {
-          whitelistedFeesTotal += whitelistedFeesData[i]
+        for (let i = 0; i < whitelistedFeesData.length; i++) {
+          whitelistedFeesTotal += whitelistedFeesData[i];
         }
-        setWhitelistedFeesData(whitelistedFeesData, whitelistedFeesTotal)
+        setWhitelistedFeesData(whitelistedFeesData, whitelistedFeesTotal);
       }
     }
     mappedRangePools.push(rangePoolData);
@@ -225,14 +236,19 @@ export function mapRangePools(rangePools, networkName: string, whitelistedFeesDa
 export function mapRangePool24HourData(rangePool): RangePool24HData {
   let rangePool24HData = {
     volumeUsd: 0,
-    feesUsd: 0
-  }
+    feesUsd: 0,
+  };
   const timestampNow = Date.now() / 1000;
-  const timestamp24HoursAgo = timestampNow - (25 * 60 * 60);
+  const timestamp24HoursAgo = timestampNow - 25 * 60 * 60;
   for (let i = 0; i < rangePool?.last24HoursPoolData?.length; i++) {
-    if (timestamp24HoursAgo <= Number(rangePool?.last24HoursPoolData[i]?.startTimestamp)) {
-      rangePool24HData.volumeUsd += Number(rangePool?.last24HoursPoolData[i]?.volumeUSD) ?? 0
-      rangePool24HData.feesUsd += Number(rangePool?.last24HoursPoolData[i]?.feesUSD) ?? 0
+    if (
+      timestamp24HoursAgo <=
+      Number(rangePool?.last24HoursPoolData[i]?.startTimestamp)
+    ) {
+      rangePool24HData.volumeUsd +=
+        Number(rangePool?.last24HoursPoolData[i]?.volumeUSD) ?? 0;
+      rangePool24HData.feesUsd +=
+        Number(rangePool?.last24HoursPoolData[i]?.feesUSD) ?? 0;
     }
   }
   return rangePool24HData;
@@ -240,7 +256,7 @@ export function mapRangePool24HourData(rangePool): RangePool24HData {
 
 export function mapUserCoverPositions(
   coverPositions,
-  coverSubgraph: CoverSubgraph
+  coverSubgraph: CoverSubgraph,
 ) {
   const mappedCoverPositions = [];
   coverPositions.map((coverPosition) => {
@@ -284,7 +300,7 @@ export function mapUserCoverPositions(
       coverPosition.epochLast,
       true,
       coverSubgraph,
-      undefined
+      undefined,
     );
   });
   return mappedCoverPositions;
@@ -445,7 +461,9 @@ export function mapUserBondPurchases(bondPurchases) {
       payoutTokenAddress: bondPurchase.payoutToken.address,
       payoutTokenSymbol: bondPurchase.payoutToken.symbol,
       payoutTokenDecimals: bondPurchase.payoutToken.decimals,
-      payoutTokenPayoutAmount: Number(bondPurchase.payoutToken.totalPayoutAmount),
+      payoutTokenPayoutAmount: Number(
+        bondPurchase.payoutToken.totalPayoutAmount,
+      ),
       quoteTokenId: bondPurchase.quoteToken.id,
       quoteTokenAddress: bondPurchase.quoteToken.address,
       quoteTokenSymbol: bondPurchase.quoteToken.symbol,

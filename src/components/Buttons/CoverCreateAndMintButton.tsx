@@ -37,25 +37,20 @@ export default function CoverCreateAndMintButton({
   setSuccessDisplay,
   setErrorDisplay,
   setIsLoading,
-  setTxHash
+  setTxHash,
 }) {
-  
-  const [
-    chainId,
-    networkName
-  ] = useConfigStore((state) => [
+  const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
   ]);
 
-  const [setNeedsRefetch, setNeedsAllowance, setNeedsBalance, twapReady] = useCoverStore(
-    (state) => [
+  const [setNeedsRefetch, setNeedsAllowance, setNeedsBalance, twapReady] =
+    useCoverStore((state) => [
       state.setNeedsRefetch,
       state.setNeedsAllowance,
       state.setNeedsBalance,
-      state.twapReady
-    ]
-  );
+      state.twapReady,
+    ]);
 
   const newPositionId = 0;
 
@@ -65,14 +60,15 @@ export default function CoverCreateAndMintButton({
     functionName: "createCoverPoolAndMint",
     args: [
       deepConvertBigIntAndBigNumber({
-        poolType: coverPoolTypes['constant-product']['poolshark'],
+        poolType: coverPoolTypes["constant-product"]["poolshark"],
         tokenIn: tokenIn.address,
         tokenOut: tokenOut.address,
         feeTier: volTier.feeAmount,
         tickSpread: volTier.tickSpread,
         twapLength: volTier.twapLength,
       }), // pool params
-      twapReady ? [
+      twapReady
+        ? [
             deepConvertBigIntAndBigNumber({
               to: to,
               amount: amount,
@@ -82,7 +78,8 @@ export default function CoverCreateAndMintButton({
               zeroForOne: zeroForOne,
               callbackData: ethers.utils.formatBytes32String(""),
             }),
-          ] : [], // cover positions
+          ]
+        : [], // cover positions
     ],
     gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
     value: getCoverMintButtonMsgValue(tokenIn.native, amount),
@@ -107,15 +104,15 @@ export default function CoverCreateAndMintButton({
   });
 
   useEffect(() => {
-    if(isLoading) {
-      setIsLoading(true)
+    if (isLoading) {
+      setIsLoading(true);
     } else {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }, [isLoading]);
 
   useEffect(() => {
-    setTxHash(data?.hash)
+    setTxHash(data?.hash);
   }, [data]);
 
   return (
@@ -125,7 +122,7 @@ export default function CoverCreateAndMintButton({
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full flex items-center justify-center border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         onClick={() => write?.()}
       >
-        {gasLimit.lte(BN_ZERO) && !disabled ? <Loader/> : buttonMessage}
+        {gasLimit.lte(BN_ZERO) && !disabled ? <Loader /> : buttonMessage}
       </button>
     </>
   );

@@ -16,5 +16,5 @@ root.render(
     }}
   >
     <MyApp Component={undefined} pageProps={undefined} />
-  </ToastProvider>
+  </ToastProvider>,
 );

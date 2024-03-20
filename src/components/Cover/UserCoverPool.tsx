@@ -63,19 +63,19 @@ export default function UserCoverPool({
       Number(coverPosition.epochLast),
       true,
       coverSubgraph,
-      undefined
+      undefined,
     );
     setClaimTick(tick);
     setClaimPrice(
-      parseFloat(TickMath.getPriceStringAtTick(tick, tokenIn, tokenOut))
+      parseFloat(TickMath.getPriceStringAtTick(tick, tokenIn, tokenOut)),
     );
     setFillPercent(
       (
         Math.abs(
           (Boolean(coverPosition.zeroForOne) ? upperPrice : lowerPrice) -
-            claimPrice
+            claimPrice,
         ) / Math.abs(upperPrice - lowerPrice)
-      ).toPrecision(3)
+      ).toPrecision(3),
     );
   };
 
@@ -86,13 +86,13 @@ export default function UserCoverPool({
           coverPosition.userFillOut,
           coverPosition.zeroForOne
             ? coverPosition.tokenZero.decimals
-            : coverPosition.tokenOne.decimals
-        )
+            : coverPosition.tokenOne.decimals,
+        ),
       ) *
       Number(
         coverPosition.zeroForOne
           ? coverPosition.valueTokenZero
-          : coverPosition.valueTokenOne
+          : coverPosition.valueTokenOne,
       );
     const positionInUSDPrice =
       Number(
@@ -100,16 +100,16 @@ export default function UserCoverPool({
           coverPosition.userFillIn,
           coverPosition.zeroForOne
             ? coverPosition.tokenOne.decimals
-            : coverPosition.tokenZero.decimals
-        )
+            : coverPosition.tokenZero.decimals,
+        ),
       ) *
       Number(
         coverPosition.zeroForOne
           ? coverPosition.valueTokenOne
-          : coverPosition.valueTokenZero
+          : coverPosition.valueTokenZero,
       );
     setPositionUSDPrice(
-      Number(positionOutUSDPrice + positionInUSDPrice).toFixed(2)
+      Number(positionOutUSDPrice + positionInUSDPrice).toFixed(2),
     );
   };
 
@@ -137,7 +137,7 @@ export default function UserCoverPool({
       tokenInNew,
       tokenOutNew,
       coverPosition.volatilityTier.feeAmount.toString(),
-      coverSubgraph
+      coverSubgraph,
     );
     router.push({
       pathname: href,
@@ -178,13 +178,13 @@ export default function UserCoverPool({
               {TickMath.getPriceStringAtTick(
                 Number(coverPosition.min),
                 tokenIn,
-                tokenOut
+                tokenOut,
               )}{" "}
               -{" "}
               {TickMath.getPriceStringAtTick(
                 Number(coverPosition.max),
                 tokenIn,
-                tokenOut
+                tokenOut,
               )}{" "}
               <span className="text-grey1">
                 {coverPosition.zeroForOne
@@ -202,7 +202,7 @@ export default function UserCoverPool({
               <div className="flex relative bg-transparent items-center justify-center h-8 border-grey z-40 border rounded-[4px] gap-x-2 text-sm w-40">
                 <div
                   className={`bg-white h-full absolute left-0 z-0 rounded-l-[4px] opacity-10 w-[${parseInt(
-                    fillPercent
+                    fillPercent,
                   )}%]`}
                 />
                 <div className="z-20 text-white text-xs">

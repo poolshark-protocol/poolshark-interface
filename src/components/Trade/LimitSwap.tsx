@@ -155,7 +155,7 @@ export default function LimitSwap() {
   } = useInputBox();
 
   const { address, isDisconnected, isConnected } = useAccount();
-  const signer = useEthersSigner()
+  const signer = useEthersSigner();
   const [priceRangeSelected, setPriceRangeSelected] = useState(false);
 
   const [swapParams, setSwapParams] = useState<any[]>([]);
@@ -194,7 +194,7 @@ export default function LimitSwap() {
             setTokenOutTradeUSDPrice,
             setTradePoolPrice,
             setTradePoolLiquidity,
-            limitPoolTypeIds["constant-product-1.1"]
+            limitPoolTypeIds["constant-product-1.1"],
           );
           setSelectedFeeTier(tradePoolData?.feeTier?.id);
         }
@@ -254,7 +254,7 @@ export default function LimitSwap() {
       undefined,
       undefined,
       limitPoolTypeIds["constant-product-1.1"],
-      setSelectedFeeTier
+      setSelectedFeeTier,
     );
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
@@ -285,7 +285,7 @@ export default function LimitSwap() {
       tokenIn,
       tokenOut,
       feeAmount,
-      limitPoolTypeIds['constant-product-1.1']
+      limitPoolTypeIds["constant-product-1.1"],
     );
     setSelectedFeeTier(feeAmount.toString());
     setTradePoolData(pool);
@@ -352,12 +352,12 @@ export default function LimitSwap() {
             TickMath.getPriceStringAtSqrtPrice(
               JSBI.BigInt(tradePoolData.poolPrice),
               tokenIn,
-              tokenOut
+              tokenOut,
             ),
-            limitPriceOrder
-          )
+            limitPriceOrder,
+          ),
         ),
-        5
+        5,
       );
       setLimitPriceString(newPrice);
     } else {
@@ -371,7 +371,7 @@ export default function LimitSwap() {
       if (!isNaN(parseFloat(lowerPriceString))) {
         const priceLower = invertPrice(
           limitPriceOrder ? lowerPriceString : upperPriceString,
-          limitPriceOrder
+          limitPriceOrder,
         );
         setLowerTick(
           BigNumber.from(
@@ -379,15 +379,15 @@ export default function LimitSwap() {
               priceLower,
               tokenIn,
               tokenOut,
-              tickSpacing
-            )
-          )
+              tickSpacing,
+            ),
+          ),
         );
       }
       if (!isNaN(parseFloat(upperPriceString))) {
         const priceUpper = invertPrice(
           limitPriceOrder ? upperPriceString : lowerPriceString,
-          limitPriceOrder
+          limitPriceOrder,
         );
         setUpperTick(
           BigNumber.from(
@@ -395,9 +395,9 @@ export default function LimitSwap() {
               priceUpper,
               tokenIn,
               tokenOut,
-              tickSpacing
-            )
-          )
+              tickSpacing,
+            ),
+          ),
         );
       }
     }
@@ -466,9 +466,9 @@ export default function LimitSwap() {
                 priceString,
                 tokenIn,
                 tokenOut,
-                tickSpacing
-              )
-            )
+                tickSpacing,
+              ),
+            ),
           );
           setUpperTick(
             BigNumber.from(
@@ -476,9 +476,9 @@ export default function LimitSwap() {
                 String(endPrice),
                 tokenIn,
                 tokenOut,
-                tickSpacing
-              )
-            )
+                tickSpacing,
+              ),
+            ),
           );
         } else {
           const endPrice = parseFloat(priceString) - limitPriceTolerance;
@@ -488,9 +488,9 @@ export default function LimitSwap() {
                 String(endPrice),
                 tokenIn,
                 tokenOut,
-                tickSpacing
-              )
-            )
+                tickSpacing,
+              ),
+            ),
           );
           setUpperTick(
             BigNumber.from(
@@ -498,9 +498,9 @@ export default function LimitSwap() {
                 priceString,
                 tokenIn,
                 tokenOut,
-                tickSpacing
-              )
-            )
+                tickSpacing,
+              ),
+            ),
           );
         }
       } else {
@@ -510,7 +510,7 @@ export default function LimitSwap() {
               priceString,
               tokenIn,
               tokenOut,
-              tickSpacing
+              tickSpacing,
             ) - -tickSpacing;
           setLowerTick(
             BigNumber.from(
@@ -518,9 +518,9 @@ export default function LimitSwap() {
                 priceString,
                 tokenIn,
                 tokenOut,
-                tickSpacing
-              )
-            )
+                tickSpacing,
+              ),
+            ),
           );
           setUpperTick(BigNumber.from(String(endTick)));
         } else {
@@ -529,7 +529,7 @@ export default function LimitSwap() {
               priceString,
               tokenIn,
               tokenOut,
-              tickSpacing
+              tickSpacing,
             ) - tickSpacing;
           setLowerTick(BigNumber.from(String(endTick)));
           setUpperTick(
@@ -538,9 +538,9 @@ export default function LimitSwap() {
                 priceString,
                 tokenIn,
                 tokenOut,
-                tickSpacing
-              )
-            )
+                tickSpacing,
+              ),
+            ),
           );
         }
       }
@@ -558,16 +558,16 @@ export default function LimitSwap() {
             Number(lowerTick),
             Number(upperTick),
             tokenIn.callId == 0,
-            amountIn
+            amountIn,
           );
           const tokenOutAmountDisplay = numFormat(
             parseFloat(
               ethers.utils.formatUnits(
                 tokenOutAmount.toString(),
-                tokenOut.decimals
-              )
+                tokenOut.decimals,
+              ),
             ),
-            5
+            5,
           );
           if (tokenOutAmount.gt(BN_ZERO)) {
             setDisplayOut(tokenOutAmountDisplay);
@@ -591,16 +591,16 @@ export default function LimitSwap() {
             Number(lowerTick),
             Number(upperTick),
             tokenIn.callId == 0,
-            amountOut
+            amountOut,
           );
           const tokenInAmountDisplay = numFormat(
             parseFloat(
               ethers.utils.formatUnits(
                 tokenInAmount.toString(),
-                tokenIn.decimals
-              )
+                tokenIn.decimals,
+              ),
             ),
-            5
+            5,
           );
           setDisplayIn(tokenInAmountDisplay);
           setAmountIn(tokenInAmount);
@@ -623,16 +623,16 @@ export default function LimitSwap() {
             Number(lowerTick),
             Number(upperTick),
             tokenIn.callId == 0,
-            bnValue
+            bnValue,
           );
           const tokenOutAmountDisplay = numFormat(
             parseFloat(
               ethers.utils.formatUnits(
                 tokenOutAmount.toString(),
-                tokenOut.decimals
-              )
+                tokenOut.decimals,
+              ),
             ),
-            5
+            5,
           );
           setDisplayOut(tokenOutAmountDisplay);
           setAmountOut(tokenOutAmount);
@@ -651,16 +651,16 @@ export default function LimitSwap() {
             Number(lowerTick),
             Number(upperTick),
             tokenIn.callId == 0,
-            bnValue
+            bnValue,
           );
           const tokenInAmountDisplay = numFormat(
             parseFloat(
               ethers.utils.formatUnits(
                 tokenInAmount.toString(),
-                tokenIn.decimals
-              )
+                tokenIn.decimals,
+              ),
             ),
-            5
+            5,
           );
           setDisplayIn(tokenInAmountDisplay);
           setAmountIn(tokenInAmount);
@@ -687,13 +687,13 @@ export default function LimitSwap() {
           TickMath.getSqrtPriceAtPriceString(
             invertPrice(startPrice, limitPriceOrder),
             tokenIn,
-            tokenOut
-          )
+            tokenOut,
+          ),
         ),
         tickAtPrice: TickMath.getTickAtPriceString(
           invertPrice(startPrice, limitPriceOrder),
           tokenIn,
-          tokenOut
+          tokenOut,
         ),
         // hard set at 0.3% tier
         feeTier: {
@@ -754,7 +754,7 @@ export default function LimitSwap() {
           setMintFee,
           setMintGasLimit,
           networkName,
-          limitSubgraph
+          limitSubgraph,
         );
       } else {
         await gasEstimateLimitCreateAndMint(
@@ -772,7 +772,7 @@ export default function LimitSwap() {
           setMintFee,
           setMintGasLimit,
           networkName,
-          limitSubgraph
+          limitSubgraph,
         );
       }
   }
@@ -788,7 +788,7 @@ export default function LimitSwap() {
         isConnected,
         setSwapGasFee,
         setSwapGasLimit,
-        limitSubgraph
+        limitSubgraph,
       );
     }
   }
@@ -821,10 +821,10 @@ export default function LimitSwap() {
                     parseFloat(
                       ethers.utils.formatUnits(
                         amountOut ?? BN_ZERO,
-                        tokenOut.decimals
-                      )
+                        tokenOut.decimals,
+                      ),
                     ),
-                    5
+                    5,
                   )
                 : "Select Token"}
             </div>
@@ -836,11 +836,11 @@ export default function LimitSwap() {
             <div className="ml-auto text-xs">
               {numFormat(
                 (parseFloat(
-                  ethers.utils.formatUnits(amountOut, tokenOut.decimals)
+                  ethers.utils.formatUnits(amountOut, tokenOut.decimals),
                 ) *
                   (100 - parseFloat(tradeSlippage))) /
                   100,
-                5
+                5,
               )}
             </div>
           </div>
@@ -870,7 +870,7 @@ export default function LimitSwap() {
         <div className="flex items-end justify-between mt-2 mb-3">
           {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox)}
           <div className="flex items-center gap-x-2">
-            {isConnected && tokenIn.address != ZERO_ADDRESS  ? (
+            {isConnected && tokenIn.address != ZERO_ADDRESS ? (
               <button
                 onClick={() => {
                   handleInputBox({
@@ -900,15 +900,16 @@ export default function LimitSwap() {
           </div>
         </div>
       </div>
-      <div 
-      onClick={() => {
-        switchDirection(
-          exactIn,
-          exactIn ? displayIn : displayOut,
-          exactIn ? setAmountIn : setAmountOut
-        );
-      }}
-      className="flex items-center justify-center w-full pt-10 pb-3">
+      <div
+        onClick={() => {
+          switchDirection(
+            exactIn,
+            exactIn ? displayIn : displayOut,
+            exactIn ? setAmountIn : setAmountOut,
+          );
+        }}
+        className="flex items-center justify-center w-full pt-10 pb-3"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -916,7 +917,6 @@ export default function LimitSwap() {
           strokeWidth="1.5"
           stroke="currentColor"
           className="w-5 cursor-pointer"
-          
         >
           <path
             strokeLinecap="round"
@@ -957,7 +957,7 @@ export default function LimitSwap() {
             </div>
           }
           <div className="flex items-center gap-x-2">
-          {isConnected && tokenOut.address != ZERO_ADDRESS ? (
+            {isConnected && tokenOut.address != ZERO_ADDRESS ? (
               <button
                 onClick={() => {
                   handleInputBox({
@@ -1138,7 +1138,7 @@ export default function LimitSwap() {
                   limitPriceOrder,
                   tradePoolData,
                   tokenIn,
-                  tokenOut
+                  tokenOut,
                 )}
               </span>
             </div>
@@ -1201,7 +1201,7 @@ export default function LimitSwap() {
                   pairSelected,
                   tradePoolData?.poolPrice,
                   tokenIn,
-                  tokenOut
+                  tokenOut,
                 ) +
                 " " +
                 tokenOut.symbol

@@ -61,7 +61,8 @@ export default function CoverMintButton({
     functionName: "multiMintCover",
     args: [
       [poolAddress],
-      [deepConvertBigIntAndBigNumber({
+      [
+        deepConvertBigIntAndBigNumber({
           to: to,
           amount: amount,
           positionId: newPositionId,
@@ -73,10 +74,7 @@ export default function CoverMintButton({
       ],
     ],
     gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
-    value: getCoverMintButtonMsgValue(
-      tokenIn.native,
-      amount
-    ),
+    value: getCoverMintButtonMsgValue(tokenIn.native, amount),
     enabled: !disabled,
     chainId: chainId,
   });

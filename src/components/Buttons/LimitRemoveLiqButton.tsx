@@ -30,35 +30,29 @@ export default function LimitRemoveLiqButton({
   closeModal,
   setIsOpen,
 }) {
-  const signer = useEthersSigner()
+  const signer = useEthersSigner();
 
-  const [
-    chainId,
-    networkName,
-    limitSubgraph
-  ] = useConfigStore((state) => [
+  const [chainId, networkName, limitSubgraph] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
-    state.limitSubgraph
+    state.limitSubgraph,
   ]);
 
   const [
     limitPositionData,
     tokenIn,
-    setNeedsRefetch, 
-    setNeedsBalanceIn, 
-    setNeedsBalanceOut, 
-    setNeedsSnapshot
-  ] = useRangeLimitStore(
-    (state) => [
-      state.limitPositionData,
-      state.tokenIn,
-      state.setNeedsRefetch,
-      state.setNeedsBalanceIn,
-      state.setNeedsBalanceOut,
-      state.setNeedsSnapshot,
-    ]
-  );
+    setNeedsRefetch,
+    setNeedsBalanceIn,
+    setNeedsBalanceOut,
+    setNeedsSnapshot,
+  ] = useRangeLimitStore((state) => [
+    state.limitPositionData,
+    state.tokenIn,
+    state.setNeedsRefetch,
+    state.setNeedsBalanceIn,
+    state.setNeedsBalanceOut,
+    state.setNeedsSnapshot,
+  ]);
   const [claimTick, setClaimTick] = useState(undefined);
   const [gasFee, setGasFee] = useState("$0.00");
   const [gasLimit, setGasLimit] = useState(BN_ZERO);
@@ -72,7 +66,7 @@ export default function LimitRemoveLiqButton({
       Number(epochLast),
       false,
       limitSubgraph,
-      undefined
+      undefined,
     );
     setClaimTick(tick);
   };
@@ -90,18 +84,20 @@ export default function LimitRemoveLiqButton({
       setGasLimit,
       limitSubgraph,
     );
-  };
+  }
 
   useEffect(() => {
-    if(poolAddress && positionId && address && signer) {
+    if (poolAddress && positionId && address && signer) {
       updateClaimTick();
     }
   }, []);
 
   useEffect(() => {
-    if (signer != undefined && 
-        claimTick >= Number(limitPositionData.min) &&
-        claimTick <= Number(limitPositionData.max)) {
+    if (
+      signer != undefined &&
+      claimTick >= Number(limitPositionData.min) &&
+      claimTick <= Number(limitPositionData.max)
+    ) {
       getGasLimit();
     }
   }, [claimTick, signer, burnPercent]);
@@ -118,7 +114,7 @@ export default function LimitRemoveLiqButton({
         burnPercent: burnPercent,
         positionId: positionId,
         claim: BigNumber.from(claimTick ?? 0),
-        zeroForOne: zeroForOne
+        zeroForOne: zeroForOne,
       }),
     ],
     enabled: positionId != undefined && claimTick != undefined,
@@ -131,11 +127,15 @@ export default function LimitRemoveLiqButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      toast.success("Your transaction was successful",{
+      toast.success("Your transaction was successful", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank",
+            ),
         },
       });
       if (burnPercent.eq(parseUnits("1", 38))) {
@@ -152,25 +152,36 @@ export default function LimitRemoveLiqButton({
       }, 1000);
     },
     onError() {
-      toast.error("Your transaction failed",{
+      toast.error("Your transaction failed", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank",
+            ),
         },
       });
     },
   });
 
   useEffect(() => {
-    if(isLoading) {
-      const newToastId = toast.loading("Your transaction is being confirmed...",{
-        action: {
-          label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+    if (isLoading) {
+      const newToastId = toast.loading(
+        "Your transaction is being confirmed...",
+        {
+          action: {
+            label: "View",
+            onClick: () =>
+              window.open(
+                `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+                "_blank",
+              ),
+          },
         },
-      });
-      newToastId
+      );
+      newToastId;
       setToastId(newToastId);
     }
   }, [isLoading]);
@@ -184,8 +195,7 @@ export default function LimitRemoveLiqButton({
           address ? write?.() : null;
         }}
       >
-        {gasLimit.lte(BN_ZERO) ? <Loader/> :"Remove liquidity"}
-        
+        {gasLimit.lte(BN_ZERO) ? <Loader /> : "Remove liquidity"}
       </button>
     </>
   );

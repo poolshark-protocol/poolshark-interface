@@ -97,7 +97,9 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                   </div>
                 </Link>
               )}
-              {(chainId === 34443 || chainId === 42161 || chainId === 534352) && (
+              {(chainId === 34443 ||
+                chainId === 42161 ||
+                chainId === 534352) && (
                 <Link href="/earn">
                   <div
                     className={
@@ -121,7 +123,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                   </div>
                 </Link>
               )}
-              {(chainId === saleConfig.chainId) && (
+              {chainId === saleConfig.chainId && (
                 <Link href="/sale">
                   <div
                     className={
@@ -239,7 +241,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
                 </div>
               </Link>
             )}
-            {(chainId === 34443 || chainId === 42161 || chainId === 534352) ? (
+            {chainId === 34443 || chainId === 42161 || chainId === 534352 ? (
               <Link href="/earn">
                 <div
                   className={

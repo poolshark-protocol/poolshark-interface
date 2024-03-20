@@ -28,7 +28,7 @@ export default function LimitSwapBurnButton({
   upper,
   burnPercent,
 }) {
-  const signer = useEthersSigner()
+  const signer = useEthersSigner();
 
   const [chainId, networkName, limitSubgraph] = useConfigStore((state) => [
     state.chainId,
@@ -62,7 +62,7 @@ export default function LimitSwapBurnButton({
       Number(epochLast),
       false,
       limitSubgraph,
-      undefined
+      undefined,
     );
     setClaimTick(tick);
   };
@@ -118,11 +118,15 @@ export default function LimitSwapBurnButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      toast.success("Your transaction was successful",{
+      toast.success("Your transaction was successful", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank",
+            ),
         },
       });
       setNeedsSnapshot(true);
@@ -134,25 +138,36 @@ export default function LimitSwapBurnButton({
       }
     },
     onError() {
-      toast.error("Your transaction failed",{
+      toast.error("Your transaction failed", {
         id: toastId,
         action: {
           label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+          onClick: () =>
+            window.open(
+              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+              "_blank",
+            ),
         },
       });
     },
   });
 
   useEffect(() => {
-    if(isLoading) {
-      const newToastId = toast.loading("Your transaction is being confirmed...",{
-        action: {
-          label: "View",
-          onClick: () => window.open(`${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`, '_blank'),
+    if (isLoading) {
+      const newToastId = toast.loading(
+        "Your transaction is being confirmed...",
+        {
+          action: {
+            label: "View",
+            onClick: () =>
+              window.open(
+                `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+                "_blank",
+              ),
+          },
         },
-      });
-      newToastId
+      );
+      newToastId;
       setToastId(newToastId);
     }
   }, [isLoading]);

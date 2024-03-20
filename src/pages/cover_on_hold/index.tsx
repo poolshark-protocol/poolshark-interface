@@ -19,14 +19,19 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties, supportedNetworkNames } from "../../utils/chains";
 
 export default function Cover() {
-  const [networkName, coverSubgraph, setCoverSubgraph, listedTokenList, logoMap] =
-    useConfigStore((state) => [
-      state.networkName,
-      state.coverSubgraph,
-      state.setCoverSubgraph,
-      state.listedtokenList,
-      state.logoMap,
-    ]);
+  const [
+    networkName,
+    coverSubgraph,
+    setCoverSubgraph,
+    listedTokenList,
+    logoMap,
+  ] = useConfigStore((state) => [
+    state.networkName,
+    state.coverSubgraph,
+    state.setCoverSubgraph,
+    state.listedtokenList,
+    state.logoMap,
+  ]);
 
   const [
     setCoverTokenIn,
@@ -161,7 +166,7 @@ export default function Cover() {
                   tokenIn,
                   tokenOut,
                   allCoverPools[0].volatilityTier.feeAmount.toString(),
-                  coverSubgraph
+                  coverSubgraph,
                 );
                 router.push({
                   pathname: "/cover/create",
@@ -307,15 +312,15 @@ export default function Cover() {
                                   TickMath.getPriceStringAtTick(
                                     allCoverPosition.lowerTick,
                                     tokenIn,
-                                    tokenOut
-                                  )
+                                    tokenOut,
+                                  ),
                                 )}
                                 upperPrice={parseFloat(
                                   TickMath.getPriceStringAtTick(
                                     allCoverPosition.upperTick,
                                     tokenIn,
-                                    tokenOut
-                                  )
+                                    tokenOut,
+                                  ),
                                 )}
                                 href={"/cover/view"}
                               />
@@ -390,7 +395,7 @@ export default function Cover() {
                           listedTokenList.find(
                             (element) =>
                               element.address.toLowerCase() ===
-                              searchTerm.toLowerCase()
+                              searchTerm.toLowerCase(),
                           ) != undefined ||
                           searchTerm === ""
                         )

@@ -22,7 +22,11 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
   };
 
   const [limitSubgraph, coverSubgraph, listedTokenList] = useConfigStore(
-    (state) => [state.limitSubgraph, state.coverSubgraph, state.listedtokenList]
+    (state) => [
+      state.limitSubgraph,
+      state.coverSubgraph,
+      state.listedtokenList,
+    ],
   );
 
   const [limitPositions, setLimitPositions] = useState([]);
@@ -239,7 +243,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                               listedTokenList.find(
                                 (element) =>
                                   element.address.toLowerCase() ===
-                                  searchTerm.toLowerCase()
+                                  searchTerm.toLowerCase(),
                               ) != undefined ||
                               searchTerm === ""
                             ) {

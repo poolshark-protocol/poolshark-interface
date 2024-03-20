@@ -22,7 +22,7 @@ export const getSwapPools = async (
       client,
       tokenIn.address,
       tokenOut.address,
-      poolTypeId
+      poolTypeId,
     );
     const data = limitPools["data"];
     if (data && data["limitPools"]?.length > 0) {
@@ -31,10 +31,10 @@ export const getSwapPools = async (
       const selectedPool = allPools.reduce((prev, current) =>
         Number(prev.totalValueLockedUsd) > Number(current.totalValueLockedUsd)
           ? prev
-          : current
+          : current,
       );
       if (setSelectedFeeTier)
-        setSelectedFeeTier(selectedPool.feeTier.feeAmount)
+        setSelectedFeeTier(selectedPool.feeTier.feeAmount);
       if (swapPoolData?.id != selectedPool.id) {
         setSwapPoolData(selectedPool);
       } else {
@@ -71,20 +71,20 @@ export const getLimitPoolForFeeTier = async (
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
   feeTier: number,
-  poolTypeId?: number
+  poolTypeId?: number,
 ) => {
   try {
     const limitPools = await getLimitPoolFromFactory(
       client,
       tokenIn.address,
       tokenOut.address,
-      poolTypeId
+      poolTypeId,
     );
     const data = limitPools["data"];
     if (data && data["limitPools"]?.length > 0) {
       const allPools = data["limitPools"];
       const selectedPool = allPools.find(
-        (pool) => pool.feeTier.feeAmount == feeTier
+        (pool) => pool.feeTier.feeAmount == feeTier,
       );
       if (selectedPool != undefined) {
         return selectedPool;

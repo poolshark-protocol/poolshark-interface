@@ -8,7 +8,11 @@ import {
   getTradeButtonDisabled,
   getTradeButtonMessage,
 } from "../utils/buttons";
-import { chainIdsToNames, chainProperties, defaultNetwork } from "../utils/chains";
+import {
+  chainIdsToNames,
+  chainProperties,
+  defaultNetwork,
+} from "../utils/chains";
 import { tokenListsBaseUrl } from "../utils/tokens";
 
 type TradeState = {
@@ -75,7 +79,7 @@ type TradeLimitAction = {
     tokenOut: any,
     newToken: any,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
   ) => void;
   setTokenInTradeUSDPrice: (price: number) => void;
   setTokenInTradeAllowance: (allowance: BigNumber) => void;
@@ -85,7 +89,7 @@ type TradeLimitAction = {
     tokenIn: any,
     newToken: any,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
   ) => void;
   setTokenOutTradeUSDPrice: (price: number) => void;
   setTokenOutTradeAllowance: (allowance: BigNumber) => void;
@@ -100,13 +104,13 @@ type TradeLimitAction = {
   switchDirection: (
     isAmountIn: boolean,
     amount: string,
-    amountSetter: any
+    amountSetter: any,
   ) => void;
   setTradePoolFromVolatility: (
     tokenIn: any,
     tokenOut: any,
     volatility: any,
-    client: LimitSubgraph
+    client: LimitSubgraph,
   ) => void;
   resetTradeLimitParams: (chainId) => void;
   //
@@ -149,8 +153,7 @@ const initialTradeState: TradeState = {
     callId: 2,
     name: "Ether",
     symbol: "ETH",
-    logoURI:
-      tokenListsBaseUrl + "/ethereum/logo.png",
+    logoURI: tokenListsBaseUrl + "/ethereum/logo.png",
     native: true,
     address: chainProperties[defaultNetwork]["wethAddress"],
     decimals: 18,
@@ -250,7 +253,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     tokenOut,
     newTokenIn: tokenSwap,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
   ) => {
     //if tokenOut is selected
     if (tokenOut?.address != initialTradeState.tokenOut.address) {
@@ -371,7 +374,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     tokenIn,
     newTokenOut: tokenSwap,
     amount: string,
-    isAmountIn: boolean
+    isAmountIn: boolean,
   ) => {
     //if tokenIn exists
     if (tokenIn?.address != initialTradeState.tokenOut.address) {
@@ -541,13 +544,13 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           state.tokenIn,
           state.tokenOut,
           state.amountIn,
-          state.amountOut
+          state.amountOut,
         ),
         disabled: getTradeButtonDisabled(
           state.tokenIn,
           state.tokenOut,
           state.amountIn,
-          state.amountOut
+          state.amountOut,
         ),
       },
     }));
@@ -647,13 +650,13 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     tokenIn,
     tokenOut,
     volatility: any,
-    client: LimitSubgraph
+    client: LimitSubgraph,
   ) => {
     try {
       const pool = await getLimitPoolFromFactory(
         client,
         tokenIn.address,
-        tokenOut.address
+        tokenOut.address,
       );
       const volatilityId = volatility.id;
       const dataLength = pool["data"]["limitPools"].length;
@@ -688,9 +691,15 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       tokenIn: {
         ...initialTradeState.tokenIn,
         address: chainProperties[chainIdsToNames[chainId]].wethAddress,
-        name: chainProperties[chainIdsToNames[chainId]]["nativeCurrency"]["name"],
-        symbol: chainProperties[chainIdsToNames[chainId]]["nativeCurrency"]["symbol"],
-        decimals: chainProperties[chainIdsToNames[chainId]]["nativeCurrency"]["decimals"],
+        name: chainProperties[chainIdsToNames[chainId]]["nativeCurrency"][
+          "name"
+        ],
+        symbol:
+          chainProperties[chainIdsToNames[chainId]]["nativeCurrency"]["symbol"],
+        decimals:
+          chainProperties[chainIdsToNames[chainId]]["nativeCurrency"][
+            "decimals"
+          ],
         native: true,
       },
       //tokenOut
