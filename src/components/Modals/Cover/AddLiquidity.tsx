@@ -63,6 +63,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
 
   ////////////////////////////////Allowances
 
+  //* hook wrapper
   const { data: allowanceInCoverInt } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -92,6 +93,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
 
   ////////////////////////////////Token Balances
 
+  //* hook wrapper
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.address,

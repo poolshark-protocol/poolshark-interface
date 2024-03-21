@@ -141,6 +141,7 @@ export default function Trade() {
     s.setLimitTabSelected,
   ]);
 
+  //*
   const { error: networkError, switchNetwork } = useSwitchNetwork({
     onSuccess(data) {},
   });
@@ -194,6 +195,10 @@ export default function Trade() {
   }, [tokenOut.address]);
 
   ////////////////////////////////Filled Amount
+  //* hook wrapper
+  //* Fuel and EVM args
+  //* both are passed in
+  //* switching from EVM <> Fuel clears state
   const { data: filledAmountListInt } = useContractRead({
     address: getRouterAddress(networkName),
     abi: poolsharkRouterABI,
@@ -314,6 +319,7 @@ export default function Trade() {
 
   ////////////////////////////////Balances
 
+  //* hook wrapper
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.native ? undefined : tokenIn.address,
@@ -328,6 +334,7 @@ export default function Trade() {
     },
   });
 
+  //* hook wrapper
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.native ? undefined : tokenOut.address,
@@ -361,6 +368,7 @@ export default function Trade() {
 
   ////////////////////////////////Allowances
 
+  //* hook wrapper
   const { data: allowanceInRouter, refetch: allowanceInRefetch } =
     useContractRead({
       address: tokenIn.address,
@@ -390,6 +398,7 @@ export default function Trade() {
   ///////////////////////
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
+  //* hook wrapper
   const {
     data: tokenInData,
     refetch: refetchTokenInInfo,
@@ -417,6 +426,7 @@ export default function Trade() {
     },
   });
 
+  //* hook wrapper
   const {
     data: tokenOutData,
     refetch: refetchTokenOutInfo,

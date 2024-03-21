@@ -127,6 +127,7 @@ export default function MarketSwap() {
 
   const { address, isDisconnected, isConnected } = useAccount();
 
+  //* signer wrapper
   const signer = useEthersSigner();
 
   const router = useRouter();
@@ -309,6 +310,7 @@ export default function MarketSwap() {
   const [swapPoolAddresses, setSwapPoolAddresses] = useState<string[]>([]);
   const [swapParams, setSwapParams] = useState<any[]>([]);
 
+  //* hook wrapper
   const { data } = useContractRead({
     address: getRouterAddress(networkName), //contract address,
     abi: poolsharkRouterABI, // contract abi,

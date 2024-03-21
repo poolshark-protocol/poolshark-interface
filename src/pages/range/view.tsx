@@ -362,6 +362,7 @@ export default function ViewRange() {
 
   ////////////////////////////////Snapshot
 
+  //* hook wrapper
   const { refetch: refetchSnapshot, data: feesOwed } = useContractRead({
     address: rangePoolAddress,
     abi: rangePoolABI,
@@ -400,7 +401,7 @@ export default function ViewRange() {
   }
 
   ////////////////////////////////Range Staking
-
+  //* hook wrapper
   const { data: stakeApproveStatus } = useContractRead({
     address: rangePoolData.poolToken,
     abi: positionERC1155ABI,

@@ -418,6 +418,7 @@ export default function AddLiquidity({}) {
   }, [tokenOut.address]);
 
   ////////////////////////////////Allowances
+  //* hook wrapper
   const { data: allowanceInRange, refetch: refetchAllowanceIn } =
     useContractRead({
       address: tokenIn.address,
@@ -442,6 +443,7 @@ export default function AddLiquidity({}) {
       },
     });
 
+  //* hook wrapper
   const { data: allowanceOutRange, refetch: refetchAllowanceOut } =
     useContractRead({
       address: tokenOut.address,
