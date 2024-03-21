@@ -181,49 +181,51 @@ export default function ViewLimit() {
   }, [limitPositionData.tokenIn]);
 
   ////////////////////////////////Filled Amount
-  const filledAmount = BN_ZERO;
-  // const { data: filledAmount } = useContractRead({
-  //   address: limitPoolAddress,
-  //   abi: limitPoolABI,
-  //   functionName: "snapshotLimit",
-  //   args: [
-  //     {
-  //       owner: address,
-  //       burnPercent: deepConvertBigIntAndBigNumber(parseUnits("1", 38)),
-  //       positionId: Number(limitPositionData.positionId),
-  //       claim: limitPositionData.zeroForOne ? Number(limitPositionData.lower) : Number(limitPositionData.upper),
-  //       zeroForOne: tokenIn.callId == 0,
-  //     },
-  //   ],
-  //   chainId: chainId,
-  //   watch: needsSnapshot,
-  //   enabled:
-  //     isConnected &&
-  //     limitPositionData.positionId != undefined &&
-  //     claimTick != undefined &&
-  //     claimTick >= Number(limitPositionData.min) &&
-  //     claimTick <= Number(limitPositionData.max),
-  //   onSuccess(data) {
-  //     console.log("Success price filled amount", data);
-  //     setNeedsSnapshot(false);
-  //   },
-  //   onError(error) {
-  //     console.log("Error price Limit", error);
-  //     console.log(
-  //       "claim tick snapshot args",
-  //       address,
-  //       BigNumber.from("0").toString(),
-  //       limitPositionData?.min?.toString(),
-  //       limitPositionData?.max?.toString(),
-  //       claimTick.toString(),
-  //       tokenIn.callId == 0,
-  //       router.isReady,
-  //     );
-  //   },
-  //   onSettled(data, error) {
-  //     //console.log('Settled price Limit', { data, error })
-  //   },
-  // });
+  // const filledAmount = BN_ZERO;
+  const { data: filledAmount } = useContractRead({
+    address: limitPoolAddress,
+    abi: limitPoolABI,
+    functionName: "snapshotLimit",
+    args: [
+      {
+        owner: address,
+        burnPercent: deepConvertBigIntAndBigNumber(parseUnits("1", 38)),
+        positionId: Number(limitPositionData.positionId),
+        claim: limitPositionData.zeroForOne
+          ? Number(limitPositionData.lower)
+          : Number(limitPositionData.upper),
+        zeroForOne: tokenIn.callId == 0,
+      },
+    ],
+    chainId: chainId,
+    watch: needsSnapshot,
+    enabled:
+      isConnected &&
+      limitPositionData.positionId != undefined &&
+      claimTick != undefined &&
+      claimTick >= Number(limitPositionData.min) &&
+      claimTick <= Number(limitPositionData.max),
+    onSuccess(data) {
+      console.log("Success price filled amount", data);
+      setNeedsSnapshot(false);
+    },
+    onError(error) {
+      console.log("Error price Limit", error);
+      console.log(
+        "claim tick snapshot args",
+        address,
+        BigNumber.from("0").toString(),
+        limitPositionData?.min?.toString(),
+        limitPositionData?.max?.toString(),
+        claimTick.toString(),
+        tokenIn.callId == 0,
+        router.isReady,
+      );
+    },
+    onSettled(data, error) {
+      //console.log('Settled price Limit', { data, error })
+    },
+  });
 
   useEffect(() => {
     if (filledAmount) {

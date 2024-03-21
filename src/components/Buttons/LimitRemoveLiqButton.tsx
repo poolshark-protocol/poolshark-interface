@@ -55,8 +55,8 @@ export default function LimitRemoveLiqButton({
   ]);
   const claimTick = zeroForOne ? lower : upper;
   // const [claimTick, setClaimTick] = useState(undefined);
-  const [gasFee, setGasFee] = useState("$0.00");
-  const [gasLimit, setGasLimit] = useState(BN_ZERO);
+  // const [gasFee, setGasFee] = useState("$0.00");
+  // const [gasLimit, setGasLimit] = useState(BN_ZERO);
 
   // const updateClaimTick = async () => {
   //   const tick = await getClaimTick(
