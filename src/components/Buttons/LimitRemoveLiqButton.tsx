@@ -53,54 +53,55 @@ export default function LimitRemoveLiqButton({
     state.setNeedsBalanceOut,
     state.setNeedsSnapshot,
   ]);
-  const [claimTick, setClaimTick] = useState(undefined);
+  const claimTick = zeroForOne ? lower : upper;
+  // const [claimTick, setClaimTick] = useState(undefined);
   const [gasFee, setGasFee] = useState("$0.00");
   const [gasLimit, setGasLimit] = useState(BN_ZERO);
 
-  const updateClaimTick = async () => {
-    const tick = await getClaimTick(
-      poolAddress,
-      Number(lower),
-      Number(upper),
-      Boolean(zeroForOne),
-      Number(epochLast),
-      false,
-      limitSubgraph,
-      undefined,
-    );
-    setClaimTick(tick);
-  };
+  // const updateClaimTick = async () => {
+  //   const tick = await getClaimTick(
+  //     poolAddress,
+  //     Number(lower),
+  //     Number(upper),
+  //     Boolean(zeroForOne),
+  //     Number(epochLast),
+  //     false,
+  //     limitSubgraph,
+  //     undefined,
+  //   );
+  //   setClaimTick(tick);
+  // };
 
-  async function getGasLimit() {
-    await gasEstimateBurnLimit(
-      poolAddress,
-      address,
-      burnPercent,
-      positionId,
-      BigNumber.from(claimTick),
-      zeroForOne,
-      signer,
-      setGasFee,
-      setGasLimit,
-      limitSubgraph,
-    );
-  }
+  // async function getGasLimit() {
+  //   await gasEstimateBurnLimit(
+  //     poolAddress,
+  //     address,
+  //     burnPercent,
+  //     positionId,
+  //     BigNumber.from(claimTick),
+  //     zeroForOne,
+  //     signer,
+  //     setGasFee,
+  //     setGasLimit,
+  //     limitSubgraph,
+  //   );
+  // }
 
-  useEffect(() => {
-    if (poolAddress && positionId && address && signer) {
-      updateClaimTick();
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (poolAddress && positionId && address && signer) {
+  //     updateClaimTick();
+  //   }
+  // }, []);
 
-  useEffect(() => {
-    if (
-      signer != undefined &&
-      claimTick >= Number(limitPositionData.min) &&
-      claimTick <= Number(limitPositionData.max)
-    ) {
-      getGasLimit();
-    }
-  }, [claimTick, signer, burnPercent]);
+  // useEffect(() => {
+  //   if (
+  //     signer != undefined &&
+  //     claimTick >= Number(limitPositionData.min) &&
+  //     claimTick <= Number(limitPositionData.max)
+  //   ) {
+  //     getGasLimit();
+  //   }
+  // }, [claimTick, signer, burnPercent]);
 
   const [toastId, setToastId] = useState(null);
 
@@ -119,7 +120,6 @@ export default function LimitRemoveLiqButton({
     ],
     enabled: positionId != undefined && claimTick != undefined,
     chainId: chainId,
-    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
   });
 
   const { data, isSuccess, write } = useContractWrite(config);
