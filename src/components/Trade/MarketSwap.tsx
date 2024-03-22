@@ -32,6 +32,7 @@ import { getRouterAddress } from "../../utils/config";
 import BalanceDisplay from "../Display/BalanceDisplay";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import useMultiQuote from "../../hooks/useMultiQuote";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -222,8 +223,6 @@ export default function MarketSwap() {
     }
   }, [tokenIn.address, tokenOut.address]);
 
-  // console.log('token in:', tokenIn)
-
   const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
     if (isAmountIn) {
       if (bnValue.gt(BN_ZERO)) {
@@ -311,19 +310,7 @@ export default function MarketSwap() {
   const [swapParams, setSwapParams] = useState<any[]>([]);
 
   //* hook wrapper
-  const { data } = useContractRead({
-    address: getRouterAddress(networkName), //contract address,
-    abi: poolsharkRouterABI, // contract abi,
-    functionName: "multiQuote",
-    args: [availablePools, deepConvertBigIntAndBigNumber(quoteParams), true],
-    chainId: chainId,
-    enabled:
-      availablePools != undefined && quoteParams != undefined && !wethCall,
-    onError(error) {
-      console.log("Error multiquote", error);
-    },
-    onSuccess(data) {},
-  });
+  const { data } = useMultiQuote({ availablePools, quoteParams });
 
   useEffect(() => {
     let poolQuotesSorted: QuoteResults[] = [];
