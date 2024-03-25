@@ -187,7 +187,7 @@ export default function Sale() {
   }, [ethReceived, startUsdPrice, endUsdPrice, networkName]);
 
   useEffect(() => {
-    if (!filledAmount || !filledAmount[0]) return;
+    if (filledAmount == undefined || filledAmount[0] == undefined) return;
     setEthReceived(
       formatUnits(deepConvertBigIntAndBigNumber(filledAmount[0]), 18),
     );
