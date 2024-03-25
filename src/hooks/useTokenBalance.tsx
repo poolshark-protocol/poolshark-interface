@@ -20,12 +20,8 @@ export default function useTokenBalance(token) {
     address: address,
     token: token.native ? undefined : token.address,
     chainId: chainId,
-    watch: !token.native && router.isReady,
-    enabled:
-      isConnected &&
-      token.address &&
-      token.address != ZERO_ADDRESS &&
-      !token.native,
+    watch: router.isReady,
+    enabled: isConnected && token.address && token.address != ZERO_ADDRESS,
     onSuccess(data) {
       //console.log('token balance:', data)
       setTokenBalanceInfo(data);
