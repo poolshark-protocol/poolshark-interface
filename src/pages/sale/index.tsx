@@ -21,6 +21,7 @@ import { useRouter } from "next/router";
 import { saleConfig } from "../_app";
 import { redirect } from "next/dist/server/api-utils";
 import { useTradeStore } from "../../hooks/useTradeStore";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function Sale() {
   const [priceFill, setPriceFill] = useState("100%");
@@ -130,7 +131,7 @@ export default function Sale() {
     args: [
       {
         owner: saleConfig.ownerAddress,
-        burnPercent: parseUnits("1", 38),
+        burnPercent: deepConvertBigIntAndBigNumber(parseUnits("1", 38)),
         positionId: saleConfig.limitPositionId,
         claim: saleConfig.finIsToken0
           ? -saleConfig.limitLP.upper
@@ -187,7 +188,9 @@ export default function Sale() {
 
   useEffect(() => {
     if (!filledAmount || !filledAmount[0]) return;
-    setEthReceived(formatUnits(filledAmount[0], 18));
+    setEthReceived(
+      formatUnits(deepConvertBigIntAndBigNumber(filledAmount[0]), 18),
+    );
   }, [filledAmount]);
 
   const handleClick = async () => {
