@@ -1,14 +1,13 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useAccount, erc20ABI, useBalance } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import CoverAddLiqButton from "../../Buttons/CoverAddLiqButton";
 import { ethers } from "ethers";
-import { useContractRead } from "wagmi";
 import { BN_ZERO } from "../../../utils/math/constants";
 import CoverMintApproveButton from "../../Buttons/CoverMintApproveButton";
-import { chainIdsToNames, chainProperties } from "../../../utils/chains";
+import { chainIdsToNames } from "../../../utils/chains";
 import { gasEstimateCoverMint } from "../../../utils/gas";
 import { useCoverStore } from "../../../hooks/useCoverStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
@@ -17,6 +16,7 @@ import { getRouterAddress } from "../../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 import useAllowance from "../../../hooks/contracts/useAllowance";
+import useTokenBalance from "../../../hooks/useTokenBalance";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const [chainId, logoMap, networkName] = useConfigStore((state) => [
@@ -64,7 +64,6 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
 
   ////////////////////////////////Allowances
 
-  //* hook wrapper
   const { allowance: allowanceInCoverInt } = useAllowance({ token: tokenIn });
 
   const allowanceInCover = useMemo(
@@ -79,16 +78,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
 
   ////////////////////////////////Token Balances
 
-  //* hook wrapper
-  const { data: tokenInBal } = useBalance({
-    address: address,
-    token: tokenIn.address,
-    enabled: tokenIn.address != undefined && needsBalance,
-    watch: needsBalance,
-    onSuccess(data) {
-      setNeedsBalance(false);
-    },
-  });
+  const [tokenInBal] = useTokenBalance({ token: tokenIn });
 
   useEffect(() => {
     if (isConnected && tokenInBal) {

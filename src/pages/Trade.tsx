@@ -28,6 +28,7 @@ import { addressMatches, getRouterAddress, isWeth } from "../utils/config";
 import { Network } from "alchemy-sdk";
 import { deepConvertBigIntAndBigNumber } from "../utils/misc";
 import useAllowance from "../hooks/contracts/useAllowance";
+import useTokenBalance from "../hooks/useTokenBalance";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -320,35 +321,8 @@ export default function Trade() {
 
   ////////////////////////////////Balances
 
-  //* hook wrapper
-  const { data: tokenInBal } = useBalance({
-    address: address,
-    token: tokenIn.native ? undefined : tokenIn.address,
-    enabled: tokenIn.address != undefined && needsBalanceIn,
-    watch: needsBalanceIn,
-    chainId: chainId,
-    onSuccess(data) {
-      setNeedsBalanceIn(false);
-      setTimeout(() => {
-        setNeedsBalanceIn(true);
-      }, 5000);
-    },
-  });
-
-  //* hook wrapper
-  const { data: tokenOutBal } = useBalance({
-    address: address,
-    token: tokenOut.native ? undefined : tokenOut.address,
-    enabled: tokenOut.address != undefined && needsBalanceOut,
-    watch: needsBalanceOut,
-    chainId: chainId,
-    onSuccess(data) {
-      setNeedsBalanceOut(false);
-      setTimeout(() => {
-        setNeedsBalanceOut(true);
-      }, 5000);
-    },
-  });
+  const [tokenInBal] = useTokenBalance({ token: tokenIn });
+  const [tokenOutBal] = useTokenBalance({ token: tokenOut });
 
   useEffect(() => {
     if (isConnected && tokenInBal) {
@@ -369,7 +343,6 @@ export default function Trade() {
 
   ////////////////////////////////Allowances
 
-  //* hook wrapper
   const { allowance: allowanceInRouter } = useAllowance({ token: tokenIn });
 
   useEffect(() => {

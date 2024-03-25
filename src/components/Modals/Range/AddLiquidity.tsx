@@ -1,13 +1,7 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import {
-  useAccount,
-  erc20ABI,
-  useContractRead,
-  useBalance,
-  usePublicClient,
-} from "wagmi";
+import { useAccount, useBalance, usePublicClient } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import RangeAddLiqButton from "../../Buttons/RangeAddLiqButton";
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../../utils/math/constants";
@@ -15,7 +9,7 @@ import { TickMath } from "../../../utils/math/tickMath";
 import { ethers, BigNumber } from "ethers";
 import JSBI from "jsbi";
 import { DyDxMath } from "../../../utils/math/dydxMath";
-import { chainIdsToNames, chainProperties } from "../../../utils/chains";
+import { chainIdsToNames } from "../../../utils/chains";
 import RangeMintDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveButton";
 import RangeMintApproveButton from "../../Buttons/RangeMintApproveButton";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";

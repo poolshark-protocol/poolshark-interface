@@ -182,21 +182,6 @@ export default function ViewLimit() {
   }, [limitPositionData.tokenIn]);
 
   ////////////////////////////////Filled Amount
-  //* hook wrapper
-  // zustand store -
-  // limitPoolAddress
-  // tokenIn.callId
-  // needsSnapshot
-  // chainId
-  // limitPositionData
-  // claimTick
-  // setNeedsSnapshot
-  // import constants -
-  // limitPoolABI
-  // wagmi hooks -
-  // address
-  // isConnected
-  //
 
   const { data: snapshotData } = useSnapshotLimit();
 

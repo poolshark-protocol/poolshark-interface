@@ -419,10 +419,7 @@ export default function AddLiquidity({}) {
   }, [tokenOut.address]);
 
   ////////////////////////////////Allowances
-  //* hook wrapper
   const { allowance: allowanceInRange } = useAllowance({ token: tokenIn });
-
-  //* hook wrapper
   const { allowance: allowanceOutRange } = useAllowance({ token: tokenOut });
 
   useEffect(() => {
