@@ -28,6 +28,7 @@ import BalanceDisplay from "../../Display/BalanceDisplay";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 import { getLogo } from "../../../utils/tokens";
+import useAllowance from "../../../hooks/contracts/useAllowance";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [chainId, networkName, logoMap, limitSubgraph] = useConfigStore(
@@ -135,40 +136,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   }, [tokenIn, tokenOut]);
 
   ////////////////////////////////Allowances
-
-  const { data: tokenInAllowanceInt } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, getRouterAddress(networkName)],
-    chainId: chainId,
-    watch: router.isReady,
-    enabled: isConnected,
-    onSuccess(data) {
-      //console.log("Success");
-      setNeedsAllowanceIn(false);
-    },
-    onError(error) {
-      console.log("Error", error);
-    },
-  });
-
-  const { data: tokenOutAllowanceInt } = useContractRead({
-    address: tokenOut.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, getRouterAddress(networkName)],
-    chainId: chainId,
-    watch: router.isReady,
-    enabled: isConnected,
-    onSuccess(data) {
-      //console.log("Success");
-      setNeedsAllowanceOut(false);
-    },
-    onError(error) {
-      console.log("Error", error);
-    },
-  });
+  const { allowance: tokenInAllowanceInt } = useAllowance({ token: tokenIn });
+  const { allowance: tokenOutAllowanceInt } = useAllowance({ token: tokenOut });
 
   const tokenInAllowance = useMemo(
     () => deepConvertBigIntAndBigNumber(tokenInAllowanceInt),

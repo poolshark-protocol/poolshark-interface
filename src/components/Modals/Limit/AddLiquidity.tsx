@@ -17,6 +17,7 @@ import { getLogo, logoMapKey } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
+import useAllowance from "../../../hooks/contracts/useAllowance";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   const [chainId, logoMap, networkName, limitSubgraph] = useConfigStore(
@@ -60,30 +61,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   const [buttonState, setButtonState] = useState("");
   const [disabled, setDisabled] = useState(true);
 
-  const { data: tokenInAllowance } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, getRouterAddress(networkName)],
-    chainId: chainId,
-    watch: needsAllowance,
-    enabled: isConnected && tokenIn.address != undefined && needsAllowance,
-    onSuccess(data) {
-      setNeedsAllowance(false);
-    },
-    onError(error) {
-      console.log("Error allowance", error);
-    },
-    onSettled(data, error) {
-      // console.log("current allowance", allowanceIn)
-      // console.log("Allowance Settled", {
-      //   data,
-      //   error,
-      //   limitPoolAddress,
-      //   tokenIn,
-      // });
-    },
-  });
+  const { allowance: tokenInAllowance } = useAllowance({ token: tokenIn });
 
   ////////////////////////////////Token Balances
 

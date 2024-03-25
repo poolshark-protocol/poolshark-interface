@@ -1,9 +1,9 @@
 import { useContractRead } from "wagmi";
-import { useConfigStore } from "./useConfigStore";
-import { getRouterAddress } from "../utils/config";
-import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
-import { deepConvertBigIntAndBigNumber } from "../utils/misc";
-import { useTradeStore } from "./useTradeStore";
+import { useConfigStore } from "../useConfigStore";
+import { getRouterAddress } from "../../utils/config";
+import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useTradeStore } from "../useTradeStore";
 
 export default function useMultiQuote({ availablePools, quoteParams }) {
   const [chainId, networkName] = useConfigStore((state) => [

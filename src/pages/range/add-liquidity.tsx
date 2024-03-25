@@ -52,6 +52,7 @@ import {
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { XOctagon } from "lucide-react";
 import { getLogo } from "../../utils/tokens";
+import useAllowance from "../../hooks/contracts/useAllowance";
 
 export default function AddLiquidity({}) {
   const [
@@ -419,54 +420,10 @@ export default function AddLiquidity({}) {
 
   ////////////////////////////////Allowances
   //* hook wrapper
-  const { data: allowanceInRange, refetch: refetchAllowanceIn } =
-    useContractRead({
-      address: tokenIn.address,
-      abi: erc20ABI,
-      functionName: "allowance",
-      args: [address, getRouterAddress(networkName)],
-      chainId: chainId,
-      watch: true,
-      enabled: tokenIn.address && tokenIn.address != ZERO_ADDRESS,
-      onSuccess(data) {
-        //console.log("allowance in fetched", allowanceInRange?.toString());
-        //setNeedsAllowanceIn(false);
-      },
-      onError(error) {
-        console.log(
-          "Error tokenIn allowance",
-          address,
-          tokenIn.address,
-          getRouterAddress(networkName),
-          error,
-        );
-      },
-    });
+  const { allowance: allowanceInRange } = useAllowance({ token: tokenIn });
 
   //* hook wrapper
-  const { data: allowanceOutRange, refetch: refetchAllowanceOut } =
-    useContractRead({
-      address: tokenOut.address,
-      abi: erc20ABI,
-      functionName: "allowance",
-      args: [address, getRouterAddress(networkName)],
-      chainId: chainId,
-      watch: true,
-      enabled: tokenOut.address && tokenOut.address != ZERO_ADDRESS,
-      onSuccess(data) {
-        //console.log("allowance out fetched", allowanceOutRange?.toString());
-        //setNeedsAllowanceOut(false);
-      },
-      onError(error) {
-        console.log(
-          "Error tokenOut allowance",
-          address,
-          tokenOut.address,
-          getRouterAddress(networkName),
-          error,
-        );
-      },
-    });
+  const { allowance: allowanceOutRange } = useAllowance({ token: tokenOut });
 
   useEffect(() => {
     setTokenInAllowance(deepConvertBigIntAndBigNumber(allowanceInRange));

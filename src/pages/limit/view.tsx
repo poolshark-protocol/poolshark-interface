@@ -29,6 +29,7 @@ import { chainProperties } from "../../utils/chains";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import useSnapshotLimit from "../../hooks/contracts/useSnapshotLimit";
 
 export default function ViewLimit() {
   const [chainId, logoMap, networkName, limitSubgraph, setLimitSubgraph] =
@@ -182,59 +183,33 @@ export default function ViewLimit() {
 
   ////////////////////////////////Filled Amount
   //* hook wrapper
-  const { data: filledAmount } = useContractRead({
-    address: limitPoolAddress,
-    abi: limitPoolABI,
-    functionName: "snapshotLimit",
-    args: [
-      {
-        owner: address,
-        burnPercent: deepConvertBigIntAndBigNumber(parseUnits("1", 38)),
-        positionId: Number(limitPositionData.positionId),
-        claim: claimTick ?? 0,
-        zeroForOne: tokenIn.callId == 0,
-      },
-    ],
-    chainId: chainId,
-    watch: needsSnapshot,
-    enabled:
-      isConnected &&
-      limitPositionData.positionId != undefined &&
-      claimTick != undefined &&
-      claimTick >= Number(limitPositionData.min) &&
-      claimTick <= Number(limitPositionData.max),
-    onSuccess(data) {
-      console.log("Success price filled amount", data);
-      setNeedsSnapshot(false);
-    },
-    onError(error) {
-      console.log("Error price Limit", error);
-      console.log(
-        "claim tick snapshot args",
-        address,
-        BigNumber.from("0").toString(),
-        limitPositionData?.min?.toString(),
-        limitPositionData?.max?.toString(),
-        claimTick.toString(),
-        tokenIn.callId == 0,
-        router.isReady,
-      );
-    },
-    onSettled(data, error) {
-      //console.log('Settled price Limit', { data, error })
-    },
-  });
+  // zustand store -
+  // limitPoolAddress
+  // tokenIn.callId
+  // needsSnapshot
+  // chainId
+  // limitPositionData
+  // claimTick
+  // setNeedsSnapshot
+  // import constants -
+  // limitPoolABI
+  // wagmi hooks -
+  // address
+  // isConnected
+  //
+
+  const { data: snapshotData } = useSnapshotLimit();
 
   useEffect(() => {
-    if (filledAmount) {
+    if (snapshotData) {
       setLimitFilledAmount(
-        ethers.utils.formatUnits(filledAmount[0], tokenOut.decimals),
+        ethers.utils.formatUnits(snapshotData[0], tokenOut.decimals),
       );
       setCurrentAmountOut(
-        ethers.utils.formatUnits(filledAmount[1], tokenIn.decimals),
+        ethers.utils.formatUnits(snapshotData[1], tokenIn.decimals),
       );
     }
-  }, [filledAmount]);
+  }, [snapshotData]);
 
   ////////////////////////////////Claim Tick
   useEffect(() => {

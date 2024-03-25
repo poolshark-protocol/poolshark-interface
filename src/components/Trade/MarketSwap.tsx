@@ -32,7 +32,7 @@ import { getRouterAddress } from "../../utils/config";
 import BalanceDisplay from "../Display/BalanceDisplay";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
-import useMultiQuote from "../../hooks/useMultiQuote";
+import useMultiQuote from "../../hooks/contracts/useMultiQuote";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -309,14 +309,13 @@ export default function MarketSwap() {
   const [swapPoolAddresses, setSwapPoolAddresses] = useState<string[]>([]);
   const [swapParams, setSwapParams] = useState<any[]>([]);
 
-  //* hook wrapper
-  const { data } = useMultiQuote({ availablePools, quoteParams });
+  const { data: quoteData } = useMultiQuote({ availablePools, quoteParams });
 
   useEffect(() => {
     let poolQuotesSorted: QuoteResults[] = [];
-    if (data && data[0]) {
+    if (quoteData && quoteData[0]) {
       // format to use BigNumber
-      const poolQuotes = deepConvertBigIntAndBigNumber(data);
+      const poolQuotes = deepConvertBigIntAndBigNumber(quoteData);
 
       if (
         poolQuotes[0].amountIn?.gt(BN_ZERO) &&
@@ -412,7 +411,7 @@ export default function MarketSwap() {
           setDisplayIn("");
         }
       }
-    } else if (data != undefined) {
+    } else if (quoteData != undefined) {
       if (exactIn) {
         setAmountOut(BN_ZERO);
         setDisplayOut("");
@@ -421,7 +420,7 @@ export default function MarketSwap() {
         setDisplayIn("");
       }
     }
-  }, [data, quoteParams, tradeSlippage]);
+  }, [quoteData, quoteParams, tradeSlippage]);
 
   function updateSwapParams(poolQuotes: any) {
     const poolAddresses: string[] = [];

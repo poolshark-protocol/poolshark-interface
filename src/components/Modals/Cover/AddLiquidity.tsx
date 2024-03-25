@@ -16,6 +16,7 @@ import { getLogo } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
+import useAllowance from "../../../hooks/contracts/useAllowance";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const [chainId, logoMap, networkName] = useConfigStore((state) => [
@@ -64,22 +65,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   ////////////////////////////////Allowances
 
   //* hook wrapper
-  const { data: allowanceInCoverInt } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, getRouterAddress(networkName)],
-    chainId: chainId,
-    watch: needsAllowance,
-    enabled: tokenIn.address != undefined,
-    onSuccess(data) {
-      setNeedsAllowance(false);
-    },
-    onError(error) {
-      console.log("Error", error);
-    },
-    onSettled(data, error) {},
-  });
+  const { allowance: allowanceInCoverInt } = useAllowance({ token: tokenIn });
 
   const allowanceInCover = useMemo(
     () => deepConvertBigIntAndBigNumber(allowanceInCoverInt),

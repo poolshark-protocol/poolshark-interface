@@ -29,6 +29,7 @@ import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 import { getRouterAddress } from "../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
+import useAllowance from "../../hooks/contracts/useAllowance";
 
 export default function CreateCover(props: any) {
   const [chainId, networkName, coverSubgraph, coverFactoryAddress] =
@@ -138,22 +139,7 @@ export default function CreateCover(props: any) {
 
   ////////////////////////////////Token Allowances
 
-  const { data: allowanceInCoverInt } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, getRouterAddress(networkName)],
-    chainId: chainId,
-    watch: needsAllowance && !tokenIn.native,
-    enabled: tokenIn.address != undefined,
-    onSuccess(data) {
-      // setNeedsAllowance(false);
-    },
-    onError(error) {
-      console.log("Error", error);
-    },
-    onSettled(data, error) {},
-  });
+  const { allowance: allowanceInCoverInt } = useAllowance({ token: tokenIn });
 
   const allowanceInCover = useMemo(
     () => deepConvertBigIntAndBigNumber(allowanceInCoverInt),

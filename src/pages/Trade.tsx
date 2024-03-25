@@ -27,6 +27,7 @@ import inputFilter from "../utils/inputFilter";
 import { addressMatches, getRouterAddress, isWeth } from "../utils/config";
 import { Network } from "alchemy-sdk";
 import { deepConvertBigIntAndBigNumber } from "../utils/misc";
+import useAllowance from "../hooks/contracts/useAllowance";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -369,23 +370,7 @@ export default function Trade() {
   ////////////////////////////////Allowances
 
   //* hook wrapper
-  const { data: allowanceInRouter, refetch: allowanceInRefetch } =
-    useContractRead({
-      address: tokenIn.address,
-      abi: erc20ABI,
-      functionName: "allowance",
-      args: [address, getRouterAddress(networkName)],
-      chainId: chainId,
-      watch: true,
-      enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
-      onError(error) {
-        console.log("Error allowance", error);
-      },
-      onSuccess(data) {
-        setNeedsAllowanceIn(false);
-        // console.log("Success allowance", tokenIn.symbol, tokenIn.userRouterAllowance?.gte(amountIn));
-      },
-    });
+  const { allowance: allowanceInRouter } = useAllowance({ token: tokenIn });
 
   useEffect(() => {
     if (allowanceInRouter) {
