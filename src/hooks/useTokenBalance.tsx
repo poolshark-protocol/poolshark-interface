@@ -1,16 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useBalance, useAccount } from "wagmi";
 import { useConfigStore } from "./useConfigStore";
-import {
-  chainProperties,
-  supportedChainIds,
-  supportedNetworkNames,
-} from "../utils/chains";
-import { isAlchemySDKSupported } from "../utils/config";
-import axios from "axios";
+import { ZERO_ADDRESS } from "../utils/math/constants";
+import { useRouter } from "next/router";
 
-export default function useTokenBalance(tokenAddress: `0x${string}`) {
-  const { address } = useAccount();
+export default function useTokenBalance(token) {
   const [tokenBalanceInfo, setTokenBalanceInfo] = useState({} as any);
 
   const [chainId, networkName] = useConfigStore((state) => [
@@ -18,40 +12,25 @@ export default function useTokenBalance(tokenAddress: `0x${string}`) {
     state.networkName,
   ]);
 
+  const { address, isConnected } = useAccount();
+
+  const router = useRouter();
+
   const { data } = useBalance({
     address: address,
-    token: tokenAddress,
+    token: token.native ? undefined : token.address,
     chainId: chainId,
-    enabled: !isAlchemySDKSupported(chainId),
-    watch: true,
+    watch: !token.native && router.isReady,
+    enabled:
+      isConnected &&
+      token.address &&
+      token.address != ZERO_ADDRESS &&
+      !token.native,
     onSuccess(data) {
       //console.log('token balance:', data)
       setTokenBalanceInfo(data);
     },
   });
-
-  // useEffect(() => {
-  //   const intervalId = setInterval(async () => {
-  //     if (!address) {
-  //       alchemyFetchEthBalance()
-  //     }
-  //     try {
-  //       const response = await axios.post('https://eth-mainnet.alchemyapi.io/v2/YOUR_ALCHEMY_ID', {
-  //         jsonrpc: "2.0",
-  //         method: "eth_getBalance",
-  //         params: [address, "latest"],
-  //         id: 1
-  //       });
-  //       const balanceWei = response.data.result;
-  //       const balanceEther = alchemyWeb3.utils.fromWei(balanceWei, 'ether');
-  //       setTokenBalanceInfo(balanceEther);
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   }, 5000); // 5000 milliseconds = 5 seconds
-
-  //   return () => clearInterval(intervalId);
-  // }, [address]);
 
   const tokenBalanceBox = () => {
     return (

@@ -3,9 +3,7 @@ import useTokenBalance from "../hooks/useTokenBalance";
 import { getTokenBalance } from "../utils/config";
 
 function CoinListItem({ chooseToken, coin }) {
-  const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(
-    coin?.native ? undefined : coin?.address,
-  );
+  const [tokenBalanceInfo] = useTokenBalance(coin);
 
   const [chainId] = useConfigStore((state) => [state.chainId]);
 
