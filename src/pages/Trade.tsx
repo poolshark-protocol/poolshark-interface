@@ -51,95 +51,7 @@ export default function Trade() {
     state.setChainId,
   ]);
 
-  const [
-    tradePoolData,
-    setTradePoolData,
-    tradeButton,
-    pairSelected,
-    limitTabSelected,
-    setPairSelected,
-    wethCall,
-    startPrice,
-    tradeSlippage,
-    setTradeSlippage,
-    tokenIn,
-    setTokenIn,
-    setTokenInBalance,
-    setTokenInTradeAllowance,
-    setTokenInTradeUSDPrice,
-    tokenOut,
-    setTokenOut,
-    setTokenOutBalance,
-    setTokenOutTradeUSDPrice,
-    amountIn,
-    setAmountIn,
-    amountOut,
-    setAmountOut,
-    needsAllowanceIn,
-    setNeedsAllowanceIn,
-    needsAllowanceOut,
-    setNeedsAllowanceOut,
-    needsBalanceIn,
-    setNeedsBalanceIn,
-    needsBalanceOut,
-    setNeedsBalanceOut,
-    limitPriceString,
-    setLimitPriceString,
-    switchDirection,
-    setTradeButtonState,
-    needsRefetch,
-    setNeedsRefetch,
-    needsPosRefetch,
-    setNeedsPosRefetch,
-    needsSnapshot,
-    setNeedsSnapshot,
-    setStartPrice,
-    setLimitTabSelected,
-  ] = useTradeStore((s) => [
-    s.tradePoolData,
-    s.setTradePoolData,
-    s.tradeButton,
-    s.pairSelected,
-    s.limitTabSelected,
-    s.setPairSelected,
-    s.wethCall,
-    s.startPrice,
-    s.tradeSlippage,
-    s.setTradeSlippage,
-    s.tokenIn,
-    s.setTokenIn,
-    s.setTokenInBalance,
-    s.setTokenInTradeAllowance,
-    s.setTokenInTradeUSDPrice,
-    s.tokenOut,
-    s.setTokenOut,
-    s.setTokenOutBalance,
-    s.setTokenOutTradeUSDPrice,
-    s.amountIn,
-    s.setAmountIn,
-    s.amountOut,
-    s.setAmountOut,
-    s.needsAllowanceIn,
-    s.setNeedsAllowanceIn,
-    s.needsAllowanceOut,
-    s.setNeedsAllowanceOut,
-    s.needsBalanceIn,
-    s.setNeedsBalanceIn,
-    s.needsBalanceOut,
-    s.setNeedsBalanceOut,
-    s.limitPriceString,
-    s.setLimitPriceString,
-    s.switchDirection,
-    s.setTradeButtonState,
-    s.needsRefetch,
-    s.setNeedsRefetch,
-    s.needsPosRefetch,
-    s.setNeedsPosRefetch,
-    s.needsSnapshot,
-    s.setNeedsSnapshot,
-    s.setStartPrice,
-    s.setLimitTabSelected,
-  ]);
+  const tradeStore = useTradeStore();
 
   const { error: networkError, switchNetwork } = useSwitchNetwork({
     onSuccess(data) {},
@@ -169,29 +81,31 @@ export default function Trade() {
 
   useEffect(() => {
     if (
-      tokenIn.address != ZERO_ADDRESS &&
-      (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
+      tradeStore.tokenIn.address != ZERO_ADDRESS &&
+      (tradeStore.tradePoolData?.id == ZERO_ADDRESS ||
+        tradeStore.tradePoolData?.id == undefined)
     ) {
       getLimitTokenUsdPrice(
-        tokenIn.address,
-        setTokenInTradeUSDPrice,
+        tradeStore.tokenIn.address,
+        tradeStore.setTokenInTradeUSDPrice,
         limitSubgraph,
       );
     }
-  }, [tokenIn.address]);
+  }, [tradeStore.tokenIn.address]);
 
   useEffect(() => {
     if (
-      tokenOut.address != ZERO_ADDRESS &&
-      (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
+      tradeStore.tokenOut.address != ZERO_ADDRESS &&
+      (tradeStore.tradePoolData?.id == ZERO_ADDRESS ||
+        tradeStore.tradePoolData?.id == undefined)
     ) {
       getLimitTokenUsdPrice(
-        tokenOut.address,
-        setTokenOutTradeUSDPrice,
+        tradeStore.tokenOut.address,
+        tradeStore.setTokenOutTradeUSDPrice,
         limitSubgraph,
       );
     }
-  }, [tokenOut.address]);
+  }, [tradeStore.tokenOut.address]);
 
   ////////////////////////////////Filled Amount
   const { data: filledAmountListInt } = useContractRead({
@@ -203,17 +117,17 @@ export default function Trade() {
       deepConvertBigIntAndBigNumber(limitPositionSnapshotList),
     ],
     chainId: chainId,
-    watch: needsSnapshot,
+    watch: tradeStore.needsSnapshot,
     enabled:
       isConnected &&
       limitPoolAddressList.length > 0 &&
-      needsSnapshot &&
+      tradeStore.needsSnapshot &&
       getRouterAddress(networkName),
     onSuccess(data) {
       // console.log("Success price filled amount", data);
       // console.log("snapshot address list", limitPoolAddressList);
       // console.log("snapshot params list", limitPositionSnapshotList);
-      setNeedsSnapshot(false);
+      tradeStore.setNeedsSnapshot(false);
     },
     onError(error) {
       console.log("network check", networkName);
@@ -242,9 +156,14 @@ export default function Trade() {
         : chainProperties["arbitrum-one"];
       setLimitSubgraph(chainConstants["limitSubgraphUrl"]);
       getUserLimitPositionData();
-      setNeedsRefetch(false);
+      tradeStore.setNeedsRefetch(false);
     }
-  }, [needsRefetch, needsPosRefetch, address, networkName]);
+  }, [
+    tradeStore.needsRefetch,
+    tradeStore.needsPosRefetch,
+    address,
+    networkName,
+  ]);
 
   useEffect(() => {
     if (allLimitPositions.length > 0) {
@@ -316,42 +235,44 @@ export default function Trade() {
 
   const { data: tokenInBal } = useBalance({
     address: address,
-    token: tokenIn.native ? undefined : tokenIn.address,
-    enabled: tokenIn.address != undefined && needsBalanceIn,
-    watch: needsBalanceIn,
+    token: tradeStore.tokenIn.native ? undefined : tradeStore.tokenIn.address,
+    enabled:
+      tradeStore.tokenIn.address != undefined && tradeStore.needsBalanceIn,
+    watch: tradeStore.needsBalanceIn,
     chainId: chainId,
     onSuccess(data) {
-      setNeedsBalanceIn(false);
+      tradeStore.setNeedsBalanceIn(false);
       setTimeout(() => {
-        setNeedsBalanceIn(true);
+        tradeStore.setNeedsBalanceIn(true);
       }, 5000);
     },
   });
 
   const { data: tokenOutBal } = useBalance({
     address: address,
-    token: tokenOut.native ? undefined : tokenOut.address,
-    enabled: tokenOut.address != undefined && needsBalanceOut,
-    watch: needsBalanceOut,
+    token: tradeStore.tokenOut.native ? undefined : tradeStore.tokenOut.address,
+    enabled:
+      tradeStore.tokenOut.address != undefined && tradeStore.needsBalanceOut,
+    watch: tradeStore.needsBalanceOut,
     chainId: chainId,
     onSuccess(data) {
-      setNeedsBalanceOut(false);
+      tradeStore.setNeedsBalanceOut(false);
       setTimeout(() => {
-        setNeedsBalanceOut(true);
+        tradeStore.setNeedsBalanceOut(true);
       }, 5000);
     },
   });
 
   useEffect(() => {
     if (isConnected && tokenInBal) {
-      setTokenInBalance(
+      tradeStore.setTokenInBalance(
         !isNaN(parseFloat(tokenInBal?.formatted.toString()))
           ? tokenInBal?.formatted.toString()
           : "0.00",
       );
     }
     if (isConnected && tokenOutBal) {
-      setTokenOutBalance(
+      tradeStore.setTokenOutBalance(
         !isNaN(parseFloat(tokenOutBal?.formatted.toString()))
           ? tokenOutBal?.formatted.toString()
           : "0.00",
@@ -363,25 +284,27 @@ export default function Trade() {
 
   const { data: allowanceInRouter, refetch: allowanceInRefetch } =
     useContractRead({
-      address: tokenIn.address,
+      address: tradeStore.tokenIn.address,
       abi: erc20ABI,
       functionName: "allowance",
       args: [address, getRouterAddress(networkName)],
       chainId: chainId,
       watch: true,
-      enabled: tokenIn.address != ZERO_ADDRESS && !tokenIn.native,
+      enabled:
+        tradeStore.tokenIn.address != ZERO_ADDRESS &&
+        !tradeStore.tokenIn.native,
       onError(error) {
         console.log("Error allowance", error);
       },
       onSuccess(data) {
-        setNeedsAllowanceIn(false);
-        // console.log("Success allowance", tokenIn.symbol, tokenIn.userRouterAllowance?.gte(amountIn));
+        tradeStore.setNeedsAllowanceIn(false);
+        // console.log("Success allowance", tradeStore.tokenIn.symbol, tradeStore.tokenIn.userRouterAllowance?.gte(amountIn));
       },
     });
 
   useEffect(() => {
     if (allowanceInRouter) {
-      setTokenInTradeAllowance(
+      tradeStore.setTokenInTradeAllowance(
         deepConvertBigIntAndBigNumber(allowanceInRouter),
       );
     }
@@ -401,7 +324,7 @@ export default function Trade() {
     onSuccess() {
       if (tokenInData) {
         const newTokenIn = {
-          ...tokenIn,
+          ...tradeStore.tokenIn,
           ...tokenInData,
           native:
             router.query.fromSymbol ==
@@ -428,7 +351,7 @@ export default function Trade() {
     onSuccess() {
       if (tokenOutData) {
         const newTokenOut = {
-          ...tokenOut,
+          ...tradeStore.tokenOut,
           ...tokenOutData,
           native:
             router.query.toSymbol ==
@@ -453,8 +376,8 @@ export default function Trade() {
 
   useEffect(() => {
     if (tokenInInfo && tokenOutInfo && !updatedFromRouter) {
-      setTokenIn(tokenOutInfo, tokenInInfo, "0", false);
-      setTokenOut(tokenInInfo, tokenOutInfo, "0", false);
+      tradeStore.setTokenIn(tokenOutInfo, tokenInInfo, "0", false);
+      tradeStore.setTokenOut(tokenInInfo, tokenOutInfo, "0", false);
       setUpdatedFromRouter(true);
     }
   }, [tokenInInfo, tokenOutInfo]);
@@ -464,28 +387,28 @@ export default function Trade() {
       pathname: "/",
       query: {
         chain: chainId,
-        from: tokenIn.address,
-        fromSymbol: tokenIn.symbol,
-        to: tokenOut.address,
-        toSymbol: tokenOut.symbol,
+        from: tradeStore.tokenIn.address,
+        fromSymbol: tradeStore.tokenIn.symbol,
+        to: tradeStore.tokenOut.address,
+        toSymbol: tradeStore.tokenOut.symbol,
       },
     });
   };
 
   useEffect(() => {
     if (
-      tokenIn.symbol != tokenOut.symbol &&
-      tokenIn.callId != 2 &&
-      tokenOut.callId != 2 &&
-      tokenIn.address != ZERO_ADDRESS &&
-      tokenOut.address != ZERO_ADDRESS
+      tradeStore.tokenIn.symbol != tradeStore.tokenOut.symbol &&
+      tradeStore.tokenIn.callId != 2 &&
+      tradeStore.tokenOut.callId != 2 &&
+      tradeStore.tokenIn.address != ZERO_ADDRESS &&
+      tradeStore.tokenOut.address != ZERO_ADDRESS
     )
       updateRouter();
   }, [
-    tokenIn.address,
-    tokenIn.symbol,
-    tokenOut.address,
-    tokenOut.symbol,
+    tradeStore.tokenIn.address,
+    tradeStore.tokenIn.symbol,
+    tradeStore.tokenOut.address,
+    tradeStore.tokenOut.symbol,
     chainId,
   ]);
 
@@ -495,27 +418,27 @@ export default function Trade() {
         <div className="bg-black font-regular border border-grey rounded-[4px] w-full max-w-2xl">
           <div className="flex text-xs">
             <button
-              onClick={() => setLimitTabSelected(false)}
+              onClick={() => tradeStore.setLimitTabSelected(false)}
               className={`w-full relative py-2.5 ${
-                !limitTabSelected
+                !tradeStore.limitTabSelected
                   ? "text-white"
                   : "text-white/50 border-b border-r border-grey"
               }`}
             >
-              {!limitTabSelected && (
+              {!tradeStore.limitTabSelected && (
                 <div className="h-0.5 w-full bg-main absolute top-[-1px]" />
               )}
               MARKET SWAP
             </button>
             <button
-              onClick={() => setLimitTabSelected(true)}
+              onClick={() => tradeStore.setLimitTabSelected(true)}
               className={`w-full relative py-2.5 ${
-                limitTabSelected
+                tradeStore.limitTabSelected
                   ? "text-white"
                   : "text-white/50 border-b border-l border-grey"
               }`}
             >
-              {limitTabSelected && (
+              {tradeStore.limitTabSelected && (
                 <div className="h-0.5 w-full bg-main absolute top-[-1px]" />
               )}
               LIMIT SWAP
@@ -538,7 +461,7 @@ export default function Trade() {
                 </svg>
               </div>
             </div>
-            {!limitTabSelected ? <MarketSwap /> : <LimitSwap />}
+            {!tradeStore.limitTabSelected ? <MarketSwap /> : <LimitSwap />}
           </div>
         </div>
       </div>
@@ -781,9 +704,11 @@ export default function Trade() {
                   <div className="flex md:flex-row flex-col items-center gap-3">
                     <div className="relative w-full">
                       <input
-                        value={tradeSlippage}
+                        value={tradeStore.tradeSlippage}
                         onChange={(e) =>
-                          setTradeSlippage(inputFilter(e.target.value))
+                          tradeStore.setTradeSlippage(
+                            inputFilter(e.target.value),
+                          )
                         }
                         className="bg-dark md:w-auto w-full border-grey border h-10 outline-none px-2 text-sm"
                         placeholder="0.1"
@@ -793,7 +718,7 @@ export default function Trade() {
                     <div className="flex flex-row items-center gap-x-3 w-full">
                       <div
                         onClick={() => {
-                          setTradeSlippage("0.1");
+                          tradeStore.setTradeSlippage("0.1");
                           setIsSettingsOpen(false);
                         }}
                         className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer"
@@ -802,7 +727,7 @@ export default function Trade() {
                       </div>
                       <div
                         onClick={() => {
-                          setTradeSlippage("0.5");
+                          tradeStore.setTradeSlippage("0.5");
                           setIsSettingsOpen(false);
                         }}
                         className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer"
@@ -811,7 +736,7 @@ export default function Trade() {
                       </div>
                       <div
                         onClick={() => {
-                          setTradeSlippage("1");
+                          tradeStore.setTradeSlippage("1");
                           setIsSettingsOpen(false);
                         }}
                         className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer"
