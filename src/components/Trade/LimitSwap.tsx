@@ -3,6 +3,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
 import { useAccount } from "wagmi";
+import { useShallow } from "zustand/react/shallow";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
 import LimitSwapButton from "../Buttons/LimitSwapButton";
@@ -52,14 +53,9 @@ import { getRouterAddress } from "../../utils/config";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 
 export default function LimitSwap() {
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
-    useConfigStore((state) => [
-      state.chainId,
-      state.networkName,
-      state.limitSubgraph,
-      state.setLimitSubgraph,
-      state.logoMap,
-    ]);
+  const [networkName, limitSubgraph] = useConfigStore(
+    useShallow((state) => [state.networkName, state.limitSubgraph]),
+  );
 
   //CONFIG STORE
   const [stateChainName, setStateChainName] = useState();

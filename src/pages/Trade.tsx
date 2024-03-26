@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment } from "react";
+import { useState, useEffect, Fragment, useRef } from "react";
 import { erc20ABI, useAccount, useContractRead, useBalance } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { chainProperties } from "../utils/chains";
@@ -27,29 +27,33 @@ import inputFilter from "../utils/inputFilter";
 import { addressMatches, getRouterAddress, isWeth } from "../utils/config";
 import { Network } from "alchemy-sdk";
 import { deepConvertBigIntAndBigNumber } from "../utils/misc";
+import { useShallow } from "zustand/react/shallow";
+
+function useRenderCount() {
+  const renderCount = useRef(0);
+
+  useEffect(() => {
+    renderCount.current = renderCount.current + 1;
+    console.log(`Rendered ${renderCount.current} times`);
+  });
+
+  return renderCount.current;
+}
 
 export default function Trade() {
+  useRenderCount();
   const { address, isDisconnected, isConnected } = useAccount();
 
-  const [
-    chainId,
-    networkName,
-    limitSubgraph,
-    setLimitSubgraph,
-    logoMap,
-    setDisplayTokenList,
-    setNetworkName,
-    setChainId,
-  ] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-    state.limitSubgraph,
-    state.setLimitSubgraph,
-    state.logoMap,
-    state.setDisplayTokenList,
-    state.setNetworkName,
-    state.setChainId,
-  ]);
+  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
+    useConfigStore(
+      useShallow((state) => [
+        state.chainId,
+        state.networkName,
+        state.limitSubgraph,
+        state.setLimitSubgraph,
+        state.logoMap,
+      ]),
+    );
 
   const tradeStore = useTradeStore();
 

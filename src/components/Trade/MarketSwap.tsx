@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import { useAccount, useContractRead } from "wagmi";
+import { useShallow } from "zustand/react/shallow";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
@@ -51,10 +52,9 @@ export default function MarketSwap() {
 
   const tradeStore = useTradeStore();
 
-  const [setRangeTokenIn, setRangeTokenOut] = useRangeLimitStore((state) => [
-    state.setTokenIn,
-    state.setTokenOut,
-  ]);
+  const [setRangeTokenIn, setRangeTokenOut] = useRangeLimitStore(
+    useShallow((state) => [state.setTokenIn, state.setTokenOut]),
+  );
 
   const {
     inputBox: inputBoxIn,
