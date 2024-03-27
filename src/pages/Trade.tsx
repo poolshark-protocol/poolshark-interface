@@ -29,6 +29,9 @@ import { Network } from "alchemy-sdk";
 import { deepConvertBigIntAndBigNumber } from "../utils/misc";
 import useAllowance from "../hooks/contracts/useAllowance";
 import useTokenBalance from "../hooks/useTokenBalance";
+import useMultiSnapshotLimit from "../hooks/contracts/useMultiSnapshotLimit";
+import useTokenInInfo from "../hooks/contracts/useTokenInInfo";
+import useTokenOutInfo from "../hooks/contracts/useTokenOutInfo";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -97,6 +100,12 @@ export default function Trade() {
     setNeedsSnapshot,
     setStartPrice,
     setLimitTabSelected,
+    limitPoolAddressList,
+    setLimitPoolAddressList,
+    limitPositionSnapshotList,
+    setLimitPositionSnapshotList,
+    tokenInInfo,
+    tokenOutInfo,
   ] = useTradeStore((s) => [
     s.tradePoolData,
     s.setTradePoolData,
@@ -141,6 +150,12 @@ export default function Trade() {
     s.setNeedsSnapshot,
     s.setStartPrice,
     s.setLimitTabSelected,
+    s.limitPoolAddressList,
+    s.setLimitPoolAddressList,
+    s.limitPositionSnapshotList,
+    s.setLimitPositionSnapshotList,
+    s.tokenInInfo,
+    s.tokenOutInfo,
   ]);
 
   //*
@@ -157,18 +172,9 @@ export default function Trade() {
 
   ////////////////////////////////Pools
 
-  //log addresses and ids
-  const [limitPoolAddressList, setLimitPoolAddressList] = useState([]);
-  const [limitPositionSnapshotList, setLimitPositionSnapshotList] = useState<
-    any[]
-  >([]);
-
   //log amount in and out
   const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
   const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
-
-  const [tokenInInfo, setTokenInInfo] = useState(undefined);
-  const [tokenOutInfo, setTokenOutInfo] = useState(undefined);
 
   useEffect(() => {
     if (
@@ -197,36 +203,8 @@ export default function Trade() {
   }, [tokenOut.address]);
 
   ////////////////////////////////Filled Amount
-  //* hook wrapper
-  //* Fuel and EVM args
-  //* both are passed in
-  //* switching from EVM <> Fuel clears state
-  const { data: filledAmountListInt } = useContractRead({
-    address: getRouterAddress(networkName),
-    abi: poolsharkRouterABI,
-    functionName: "multiSnapshotLimit",
-    args: [
-      limitPoolAddressList,
-      deepConvertBigIntAndBigNumber(limitPositionSnapshotList),
-    ],
-    chainId: chainId,
-    watch: needsSnapshot,
-    enabled:
-      isConnected &&
-      limitPoolAddressList.length > 0 &&
-      needsSnapshot &&
-      getRouterAddress(networkName),
-    onSuccess(data) {
-      // console.log("Success price filled amount", data);
-      // console.log("snapshot address list", limitPoolAddressList);
-      // console.log("snapshot params list", limitPositionSnapshotList);
-      setNeedsSnapshot(false);
-    },
-    onError(error) {
-      console.log("network check", networkName);
-      console.log("Error price Limit", error);
-    },
-  });
+
+  const { data: filledAmountListInt } = useMultiSnapshotLimit();
 
   useEffect(() => {
     if (filledAmountListInt) {
@@ -357,60 +335,11 @@ export default function Trade() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   //* hook wrapper
-  const {
-    data: tokenInData,
-    refetch: refetchTokenInInfo,
-    isLoading: isTokenInLoading,
-  } = useToken({
-    address:
-      (router.query.from as `0x${string}`) ?? (ZERO_ADDRESS as `0x${string}`),
-    enabled: router.query.from != ZERO_ADDRESS,
-    onSuccess() {
-      if (tokenInData) {
-        const newTokenIn = {
-          ...tokenIn,
-          ...tokenInData,
-          native:
-            router.query.fromSymbol ==
-            chainProperties[networkName].nativeCurrency.symbol
-              ? true
-              : false,
-          symbol: router.query.fromSymbol ?? tokenInData.symbol,
-        };
-        setTokenInInfo(newTokenIn);
-      } else {
-        refetchTokenInInfo();
-      }
-    },
-  });
+  const { tokenInData, refetchTokenInInfo, isTokenInLoading } =
+    useTokenInInfo();
 
-  //* hook wrapper
-  const {
-    data: tokenOutData,
-    refetch: refetchTokenOutInfo,
-    isLoading: isTokenOutLoading,
-  } = useToken({
-    address:
-      (router.query.to as `0x${string}`) ?? (ZERO_ADDRESS as `0x${string}`),
-    enabled: router.query.to != ZERO_ADDRESS,
-    onSuccess() {
-      if (tokenOutData) {
-        const newTokenOut = {
-          ...tokenOut,
-          ...tokenOutData,
-          native:
-            router.query.toSymbol ==
-            chainProperties[networkName].nativeCurrency.symbol
-              ? true
-              : false,
-          symbol: router.query.toSymbol ?? tokenOutData.symbol,
-        };
-        setTokenOutInfo(newTokenOut);
-      } else {
-        refetchTokenOutInfo();
-      }
-    },
-  });
+  const { tokenOutData, refetchTokenOutInfo, isTokenOutLoading } =
+    useTokenOutInfo();
 
   useEffect(() => {
     refetchTokenInInfo();

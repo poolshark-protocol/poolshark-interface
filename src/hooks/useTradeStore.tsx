@@ -59,6 +59,12 @@ type TradeState = {
   //Start price for pool creation
   startPrice: string;
   limitPriceOrder: boolean;
+  //Limit positions
+  limitPoolAddressList: any[];
+  limitPositionSnapshotList: any[];
+  // token info
+  tokenInInfo: any;
+  tokenOutInfo: any;
 };
 
 type TradeLimitAction = {
@@ -129,6 +135,10 @@ type TradeLimitAction = {
   setNeedsSetAmounts: (needsSetAmounts: boolean) => void;
   setStartPrice: (startPrice: string) => void;
   setLimitPriceOrder: (limitPriceOrder: boolean) => void;
+  setLimitPoolAddressList: (limitPoolAddressList: any[]) => void;
+  setLimitPositionSnapshotList: (limitPositionSnapshotList: any[]) => void;
+  setTokenInInfo: (tokenInInfo: any) => void;
+  setTokenOutInfo: (tokenOutInfo: any) => void;
 };
 
 const initialTradeState: TradeState = {
@@ -191,6 +201,10 @@ const initialTradeState: TradeState = {
   needsSetAmounts: false,
   startPrice: "",
   limitPriceOrder: true,
+  limitPoolAddressList: [],
+  limitPositionSnapshotList: [],
+  tokenInInfo: undefined,
+  tokenOutInfo: undefined,
 };
 
 export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
@@ -231,6 +245,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   needsSetAmounts: initialTradeState.needsSetAmounts,
   startPrice: initialTradeState.startPrice,
   limitPriceOrder: initialTradeState.limitPriceOrder,
+  limitPoolAddressList: initialTradeState.limitPoolAddressList,
+  limitPositionSnapshotList: initialTradeState.limitPositionSnapshotList,
+  tokenInInfo: initialTradeState.tokenInInfo,
+  tokenOutInfo: initialTradeState.tokenOutInfo,
   //actions
   setPairSelected: (pairSelected: boolean) => {
     set(() => ({
@@ -608,6 +626,26 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   setLimitPriceOrder: (limitPriceOrder: boolean) => {
     set({
       limitPriceOrder: limitPriceOrder,
+    });
+  },
+  setLimitPoolAddressList: (limitPoolAddressList: any[]) => {
+    set({
+      limitPoolAddressList: limitPoolAddressList,
+    });
+  },
+  setLimitPositionSnapshotList: (limitPositionSnapshotList: any[]) => {
+    set({
+      limitPositionSnapshotList: limitPositionSnapshotList,
+    });
+  },
+  setTokenInInfo: (tokenInInfo: any) => {
+    set({
+      tokenInInfo: tokenInInfo,
+    });
+  },
+  setTokenOutInfo: (tokenOutInfo: any) => {
+    set({
+      tokenOutInfo: tokenOutInfo,
     });
   },
   switchDirection: (isAmountIn: boolean, amount: string) => {

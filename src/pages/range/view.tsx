@@ -28,6 +28,7 @@ import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
 import { getRangeStakerAddress } from "../../utils/config";
 import { numFormat } from "../../utils/math/valueMath";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
+import useSnapshotRange from "../../hooks/contracts/useSnapshotRange";
 
 export default function ViewRange() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -363,21 +364,7 @@ export default function ViewRange() {
   ////////////////////////////////Snapshot
 
   //* hook wrapper
-  const { refetch: refetchSnapshot, data: feesOwed } = useContractRead({
-    address: rangePoolAddress,
-    abi: rangePoolABI,
-    functionName: "snapshotRange",
-    args: [rangePositionData.positionId],
-    chainId: chainId,
-    watch: true,
-    enabled:
-      isConnected &&
-      rangePositionData.positionId != undefined &&
-      rangePoolAddress != ZERO_ADDRESS,
-    onError(error) {
-      console.log("Error snapshot Range", error);
-    },
-  });
+  const { refetchSnapshot, feesOwed } = useSnapshotRange();
 
   useEffect(() => {
     setFeesOwed();
