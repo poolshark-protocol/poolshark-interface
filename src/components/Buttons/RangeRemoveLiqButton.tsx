@@ -14,6 +14,7 @@ import { rangeStakerABI } from "../../abis/evm/rangeStaker";
 import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function RangeRemoveLiqButton({
   poolAddress,
@@ -26,22 +27,18 @@ export default function RangeRemoveLiqButton({
   staked,
   disabled,
 }) {
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
 
-  const [
-    setNeedsRefetch,
-    setNeedsBalanceIn,
-    setNeedsBalanceOut,
-    setNeedsPosRefetch,
-  ] = useRangeLimitStore((state) => [
-    state.setNeedsRefetch,
-    state.setNeedsBalanceIn,
-    state.setNeedsBalanceOut,
-    state.setNeedsPosRefetch,
-  ]);
+  const [setNeedsRefetch, setNeedsBalanceIn, setNeedsPosRefetch] =
+    useRangeLimitStore(
+      useShallow((state) => [
+        state.setNeedsRefetch,
+        state.setNeedsBalanceIn,
+        state.setNeedsPosRefetch,
+      ]),
+    );
 
   const [toastId, setToastId] = useState(null);
 

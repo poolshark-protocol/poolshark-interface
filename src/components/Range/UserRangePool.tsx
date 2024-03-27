@@ -11,62 +11,54 @@ import { getRangePoolFromFactory } from "../../utils/queries";
 import router from "next/router";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { formatUsdValue } from "../../utils/math/valueMath";
+import { useShallow } from "zustand/react/shallow";
 
 export default function UserRangePool({ rangePosition, href, isModal }) {
   const [limitSubgraph, coverSubgraph, logoMap, chainId] = useConfigStore(
-    (state) => [
+    useShallow((state) => [
       state.limitSubgraph,
       state.coverSubgraph,
       state.logoMap,
       state.chainId,
-    ],
+    ]),
   );
 
   const [
-    rangePoolData,
     rangeTokenIn,
     rangeTokenOut,
     setRangeTokenIn,
     setRangeTokenInUSDPrice,
     setRangeTokenOut,
     setTokenOutRangeUSDPrice,
-    setRangePoolAddress,
     setRangePoolData,
     setRangePositionData,
     setRangePoolFromFeeTier,
     setNeedsAllowanceIn,
     setNeedsAllowanceOut,
-  ] = useRangeLimitStore((state) => [
-    state.rangePoolData,
-    state.tokenIn,
-    state.tokenOut,
-    state.setTokenIn,
-    state.setTokenInRangeUSDPrice,
-    state.setTokenOut,
-    state.setTokenOutRangeUSDPrice,
-    state.setRangePoolAddress,
-    state.setRangePoolData,
-    state.setRangePositionData,
-    state.setRangePoolFromFeeTier,
-    state.setNeedsAllowanceIn,
-    state.setNeedsAllowanceOut,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.tokenIn,
+      state.tokenOut,
+      state.setTokenIn,
+      state.setTokenInRangeUSDPrice,
+      state.setTokenOut,
+      state.setTokenOutRangeUSDPrice,
+      state.setRangePoolData,
+      state.setRangePositionData,
+      state.setRangePoolFromFeeTier,
+      state.setNeedsAllowanceIn,
+      state.setNeedsAllowanceOut,
+    ]),
+  );
 
-  const [
-    setCoverTokenIn,
-    setCoverTokenOut,
-    setCoverPoolAddress,
-    setCoverPoolData,
-    setCoverPositionData,
-    setCoverPoolFromVolatility,
-  ] = useCoverStore((state) => [
-    state.setTokenIn,
-    state.setTokenOut,
-    state.setCoverPoolAddress,
-    state.setCoverPoolData,
-    state.setCoverPositionData,
-    state.setCoverPoolFromVolatility,
-  ]);
+  const [setCoverTokenIn, setCoverTokenOut, setCoverPoolFromVolatility] =
+    useCoverStore(
+      useShallow((state) => [
+        state.setTokenIn,
+        state.setTokenOut,
+        state.setCoverPoolFromVolatility,
+      ]),
+    );
 
   //////////////////////////Set USD Prices
   //Todo token in and out prices should local to the tile and not set at the store level

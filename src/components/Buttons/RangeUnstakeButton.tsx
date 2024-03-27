@@ -13,6 +13,7 @@ import { gasEstimateRangeUnstake } from "../../utils/gas";
 import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 // unstake position
 // add liquidity while staked
@@ -25,27 +26,29 @@ export default function RangeUnstakeButton({
   positionId,
   signer,
 }) {
-  const [chainId, networkName, limitSubgraph] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-    state.limitSubgraph,
-  ]);
+  const [chainId, networkName, limitSubgraph] = useConfigStore(
+    useShallow((state) => [
+      state.chainId,
+      state.networkName,
+      state.limitSubgraph,
+    ]),
+  );
 
   const [
     setNeedsAllowanceIn,
-    setNeedsAllowanceOut,
     setNeedsBalanceIn,
     setNeedsBalanceOut,
     setNeedsRefetch,
     setNeedsPosRefetch,
-  ] = useRangeLimitStore((state) => [
-    state.setNeedsAllowanceIn,
-    state.setNeedsAllowanceOut,
-    state.setNeedsBalanceIn,
-    state.setNeedsBalanceOut,
-    state.setNeedsRefetch,
-    state.setNeedsPosRefetch,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.setNeedsAllowanceIn,
+      state.setNeedsBalanceIn,
+      state.setNeedsBalanceOut,
+      state.setNeedsRefetch,
+      state.setNeedsPosRefetch,
+    ]),
+  );
 
   const [toastId, setToastId] = useState(null);
   const [unstakeGasLimit, setUnstakeGasLimit] = useState(BN_ZERO);

@@ -35,14 +35,13 @@ import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function MarketSwap() {
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
-    useConfigStore((state) => [
+  const [chainId, networkName, limitSubgraph] = useConfigStore(
+    useShallow((state) => [
       state.chainId,
       state.networkName,
       state.limitSubgraph,
-      state.setLimitSubgraph,
-      state.logoMap,
-    ]);
+    ]),
+  );
 
   //CONFIG STORE
   const [stateChainName, setStateChainName] = useState();
@@ -50,6 +49,7 @@ export default function MarketSwap() {
   //PRICE AND LIQUIDITY FETCHED EVERY 5 SECONDS
   const quoteRefetchDelay = 5000;
 
+  // @shax
   const tradeStore = useTradeStore();
 
   const [setRangeTokenIn, setRangeTokenOut] = useRangeLimitStore(

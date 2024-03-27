@@ -8,16 +8,16 @@ import { useState, useEffect } from "react";
 import { vFinABI } from "../../abis/evm/vFin";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
+import { useShallow } from "zustand/react/shallow";
 
 export default function ClaimFinButton({
   vFinAddress,
   positionId,
   claimAmount,
 }) {
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
 
   const [toastId, setToastId] = useState(null);
 

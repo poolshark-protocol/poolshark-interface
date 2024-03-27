@@ -16,13 +16,12 @@ import { getLogo } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
+import { useShallow } from "zustand/react/shallow";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
-  const [chainId, logoMap, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.logoMap,
-    state.networkName,
-  ]);
+  const [chainId, logoMap, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.logoMap, state.networkName]),
+  );
 
   const [
     coverPoolAddress,
@@ -38,21 +37,23 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     needsBalance,
     setNeedsBalance,
     setMintButtonState,
-  ] = useCoverStore((state) => [
-    state.coverPoolAddress,
-    state.coverPoolData,
-    state.coverPositionData,
-    state.coverMintParams,
-    state.tokenIn,
-    state.setTokenInBalance,
-    state.setTokenInCoverAllowance,
-    state.tokenOut,
-    state.needsAllowance,
-    state.setNeedsAllowance,
-    state.needsBalance,
-    state.setNeedsBalance,
-    state.setMintButtonState,
-  ]);
+  ] = useCoverStore(
+    useShallow((state) => [
+      state.coverPoolAddress,
+      state.coverPoolData,
+      state.coverPositionData,
+      state.coverMintParams,
+      state.tokenIn,
+      state.setTokenInBalance,
+      state.setTokenInCoverAllowance,
+      state.tokenOut,
+      state.needsAllowance,
+      state.setNeedsAllowance,
+      state.needsBalance,
+      state.setNeedsBalance,
+      state.setMintButtonState,
+    ]),
+  );
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
   const signer = useEthersSigner();

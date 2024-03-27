@@ -7,6 +7,7 @@ import { useTradeStore } from "../hooks/useTradeStore";
 import { useRangeLimitStore } from "../hooks/useRangeLimitStore";
 import { fetchListedTokenBalances, fetchTokenMetadata } from "../utils/tokens";
 import { chainProperties, supportedNetworkNames } from "../utils/chains";
+import { useShallow } from "zustand/react/shallow";
 
 interface ConfigWrapperProps {}
 
@@ -47,27 +48,29 @@ const ConfigWrapper = ({ children }: PropsWithChildren) => {
     setListedTokenList,
     setSearchTokenList,
     setDisplayTokenList,
-  ] = useConfigStore((state) => [
-    state.listedtokenList,
-    state.networkName,
-    state.searchtokenList,
-    state.setChainId,
-    state.setNetworkName,
-    state.setLimitSubgraph,
-    state.setCoverSubgraph,
-    state.setCoverFactoryAddress,
-    state.setListedTokenList,
-    state.setSearchTokenList,
-    state.setDisplayTokenList,
-  ]);
+  ] = useConfigStore(
+    useShallow((state) => [
+      state.listedtokenList,
+      state.networkName,
+      state.searchtokenList,
+      state.setChainId,
+      state.setNetworkName,
+      state.setLimitSubgraph,
+      state.setCoverSubgraph,
+      state.setCoverFactoryAddress,
+      state.setListedTokenList,
+      state.setSearchTokenList,
+      state.setDisplayTokenList,
+    ]),
+  );
 
-  const [resetTradeLimitParams] = useTradeStore((state) => [
-    state.resetTradeLimitParams,
-  ]);
+  const [resetTradeLimitParams] = useTradeStore(
+    useShallow((state) => [state.resetTradeLimitParams]),
+  );
 
-  const [resetLimitStore] = useRangeLimitStore((state) => [
-    state.resetRangeLimitParams,
-  ]);
+  const [resetLimitStore] = useRangeLimitStore(
+    useShallow((state) => [state.resetRangeLimitParams]),
+  );
 
   const {
     chain: { id: chainId, network: name },

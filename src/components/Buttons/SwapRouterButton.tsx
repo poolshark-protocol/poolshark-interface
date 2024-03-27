@@ -16,6 +16,7 @@ import { BigNumber, ethers } from "ethers";
 import { formatCurrency } from "@usedapp/core/dist/esm/src/model";
 import { BN_ZERO } from "../../utils/math/constants";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 declare global {
   interface Window {
@@ -42,10 +43,9 @@ export default function SwapRouterButton({
   tokenOutSymbol,
   resetAfterSwap,
 }) {
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
 
   const [toastId, setToastId] = useState(null);
 
@@ -54,12 +54,14 @@ export default function SwapRouterButton({
     setNeedsBalanceIn,
     setNeedsBalanceOut,
     tradeButton,
-  ] = useRangeLimitStore((state) => [
-    state.setNeedsAllowanceIn,
-    state.setNeedsBalanceIn,
-    state.setNeedsBalanceOut,
-    state.tradeButton,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.setNeedsAllowanceIn,
+      state.setNeedsBalanceIn,
+      state.setNeedsBalanceOut,
+      state.tradeButton,
+    ]),
+  );
 
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);

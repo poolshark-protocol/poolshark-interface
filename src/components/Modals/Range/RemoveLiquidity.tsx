@@ -14,6 +14,7 @@ import { gasEstimateRangeBurn } from "../../../utils/gas";
 import { parseUnits } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getLogo, logoMapKey } from "../../../utils/tokens";
+import { useShallow } from "zustand/react/shallow";
 
 export default function RangeRemoveLiquidity({
   isOpen,
@@ -21,13 +22,12 @@ export default function RangeRemoveLiquidity({
   signer,
   staked,
 }) {
-  const [chainId, networkName, logoMap, limitSubgraph] = useConfigStore(
-    (state) => [
-      state.chainId,
+  const [networkName, logoMap, limitSubgraph] = useConfigStore(
+    useShallow((state) => [
       state.networkName,
       state.logoMap,
       state.limitSubgraph,
-    ],
+    ]),
   );
 
   const [
@@ -37,14 +37,16 @@ export default function RangeRemoveLiquidity({
     tokenIn,
     tokenOut,
     setMintButtonState,
-  ] = useRangeLimitStore((state) => [
-    state.rangePoolAddress,
-    state.rangePositionData,
-    state.rangeMintParams,
-    state.tokenIn,
-    state.tokenOut,
-    state.setMintButtonState,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.rangePoolAddress,
+      state.rangePositionData,
+      state.rangeMintParams,
+      state.tokenIn,
+      state.tokenOut,
+      state.setMintButtonState,
+    ]),
+  );
 
   const router = useRouter();
   const { address } = useAccount();

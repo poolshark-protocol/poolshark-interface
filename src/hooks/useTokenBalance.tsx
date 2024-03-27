@@ -13,10 +13,7 @@ export default function useTokenBalance(tokenAddress: `0x${string}`) {
   const { address } = useAccount();
   const [tokenBalanceInfo, setTokenBalanceInfo] = useState({} as any);
 
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const chainId = useConfigStore((state) => state.chainId);
 
   const { data } = useBalance({
     address: address,

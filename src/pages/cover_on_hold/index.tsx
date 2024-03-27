@@ -17,6 +17,7 @@ import { mapCoverPools } from "../../utils/maps";
 import { tokenCover } from "../../utils/types";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties, supportedNetworkNames } from "../../utils/chains";
+import { useShallow } from "zustand/react/shallow";
 
 export default function Cover() {
   const [
@@ -25,13 +26,15 @@ export default function Cover() {
     setCoverSubgraph,
     listedTokenList,
     logoMap,
-  ] = useConfigStore((state) => [
-    state.networkName,
-    state.coverSubgraph,
-    state.setCoverSubgraph,
-    state.listedtokenList,
-    state.logoMap,
-  ]);
+  ] = useConfigStore(
+    useShallow((state) => [
+      state.networkName,
+      state.coverSubgraph,
+      state.setCoverSubgraph,
+      state.listedtokenList,
+      state.logoMap,
+    ]),
+  );
 
   const [
     setCoverTokenIn,
@@ -43,17 +46,19 @@ export default function Cover() {
     setNeedsPosRefetch,
     tokenIn,
     tokenOut,
-  ] = useCoverStore((state) => [
-    state.setTokenIn,
-    state.setTokenOut,
-    state.setCoverPoolFromVolatility,
-    state.needsRefetch,
-    state.needsPosRefetch,
-    state.setNeedsRefetch,
-    state.setNeedsPosRefetch,
-    state.tokenIn,
-    state.tokenOut,
-  ]);
+  ] = useCoverStore(
+    useShallow((state) => [
+      state.setTokenIn,
+      state.setTokenOut,
+      state.setCoverPoolFromVolatility,
+      state.needsRefetch,
+      state.needsPosRefetch,
+      state.setNeedsRefetch,
+      state.setNeedsPosRefetch,
+      state.tokenIn,
+      state.tokenOut,
+    ]),
+  );
 
   const router = useRouter();
   const { address, isDisconnected } = useAccount();

@@ -13,6 +13,7 @@ import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function LimitSwapButton({
   disabled,
@@ -28,10 +29,9 @@ export default function LimitSwapButton({
   gasLimit,
   resetAfterSwap,
 }) {
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
 
   const [
     setNeedsRefetch,
@@ -41,15 +41,17 @@ export default function LimitSwapButton({
     setNeedsPosRefetch,
     tokenIn,
     tokenOut,
-  ] = useTradeStore((state) => [
-    state.setNeedsRefetch,
-    state.setNeedsAllowanceIn,
-    state.setNeedsBalanceIn,
-    state.setNeedsSnapshot,
-    state.setNeedsPosRefetch,
-    state.tokenIn,
-    state.tokenOut,
-  ]);
+  ] = useTradeStore(
+    useShallow((state) => [
+      state.setNeedsRefetch,
+      state.setNeedsAllowanceIn,
+      state.setNeedsBalanceIn,
+      state.setNeedsSnapshot,
+      state.setNeedsPosRefetch,
+      state.tokenIn,
+      state.tokenOut,
+    ]),
+  );
   const [toastId, setToastId] = useState(null);
 
   useEffect(() => {}, [disabled]);

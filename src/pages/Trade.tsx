@@ -43,6 +43,7 @@ export default function Trade() {
       ]),
     );
 
+  // @shax
   const tradeStore = useTradeStore();
 
   const { error: networkError, switchNetwork } = useSwitchNetwork({

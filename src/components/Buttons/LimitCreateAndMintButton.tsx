@@ -14,6 +14,7 @@ import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function LimitCreateAndMintButton({
   disabled,
@@ -31,26 +32,23 @@ export default function LimitCreateAndMintButton({
   closeModal,
   gasLimit,
 }) {
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
 
   const [
-    startPrice,
-    tradePoolData,
     setNeedsRefetch,
     setNeedsAllowanceIn,
     setNeedsBalanceIn,
     setNeedsSnapshot,
-  ] = useTradeStore((state) => [
-    state.startPrice,
-    state.tradePoolData,
-    state.setNeedsRefetch,
-    state.setNeedsAllowanceIn,
-    state.setNeedsBalanceIn,
-    state.setNeedsSnapshot,
-  ]);
+  ] = useTradeStore(
+    useShallow((state) => [
+      state.setNeedsRefetch,
+      state.setNeedsAllowanceIn,
+      state.setNeedsBalanceIn,
+      state.setNeedsSnapshot,
+    ]),
+  );
   const [toastId, setToastId] = useState(null);
 
   useEffect(() => {}, [disabled]);

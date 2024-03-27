@@ -22,15 +22,15 @@ import JSBI from "jsbi";
 import { getLogo, logoMapKey, nativeString } from "../../utils/tokens";
 import { getRouterAddress } from "../../utils/config";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
+import { useShallow } from "zustand/react/shallow";
 
 export default function RangePoolPreview() {
-  const [chainId, logoMap, networkName, limitSubgraph] = useConfigStore(
-    (state) => [
-      state.chainId,
+  const [logoMap, networkName, limitSubgraph] = useConfigStore(
+    useShallow((state) => [
       state.logoMap,
       state.networkName,
       state.limitSubgraph,
-    ],
+    ]),
   );
 
   const [
@@ -41,15 +41,17 @@ export default function RangePoolPreview() {
     tokenIn,
     tokenOut,
     priceOrder,
-  ] = useRangeLimitStore((state) => [
-    state.rangePoolAddress,
-    state.rangePoolData,
-    state.rangePositionData,
-    state.rangeMintParams,
-    state.tokenIn,
-    state.tokenOut,
-    state.priceOrder,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.rangePoolAddress,
+      state.rangePoolData,
+      state.rangePositionData,
+      state.rangeMintParams,
+      state.tokenIn,
+      state.tokenOut,
+      state.priceOrder,
+    ]),
+  );
   // fee amount
 
   // for mint modal

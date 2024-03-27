@@ -14,6 +14,7 @@ import { parseUnits } from "../../utils/math/valueMath";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function CoverRemoveLiqButton({
   disabled,
@@ -28,17 +29,16 @@ export default function CoverRemoveLiqButton({
   setIsOpen,
 }) {
   const [setNeedsRefetch, setNeedsBalance, setNeedsPosRefetch] = useCoverStore(
-    (state) => [
+    useShallow((state) => [
       state.setNeedsRefetch,
       state.setNeedsBalance,
       state.setNeedsPosRefetch,
-    ],
+    ]),
   );
 
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
 
   const [toastId, setToastId] = useState(null);
 

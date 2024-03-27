@@ -10,6 +10,7 @@ import { gasEstimateCoverBurn } from "../../../utils/gas";
 import { parseUnits } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getLogo } from "../../../utils/tokens";
+import { useShallow } from "zustand/react/shallow";
 
 export default function CoverRemoveLiquidity({
   isOpen,
@@ -26,18 +27,20 @@ export default function CoverRemoveLiquidity({
     claimTick,
     setTokenInAmount,
     setMintButtonState,
-  ] = useCoverStore((state) => [
-    state.coverPoolAddress,
-    state.coverPoolData,
-    state.coverPositionData,
-    state.coverMintParams,
-    state.tokenIn,
-    state.claimTick,
-    state.setTokenInAmount,
-    state.setMintButtonState,
-  ]);
+  ] = useCoverStore(
+    useShallow((state) => [
+      state.coverPoolAddress,
+      state.coverPoolData,
+      state.coverPositionData,
+      state.coverMintParams,
+      state.tokenIn,
+      state.claimTick,
+      state.setTokenInAmount,
+      state.setMintButtonState,
+    ]),
+  );
 
-  const [logoMap] = useConfigStore((state) => [state.logoMap]);
+  const logoMap = useConfigStore((state) => state.logoMap);
 
   const router = useRouter();
 
