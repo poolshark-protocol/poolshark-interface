@@ -334,7 +334,6 @@ export default function Trade() {
   ///////////////////////
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  //* hook wrapper
   const { tokenInData, refetchTokenInInfo, isTokenInLoading } =
     useTokenInInfo();
 

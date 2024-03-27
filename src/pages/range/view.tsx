@@ -29,6 +29,7 @@ import { getRangeStakerAddress } from "../../utils/config";
 import { numFormat } from "../../utils/math/valueMath";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import useSnapshotRange from "../../hooks/contracts/useSnapshotRange";
+import useIsApprovedForAll from "../../hooks/contracts/useIsApprovedForAll";
 
 export default function ViewRange() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -363,7 +364,6 @@ export default function ViewRange() {
 
   ////////////////////////////////Snapshot
 
-  //* hook wrapper
   const { refetchSnapshot, feesOwed } = useSnapshotRange();
 
   useEffect(() => {
@@ -388,22 +388,8 @@ export default function ViewRange() {
   }
 
   ////////////////////////////////Range Staking
-  //* hook wrapper
-  const { data: stakeApproveStatus } = useContractRead({
-    address: rangePoolData.poolToken,
-    abi: positionERC1155ABI,
-    functionName: "isApprovedForAll",
-    args: [address, getRangeStakerAddress(networkName)],
-    chainId: chainId,
-    watch: true,
-    enabled: rangePositionData.staked != undefined && !rangePositionData.staked,
-    onSuccess() {
-      // console.log('approval erc1155 fetched')
-    },
-    onError(error) {
-      console.log("Error isApprovedForAll", rangePoolData.poolToken, error);
-    },
-  });
+
+  const { stakeApproveStatus } = useIsApprovedForAll();
 
   // store erc-1155 approval status
   useEffect(() => {
