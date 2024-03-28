@@ -80,7 +80,10 @@ export default function RangeAddLiqButton({
       ],
     ],
     chainId: chainId,
-    enabled: positionId != undefined && poolAddress != ZERO_ADDRESS,
+    enabled:
+      positionId != undefined &&
+      poolAddress != ZERO_ADDRESS &&
+      (amount0?.gt(BN_ZERO) || amount1?.gt(BN_ZERO)),
     gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
     onError(err) {
       console.log("range add liq error");

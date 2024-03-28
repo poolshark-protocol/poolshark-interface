@@ -5,8 +5,6 @@ import { ZERO_ADDRESS } from "../utils/math/constants";
 import { useRouter } from "next/router";
 
 export default function useTokenBalance(token) {
-  const [tokenBalanceInfo, setTokenBalanceInfo] = useState({} as any);
-
   const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
@@ -22,22 +20,18 @@ export default function useTokenBalance(token) {
     chainId: chainId,
     watch: router.isReady,
     enabled: isConnected && token.address && token.address != ZERO_ADDRESS,
-    onSuccess(data) {
-      //console.log('token balance:', data)
-      setTokenBalanceInfo(data);
-    },
   });
 
   const tokenBalanceBox = () => {
     return (
       <div className="md:text-xs text-[10px] whitespace-nowrap text-[#4C4C4C]">
         Balance:{" "}
-        {!isNaN(Number(tokenBalanceInfo?.formatted))
-          ? Number(tokenBalanceInfo?.formatted).toFixed(3)
+        {!isNaN(Number(data?.formatted))
+          ? Number(data?.formatted).toFixed(3)
           : "0.00"}
       </div>
     );
   };
 
-  return [tokenBalanceInfo, tokenBalanceBox];
+  return [data, tokenBalanceBox];
 }
