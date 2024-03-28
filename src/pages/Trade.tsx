@@ -299,8 +299,8 @@ export default function Trade() {
 
   ////////////////////////////////Balances
 
-  const [tokenInBal] = useTokenBalance({ token: tokenIn });
-  const [tokenOutBal] = useTokenBalance({ token: tokenOut });
+  const { data: tokenInBal } = useTokenBalance({ token: tokenIn });
+  const { data: tokenOutBal } = useTokenBalance({ token: tokenOut });
 
   useEffect(() => {
     if (isConnected && tokenInBal) {

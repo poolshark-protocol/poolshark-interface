@@ -26,6 +26,7 @@ export default function RangeCompoundButton({
     state.networkName,
   ]);
 
+  //* hook wrapper
   const { config: burnConfig } = usePrepareContractWrite({
     address: poolAddress,
     abi: rangePoolABI,

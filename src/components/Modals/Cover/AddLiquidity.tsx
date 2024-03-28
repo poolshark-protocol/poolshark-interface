@@ -4,7 +4,7 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import { useAccount, useBalance } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import CoverAddLiqButton from "../../Buttons/CoverAddLiqButton";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { BN_ZERO } from "../../../utils/math/constants";
 import CoverMintApproveButton from "../../Buttons/CoverMintApproveButton";
 import { chainIdsToNames } from "../../../utils/chains";
@@ -78,12 +78,12 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
 
   ////////////////////////////////Token Balances
 
-  const [tokenInBal] = useTokenBalance({ token: tokenIn });
+  const { data: tokenInBal } = useTokenBalance({ token: tokenIn });
 
   useEffect(() => {
     if (isConnected && tokenInBal) {
       setTokenInBalance(
-        parseFloat(tokenInBal?.formatted.toString()).toFixed(2),
+        parseFloat(tokenInBal?.formatted?.toString()).toFixed(2),
       );
     }
   }, [tokenInBal]);

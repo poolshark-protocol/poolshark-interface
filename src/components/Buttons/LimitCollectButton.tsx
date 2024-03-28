@@ -43,6 +43,7 @@ export default function LimitCollectButton({
     state.setNeedsPosRefetch,
   ]);
 
+  //* hook wrapper
   const { config } = usePrepareContractWrite({
     address: poolAddress,
     abi: limitPoolABI,

@@ -58,6 +58,7 @@ export default function RangeAddLiqButton({
 
   const signer = useEthersSigner();
 
+  //* hook wrapper
   const { config } = usePrepareContractWrite({
     address: routerAddress,
     abi: poolsharkRouterABI,
