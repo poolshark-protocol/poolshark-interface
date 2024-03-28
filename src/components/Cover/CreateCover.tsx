@@ -42,7 +42,6 @@ export default function CreateCover(props: any) {
       ]),
     );
 
-  // @shax
   const coverStore = useCoverStore();
 
   const signer = useEthersSigner();

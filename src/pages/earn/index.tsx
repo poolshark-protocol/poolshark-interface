@@ -19,7 +19,6 @@ export default function Earn() {
     useShallow((state) => [state.networkName, state.limitSubgraph]),
   );
 
-  // @shax
   const earnStore = useEarnStore();
 
   useEffect(() => {

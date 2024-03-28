@@ -63,7 +63,6 @@ export default function LimitSwap() {
   //PRICE AND LIQUIDITY FETCHED EVERY 5 SECONDS
   const quoteRefetchDelay = 5000;
 
-  // @shax
   const tradeStore = useTradeStore();
 
   const {

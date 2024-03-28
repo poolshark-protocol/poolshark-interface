@@ -50,7 +50,6 @@ export default function CoverExistingPool({ goBack }) {
     ]),
   );
 
-  // @shax - useshallow on whole state?
   const coverStore = useCoverStore();
 
   const [rangePositionData, setRangePositionData] = useRangeLimitStore(
