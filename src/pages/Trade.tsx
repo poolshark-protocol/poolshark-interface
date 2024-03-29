@@ -234,9 +234,6 @@ export default function Trade() {
     chainId: chainId,
     onSuccess(data) {
       tradeStore.setNeedsBalanceIn(false);
-      setTimeout(() => {
-        tradeStore.setNeedsBalanceIn(true);
-      }, 5000);
     },
   });
 
@@ -249,11 +246,26 @@ export default function Trade() {
     chainId: chainId,
     onSuccess(data) {
       tradeStore.setNeedsBalanceOut(false);
-      setTimeout(() => {
-        tradeStore.setNeedsBalanceOut(true);
-      }, 5000);
     },
   });
+
+  useEffect(() => {
+    if (!tradeStore.needsBalanceOut) {
+      const timer = setTimeout(() => {
+        tradeStore.setNeedsBalanceOut(true);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [tradeStore.needsBalanceOut]);
+
+  useEffect(() => {
+    if (!tradeStore.needsBalanceIn) {
+      const timer = setTimeout(() => {
+        tradeStore.setNeedsBalanceIn(true);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [tradeStore.needsBalanceIn]);
 
   useEffect(() => {
     if (isConnected && tokenInBal) {
