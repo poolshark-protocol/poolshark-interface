@@ -51,6 +51,10 @@ import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import BalanceDisplay from "../Display/BalanceDisplay";
 import { getRouterAddress } from "../../utils/config";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
+import SwitchDirection from "./common/SwitchDirection";
+import AmountInDisplay from "./common/AmountInDisplay";
+import MaxButton from "./common/MaxButton";
+import AmountOutDisplay from "./common/AmountOutDisplay";
 
 export default function LimitSwap() {
   //CONFIG STORE
@@ -820,25 +824,14 @@ export default function LimitSwap() {
     <div>
       <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
         <div className="flex items-end justify-between text-[11px] text-grey1">
-          <span>
-            {" "}
-            ~$
-            {!isNaN(parseInt(tradeStore.amountIn.toString())) &&
-            !isNaN(tradeStore.tokenIn.decimals) &&
-            !isNaN(tradeStore.tokenIn.USDPrice)
-              ? (
-                  (!isNaN(parseFloat(displayIn)) ? parseFloat(displayIn) : 0) *
-                  (tradeStore.tokenIn.USDPrice ?? 0)
-                ).toFixed(2)
-              : (0).toFixed(2)}
-          </span>
+          <AmountInDisplay displayIn={displayIn} approximate />
           <BalanceDisplay token={tradeStore.tokenIn}></BalanceDisplay>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3">
           {inputBoxIn("0", tradeStore.tokenIn, "tokenIn", handleInputBox)}
           <div className="flex items-center gap-x-2">
             {isConnected && tradeStore.tokenIn.address != ZERO_ADDRESS ? (
-              <button
+              <MaxButton
                 onClick={() => {
                   handleInputBox({
                     target: {
@@ -847,10 +840,7 @@ export default function LimitSwap() {
                     },
                   });
                 }}
-                className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
-              >
-                MAX
-              </button>
+              />
             ) : null}
             <SelectToken
               index="0"
@@ -867,48 +857,13 @@ export default function LimitSwap() {
           </div>
         </div>
       </div>
-      <div
-        onClick={() => {
-          tradeStore.switchDirection(
-            tradeStore.exactIn,
-            tradeStore.exactIn ? displayIn : displayOut,
-            tradeStore.exactIn
-              ? tradeStore.setAmountIn
-              : tradeStore.setAmountOut,
-          );
-        }}
-        className="flex items-center justify-center w-full pt-10 pb-3"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="1.5"
-          stroke="currentColor"
-          className="w-5 cursor-pointer"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
-          />
-        </svg>
-      </div>
+
+      <SwitchDirection displayIn={displayIn} displayOut={displayOut} />
+
       <span className="text-[11px] text-grey1">TO</span>
       <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
         <div className="flex items-end justify-between text-[11px] text-grey1">
-          <span>
-            ~$
-            {!isNaN(tradeStore.tokenOut.decimals) &&
-            !isNaN(tradeStore.tokenOut.USDPrice) ? (
-              (
-                (!isNaN(parseFloat(displayOut)) ? parseFloat(displayOut) : 0) *
-                (tradeStore.tokenOut.USDPrice ?? 0)
-              ).toFixed(2)
-            ) : (
-              <>{(0).toFixed(2)}</>
-            )}
-          </span>
+          <AmountOutDisplay displayOut={displayOut} approximate />
           <span>
             {tradeStore.pairSelected ? (
               "Balance: " +
@@ -921,21 +876,13 @@ export default function LimitSwap() {
           </span>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-          {
-            <div>
-              <div>
-                {inputBoxOut(
-                  "0",
-                  tradeStore.tokenOut,
-                  "tokenOut",
-                  handleInputBox,
-                )}
-              </div>
-            </div>
-          }
+          <div>
+            {inputBoxOut("0", tradeStore.tokenOut, "tokenOut", handleInputBox)}
+          </div>
+
           <div className="flex items-center gap-x-2">
             {isConnected && tradeStore.tokenOut.address != ZERO_ADDRESS ? (
-              <button
+              <MaxButton
                 onClick={() => {
                   handleInputBox({
                     target: {
@@ -944,10 +891,7 @@ export default function LimitSwap() {
                     },
                   });
                 }}
-                className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
-              >
-                MAX
-              </button>
+              />
             ) : null}
             <SelectToken
               key={"out"}
