@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment, useRef } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { erc20ABI, useAccount, useContractRead, useBalance } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { chainProperties } from "../utils/chains";
