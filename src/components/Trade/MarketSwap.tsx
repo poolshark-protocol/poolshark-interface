@@ -37,6 +37,7 @@ import SwitchDirection from "./common/SwitchDirection";
 import AmountInDisplay from "./common/AmountInDisplay";
 import MaxButton from "./common/MaxButton";
 import AmountOutDisplay from "./common/AmountOutDisplay";
+import InputBoxContainer from "./common/InputBoxContainer";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph] = useConfigStore(
@@ -637,7 +638,7 @@ export default function MarketSwap() {
 
   return (
     <div>
-      <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+      <InputBoxContainer>
         <div className="flex items-end justify-between text-[11px] text-grey1">
           <AmountInDisplay displayIn={displayIn} />
           <BalanceDisplay token={tradeStore.tokenIn}></BalanceDisplay>
@@ -671,12 +672,12 @@ export default function MarketSwap() {
             />
           </div>
         </div>
-      </div>
+      </InputBoxContainer>
 
       <SwitchDirection displayIn={displayIn} displayOut={displayOut} />
 
       <span className="text-[11px] text-grey1">TO</span>
-      <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+      <InputBoxContainer>
         <div className="flex items-end justify-between text-[11px] text-grey1">
           <AmountOutDisplay displayOut={displayOut} />
           <BalanceDisplay token={tradeStore.tokenOut}></BalanceDisplay>
@@ -713,7 +714,7 @@ export default function MarketSwap() {
             />
           </div>
         </div>
-      </div>
+      </InputBoxContainer>
       <div className="py-2">
         <div
           className="flex px-2 cursor-pointer py-2 rounded-[4px]"

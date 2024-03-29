@@ -55,6 +55,9 @@ import SwitchDirection from "./common/SwitchDirection";
 import AmountInDisplay from "./common/AmountInDisplay";
 import MaxButton from "./common/MaxButton";
 import AmountOutDisplay from "./common/AmountOutDisplay";
+import InputBoxContainer from "./common/InputBoxContainer";
+import FeeTierBox from "./common/FeeTierBox";
+import PriceRangeBox from "./common/PriceRangeBox";
 
 export default function LimitSwap() {
   //CONFIG STORE
@@ -822,7 +825,7 @@ export default function LimitSwap() {
 
   return (
     <div>
-      <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+      <InputBoxContainer>
         <div className="flex items-end justify-between text-[11px] text-grey1">
           <AmountInDisplay displayIn={displayIn} approximate />
           <BalanceDisplay token={tradeStore.tokenIn}></BalanceDisplay>
@@ -856,12 +859,12 @@ export default function LimitSwap() {
             />
           </div>
         </div>
-      </div>
+      </InputBoxContainer>
 
       <SwitchDirection displayIn={displayIn} displayOut={displayOut} />
 
       <span className="text-[11px] text-grey1">TO</span>
-      <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+      <InputBoxContainer>
         <div className="flex items-end justify-between text-[11px] text-grey1">
           <AmountOutDisplay displayOut={displayOut} approximate />
           <span>
@@ -907,49 +910,31 @@ export default function LimitSwap() {
             />
           </div>
         </div>
-      </div>
+      </InputBoxContainer>
       {tradeStore.pairSelected ? (
         <div className="flex gap-y-4 w-full items-center mt-5 justify-between bg-dark border-grey/80 p-2 border rounded-[4px]">
           <div className="bg-dark text-sm uppercase pl-2 rounded-[4px] flex items-center gap-x-2">
             <span className="md:block hidden">SELECT A</span> Fee tier:
           </div>
           <div className="grid grid-cols-3 gap-x-3">
-            <div
-              className={
-                selectedFeeTier == "1000"
-                  ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-                  : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-              }
-              onClick={() => {
-                handleManualFeeTierChange(1000);
-              }}
+            <FeeTierBox
+              selected={selectedFeeTier == "1000"}
+              onClick={() => handleManualFeeTierChange(1000)}
             >
               0.1%
-            </div>
-            <div
-              className={
-                selectedFeeTier == "3000"
-                  ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-                  : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-              }
-              onClick={() => {
-                handleManualFeeTierChange(3000);
-              }}
+            </FeeTierBox>
+            <FeeTierBox
+              selected={selectedFeeTier == "3000"}
+              onClick={() => handleManualFeeTierChange(3000)}
             >
               0.3%
-            </div>
-            <div
-              className={
-                selectedFeeTier == "10000"
-                  ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-                  : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-              }
-              onClick={() => {
-                handleManualFeeTierChange(10000);
-              }}
+            </FeeTierBox>
+            <FeeTierBox
+              selected={selectedFeeTier == "10000"}
+              onClick={() => handleManualFeeTierChange(10000)}
             >
               1.0%
-            </div>
+            </FeeTierBox>
           </div>
         </div>
       ) : null}
@@ -1019,41 +1004,24 @@ export default function LimitSwap() {
           </span>
         </div>
         {priceRangeSelected ? (
-          <div>
-            <div className="flex items-center justify-between gap-x-10 mt-4">
-              <div className="border border-grey w-full bg-dark flex flex-col items-center justify-center py-4">
-                <span className="text-center text-xs text-grey1 mb-2">
-                  MIN. PRICE
-                </span>
-                <input
-                  autoComplete="off"
-                  className="outline-none bg-transparent text-3xl w-1/2 md:w-56 text-center mb-2"
-                  value={
-                    !isNaN(parseFloat(lowerPriceString)) ? lowerPriceString : 0
-                  }
-                  type="text"
-                  onChange={(e) => {
-                    setLowerPriceString(inputFilter(e.target.value));
-                  }}
-                />
-              </div>
-              <div className="border border-grey w-full bg-dark flex flex-col items-center justify-center py-4">
-                <span className="text-center text-xs text-grey1 mb-2">
-                  MAX. PRICE
-                </span>
-                <input
-                  autoComplete="off"
-                  className="outline-none bg-transparent text-3xl w-1/2 md:w-56 text-center mb-2"
-                  value={
-                    !isNaN(parseFloat(upperPriceString)) ? upperPriceString : 0
-                  }
-                  type="text"
-                  onChange={(e) => {
-                    setUpperPriceString(inputFilter(e.target.value));
-                  }}
-                />
-              </div>
-            </div>
+          <div className="flex items-center justify-between gap-x-10 mt-4">
+            <PriceRangeBox
+              value={lowerPriceString}
+              onChange={(e) => {
+                setLowerPriceString(inputFilter(e.target.value));
+              }}
+            >
+              MIN. PRICE
+            </PriceRangeBox>
+
+            <PriceRangeBox
+              value={upperPriceString}
+              onChange={(e) => {
+                setUpperPriceString(inputFilter(e.target.value));
+              }}
+            >
+              MAX. PRICE
+            </PriceRangeBox>
           </div>
         ) : (
           <div className="bg-dark py-3 px-5 border border-grey rounded-[4px] mt-4">
