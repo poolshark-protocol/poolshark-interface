@@ -18,6 +18,7 @@ import {
 import { chainProperties } from "../../utils/chains";
 import { getRangeStakerAddress } from "../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import useMultiMintRange from "../../hooks/contracts/write/useMultiMintRange";
 
 export default function RangeMintButton({
   disabled,
@@ -66,76 +67,19 @@ export default function RangeMintButton({
 
   const positionId = 0; /// @dev - assume new position
 
-  const { config } = usePrepareContractWrite({
-    address: routerAddress,
-    abi: poolsharkRouterABI,
-    functionName: "multiMintRange",
-    args: [
-      [poolAddress],
-      [
-        deepConvertBigIntAndBigNumber({
-          to: to,
-          lower: lower,
-          upper: upper,
-          positionId: positionId,
-          amount0: amount0,
-          amount1: amount1,
-          callbackData: getRangeMintInputData(
-            rangeMintParams.stakeFlag,
-            getRangeStakerAddress(networkName),
-          ),
-        }),
-      ],
-    ],
-    chainId: chainId,
-    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
-    value: deepConvertBigIntAndBigNumber(
-      getRangeMintButtonMsgValue(
-        tokenIn.native,
-        tokenOut.native,
-        rangeMintParams.tokenInAmount,
-        rangeMintParams.tokenOutAmount,
-      ),
-    ),
-    onSuccess() {},
-    onError() {
-      setErrorDisplay(true);
-    },
+  const { config, data, write } = useMultiMintRange({
+    positionId,
+    lower,
+    upper,
+    disabled,
+    amount0,
+    amount1,
+    gasLimit,
+    setErrorDisplay,
+    setSuccessDisplay,
+    setIsLoading,
+    setTxHash,
   });
-
-  const { data, write } = useContractWrite(config);
-
-  const { isLoading } = useWaitForTransaction({
-    hash: data?.hash,
-    onSuccess() {
-      setSuccessDisplay(true);
-      setNeedsBalanceIn(true);
-      setNeedsBalanceOut(true);
-      setNeedsAllowanceIn(true);
-      setNeedsRefetch(true);
-      setNeedsPosRefetch(true);
-      if (amount1.gt(BN_ZERO)) {
-        setNeedsAllowanceOut(true);
-      }
-    },
-    onError() {
-      setErrorDisplay(true);
-      setNeedsRefetch(false);
-      setNeedsPosRefetch(false);
-    },
-  });
-
-  useEffect(() => {
-    if (isLoading) {
-      setIsLoading(true);
-    } else {
-      setIsLoading(false);
-    }
-  }, [isLoading]);
-
-  useEffect(() => {
-    setTxHash(data?.hash);
-  }, [data]);
 
   const ConfirmTransaction = () => {
     write?.();
