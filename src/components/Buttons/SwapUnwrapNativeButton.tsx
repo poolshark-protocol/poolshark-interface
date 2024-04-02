@@ -15,6 +15,7 @@ import { chainProperties } from "../../utils/chains";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function SwapUnwrapNativeButton({
   disabled,
@@ -25,22 +26,23 @@ export default function SwapUnwrapNativeButton({
   gasLimit,
   resetAfterSwap,
 }) {
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
 
   const [
     setNeedsAllowanceIn,
     setNeedsBalanceIn,
     setNeedsBalanceOut,
     tradeButton,
-  ] = useRangeLimitStore((state) => [
-    state.setNeedsAllowanceIn,
-    state.setNeedsBalanceIn,
-    state.setNeedsBalanceOut,
-    state.tradeButton,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.setNeedsAllowanceIn,
+      state.setNeedsBalanceIn,
+      state.setNeedsBalanceOut,
+      state.tradeButton,
+    ]),
+  );
 
   const [toastId, setToastId] = useState(null);
 

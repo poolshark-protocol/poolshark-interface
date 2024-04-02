@@ -28,20 +28,20 @@ import BalanceDisplay from "../../Display/BalanceDisplay";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 import { getLogo } from "../../../utils/tokens";
+import { useShallow } from "zustand/react/shallow";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [chainId, networkName, logoMap, limitSubgraph] = useConfigStore(
-    (state) => [
+    useShallow((state) => [
       state.chainId,
       state.networkName,
       state.logoMap,
       state.limitSubgraph,
-    ],
+    ]),
   );
 
   const [
     rangePoolAddress,
-    rangePoolData,
     rangeMintParams,
     pairSelected,
     setPairSelected,
@@ -55,41 +55,36 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     setTokenOutAmount,
     setLiquidityAmount,
     rangePositionData,
-    needsAllowanceIn,
     setNeedsAllowanceIn,
-    needsAllowanceOut,
     setNeedsAllowanceOut,
-    needsBalanceIn,
     setNeedsBalanceIn,
     needsBalanceOut,
     setNeedsBalanceOut,
     setMintButtonState,
-  ] = useRangeLimitStore((state) => [
-    state.rangePoolAddress,
-    state.rangePoolData,
-    state.rangeMintParams,
-    state.pairSelected,
-    state.setPairSelected,
-    state.tokenIn,
-    state.setTokenInRangeAllowance,
-    state.setTokenInBalance,
-    state.setTokenInAmount,
-    state.tokenOut,
-    state.setTokenOutRangeAllowance,
-    state.setTokenOutBalance,
-    state.setTokenOutAmount,
-    state.setLiquidityAmount,
-    state.rangePositionData,
-    state.needsAllowanceIn,
-    state.setNeedsAllowanceIn,
-    state.needsAllowanceOut,
-    state.setNeedsAllowanceOut,
-    state.needsBalanceIn,
-    state.setNeedsBalanceIn,
-    state.needsBalanceOut,
-    state.setNeedsBalanceOut,
-    state.setMintButtonState,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.rangePoolAddress,
+      state.rangeMintParams,
+      state.pairSelected,
+      state.setPairSelected,
+      state.tokenIn,
+      state.setTokenInRangeAllowance,
+      state.setTokenInBalance,
+      state.setTokenInAmount,
+      state.tokenOut,
+      state.setTokenOutRangeAllowance,
+      state.setTokenOutBalance,
+      state.setTokenOutAmount,
+      state.setLiquidityAmount,
+      state.rangePositionData,
+      state.setNeedsAllowanceIn,
+      state.setNeedsAllowanceOut,
+      state.setNeedsBalanceIn,
+      state.needsBalanceOut,
+      state.setNeedsBalanceOut,
+      state.setMintButtonState,
+    ]),
+  );
 
   const { bnInput, inputBox, setDisplay } = useInputBox();
   const {

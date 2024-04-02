@@ -12,6 +12,7 @@ import { useConfigStore } from "../hooks/useConfigStore";
 import { defaultTokenLogo, getLogo, logoMapKey } from "../utils/tokens";
 import { isAddress } from "@ethersproject/address";
 import { deepConvertBigIntAndBigNumber } from "../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
@@ -20,26 +21,20 @@ export default function SelectToken(props) {
   const [tokenInfo, setTokenInfo] = useState(undefined);
 
   const [
-    chainId,
-    networkName,
     logoMap,
     listedTokenList,
-    setListedTokenList,
     searchtokenList,
-    setSearchTokenList,
     displayTokenList,
     setDisplayTokenList,
-  ] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-    state.logoMap,
-    state.listedtokenList,
-    state.setListedTokenList,
-    state.searchtokenList,
-    state.setSearchTokenList,
-    state.displayTokenList,
-    state.setDisplayTokenList,
-  ]);
+  ] = useConfigStore(
+    useShallow((state) => [
+      state.logoMap,
+      state.listedtokenList,
+      state.searchtokenList,
+      state.displayTokenList,
+      state.setDisplayTokenList,
+    ]),
+  );
 
   const {
     data: tokenData,

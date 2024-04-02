@@ -16,10 +16,7 @@ export default function PositionMintModal({
   const [isOpen, setIsOpen] = useState(false);
   const [buttonWait, setButtonWait] = useState(false);
 
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const networkName = useConfigStore((state) => state.networkName);
 
   useEffect(() => {
     if (errorDisplay || isLoading || successDisplay) {

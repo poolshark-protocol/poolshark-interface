@@ -26,6 +26,7 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { numFormat } from "../../utils/math/valueMath";
 import RedeemBondButton from "../../components/Buttons/RedeemBondButton";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function Bond() {
   const { address, isConnected } = useAccount();
@@ -43,13 +44,15 @@ export default function Bond() {
   const [needsBondTokenData, setNeedsBondTokenData] = useState(true);
 
   const [chainId, networkName, logoMap, limitSubgraph, setLimitSubgraph] =
-    useConfigStore((state) => [
-      state.chainId,
-      state.networkName,
-      state.logoMap,
-      state.limitSubgraph,
-      state.setLimitSubgraph,
-    ]);
+    useConfigStore(
+      useShallow((state) => [
+        state.chainId,
+        state.networkName,
+        state.logoMap,
+        state.limitSubgraph,
+        state.setLimitSubgraph,
+      ]),
+    );
 
   const [tokenAllowance, setTokenAllowance] = useState(undefined);
 

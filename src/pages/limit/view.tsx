@@ -29,26 +29,28 @@ import { chainProperties } from "../../utils/chains";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function ViewLimit() {
   const [chainId, logoMap, networkName, limitSubgraph, setLimitSubgraph] =
-    useConfigStore((state) => [
-      state.chainId,
-      state.logoMap,
-      state.networkName,
-      state.limitSubgraph,
-      state.setLimitSubgraph,
-    ]);
+    useConfigStore(
+      useShallow((state) => [
+        state.chainId,
+        state.logoMap,
+        state.networkName,
+        state.limitSubgraph,
+        state.setLimitSubgraph,
+      ]),
+    );
 
   const [setNeedsTradeSnapshot, setNeedsTradePosRefetch] = useTradeStore(
-    (state) => [state.setNeedsSnapshot, state.setNeedsPosRefetch],
+    useShallow((state) => [state.setNeedsSnapshot, state.setNeedsPosRefetch]),
   );
 
   const [
     limitPoolAddress,
     limitPositionData,
     limitPoolData,
-    limitMintParams,
     tokenIn,
     tokenOut,
     needsRefetch,
@@ -69,32 +71,33 @@ export default function ViewLimit() {
     setClaimTick,
     setCurrentAmountOut,
     setLimitAddLiqDisabled,
-  ] = useRangeLimitStore((state) => [
-    state.limitPoolAddress,
-    state.limitPositionData,
-    state.limitPoolData,
-    state.limitMintParams,
-    state.tokenIn,
-    state.tokenOut,
-    state.needsRefetch,
-    state.needsPosRefetch,
-    state.claimTick,
-    state.needsSnapshot,
-    state.currentAmountOut,
-    state.setTokenIn,
-    state.setTokenOut,
-    state.setLimitPoolAddress,
-    state.setNeedsSnapshot,
-    state.setNeedsRefetch,
-    state.setNeedsPosRefetch,
-    state.setLimitPositionData,
-    state.setLimitPoolFromVolatility,
-    state.setTokenInRangeUSDPrice,
-    state.setTokenOutRangeUSDPrice,
-    state.setClaimTick,
-    state.setCurrentAmountOut,
-    state.setLimitAddLiqDisabled,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.limitPoolAddress,
+      state.limitPositionData,
+      state.limitPoolData,
+      state.tokenIn,
+      state.tokenOut,
+      state.needsRefetch,
+      state.needsPosRefetch,
+      state.claimTick,
+      state.needsSnapshot,
+      state.currentAmountOut,
+      state.setTokenIn,
+      state.setTokenOut,
+      state.setLimitPoolAddress,
+      state.setNeedsSnapshot,
+      state.setNeedsRefetch,
+      state.setNeedsPosRefetch,
+      state.setLimitPositionData,
+      state.setLimitPoolFromVolatility,
+      state.setTokenInRangeUSDPrice,
+      state.setTokenOutRangeUSDPrice,
+      state.setClaimTick,
+      state.setCurrentAmountOut,
+      state.setLimitAddLiqDisabled,
+    ]),
+  );
 
   const { address, isConnected } = useAccount();
   const signer = useEthersSigner();

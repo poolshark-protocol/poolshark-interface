@@ -22,6 +22,7 @@ import { Checkbox } from "../../components/ui/checkbox";
 import { isWhitelistedPool } from "../../utils/config";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/20/solid";
 import { limitPoolTypeIds } from "../../utils/pools";
+import { useShallow } from "zustand/react/shallow";
 
 export default function Range() {
   const { address, isDisconnected } = useAccount();
@@ -44,16 +45,18 @@ export default function Range() {
     setFinToken,
     listedtokenList,
     logoMap,
-  ] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-    state.finSubgraph,
-    state.limitSubgraph,
-    state.setLimitSubgraph,
-    state.setFinToken,
-    state.listedtokenList,
-    state.logoMap,
-  ]);
+  ] = useConfigStore(
+    useShallow((state) => [
+      state.chainId,
+      state.networkName,
+      state.finSubgraph,
+      state.limitSubgraph,
+      state.setLimitSubgraph,
+      state.setFinToken,
+      state.listedtokenList,
+      state.logoMap,
+    ]),
+  );
 
   const [
     setTokenIn,
@@ -63,33 +66,31 @@ export default function Range() {
     setNeedsRefetch,
     resetRangeLimitParams,
     numLegacyPositions,
-    numCurrentPositions,
     whitelistedFeesData,
     setNumLegacyPositions,
     resetNumLegacyPositions,
     setNumCurrentPositions,
     resetNumCurrentPositions,
     setWhitelistedFeesData,
-    resetWhitelistedFeesData,
     poolApys,
-  ] = useRangeLimitStore((state) => [
-    state.setTokenIn,
-    state.setTokenOut,
-    state.setRangePoolFromFeeTier,
-    state.needsRefetch,
-    state.setNeedsRefetch,
-    state.resetRangeLimitParams,
-    state.numLegacyPositions,
-    state.numCurrentPositions,
-    state.whitelistedFeesData,
-    state.setNumLegacyPositions,
-    state.resetNumLegacyPositions,
-    state.setNumCurrentPositions,
-    state.resetNumCurrentPositions,
-    state.setWhitelistedFeesData,
-    state.resetWhitelistedFeesData,
-    state.poolApys,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.setTokenIn,
+      state.setTokenOut,
+      state.setRangePoolFromFeeTier,
+      state.needsRefetch,
+      state.setNeedsRefetch,
+      state.resetRangeLimitParams,
+      state.numLegacyPositions,
+      state.whitelistedFeesData,
+      state.setNumLegacyPositions,
+      state.resetNumLegacyPositions,
+      state.setNumCurrentPositions,
+      state.resetNumCurrentPositions,
+      state.setWhitelistedFeesData,
+      state.poolApys,
+    ]),
+  );
 
   const router = useRouter();
 

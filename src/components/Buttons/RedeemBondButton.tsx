@@ -16,7 +16,7 @@ export default function RedeemBondButton({
   disabled,
   setNeedsBondTokenData,
 }) {
-  const [chainId] = useConfigStore((state) => [state.chainId]);
+  const chainId = useConfigStore((state) => state.chainId);
 
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
