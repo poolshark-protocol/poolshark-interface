@@ -1,22 +1,24 @@
-import { useShallow } from "zustand/react/shallow";
-import { useTradeStore } from "../../../hooks/useTradeStore";
+import { BigNumber } from "ethers";
 
 const SwitchDirection = ({
   displayIn,
   displayOut,
+  switchDirection,
+  exactIn,
+  setAmountIn,
+  setAmountOut,
 }: {
   displayIn: string;
   displayOut: string;
+  switchDirection: (
+    isAmountIn: boolean,
+    amount: string,
+    amountSetter: any,
+  ) => void;
+  exactIn: boolean;
+  setAmountIn: (amountIn: BigNumber) => void;
+  setAmountOut: (amountOut: BigNumber) => void;
 }) => {
-  const [switchDirection, exactIn, setAmountIn, setAmountOut] = useTradeStore(
-    useShallow((state) => [
-      state.switchDirection,
-      state.exactIn,
-      state.setAmountIn,
-      state.setAmountOut,
-    ]),
-  );
-
   return (
     <div
       onClick={() => {

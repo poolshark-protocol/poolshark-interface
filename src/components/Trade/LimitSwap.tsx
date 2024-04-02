@@ -58,6 +58,7 @@ import AmountOutDisplay from "./common/AmountOutDisplay";
 import InputBoxContainer from "./common/InputBoxContainer";
 import FeeTierBox from "./common/FeeTierBox";
 import PriceRangeBox from "./common/PriceRangeBox";
+import Option from "./common/Option";
 
 export default function LimitSwap() {
   //CONFIG STORE
@@ -780,54 +781,16 @@ export default function LimitSwap() {
   ////////////////////////////////Expanded
   const [expanded, setExpanded] = useState(false);
 
-  const Option = () => {
-    if (expanded) {
-      return (
-        <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Expected Output</div>
-            <div className="ml-auto text-xs">
-              {tradeStore.pairSelected
-                ? numFormat(
-                    parseFloat(
-                      ethers.utils.formatUnits(
-                        tradeStore.amountOut ?? BN_ZERO,
-                        tradeStore.tokenOut.decimals,
-                      ),
-                    ),
-                    5,
-                  )
-                : "Select Token"}
-            </div>
-          </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">
-              Minimum received after slippage ({tradeStore.tradeSlippage}%)
-            </div>
-            <div className="ml-auto text-xs">
-              {numFormat(
-                (parseFloat(
-                  ethers.utils.formatUnits(
-                    tradeStore.amountOut,
-                    tradeStore.tokenOut.decimals,
-                  ),
-                ) *
-                  (100 - parseFloat(tradeStore.tradeSlippage))) /
-                  100,
-                5,
-              )}
-            </div>
-          </div>
-        </div>
-      );
-    }
-  };
-
   return (
     <div>
       <InputBoxContainer>
         <div className="flex items-end justify-between text-[11px] text-grey1">
-          <AmountInDisplay displayIn={displayIn} approximate />
+          <AmountInDisplay
+            displayIn={displayIn}
+            amountIn={tradeStore.amountIn}
+            tokenIn={tradeStore.tokenIn}
+            approximate
+          />
           <BalanceDisplay token={tradeStore.tokenIn}></BalanceDisplay>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3">
@@ -861,12 +824,23 @@ export default function LimitSwap() {
         </div>
       </InputBoxContainer>
 
-      <SwitchDirection displayIn={displayIn} displayOut={displayOut} />
+      <SwitchDirection
+        displayIn={displayIn}
+        displayOut={displayOut}
+        switchDirection={tradeStore.switchDirection}
+        exactIn={tradeStore.exactIn}
+        setAmountIn={tradeStore.setAmountIn}
+        setAmountOut={tradeStore.setAmountOut}
+      />
 
       <span className="text-[11px] text-grey1">TO</span>
       <InputBoxContainer>
         <div className="flex items-end justify-between text-[11px] text-grey1">
-          <AmountOutDisplay displayOut={displayOut} approximate />
+          <AmountOutDisplay
+            displayOut={displayOut}
+            tokenOut={tradeStore.tokenOut}
+            approximate
+          />
           <span>
             {tradeStore.pairSelected ? (
               "Balance: " +
@@ -1109,7 +1083,32 @@ export default function LimitSwap() {
           </div>
         </div>
         <div className="flex-wrap w-full break-normal transition ">
-          <Option />
+          {expanded && (
+            <Option
+              pairSelected={tradeStore.pairSelected}
+              amountOut={tradeStore.amountOut}
+              decimals={tradeStore.tokenOut.decimals}
+            >
+              <div className="flex p-1">
+                <div className="text-xs text-[#4C4C4C]">
+                  Minimum received after slippage ({tradeStore.tradeSlippage}%)
+                </div>
+                <div className="ml-auto text-xs">
+                  {numFormat(
+                    (parseFloat(
+                      ethers.utils.formatUnits(
+                        tradeStore.amountOut,
+                        tradeStore.tokenOut.decimals,
+                      ),
+                    ) *
+                      (100 - parseFloat(tradeStore.tradeSlippage))) /
+                      100,
+                    5,
+                  )}
+                </div>
+              </div>
+            </Option>
+          )}
         </div>
       </div>
 

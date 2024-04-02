@@ -1,17 +1,17 @@
-import { useShallow } from "zustand/react/shallow";
-import { useTradeStore } from "../../../hooks/useTradeStore";
+import { BigNumber } from "ethers";
+import { tokenSwap } from "../../../utils/types";
 
 const AmountInDisplay = ({
   displayIn,
+  amountIn,
+  tokenIn,
   approximate = false,
 }: {
   displayIn: string;
+  amountIn: BigNumber;
+  tokenIn: tokenSwap;
   approximate?: boolean;
 }) => {
-  const [amountIn, tokenIn] = useTradeStore(
-    useShallow((state) => [state.amountIn, state.tokenIn]),
-  );
-
   return (
     <span>
       {" "}

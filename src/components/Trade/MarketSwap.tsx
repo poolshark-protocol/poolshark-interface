@@ -38,6 +38,7 @@ import AmountInDisplay from "./common/AmountInDisplay";
 import MaxButton from "./common/MaxButton";
 import AmountOutDisplay from "./common/AmountOutDisplay";
 import InputBoxContainer from "./common/InputBoxContainer";
+import Option from "./common/Option";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph] = useConfigStore(
@@ -564,83 +565,15 @@ export default function MarketSwap() {
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
 
-  const Option = () => {
-    if (expanded) {
-      return (
-        <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Expected Output</div>
-            <div
-              className={`ml-auto text-xs ${
-                tradeStore.pairSelected ? "text-white" : "text-[#4C4C4C]"
-              }`}
-            >
-              {tradeStore.pairSelected
-                ? numFormat(
-                    parseFloat(
-                      ethers.utils.formatUnits(
-                        tradeStore.amountOut ?? BN_ZERO,
-                        tradeStore.tokenOut.decimals,
-                      ),
-                    ),
-                    5,
-                  )
-                : "Select Token"}
-            </div>
-          </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            <div
-              className={`ml-auto text-xs ${
-                tradeStore.tokenIn.userRouterAllowance?.lt(tradeStore.amountIn)
-                  ? "text-[#4C4C4C]"
-                  : "text-white"
-              }`}
-            >
-              {tradeStore.tokenIn.userRouterAllowance?.lt(tradeStore.amountIn)
-                ? "Approve Token"
-                : swapGasFee}
-            </div>
-          </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">
-              Minimum received after slippage ({tradeStore.tradeSlippage}%)
-            </div>
-            <div className="ml-auto text-xs">
-              {numFormat(
-                (parseFloat(
-                  ethers.utils.formatUnits(
-                    tradeStore.amountOut,
-                    tradeStore.tokenOut.decimals,
-                  ),
-                ) *
-                  (100 - parseFloat(tradeStore.tradeSlippage))) /
-                  100,
-                5,
-              )}
-            </div>
-          </div>
-
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Price Impact</div>
-            <div className="ml-auto text-xs">
-              {tradeStore.pairSelected
-                ? priceImpact
-                  ? priceImpact + "%"
-                  : "0.00%"
-                : "Select Token"}
-            </div>
-          </div>
-        </div>
-      );
-    }
-  };
-
   return (
     <div>
       <InputBoxContainer>
         <div className="flex items-end justify-between text-[11px] text-grey1">
-          <AmountInDisplay displayIn={displayIn} />
+          <AmountInDisplay
+            amountIn={tradeStore.amountIn}
+            tokenIn={tradeStore.tokenIn}
+            displayIn={displayIn}
+          />
           <BalanceDisplay token={tradeStore.tokenIn}></BalanceDisplay>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3">
@@ -674,12 +607,22 @@ export default function MarketSwap() {
         </div>
       </InputBoxContainer>
 
-      <SwitchDirection displayIn={displayIn} displayOut={displayOut} />
+      <SwitchDirection
+        displayIn={displayIn}
+        displayOut={displayOut}
+        switchDirection={tradeStore.switchDirection}
+        exactIn={tradeStore.exactIn}
+        setAmountIn={tradeStore.setAmountIn}
+        setAmountOut={tradeStore.setAmountOut}
+      />
 
       <span className="text-[11px] text-grey1">TO</span>
       <InputBoxContainer>
         <div className="flex items-end justify-between text-[11px] text-grey1">
-          <AmountOutDisplay displayOut={displayOut} />
+          <AmountOutDisplay
+            displayOut={displayOut}
+            tokenOut={tradeStore.tokenOut}
+          />
           <BalanceDisplay token={tradeStore.tokenOut}></BalanceDisplay>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
@@ -739,7 +682,60 @@ export default function MarketSwap() {
           </div>
         </div>
         <div className="flex-wrap w-full break-normal transition ">
-          <Option />
+          {expanded && (
+            <Option
+              pairSelected={tradeStore.pairSelected}
+              amountOut={tradeStore.amountOut}
+              decimals={tradeStore.tokenOut.decimals}
+            >
+              <div className="flex p-1">
+                <div className="text-xs text-[#4C4C4C]">Network Fee</div>
+                <div
+                  className={`ml-auto text-xs ${
+                    tradeStore.tokenIn.userRouterAllowance?.lt(
+                      tradeStore.amountIn,
+                    )
+                      ? "text-[#4C4C4C]"
+                      : "text-white"
+                  }`}
+                >
+                  {tradeStore.tokenIn.userRouterAllowance?.lt(
+                    tradeStore.amountIn,
+                  )
+                    ? "Approve Token"
+                    : swapGasFee}
+                </div>
+              </div>
+              <div className="flex p-1">
+                <div className="text-xs text-[#4C4C4C]">
+                  Minimum received after slippage ({tradeStore.tradeSlippage}%)
+                </div>
+                <div className="ml-auto text-xs">
+                  {numFormat(
+                    (parseFloat(
+                      ethers.utils.formatUnits(
+                        tradeStore.amountOut,
+                        tradeStore.tokenOut.decimals,
+                      ),
+                    ) *
+                      (100 - parseFloat(tradeStore.tradeSlippage))) /
+                      100,
+                    5,
+                  )}
+                </div>
+              </div>
+              <div className="flex p-1">
+                <div className="text-xs text-[#4C4C4C]">Price Impact</div>
+                <div className="ml-auto text-xs">
+                  {tradeStore.pairSelected
+                    ? priceImpact
+                      ? priceImpact + "%"
+                      : "0.00%"
+                    : "Select Token"}
+                </div>
+              </div>
+            </Option>
+          )}
         </div>
       </div>
       {parseFloat(priceImpact) > 5 && (

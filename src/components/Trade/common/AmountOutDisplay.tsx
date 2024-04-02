@@ -1,15 +1,14 @@
-import { useShallow } from "zustand/react/shallow";
-import { useTradeStore } from "../../../hooks/useTradeStore";
+import { tokenSwap } from "../../../utils/types";
 
 const AmountOutDisplay = ({
   displayOut,
+  tokenOut,
   approximate = false,
 }: {
   displayOut: string;
+  tokenOut: tokenSwap;
   approximate?: boolean;
 }) => {
-  const tokenOut = useTradeStore(useShallow((state) => state.tokenOut));
-
   return (
     <span>
       {approximate ? "~$" : "$"}
