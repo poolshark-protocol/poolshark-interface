@@ -11,6 +11,7 @@ import { useAccount } from "wagmi";
 import { BigNumber } from "ethers";
 import { mapUserRangePositions } from "../../utils/maps";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { useShallow } from "zustand/react/shallow";
 
 export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
   const { address } = useAccount();
@@ -22,11 +23,11 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
   };
 
   const [limitSubgraph, coverSubgraph, listedTokenList] = useConfigStore(
-    (state) => [
+    useShallow((state) => [
       state.limitSubgraph,
       state.coverSubgraph,
       state.listedtokenList,
-    ],
+    ]),
   );
 
   const [limitPositions, setLimitPositions] = useState([]);

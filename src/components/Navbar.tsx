@@ -6,6 +6,7 @@ import Trade from "./Icons/TradeIcon";
 import Range from "./Icons/RangeIcon";
 import { useConfigStore } from "../hooks/useConfigStore";
 import { saleConfig } from "../pages/_app";
+import { useShallow } from "zustand/react/shallow";
 
 interface NavOptions {
   create?: boolean;
@@ -15,7 +16,7 @@ interface NavOptions {
 export default function Navbar({ create, setCreate }: NavOptions) {
   const router = useRouter();
 
-  const [chainId] = useConfigStore((state) => [state.chainId]);
+  const [chainId] = useConfigStore(useShallow((state) => [state.chainId]));
 
   return (
     <div className="py-2 mx-auto w-full border-b border-grey">

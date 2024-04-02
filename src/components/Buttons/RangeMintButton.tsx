@@ -1,24 +1,11 @@
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { ethers } from "ethers";
-import PositionMintModal from "../Modals/PositionMint";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import {
-  getRangeMintButtonMsgValue,
-  getRangeMintInputData,
-} from "../../utils/buttons";
-import { chainProperties } from "../../utils/chains";
-import { getRangeStakerAddress } from "../../utils/config";
-import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import useMultiMintRange from "../../hooks/contracts/write/useMultiMintRange";
+import { useShallow } from "zustand/react/shallow";
 
 export default function RangeMintButton({
   disabled,
@@ -36,10 +23,9 @@ export default function RangeMintButton({
   setIsLoading,
   setTxHash,
 }) {
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
 
   const [
     tokenIn,
@@ -51,17 +37,19 @@ export default function RangeMintButton({
     setNeedsAllowanceOut,
     setNeedsBalanceIn,
     setNeedsBalanceOut,
-  ] = useRangeLimitStore((state) => [
-    state.tokenIn,
-    state.tokenOut,
-    state.rangeMintParams,
-    state.setNeedsRefetch,
-    state.setNeedsPosRefetch,
-    state.setNeedsAllowanceIn,
-    state.setNeedsAllowanceOut,
-    state.setNeedsBalanceIn,
-    state.setNeedsBalanceOut,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.tokenIn,
+      state.tokenOut,
+      state.rangeMintParams,
+      state.setNeedsRefetch,
+      state.setNeedsPosRefetch,
+      state.setNeedsAllowanceIn,
+      state.setNeedsAllowanceOut,
+      state.setNeedsBalanceIn,
+      state.setNeedsBalanceOut,
+    ]),
+  );
 
   useEffect(() => {}, [disabled]);
 

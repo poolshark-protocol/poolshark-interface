@@ -25,16 +25,19 @@ import { numFormat } from "../../utils/math/valueMath";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import useSnapshotRange from "../../hooks/contracts/useSnapshotRange";
 import useIsApprovedForAll from "../../hooks/contracts/useIsApprovedForAll";
+import { useShallow } from "zustand/react/shallow";
 
 export default function ViewRange() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
-    useConfigStore((state) => [
-      state.chainId,
-      state.networkName,
-      state.limitSubgraph,
-      state.setLimitSubgraph,
-      state.logoMap,
-    ]);
+    useConfigStore(
+      useShallow((state) => [
+        state.chainId,
+        state.networkName,
+        state.limitSubgraph,
+        state.setLimitSubgraph,
+        state.logoMap,
+      ]),
+    );
 
   const [
     rangePoolAddress,
@@ -56,27 +59,29 @@ export default function ViewRange() {
     setRangePoolFromFeeTier,
     setRangePositionData,
     setMintButtonState,
-  ] = useRangeLimitStore((state) => [
-    state.rangePoolAddress,
-    state.rangePoolData,
-    state.rangePositionData,
-    state.rangeMintParams,
-    state.tokenIn,
-    state.setTokenIn,
-    state.tokenOut,
-    state.setTokenOut,
-    state.priceOrder,
-    state.setPriceOrder,
-    state.setTokenInRangeUSDPrice,
-    state.setTokenOutRangeUSDPrice,
-    state.needsRefetch,
-    state.needsPosRefetch,
-    state.setNeedsRefetch,
-    state.setNeedsPosRefetch,
-    state.setRangePoolFromFeeTier,
-    state.setRangePositionData,
-    state.setMintButtonState,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.rangePoolAddress,
+      state.rangePoolData,
+      state.rangePositionData,
+      state.rangeMintParams,
+      state.tokenIn,
+      state.setTokenIn,
+      state.tokenOut,
+      state.setTokenOut,
+      state.priceOrder,
+      state.setPriceOrder,
+      state.setTokenInRangeUSDPrice,
+      state.setTokenOutRangeUSDPrice,
+      state.needsRefetch,
+      state.needsPosRefetch,
+      state.setNeedsRefetch,
+      state.setNeedsPosRefetch,
+      state.setRangePoolFromFeeTier,
+      state.setRangePositionData,
+      state.setMintButtonState,
+    ]),
+  );
 
   const { address, isConnected } = useAccount();
   const signer = useEthersSigner();

@@ -14,6 +14,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function CoverAddLiqButton({
   poolAddress,
@@ -31,23 +32,24 @@ export default function CoverAddLiqButton({
   tokenSymbol,
   setIsOpen,
 }) {
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
   const [
     coverPoolData,
     setNeedsAllowance,
     setNeedsBalance,
     setNeedsRefetch,
     setNeedsPosRefetch,
-  ] = useCoverStore((state) => [
-    state.coverPoolData,
-    state.setNeedsAllowance,
-    state.setNeedsBalance,
-    state.setNeedsRefetch,
-    state.setNeedsPosRefetch,
-  ]);
+  ] = useCoverStore(
+    useShallow((state) => [
+      state.coverPoolData,
+      state.setNeedsAllowance,
+      state.setNeedsBalance,
+      state.setNeedsRefetch,
+      state.setNeedsPosRefetch,
+    ]),
+  );
   const [toastId, setToastId] = useState(null);
 
   const { config } = usePrepareContractWrite({

@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function LimitSwapBurnButton({
   poolAddress,
@@ -30,11 +31,13 @@ export default function LimitSwapBurnButton({
 }) {
   const signer = useEthersSigner();
 
-  const [chainId, networkName, limitSubgraph] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-    state.limitSubgraph,
-  ]);
+  const [chainId, networkName, limitSubgraph] = useConfigStore(
+    useShallow((state) => [
+      state.chainId,
+      state.networkName,
+      state.limitSubgraph,
+    ]),
+  );
 
   const router = useRouter();
 
@@ -43,12 +46,14 @@ export default function LimitSwapBurnButton({
     setNeedsBalanceIn,
     setNeedsBalanceOut,
     setNeedsSnapshot,
-  ] = useTradeStore((state) => [
-    state.setNeedsRefetch,
-    state.setNeedsBalanceIn,
-    state.setNeedsBalanceOut,
-    state.setNeedsSnapshot,
-  ]);
+  ] = useTradeStore(
+    useShallow((state) => [
+      state.setNeedsRefetch,
+      state.setNeedsBalanceIn,
+      state.setNeedsBalanceOut,
+      state.setNeedsSnapshot,
+    ]),
+  );
   const [claimTick, setClaimTick] = useState(0);
   const [gasFee, setGasFee] = useState("$0.00");
   const [gasLimit, setGasLimit] = useState(BN_ZERO);

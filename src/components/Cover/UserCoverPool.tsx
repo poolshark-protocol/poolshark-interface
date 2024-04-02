@@ -8,6 +8,7 @@ import router from "next/router";
 import { ethers } from "ethers";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { formatUsdValue } from "../../utils/math/valueMath";
+import { useShallow } from "zustand/react/shallow";
 
 export default function UserCoverPool({
   coverPosition,
@@ -15,10 +16,9 @@ export default function UserCoverPool({
   upperPrice,
   href,
 }) {
-  const [coverSubgraph, logoMap] = useConfigStore((state) => [
-    state.coverSubgraph,
-    state.logoMap,
-  ]);
+  const [coverSubgraph, logoMap] = useConfigStore(
+    useShallow((state) => [state.coverSubgraph, state.logoMap]),
+  );
 
   const [
     tokenIn,
@@ -30,17 +30,19 @@ export default function UserCoverPool({
     setCoverPoolFromVolatility,
     setNeedsAllowance,
     setNeedsBalance,
-  ] = useCoverStore((state) => [
-    state.tokenIn,
-    state.tokenOut,
-    state.setCoverPositionData,
-    state.setTokenIn,
-    state.setTokenOut,
-    state.setClaimTick,
-    state.setCoverPoolFromVolatility,
-    state.setNeedsAllowance,
-    state.setNeedsBalance,
-  ]);
+  ] = useCoverStore(
+    useShallow((state) => [
+      state.tokenIn,
+      state.tokenOut,
+      state.setCoverPositionData,
+      state.setTokenIn,
+      state.setTokenOut,
+      state.setClaimTick,
+      state.setCoverPoolFromVolatility,
+      state.setNeedsAllowance,
+      state.setNeedsBalance,
+    ]),
+  );
 
   ///////////////////////////Claim Tick and filled Percent for Tile & set position USD price
 

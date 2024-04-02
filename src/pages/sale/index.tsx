@@ -21,6 +21,7 @@ import { useRouter } from "next/router";
 import { saleConfig } from "../_app";
 import { redirect } from "next/dist/server/api-utils";
 import { useTradeStore } from "../../hooks/useTradeStore";
+import { useShallow } from "zustand/react/shallow";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function Sale() {
@@ -54,25 +55,18 @@ export default function Sale() {
     decimals: 18,
   };
 
-  const [
-    chainId,
-    networkName,
-    logoMap,
-    limitSubgraph,
-    setLimitSubgraph,
-    setNetworkName,
-  ] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-    state.logoMap,
-    state.limitSubgraph,
-    state.setLimitSubgraph,
-    state.setNetworkName,
-  ]);
+  const [chainId, networkName, limitSubgraph, setNetworkName] = useConfigStore(
+    useShallow((state) => [
+      state.chainId,
+      state.networkName,
+      state.limitSubgraph,
+      state.setNetworkName,
+    ]),
+  );
 
-  const [resetTradeLimitParams] = useTradeStore((state) => [
-    state.resetTradeLimitParams,
-  ]);
+  const resetTradeLimitParams = useTradeStore(
+    (state) => state.resetTradeLimitParams,
+  );
 
   const { chains, error: networkError, switchNetwork } = useSwitchNetwork({});
 

@@ -13,6 +13,7 @@ import { timeDifference } from "../../utils/time";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { invertPrice } from "../../utils/math/tickMath";
+import { useShallow } from "zustand/react/shallow";
 
 export default function UserLimitPool({
   limitPosition,
@@ -20,10 +21,9 @@ export default function UserLimitPool({
   address,
   href,
 }) {
-  const [limitSubgraph, logoMap] = useConfigStore((state) => [
-    state.limitSubgraph,
-    state.logoMap,
-  ]);
+  const [limitSubgraph, logoMap] = useConfigStore(
+    useShallow((state) => [state.limitSubgraph, state.logoMap]),
+  );
 
   const [
     tokenIn,
@@ -36,18 +36,20 @@ export default function UserLimitPool({
     setLimitPoolFromVolatility,
     setNeedsAllowanceIn,
     setNeedsBalanceIn,
-  ] = useRangeLimitStore((state) => [
-    state.tokenIn,
-    state.tokenOut,
-    state.setLimitPositionData,
-    state.setLimitPoolAddress,
-    state.setTokenIn,
-    state.setTokenOut,
-    state.setClaimTick,
-    state.setLimitPoolFromVolatility,
-    state.setNeedsAllowanceIn,
-    state.setNeedsBalanceIn,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.tokenIn,
+      state.tokenOut,
+      state.setLimitPositionData,
+      state.setLimitPoolAddress,
+      state.setTokenIn,
+      state.setTokenOut,
+      state.setClaimTick,
+      state.setLimitPoolFromVolatility,
+      state.setNeedsAllowanceIn,
+      state.setNeedsBalanceIn,
+    ]),
+  );
 
   ///////////////////////////Claim Tick
   useEffect(() => {

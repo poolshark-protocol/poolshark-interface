@@ -12,6 +12,7 @@ import { chainProperties } from "../../utils/chains";
 import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function RangeCompoundButton({
   poolAddress,
@@ -21,10 +22,9 @@ export default function RangeCompoundButton({
 }) {
   const [toastId, setToastId] = useState(null);
 
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
 
   //* hook wrapper
   const { config: burnConfig } = usePrepareContractWrite({

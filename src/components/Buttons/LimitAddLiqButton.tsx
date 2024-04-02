@@ -11,6 +11,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function LimitAddLiqButton({
   disabled,
@@ -28,22 +29,23 @@ export default function LimitAddLiqButton({
   buttonState,
   tokenSymbol,
 }) {
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
 
   const [
     setNeedsRefetch,
     setNeedsAllowanceIn,
     setNeedsBalanceIn,
     setNeedsSnapshot,
-  ] = useRangeLimitStore((state) => [
-    state.setNeedsRefetch,
-    state.setNeedsAllowanceIn,
-    state.setNeedsBalanceIn,
-    state.setNeedsSnapshot,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.setNeedsRefetch,
+      state.setNeedsAllowanceIn,
+      state.setNeedsBalanceIn,
+      state.setNeedsSnapshot,
+    ]),
+  );
   const [toastId, setToastId] = useState(null);
 
   useEffect(() => {}, [disabled]);

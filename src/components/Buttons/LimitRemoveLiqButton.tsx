@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function LimitRemoveLiqButton({
   poolAddress,
@@ -32,27 +33,29 @@ export default function LimitRemoveLiqButton({
 }) {
   const signer = useEthersSigner();
 
-  const [chainId, networkName, limitSubgraph] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-    state.limitSubgraph,
-  ]);
+  const [chainId, networkName, limitSubgraph] = useConfigStore(
+    useShallow((state) => [
+      state.chainId,
+      state.networkName,
+      state.limitSubgraph,
+    ]),
+  );
 
   const [
     limitPositionData,
-    tokenIn,
     setNeedsRefetch,
     setNeedsBalanceIn,
     setNeedsBalanceOut,
     setNeedsSnapshot,
-  ] = useRangeLimitStore((state) => [
-    state.limitPositionData,
-    state.tokenIn,
-    state.setNeedsRefetch,
-    state.setNeedsBalanceIn,
-    state.setNeedsBalanceOut,
-    state.setNeedsSnapshot,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.limitPositionData,
+      state.setNeedsRefetch,
+      state.setNeedsBalanceIn,
+      state.setNeedsBalanceOut,
+      state.setNeedsSnapshot,
+    ]),
+  );
   const [claimTick, setClaimTick] = useState(undefined);
   const [gasFee, setGasFee] = useState("$0.00");
   const [gasLimit, setGasLimit] = useState(BN_ZERO);

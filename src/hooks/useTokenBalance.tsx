@@ -22,16 +22,5 @@ export default function useTokenBalance(token) {
     enabled: isConnected && token.address && token.address != ZERO_ADDRESS,
   });
 
-  // const tokenBalanceBox = () => {
-  //   return (
-  //     <div className="md:text-xs text-[10px] whitespace-nowrap text-[#4C4C4C]">
-  //       Balance:{" "}
-  //       {!isNaN(Number(data?.formatted))
-  //         ? Number(data?.formatted).toFixed(3)
-  //         : "0.00"}
-  //     </div>
-  //   );
-  // };
-
   return { data };
 }

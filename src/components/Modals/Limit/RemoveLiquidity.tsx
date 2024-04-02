@@ -8,31 +8,26 @@ import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { parseUnits } from "../../../utils/math/valueMath";
 import { getLogo, logoMapKey } from "../../../utils/tokens";
 import { useConfigStore } from "../../../hooks/useConfigStore";
+import { useShallow } from "zustand/react/shallow";
 
 export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
   const [
     limitPoolAddress,
     limitPositionData,
-    limitMintParams,
     tokenIn,
-    claimTick,
     currentAmountOut,
     setMintButtonState,
-  ] = useRangeLimitStore((state) => [
-    state.limitPoolAddress,
-    state.limitPositionData,
-    state.limitMintParams,
-    state.tokenIn,
-    state.claimTick,
-    state.currentAmountOut,
-    state.setMintButtonState,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.limitPoolAddress,
+      state.limitPositionData,
+      state.tokenIn,
+      state.currentAmountOut,
+      state.setMintButtonState,
+    ]),
+  );
 
-  const [chainId, logoMap, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.logoMap,
-    state.networkName,
-  ]);
+  const logoMap = useConfigStore((state) => state.logoMap);
 
   const router = useRouter();
 

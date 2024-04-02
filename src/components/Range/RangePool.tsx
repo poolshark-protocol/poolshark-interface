@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { chainProperties } from "../../utils/chains";
 import inputFilter from "../../utils/inputFilter";
 import { getLogo } from "../../utils/tokens";
+import { useShallow } from "zustand/react/shallow";
 
 export default function RangePool({ rangePool, href }) {
   const [
@@ -23,34 +24,36 @@ export default function RangePool({ rangePool, href }) {
     networkName,
     oFin,
     setOFinStrikePrice,
-  ] = useConfigStore((state) => [
-    state.limitSubgraph,
-    state.logoMap,
-    state.chainId,
-    state.networkName,
-    state.oFin,
-    state.setOFinStrikePrice,
-  ]);
+  ] = useConfigStore(
+    useShallow((state) => [
+      state.limitSubgraph,
+      state.logoMap,
+      state.chainId,
+      state.networkName,
+      state.oFin,
+      state.setOFinStrikePrice,
+    ]),
+  );
 
   const [
     setRangeTokenIn,
     setRangeTokenOut,
-    setRangePoolFromFeeTier,
     resetMintParams,
     resetPoolData,
     whitelistedFeesData,
     whitelistedFeesTotal,
     setPoolApy,
-  ] = useRangeLimitStore((state) => [
-    state.setTokenIn,
-    state.setTokenOut,
-    state.setRangePoolFromFeeTier,
-    state.resetMintParams,
-    state.resetPoolData,
-    state.whitelistedFeesData,
-    state.whitelistedFeesTotal,
-    state.setPoolApy,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.setTokenIn,
+      state.setTokenOut,
+      state.resetMintParams,
+      state.resetPoolData,
+      state.whitelistedFeesData,
+      state.whitelistedFeesTotal,
+      state.setPoolApy,
+    ]),
+  );
 
   const router = useRouter();
 

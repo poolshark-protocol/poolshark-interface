@@ -16,6 +16,7 @@ import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function RangeAddLiqButton({
   routerAddress,
@@ -30,10 +31,9 @@ export default function RangeAddLiqButton({
   setIsOpen,
   gasLimit,
 }) {
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
 
   const [
     rangePositionData,
@@ -44,16 +44,18 @@ export default function RangeAddLiqButton({
     setNeedsBalanceOut,
     setNeedsRefetch,
     setNeedsPosRefetch,
-  ] = useRangeLimitStore((state) => [
-    state.rangePositionData,
-    state.rangeMintParams,
-    state.setNeedsAllowanceIn,
-    state.setNeedsAllowanceOut,
-    state.setNeedsBalanceIn,
-    state.setNeedsBalanceOut,
-    state.setNeedsRefetch,
-    state.setNeedsPosRefetch,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.rangePositionData,
+      state.rangeMintParams,
+      state.setNeedsAllowanceIn,
+      state.setNeedsAllowanceOut,
+      state.setNeedsBalanceIn,
+      state.setNeedsBalanceOut,
+      state.setNeedsRefetch,
+      state.setNeedsPosRefetch,
+    ]),
+  );
   const [toastId, setToastId] = useState(null);
 
   const signer = useEthersSigner();

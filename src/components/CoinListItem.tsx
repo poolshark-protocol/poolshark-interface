@@ -1,3 +1,4 @@
+import { useShallow } from "zustand/react/shallow";
 import { useConfigStore } from "../hooks/useConfigStore";
 import useTokenBalance from "../hooks/useTokenBalance";
 import { getTokenBalance } from "../utils/config";
@@ -5,7 +6,7 @@ import { getTokenBalance } from "../utils/config";
 function CoinListItem({ chooseToken, coin }) {
   const { data: tokenBalanceInfo } = useTokenBalance(coin);
 
-  const [chainId] = useConfigStore((state) => [state.chainId]);
+  const [chainId] = useConfigStore(useShallow((state) => [state.chainId]));
 
   return (
     <div

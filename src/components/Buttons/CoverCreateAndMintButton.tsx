@@ -18,6 +18,7 @@ import { formatBytes32String } from "ethers/lib/utils.js";
 import { coverPoolTypes } from "../../utils/pools";
 import { getCoverMintButtonMsgValue } from "../../utils/buttons";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function CoverCreateAndMintButton({
   routerAddress,
@@ -39,18 +40,17 @@ export default function CoverCreateAndMintButton({
   setIsLoading,
   setTxHash,
 }) {
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId] = useConfigStore(useShallow((state) => [state.chainId]));
 
   const [setNeedsRefetch, setNeedsAllowance, setNeedsBalance, twapReady] =
-    useCoverStore((state) => [
-      state.setNeedsRefetch,
-      state.setNeedsAllowance,
-      state.setNeedsBalance,
-      state.twapReady,
-    ]);
+    useCoverStore(
+      useShallow((state) => [
+        state.setNeedsRefetch,
+        state.setNeedsAllowance,
+        state.setNeedsBalance,
+        state.twapReady,
+      ]),
+    );
 
   const newPositionId = 0;
 
