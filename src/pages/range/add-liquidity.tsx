@@ -52,6 +52,7 @@ import {
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { XOctagon } from "lucide-react";
 import { getLogo } from "../../utils/tokens";
+import useAllowance from "../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 
 export default function AddLiquidity({}) {
@@ -367,57 +368,12 @@ export default function AddLiquidity({}) {
   }, [rangeLimitStore.tokenOut.address]);
 
   ////////////////////////////////Allowances
-  const { data: allowanceInRange, refetch: refetchAllowanceIn } =
-    useContractRead({
-      address: rangeLimitStore.tokenIn.address,
-      abi: erc20ABI,
-      functionName: "allowance",
-      args: [address, getRouterAddress(networkName)],
-      chainId: chainId,
-      watch: true,
-      enabled:
-        rangeLimitStore.tokenIn.address &&
-        rangeLimitStore.tokenIn.address != ZERO_ADDRESS,
-      onSuccess(data) {
-        //console.log("allowance in fetched", allowanceInRange?.toString());
-        //setNeedsAllowanceIn(false);
-      },
-      onError(error) {
-        console.log(
-          "Error tokenIn allowance",
-          address,
-          rangeLimitStore.tokenIn.address,
-          getRouterAddress(networkName),
-          error,
-        );
-      },
-    });
-
-  const { data: allowanceOutRange, refetch: refetchAllowanceOut } =
-    useContractRead({
-      address: rangeLimitStore.tokenOut.address,
-      abi: erc20ABI,
-      functionName: "allowance",
-      args: [address, getRouterAddress(networkName)],
-      chainId: chainId,
-      watch: true,
-      enabled:
-        rangeLimitStore.tokenOut.address &&
-        rangeLimitStore.tokenOut.address != ZERO_ADDRESS,
-      onSuccess(data) {
-        //console.log("allowance out fetched", allowanceOutRange?.toString());
-        //setNeedsAllowanceOut(false);
-      },
-      onError(error) {
-        console.log(
-          "Error tokenOut allowance",
-          address,
-          rangeLimitStore.tokenOut.address,
-          getRouterAddress(networkName),
-          error,
-        );
-      },
-    });
+  const { allowance: allowanceInRange } = useAllowance({
+    token: rangeLimitStore.tokenIn,
+  });
+  const { allowance: allowanceOutRange } = useAllowance({
+    token: rangeLimitStore.tokenOut,
+  });
 
   useEffect(() => {
     rangeLimitStore.setTokenInRangeAllowance(

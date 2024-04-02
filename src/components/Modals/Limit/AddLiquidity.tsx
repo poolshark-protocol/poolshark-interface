@@ -1,22 +1,21 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useAccount, erc20ABI, useBalance } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import LimitAddLiqButton from "../../Buttons/LimitAddLiqButton";
 import { BigNumber, ethers } from "ethers";
-import { useContractRead } from "wagmi";
 import { BN_ZERO } from "../../../utils/math/constants";
 import SwapRouterApproveButton from "../../Buttons/SwapRouterApproveButton";
-import { chainIdsToNames, chainProperties } from "../../../utils/chains";
 import { gasEstimateMintLimit } from "../../../utils/gas";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { parseUnits } from "../../../utils/math/valueMath";
-import { getLogo, logoMapKey } from "../../../utils/tokens";
+import { getLogo } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
+import useAllowance from "../../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
@@ -63,30 +62,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   const [buttonState, setButtonState] = useState("");
   const [disabled, setDisabled] = useState(true);
 
-  const { data: tokenInAllowance } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, getRouterAddress(networkName)],
-    chainId: chainId,
-    watch: needsAllowance,
-    enabled: isConnected && tokenIn.address != undefined && needsAllowance,
-    onSuccess(data) {
-      setNeedsAllowance(false);
-    },
-    onError(error) {
-      console.log("Error allowance", error);
-    },
-    onSettled(data, error) {
-      // console.log("current allowance", allowanceIn)
-      // console.log("Allowance Settled", {
-      //   data,
-      //   error,
-      //   limitPoolAddress,
-      //   tokenIn,
-      // });
-    },
-  });
+  const { allowance: tokenInAllowance } = useAllowance({ token: tokenIn });
 
   ////////////////////////////////Token Balances
 

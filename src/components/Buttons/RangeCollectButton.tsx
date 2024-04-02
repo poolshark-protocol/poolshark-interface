@@ -31,6 +31,7 @@ export default function RangeCollectButton({
     useShallow((state) => [state.setNeedsBalanceIn, state.setNeedsBalanceOut]),
   );
 
+  //* hook wrapper
   const { config: burnConfig } = usePrepareContractWrite({
     address: poolAddress,
     abi: rangePoolABI,
