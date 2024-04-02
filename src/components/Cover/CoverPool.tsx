@@ -4,19 +4,21 @@ import { tokenCover } from "../../utils/types";
 import { formatUsdValue } from "../../utils/math/valueMath";
 import { TickMath } from "../../utils/math/tickMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { useShallow } from "zustand/react/shallow";
 
 export default function CoverPool({ pool, href }) {
-  const [coverSubgraph, logoMap] = useConfigStore((state) => [
-    state.coverSubgraph,
-    state.logoMap,
-  ]);
+  const [coverSubgraph, logoMap] = useConfigStore(
+    useShallow((state) => [state.coverSubgraph, state.logoMap]),
+  );
 
   const [setCoverTokenIn, setCoverTokenOut, setCoverPoolFromVolatility] =
-    useCoverStore((state) => [
-      state.setTokenIn,
-      state.setTokenOut,
-      state.setCoverPoolFromVolatility,
-    ]);
+    useCoverStore(
+      useShallow((state) => [
+        state.setTokenIn,
+        state.setTokenOut,
+        state.setCoverPoolFromVolatility,
+      ]),
+    );
 
   const router = useRouter();
 

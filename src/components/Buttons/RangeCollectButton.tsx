@@ -13,6 +13,7 @@ import { chainProperties } from "../../utils/chains";
 import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function RangeCollectButton({
   poolAddress,
@@ -22,13 +23,12 @@ export default function RangeCollectButton({
 }) {
   const [toastId, setToastId] = useState(null);
 
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
 
   const [setNeedsBalanceIn, setNeedsBalanceOut] = useRangeLimitStore(
-    (state) => [state.setNeedsBalanceIn, state.setNeedsBalanceOut],
+    useShallow((state) => [state.setNeedsBalanceIn, state.setNeedsBalanceOut]),
   );
 
   //* hook wrapper

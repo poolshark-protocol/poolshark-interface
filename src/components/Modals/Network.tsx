@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { useSwitchNetwork } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { useShallow } from "zustand/react/shallow";
 
 export default function Network({
   isOpen,
@@ -10,10 +11,9 @@ export default function Network({
   chainUnsupported,
   chainId,
 }) {
-  const [setNetworkName, setChainId] = useConfigStore((state) => [
-    state.setNetworkName,
-    state.setChainId,
-  ]);
+  const [setNetworkName, setChainId] = useConfigStore(
+    useShallow((state) => [state.setNetworkName, state.setChainId]),
+  );
 
   const {
     chains,

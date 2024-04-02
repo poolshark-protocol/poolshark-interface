@@ -16,15 +16,16 @@ import { getRouterAddress } from "../../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 import useAllowance from "../../../hooks/contracts/useAllowance";
+import { useShallow } from "zustand/react/shallow";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   const [chainId, logoMap, networkName, limitSubgraph] = useConfigStore(
-    (state) => [
+    useShallow((state) => [
       state.chainId,
       state.logoMap,
       state.networkName,
       state.limitSubgraph,
-    ],
+    ]),
   );
 
   const [
@@ -37,17 +38,19 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
     setNeedsAllowance,
     needsBalance,
     setNeedsBalance,
-  ] = useRangeLimitStore((state) => [
-    state.limitPoolAddress,
-    state.limitPositionData,
-    state.tokenIn,
-    state.setTokenInBalance,
-    state.tokenOut,
-    state.needsAllowanceIn,
-    state.setNeedsAllowanceIn,
-    state.needsBalanceIn,
-    state.setNeedsBalanceIn,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.limitPoolAddress,
+      state.limitPositionData,
+      state.tokenIn,
+      state.setTokenInBalance,
+      state.tokenOut,
+      state.needsAllowanceIn,
+      state.setNeedsAllowanceIn,
+      state.needsBalanceIn,
+      state.setNeedsBalanceIn,
+    ]),
+  );
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
   const signer = useEthersSigner();

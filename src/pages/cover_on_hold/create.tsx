@@ -14,10 +14,7 @@ export default function CoverCreate() {
   const { address, isConnected, isDisconnected } = useAccount();
   const router = useRouter();
 
-  const [limitSubgraph, coverSubgraph] = useConfigStore((state) => [
-    state.limitSubgraph,
-    state.coverSubgraph,
-  ]);
+  const coverSubgraph = useConfigStore((state) => state.coverSubgraph);
 
   const [isOpen, setIsOpen] = useState(false);
   const [pool, setPool] = useState(router.query ?? undefined);

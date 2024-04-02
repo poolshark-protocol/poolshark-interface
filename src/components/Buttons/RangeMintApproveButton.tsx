@@ -10,6 +10,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 import { toast } from "sonner";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function RangeMintApproveButton({
   routerAddress,
@@ -18,14 +19,13 @@ export default function RangeMintApproveButton({
 }) {
   const [toastId, setToastId] = useState(null);
 
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
 
-  const [setNeedsAllowanceIn] = useRangeLimitStore((state) => [
-    state.setNeedsAllowanceIn,
-  ]);
+  const setNeedsAllowanceIn = useRangeLimitStore(
+    (state) => state.setNeedsAllowanceIn,
+  );
 
   //* hook wrapper
   const { config: t0 } = usePrepareContractWrite({

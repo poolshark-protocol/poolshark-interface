@@ -14,6 +14,7 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function CoverCollectButton({
   poolAddress,
@@ -25,18 +26,17 @@ export default function CoverCollectButton({
   signer,
   snapshotAmount,
 }) {
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
   const [toastId, setToastId] = useState(null);
 
   const [setNeedsBalance, setNeedsRefetch, setNeedsPosRefetch] = useCoverStore(
-    (state) => [
+    useShallow((state) => [
       state.setNeedsBalance,
       state.setNeedsRefetch,
       state.setNeedsPosRefetch,
-    ],
+    ]),
   );
   const [gasLimit, setGasLimit] = useState(BN_ZERO);
 

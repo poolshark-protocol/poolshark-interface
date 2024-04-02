@@ -10,6 +10,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function CoverMintApproveButton({
   routerAddress,
@@ -19,14 +20,13 @@ export default function CoverMintApproveButton({
 }) {
   const [toastId, setToastId] = useState(null);
 
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
 
-  const [setNeedsAllowance] = useCoverStore((state) => [
-    state.setNeedsAllowance,
-  ]);
+  const [setNeedsAllowance] = useCoverStore(
+    useShallow((state) => [state.setNeedsAllowance]),
+  );
 
   const { config } = usePrepareContractWrite({
     address: approveToken,

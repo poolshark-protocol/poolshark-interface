@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function RedeemMulticallBondButton({
   tellerAddress,
@@ -17,10 +18,9 @@ export default function RedeemMulticallBondButton({
   amount,
   setNeedsBondTokenData,
 }) {
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
 
   const [toastId, setToastId] = useState(null);
 

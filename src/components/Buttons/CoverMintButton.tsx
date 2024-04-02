@@ -16,6 +16,7 @@ import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { getCoverMintButtonMsgValue } from "../../utils/buttons";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function CoverMintButton({
   routerAddress,
@@ -34,10 +35,7 @@ export default function CoverMintButton({
   setIsLoading,
   setTxHash,
 }) {
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const chainId = useConfigStore((state) => state.chainId);
 
   const [
     tokenIn,
@@ -45,13 +43,15 @@ export default function CoverMintButton({
     setNeedsPosRefetch,
     setNeedsAllowance,
     setNeedsBalance,
-  ] = useCoverStore((state) => [
-    state.tokenIn,
-    state.setNeedsRefetch,
-    state.setNeedsPosRefetch,
-    state.setNeedsAllowance,
-    state.setNeedsBalance,
-  ]);
+  ] = useCoverStore(
+    useShallow((state) => [
+      state.tokenIn,
+      state.setNeedsRefetch,
+      state.setNeedsPosRefetch,
+      state.setNeedsAllowance,
+      state.setNeedsBalance,
+    ]),
+  );
 
   const newPositionId = 0;
 

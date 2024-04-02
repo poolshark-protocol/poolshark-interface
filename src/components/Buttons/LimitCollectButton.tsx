@@ -13,6 +13,7 @@ import { BN_ZERO } from "../../utils/math/constants";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import { useShallow } from "zustand/react/shallow";
 
 export default function LimitCollectButton({
   poolAddress,
@@ -26,22 +27,23 @@ export default function LimitCollectButton({
 }) {
   const [toastId, setToastId] = useState(null);
 
-  const [chainId, networkName] = useConfigStore((state) => [
-    state.chainId,
-    state.networkName,
-  ]);
+  const [chainId, networkName] = useConfigStore(
+    useShallow((state) => [state.chainId, state.networkName]),
+  );
 
   const [
     setNeedsBalanceIn,
     setNeedsSnapshot,
     setNeedsRefetch,
     setNeedsPosRefetch,
-  ] = useRangeLimitStore((state) => [
-    state.setNeedsBalanceIn,
-    state.setNeedsSnapshot,
-    state.setNeedsRefetch,
-    state.setNeedsPosRefetch,
-  ]);
+  ] = useRangeLimitStore(
+    useShallow((state) => [
+      state.setNeedsBalanceIn,
+      state.setNeedsSnapshot,
+      state.setNeedsRefetch,
+      state.setNeedsPosRefetch,
+    ]),
+  );
 
   //* hook wrapper
   const { config } = usePrepareContractWrite({

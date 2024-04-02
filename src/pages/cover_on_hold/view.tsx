@@ -18,16 +18,19 @@ import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
+import { useShallow } from "zustand/react/shallow";
 
 export default function ViewCover() {
   const [chainId, networkName, coverSubgraph, setCoverSubgraph, logoMap] =
-    useConfigStore((state) => [
-      state.chainId,
-      state.networkName,
-      state.coverSubgraph,
-      state.setCoverSubgraph,
-      state.logoMap,
-    ]);
+    useConfigStore(
+      useShallow((state) => [
+        state.chainId,
+        state.networkName,
+        state.coverSubgraph,
+        state.setCoverSubgraph,
+        state.logoMap,
+      ]),
+    );
 
   const [
     coverPoolAddress,
@@ -38,7 +41,6 @@ export default function ViewCover() {
     tokenOut,
     needsRefetch,
     needsPosRefetch,
-    latestTick,
     claimTick,
     setNeedsRefetch,
     setNeedsPosRefetch,
@@ -49,27 +51,28 @@ export default function ViewCover() {
     setClaimTick,
     setCoverPoolFromVolatility,
     setCoverAddLiqDisabled,
-  ] = useCoverStore((state) => [
-    state.coverPoolAddress,
-    state.coverPoolData,
-    state.coverPositionData,
-    state.coverMintParams,
-    state.tokenIn,
-    state.tokenOut,
-    state.needsRefetch,
-    state.needsPosRefetch,
-    state.latestTick,
-    state.claimTick,
-    state.setNeedsRefetch,
-    state.setNeedsPosRefetch,
-    state.setCoverPositionData,
-    state.setTokenInCoverUSDPrice,
-    state.setTokenOutCoverUSDPrice,
-    state.setLatestTick,
-    state.setClaimTick,
-    state.setCoverPoolFromVolatility,
-    state.setCoverAddLiqDisabled,
-  ]);
+  ] = useCoverStore(
+    useShallow((state) => [
+      state.coverPoolAddress,
+      state.coverPoolData,
+      state.coverPositionData,
+      state.coverMintParams,
+      state.tokenIn,
+      state.tokenOut,
+      state.needsRefetch,
+      state.needsPosRefetch,
+      state.claimTick,
+      state.setNeedsRefetch,
+      state.setNeedsPosRefetch,
+      state.setCoverPositionData,
+      state.setTokenInCoverUSDPrice,
+      state.setTokenOutCoverUSDPrice,
+      state.setLatestTick,
+      state.setClaimTick,
+      state.setCoverPoolFromVolatility,
+      state.setCoverAddLiqDisabled,
+    ]),
+  );
 
   const { address, isConnected } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
