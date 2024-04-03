@@ -8,13 +8,7 @@ import { useConfigStore } from "../../useConfigStore";
 import { getRouterAddress } from "../../../utils/config";
 import { poolsharkRouterABI } from "../../../abis/evm/poolsharkRouter";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
-import { BN_ZERO } from "../../../utils/math/constants";
 import { useRangeLimitStore } from "../../useRangeLimitStore";
-import {
-  getRangeMintInputData,
-  getRangeMintButtonMsgValue,
-} from "../../../utils/buttons";
-import { getRangeStakerAddress } from "../../../utils/config";
 import { useEffect } from "react";
 import { ethers } from "ethers";
 import { toast } from "sonner";
