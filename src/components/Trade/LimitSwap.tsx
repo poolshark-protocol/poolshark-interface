@@ -775,9 +775,6 @@ export default function LimitSwap() {
     tradeStore.tokenIn.userRouterAllowance,
   ]);
 
-  ////////////////////////////////Expanded
-  const [expanded, setExpanded] = useState(false);
-
   return (
     <div>
       <InputBoxContainer>

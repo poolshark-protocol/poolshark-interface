@@ -545,9 +545,6 @@ export default function MarketSwap() {
     tradeStore.tokenIn.userRouterAllowance,
   ]);
 
-  ////////////////////////////////
-  const [expanded, setExpanded] = useState(false);
-
   return (
     <div>
       <InputBoxContainer>
