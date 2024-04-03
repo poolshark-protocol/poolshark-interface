@@ -20,7 +20,7 @@ import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
 import SwapRouterButton from "../Buttons/SwapRouterButton";
 import { chainProperties } from "../../utils/chains";
-import { gasEstimateSwap, gasEstimateWethCall } from "../../utils/gas";
+import { gasEstimateSwap } from "../../utils/gas";
 import JSBI from "jsbi";
 import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
@@ -37,8 +37,14 @@ import AmountOutDisplay from "./common/AmountOutDisplay";
 import InputBoxContainer from "./common/InputBoxContainer";
 import Option from "./common/Option";
 import useMultiQuote from "../../hooks/contracts/useMultiQuote";
+import useUpdateWethFee from "../../hooks/useUpdateWethFee";
 
-export default function MarketSwap() {
+export default function MarketSwap({
+  quoteRefetchDelay,
+}: {
+  quoteRefetchDelay: number;
+}) {
+  //CONFIG STORE
   const [chainId, networkName, limitSubgraph] = useConfigStore(
     useShallow((state) => [
       state.chainId,
@@ -46,13 +52,6 @@ export default function MarketSwap() {
       state.limitSubgraph,
     ]),
   );
-
-  //CONFIG STORE
-  const [stateChainName, setStateChainName] = useState();
-
-  //PRICE AND LIQUIDITY FETCHED EVERY 5 SECONDS
-  const quoteRefetchDelay = 5000;
-
   const tradeStore = useTradeStore();
 
   const [setRangeTokenIn, setRangeTokenOut] = useRangeLimitStore(
@@ -461,6 +460,11 @@ export default function MarketSwap() {
   const [swapGasFee, setSwapGasFee] = useState("$0.00");
   const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
 
+  const updateWethFee = useUpdateWethFee({
+    setSwapGasFee,
+    setSwapGasLimit,
+  });
+
   useEffect(() => {
     if (
       !tradeStore.amountIn.eq(BN_ZERO) &&
@@ -512,38 +516,6 @@ export default function MarketSwap() {
       setSwapGasLimit(BN_ZERO);
     }
   }
-
-  async function updateWethFee() {
-    if (
-      tradeStore.tokenIn.userRouterAllowance?.gte(tradeStore.amountIn) ||
-      tradeStore.tokenIn.native
-    ) {
-      await gasEstimateWethCall(
-        chainProperties[networkName]["wethAddress"],
-        tradeStore.tokenIn,
-        tradeStore.tokenOut,
-        tradeStore.amountIn,
-        signer,
-        isConnected,
-        setSwapGasFee,
-        setSwapGasLimit,
-        limitSubgraph,
-      );
-    }
-  }
-
-  /////////////////////////////Button States
-
-  useEffect(() => {
-    tradeStore.setTradeButtonState();
-  }, [
-    tradeStore.amountIn,
-    tradeStore.amountOut,
-    tradeStore.tokenIn.userBalance,
-    tradeStore.tokenIn.address,
-    tradeStore.tokenOut.address,
-    tradeStore.tokenIn.userRouterAllowance,
-  ]);
 
   return (
     <div>

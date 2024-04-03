@@ -56,18 +56,17 @@ import InputBoxContainer from "./common/InputBoxContainer";
 import FeeTierBox from "./common/FeeTierBox";
 import PriceRangeBox from "./common/PriceRangeBox";
 import Option from "./common/Option";
+import useUpdateWethFee from "../../hooks/useUpdateWethFee";
 
-export default function LimitSwap() {
+export default function LimitSwap({
+  quoteRefetchDelay,
+}: {
+  quoteRefetchDelay: number;
+}) {
   //CONFIG STORE
   const [networkName, limitSubgraph] = useConfigStore(
     useShallow((state) => [state.networkName, state.limitSubgraph]),
   );
-
-  const [stateChainName, setStateChainName] = useState();
-
-  //PRICE AND LIQUIDITY FETCHED EVERY 5 SECONDS
-  const quoteRefetchDelay = 5000;
-
   const tradeStore = useTradeStore();
 
   const {
@@ -676,6 +675,11 @@ export default function LimitSwap() {
   const [swapGasFee, setSwapGasFee] = useState("$0.00");
   const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
 
+  const updateWethFee = useUpdateWethFee({
+    setSwapGasFee,
+    setSwapGasLimit,
+  });
+
   useEffect(() => {
     if (
       !tradeStore.amountIn.eq(BN_ZERO) &&
@@ -742,38 +746,6 @@ export default function LimitSwap() {
         );
       }
   }
-
-  async function updateWethFee() {
-    if (
-      tradeStore.tokenIn.userRouterAllowance?.gte(tradeStore.amountIn) ||
-      tradeStore.tokenIn.native
-    ) {
-      await gasEstimateWethCall(
-        chainProperties[networkName]["wethAddress"],
-        tradeStore.tokenIn,
-        tradeStore.tokenOut,
-        tradeStore.amountIn,
-        signer,
-        isConnected,
-        setSwapGasFee,
-        setSwapGasLimit,
-        limitSubgraph,
-      );
-    }
-  }
-
-  ////////////////////////////////Button State
-
-  useEffect(() => {
-    tradeStore.setTradeButtonState();
-  }, [
-    tradeStore.amountIn,
-    tradeStore.amountOut,
-    tradeStore.tokenIn.userBalance,
-    tradeStore.tokenIn.address,
-    tradeStore.tokenOut.address,
-    tradeStore.tokenIn.userRouterAllowance,
-  ]);
 
   return (
     <div>

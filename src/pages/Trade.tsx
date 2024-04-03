@@ -34,6 +34,9 @@ import useTokenInInfo from "../hooks/contracts/useTokenInInfo";
 import useTokenOutInfo from "../hooks/contracts/useTokenOutInfo";
 import { useShallow } from "zustand/react/shallow";
 
+//PRICE AND LIQUIDITY FETCHED EVERY 5 SECONDS
+const quoteRefetchDelay = 5000;
+
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
 
@@ -318,6 +321,19 @@ export default function Trade() {
     chainId,
   ]);
 
+  /////////////////////////////Button States
+
+  useEffect(() => {
+    tradeStore.setTradeButtonState();
+  }, [
+    tradeStore.amountIn,
+    tradeStore.amountOut,
+    tradeStore.tokenIn.userBalance,
+    tradeStore.tokenIn.address,
+    tradeStore.tokenOut.address,
+    tradeStore.tokenIn.userRouterAllowance,
+  ]);
+
   return (
     <div className="min-h-[calc(100vh-160px)] w-[48rem] px-3 md:px-0">
       <div className="flex w-full mt-[10vh] justify-center mb-20 ">
@@ -367,7 +383,11 @@ export default function Trade() {
                 </svg>
               </div>
             </div>
-            {!tradeStore.limitTabSelected ? <MarketSwap /> : <LimitSwap />}
+            {!tradeStore.limitTabSelected ? (
+              <MarketSwap quoteRefetchDelay={quoteRefetchDelay} />
+            ) : (
+              <LimitSwap quoteRefetchDelay={quoteRefetchDelay} />
+            )}
           </div>
         </div>
       </div>
