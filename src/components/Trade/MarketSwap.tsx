@@ -15,13 +15,11 @@ import {
 import { getSwapPools } from "../../utils/pools";
 import { QuoteParams, SwapParams, QuoteResults } from "../../utils/types";
 import { TickMath, maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
-import { displayPoolPrice } from "../../utils/math/priceMath";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import Range from "../Icons/RangeIcon";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
 import SwapRouterButton from "../Buttons/SwapRouterButton";
-import { chainProperties, defaultNetwork } from "../../utils/chains";
+import { chainProperties } from "../../utils/chains";
 import { gasEstimateSwap, gasEstimateWethCall } from "../../utils/gas";
 import JSBI from "jsbi";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
@@ -658,86 +656,52 @@ export default function MarketSwap() {
           </div>
         </div>
       </InputBoxContainer>
-      <div className="py-2">
-        <div
-          className="flex px-2 cursor-pointer py-2 rounded-[4px]"
-          onClick={() => setExpanded(!expanded)}
-        >
-          <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-            {"1 " + tradeStore.tokenIn.symbol} ={" "}
-            {displayPoolPrice(
-              tradeStore.wethCall,
-              tradeStore.pairSelected,
-              tradeStore.tradePoolData?.poolPrice,
-              tradeStore.tokenIn,
-              tradeStore.tokenOut,
-            ) +
-              " " +
-              tradeStore.tokenOut.symbol}
-          </div>
-          <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
-            <button>
-              <ChevronDownIcon className="w-4 h-4" />
-            </button>
+
+      <Option>
+        <div className="flex p-1">
+          <div className="text-xs text-[#4C4C4C]">Network Fee</div>
+          <div
+            className={`ml-auto text-xs ${
+              tradeStore.tokenIn.userRouterAllowance?.lt(tradeStore.amountIn)
+                ? "text-[#4C4C4C]"
+                : "text-white"
+            }`}
+          >
+            {tradeStore.tokenIn.userRouterAllowance?.lt(tradeStore.amountIn)
+              ? "Approve Token"
+              : swapGasFee}
           </div>
         </div>
-        <div className="flex-wrap w-full break-normal transition ">
-          {expanded && (
-            <Option
-              pairSelected={tradeStore.pairSelected}
-              amountOut={tradeStore.amountOut}
-              decimals={tradeStore.tokenOut.decimals}
-            >
-              <div className="flex p-1">
-                <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-                <div
-                  className={`ml-auto text-xs ${
-                    tradeStore.tokenIn.userRouterAllowance?.lt(
-                      tradeStore.amountIn,
-                    )
-                      ? "text-[#4C4C4C]"
-                      : "text-white"
-                  }`}
-                >
-                  {tradeStore.tokenIn.userRouterAllowance?.lt(
-                    tradeStore.amountIn,
-                  )
-                    ? "Approve Token"
-                    : swapGasFee}
-                </div>
-              </div>
-              <div className="flex p-1">
-                <div className="text-xs text-[#4C4C4C]">
-                  Minimum received after slippage ({tradeStore.tradeSlippage}%)
-                </div>
-                <div className="ml-auto text-xs">
-                  {numFormat(
-                    (parseFloat(
-                      ethers.utils.formatUnits(
-                        tradeStore.amountOut,
-                        tradeStore.tokenOut.decimals,
-                      ),
-                    ) *
-                      (100 - parseFloat(tradeStore.tradeSlippage))) /
-                      100,
-                    5,
-                  )}
-                </div>
-              </div>
-              <div className="flex p-1">
-                <div className="text-xs text-[#4C4C4C]">Price Impact</div>
-                <div className="ml-auto text-xs">
-                  {tradeStore.pairSelected
-                    ? priceImpact
-                      ? priceImpact + "%"
-                      : "0.00%"
-                    : "Select Token"}
-                </div>
-              </div>
-            </Option>
-          )}
+        <div className="flex p-1">
+          <div className="text-xs text-[#4C4C4C]">
+            Minimum received after slippage ({tradeStore.tradeSlippage}%)
+          </div>
+          <div className="ml-auto text-xs">
+            {numFormat(
+              (parseFloat(
+                ethers.utils.formatUnits(
+                  tradeStore.amountOut,
+                  tradeStore.tokenOut.decimals,
+                ),
+              ) *
+                (100 - parseFloat(tradeStore.tradeSlippage))) /
+                100,
+              5,
+            )}
+          </div>
         </div>
-      </div>
+        <div className="flex p-1">
+          <div className="text-xs text-[#4C4C4C]">Price Impact</div>
+          <div className="ml-auto text-xs">
+            {tradeStore.pairSelected
+              ? priceImpact
+                ? priceImpact + "%"
+                : "0.00%"
+              : "Select Token"}
+          </div>
+        </div>
+      </Option>
+
       {parseFloat(priceImpact) > 5 && (
         <div
           className={`flex justify-between px-5 rounded-[4px] w-full border items-center text-xs py-2  mb-4 ${

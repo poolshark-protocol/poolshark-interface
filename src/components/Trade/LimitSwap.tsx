@@ -16,7 +16,6 @@ import {
   parseUnits,
 } from "../../utils/math/valueMath";
 import {
-  feeTierMap,
   getLimitPoolForFeeTier,
   getSwapPools,
   limitPoolTypeIds,
@@ -30,12 +29,10 @@ import {
   minPriceBn,
 } from "../../utils/math/tickMath";
 import {
-  displayPoolPrice,
   getExpectedAmountInFromOutput,
   getExpectedAmountOutFromInput,
   getMarketPriceAboveBelowString,
 } from "../../utils/math/priceMath";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { chainProperties } from "../../utils/chains";
 import LimitCreateAndMintButton from "../Buttons/LimitCreateAndMintButton";
 import inputFilter from "../../utils/inputFilter";
@@ -1057,60 +1054,27 @@ export default function LimitSwap() {
       ) : (
         <></>
       )}
-      <div className="py-4">
-        <div
-          className="flex px-2 cursor-pointer py-2 rounded-[4px]"
-          onClick={() => setExpanded(!expanded)}
-        >
-          <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-            {"1 " + tradeStore.tokenIn.symbol} ={" "}
-            {tradeStore.tradePoolData?.id != ZERO_ADDRESS
-              ? displayPoolPrice(
-                  tradeStore.wethCall,
-                  tradeStore.pairSelected,
-                  tradeStore.tradePoolData?.poolPrice,
-                  tradeStore.tokenIn,
-                  tradeStore.tokenOut,
-                ) +
-                " " +
-                tradeStore.tokenOut.symbol
-              : "?"}
+
+      <Option>
+        <div className="flex p-1">
+          <div className="text-xs text-[#4C4C4C]">
+            Minimum received after slippage ({tradeStore.tradeSlippage}%)
           </div>
-          <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
-            <button>
-              <ChevronDownIcon className="w-4 h-4" />
-            </button>
+          <div className="ml-auto text-xs">
+            {numFormat(
+              (parseFloat(
+                ethers.utils.formatUnits(
+                  tradeStore.amountOut,
+                  tradeStore.tokenOut.decimals,
+                ),
+              ) *
+                (100 - parseFloat(tradeStore.tradeSlippage))) /
+                100,
+              5,
+            )}
           </div>
         </div>
-        <div className="flex-wrap w-full break-normal transition ">
-          {expanded && (
-            <Option
-              pairSelected={tradeStore.pairSelected}
-              amountOut={tradeStore.amountOut}
-              decimals={tradeStore.tokenOut.decimals}
-            >
-              <div className="flex p-1">
-                <div className="text-xs text-[#4C4C4C]">
-                  Minimum received after slippage ({tradeStore.tradeSlippage}%)
-                </div>
-                <div className="ml-auto text-xs">
-                  {numFormat(
-                    (parseFloat(
-                      ethers.utils.formatUnits(
-                        tradeStore.amountOut,
-                        tradeStore.tokenOut.decimals,
-                      ),
-                    ) *
-                      (100 - parseFloat(tradeStore.tradeSlippage))) /
-                      100,
-                    5,
-                  )}
-                </div>
-              </div>
-            </Option>
-          )}
-        </div>
-      </div>
+      </Option>
 
       {isDisconnected ? (
         <ConnectWalletButton xl={true} />
