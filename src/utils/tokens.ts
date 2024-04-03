@@ -103,6 +103,24 @@ export const getUserAllowance = (token: any, currentToken: any) => {
   return BN_ZERO;
 };
 
+export const hasAllowance = (token: any, amount: BigNumber): boolean => {
+  if (token.native) {
+    return true;
+  } else if (!token.userRouterAllowance) {
+    return false;
+  }
+  return token.userRouterAllowance?.gte(amount?.toString());
+};
+
+export const hasBalance = (token: any, amount: BigNumber): boolean => {
+  if (token.native) {
+    return true;
+  } else if (!token.userBalance) {
+    return false;
+  }
+  return token.userBalance?.gte(amount?.toString());
+};
+
 export const fetchListedTokenBalances = async (
   chainId: number,
   address: string,

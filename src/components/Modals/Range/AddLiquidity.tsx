@@ -21,7 +21,7 @@ import { getRouterAddress } from "../../../utils/config";
 import BalanceDisplay from "../../Display/BalanceDisplay";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
-import { getLogo } from "../../../utils/tokens";
+import { hasAllowance, getLogo } from "../../../utils/tokens";
 import useAllowance from "../../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 
@@ -394,8 +394,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       rangePositionData.min &&
       rangePositionData.max &&
       Number(rangePositionData.min) < Number(rangePositionData.max) &&
-      tokenIn.userRouterAllowance?.gte(rangeMintParams.tokenInAmount) &&
-      tokenOut.userRouterAllowance?.gte(rangeMintParams.tokenOutAmount)
+      hasAllowance(tokenIn, rangeMintParams.tokenInAmount) &&
+      hasAllowance(tokenOut, rangeMintParams.tokenOutAmount)
     ) {
       updateGasFee();
     }
