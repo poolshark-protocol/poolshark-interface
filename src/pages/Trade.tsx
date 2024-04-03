@@ -27,6 +27,11 @@ import inputFilter from "../utils/inputFilter";
 import { addressMatches, getRouterAddress, isWeth } from "../utils/config";
 import { Network } from "alchemy-sdk";
 import { deepConvertBigIntAndBigNumber } from "../utils/misc";
+import useAllowance from "../hooks/contracts/useAllowance";
+import useTokenBalance from "../hooks/useTokenBalance";
+import useMultiSnapshotLimit from "../hooks/contracts/useMultiSnapshotLimit";
+import useTokenInInfo from "../hooks/contracts/useTokenInInfo";
+import useTokenOutInfo from "../hooks/contracts/useTokenOutInfo";
 import { useShallow } from "zustand/react/shallow";
 
 export default function Trade() {
@@ -45,6 +50,7 @@ export default function Trade() {
 
   const tradeStore = useTradeStore();
 
+  //*
   const { error: networkError, switchNetwork } = useSwitchNetwork({
     onSuccess(data) {},
   });
@@ -58,18 +64,9 @@ export default function Trade() {
 
   ////////////////////////////////Pools
 
-  //log addresses and ids
-  const [limitPoolAddressList, setLimitPoolAddressList] = useState([]);
-  const [limitPositionSnapshotList, setLimitPositionSnapshotList] = useState<
-    any[]
-  >([]);
-
   //log amount in and out
   const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
   const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
-
-  const [tokenInInfo, setTokenInInfo] = useState(undefined);
-  const [tokenOutInfo, setTokenOutInfo] = useState(undefined);
 
   useEffect(() => {
     if (
@@ -100,32 +97,8 @@ export default function Trade() {
   }, [tradeStore.tokenOut.address]);
 
   ////////////////////////////////Filled Amount
-  const { data: filledAmountListInt } = useContractRead({
-    address: getRouterAddress(networkName),
-    abi: poolsharkRouterABI,
-    functionName: "multiSnapshotLimit",
-    args: [
-      limitPoolAddressList,
-      deepConvertBigIntAndBigNumber(limitPositionSnapshotList),
-    ],
-    chainId: chainId,
-    watch: tradeStore.needsSnapshot,
-    enabled:
-      isConnected &&
-      limitPoolAddressList.length > 0 &&
-      tradeStore.needsSnapshot &&
-      getRouterAddress(networkName),
-    onSuccess(data) {
-      // console.log("Success price filled amount", data);
-      // console.log("snapshot address list", limitPoolAddressList);
-      // console.log("snapshot params list", limitPositionSnapshotList);
-      tradeStore.setNeedsSnapshot(false);
-    },
-    onError(error) {
-      console.log("network check", networkName);
-      console.log("Error price Limit", error);
-    },
-  });
+
+  const { data: filledAmountListInt } = useMultiSnapshotLimit();
 
   useEffect(() => {
     if (filledAmountListInt) {
@@ -215,8 +188,8 @@ export default function Trade() {
               allLimitPositions[i].tokenOut.id,
             ) < 0;
         }
-        setLimitPoolAddressList(mappedLimitPoolAddresses);
-        setLimitPositionSnapshotList(mappedLimitSnapshotParams);
+        tradeStore.setLimitPoolAddressList(mappedLimitPoolAddresses);
+        tradeStore.setLimitPositionSnapshotList(mappedLimitSnapshotParams);
       }
     } catch (error) {
       console.log("limit error", error);
@@ -225,29 +198,8 @@ export default function Trade() {
 
   ////////////////////////////////Balances
 
-  const { data: tokenInBal } = useBalance({
-    address: address,
-    token: tradeStore.tokenIn.native ? undefined : tradeStore.tokenIn.address,
-    enabled:
-      tradeStore.tokenIn.address != undefined && tradeStore.needsBalanceIn,
-    watch: tradeStore.needsBalanceIn,
-    chainId: chainId,
-    onSuccess(data) {
-      tradeStore.setNeedsBalanceIn(false);
-    },
-  });
-
-  const { data: tokenOutBal } = useBalance({
-    address: address,
-    token: tradeStore.tokenOut.native ? undefined : tradeStore.tokenOut.address,
-    enabled:
-      tradeStore.tokenOut.address != undefined && tradeStore.needsBalanceOut,
-    watch: tradeStore.needsBalanceOut,
-    chainId: chainId,
-    onSuccess(data) {
-      tradeStore.setNeedsBalanceOut(false);
-    },
-  });
+  const { data: tokenInBal } = useTokenBalance({ token: tradeStore.tokenIn });
+  const { data: tokenOutBal } = useTokenBalance({ token: tradeStore.tokenOut });
 
   useEffect(() => {
     if (!tradeStore.needsBalanceOut) {
@@ -286,25 +238,9 @@ export default function Trade() {
 
   ////////////////////////////////Allowances
 
-  const { data: allowanceInRouter, refetch: allowanceInRefetch } =
-    useContractRead({
-      address: tradeStore.tokenIn.address,
-      abi: erc20ABI,
-      functionName: "allowance",
-      args: [address, getRouterAddress(networkName)],
-      chainId: chainId,
-      watch: true,
-      enabled:
-        tradeStore.tokenIn.address != ZERO_ADDRESS &&
-        !tradeStore.tokenIn.native,
-      onError(error) {
-        console.log("Error allowance", error);
-      },
-      onSuccess(data) {
-        tradeStore.setNeedsAllowanceIn(false);
-        // console.log("Success allowance", tradeStore.tokenIn.symbol, tradeStore.tokenIn.userRouterAllowance?.gte(amountIn));
-      },
-    });
+  const { allowance: allowanceInRouter } = useAllowance({
+    token: tradeStore.tokenIn,
+  });
 
   useEffect(() => {
     if (allowanceInRouter) {
@@ -317,59 +253,11 @@ export default function Trade() {
   ///////////////////////
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const {
-    data: tokenInData,
-    refetch: refetchTokenInInfo,
-    isLoading: isTokenInLoading,
-  } = useToken({
-    address:
-      (router.query.from as `0x${string}`) ?? (ZERO_ADDRESS as `0x${string}`),
-    enabled: router.query.from != ZERO_ADDRESS,
-    onSuccess() {
-      if (tokenInData) {
-        const newTokenIn = {
-          ...tradeStore.tokenIn,
-          ...tokenInData,
-          native:
-            router.query.fromSymbol ==
-            chainProperties[networkName].nativeCurrency.symbol
-              ? true
-              : false,
-          symbol: router.query.fromSymbol ?? tokenInData.symbol,
-        };
-        setTokenInInfo(newTokenIn);
-      } else {
-        refetchTokenInInfo();
-      }
-    },
-  });
+  const { tokenInData, refetchTokenInInfo, isTokenInLoading } =
+    useTokenInInfo();
 
-  const {
-    data: tokenOutData,
-    refetch: refetchTokenOutInfo,
-    isLoading: isTokenOutLoading,
-  } = useToken({
-    address:
-      (router.query.to as `0x${string}`) ?? (ZERO_ADDRESS as `0x${string}`),
-    enabled: router.query.to != ZERO_ADDRESS,
-    onSuccess() {
-      if (tokenOutData) {
-        const newTokenOut = {
-          ...tradeStore.tokenOut,
-          ...tokenOutData,
-          native:
-            router.query.toSymbol ==
-            chainProperties[networkName].nativeCurrency.symbol
-              ? true
-              : false,
-          symbol: router.query.toSymbol ?? tokenOutData.symbol,
-        };
-        setTokenOutInfo(newTokenOut);
-      } else {
-        refetchTokenOutInfo();
-      }
-    },
-  });
+  const { tokenOutData, refetchTokenOutInfo, isTokenOutLoading } =
+    useTokenOutInfo();
 
   useEffect(() => {
     refetchTokenInInfo();
@@ -379,12 +267,26 @@ export default function Trade() {
   const [updatedFromRouter, setUpdatedFromRouter] = useState(false);
 
   useEffect(() => {
-    if (tokenInInfo && tokenOutInfo && !updatedFromRouter) {
-      tradeStore.setTokenIn(tokenOutInfo, tokenInInfo, "0", false);
-      tradeStore.setTokenOut(tokenInInfo, tokenOutInfo, "0", false);
+    if (
+      tradeStore.tokenInInfo &&
+      tradeStore.tokenOutInfo &&
+      !updatedFromRouter
+    ) {
+      tradeStore.setTokenIn(
+        tradeStore.tokenOutInfo,
+        tradeStore.tokenInInfo,
+        "0",
+        false,
+      );
+      tradeStore.setTokenOut(
+        tradeStore.tokenInInfo,
+        tradeStore.tokenOutInfo,
+        "0",
+        false,
+      );
       setUpdatedFromRouter(true);
     }
-  }, [tokenInInfo, tokenOutInfo]);
+  }, [tradeStore.tokenInInfo, tradeStore.tokenOutInfo]);
 
   const updateRouter = () => {
     router.push({

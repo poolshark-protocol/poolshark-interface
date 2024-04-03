@@ -72,6 +72,7 @@ export default function RangeCreateAndMintButton({
   // creates new position every time
   const positionId = 0;
 
+  //* hook wrapper
   const { config } = usePrepareContractWrite({
     address: routerAddress,
     abi: poolsharkRouterABI,

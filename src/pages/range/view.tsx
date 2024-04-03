@@ -6,8 +6,6 @@ import { BigNumber, ethers } from "ethers";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import { DyDxMath } from "../../utils/math/dydxMath";
-import { rangePoolABI } from "../../abis/evm/rangePool";
-import { useContractRead } from "wagmi";
 import RemoveLiquidity from "../../components/Modals/Range/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Range/AddLiquidity";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
@@ -19,15 +17,14 @@ import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import RangeCollectButton from "../../components/Buttons/RangeCollectButton";
 import router from "next/router";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { ZERO_ADDRESS } from "../../utils/math/constants";
 import { chainProperties } from "../../utils/chains";
 import { tokenRangeLimit } from "../../utils/types";
 import RangeStakeButton from "../../components/Buttons/RangeStakeButton";
 import RangeUnstakeButton from "../../components/Buttons/RangeUnstakeButton";
-import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
-import { getRangeStakerAddress } from "../../utils/config";
 import { numFormat } from "../../utils/math/valueMath";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
+import useSnapshotRange from "../../hooks/contracts/useSnapshotRange";
+import useIsApprovedForAll from "../../hooks/contracts/useIsApprovedForAll";
 import { useShallow } from "zustand/react/shallow";
 
 export default function ViewRange() {
@@ -367,21 +364,7 @@ export default function ViewRange() {
 
   ////////////////////////////////Snapshot
 
-  const { refetch: refetchSnapshot, data: feesOwed } = useContractRead({
-    address: rangePoolAddress,
-    abi: rangePoolABI,
-    functionName: "snapshotRange",
-    args: [rangePositionData.positionId],
-    chainId: chainId,
-    watch: true,
-    enabled:
-      isConnected &&
-      rangePositionData.positionId != undefined &&
-      rangePoolAddress != ZERO_ADDRESS,
-    onError(error) {
-      console.log("Error snapshot Range", error);
-    },
-  });
+  const { refetchSnapshot, feesOwed } = useSnapshotRange();
 
   useEffect(() => {
     setFeesOwed();
@@ -406,21 +389,7 @@ export default function ViewRange() {
 
   ////////////////////////////////Range Staking
 
-  const { data: stakeApproveStatus } = useContractRead({
-    address: rangePoolData.poolToken,
-    abi: positionERC1155ABI,
-    functionName: "isApprovedForAll",
-    args: [address, getRangeStakerAddress(networkName)],
-    chainId: chainId,
-    watch: true,
-    enabled: rangePositionData.staked != undefined && !rangePositionData.staked,
-    onSuccess() {
-      // console.log('approval erc1155 fetched')
-    },
-    onError(error) {
-      console.log("Error isApprovedForAll", rangePoolData.poolToken, error);
-    },
-  });
+  const { stakeApproveStatus } = useIsApprovedForAll();
 
   // store erc-1155 approval status
   useEffect(() => {

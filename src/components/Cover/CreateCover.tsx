@@ -29,6 +29,7 @@ import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 import { getRouterAddress } from "../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
+import useAllowance from "../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 
 export default function CreateCover(props: any) {
@@ -76,21 +77,8 @@ export default function CreateCover(props: any) {
 
   ////////////////////////////////Token Allowances
 
-  const { data: allowanceInCoverInt } = useContractRead({
-    address: coverStore.tokenIn.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, getRouterAddress(networkName)],
-    chainId: chainId,
-    watch: coverStore.needsAllowance && !coverStore.tokenIn.native,
-    enabled: coverStore.tokenIn.address != undefined,
-    onSuccess(data) {
-      // setNeedsAllowance(false);
-    },
-    onError(error) {
-      console.log("Error", error);
-    },
-    onSettled(data, error) {},
+  const { allowance: allowanceInCoverInt } = useAllowance({
+    token: coverStore.tokenIn,
   });
 
   const allowanceInCover = useMemo(

@@ -101,6 +101,7 @@ export default function LimitSwapBurnButton({
 
   const [toastId, setToastId] = useState(null);
 
+  //* hook wrapper
   const { config } = usePrepareContractWrite({
     address: poolAddress,
     abi: limitPoolABI,

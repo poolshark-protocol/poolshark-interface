@@ -45,6 +45,7 @@ export default function LimitCollectButton({
     ]),
   );
 
+  //* hook wrapper
   const { config } = usePrepareContractWrite({
     address: poolAddress,
     abi: limitPoolABI,

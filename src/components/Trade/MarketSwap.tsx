@@ -22,7 +22,6 @@ import SwapRouterButton from "../Buttons/SwapRouterButton";
 import { chainProperties } from "../../utils/chains";
 import { gasEstimateSwap, gasEstimateWethCall } from "../../utils/gas";
 import JSBI from "jsbi";
-import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import { useRouter } from "next/router";
@@ -37,6 +36,7 @@ import MaxButton from "./common/MaxButton";
 import AmountOutDisplay from "./common/AmountOutDisplay";
 import InputBoxContainer from "./common/InputBoxContainer";
 import Option from "./common/Option";
+import useMultiQuote from "../../hooks/contracts/useMultiQuote";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph] = useConfigStore(
@@ -72,6 +72,7 @@ export default function MarketSwap() {
 
   const { address, isDisconnected, isConnected } = useAccount();
 
+  //* signer wrapper
   const signer = useEthersSigner();
 
   const router = useRouter();
@@ -179,8 +180,6 @@ export default function MarketSwap() {
     }
   }, [tradeStore.tokenIn.address, tradeStore.tokenOut.address]);
 
-  // console.log('token in:', tokenIn)
-
   const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) => {
     if (isAmountIn) {
       if (bnValue.gt(BN_ZERO)) {
@@ -271,27 +270,13 @@ export default function MarketSwap() {
   const [swapPoolAddresses, setSwapPoolAddresses] = useState<string[]>([]);
   const [swapParams, setSwapParams] = useState<any[]>([]);
 
-  const { data } = useContractRead({
-    address: getRouterAddress(networkName), //contract address,
-    abi: poolsharkRouterABI, // contract abi,
-    functionName: "multiQuote",
-    args: [availablePools, deepConvertBigIntAndBigNumber(quoteParams), true],
-    chainId: chainId,
-    enabled:
-      availablePools != undefined &&
-      quoteParams != undefined &&
-      !tradeStore.wethCall,
-    onError(error) {
-      console.log("Error multiquote", error);
-    },
-    onSuccess(data) {},
-  });
+  const { data: quoteData } = useMultiQuote({ availablePools, quoteParams });
 
   useEffect(() => {
     let poolQuotesSorted: QuoteResults[] = [];
-    if (data && data[0]) {
+    if (quoteData && quoteData[0]) {
       // format to use BigNumber
-      const poolQuotes = deepConvertBigIntAndBigNumber(data);
+      const poolQuotes = deepConvertBigIntAndBigNumber(quoteData);
 
       if (
         poolQuotes[0].amountIn?.gt(BN_ZERO) &&
@@ -387,7 +372,7 @@ export default function MarketSwap() {
           setDisplayIn("");
         }
       }
-    } else if (data != undefined) {
+    } else if (quoteData != undefined) {
       if (tradeStore.exactIn) {
         tradeStore.setAmountOut(BN_ZERO);
         setDisplayOut("");
@@ -396,7 +381,7 @@ export default function MarketSwap() {
         setDisplayIn("");
       }
     }
-  }, [data, quoteParams, tradeStore.tradeSlippage]);
+  }, [quoteData, quoteParams, tradeStore.tradeSlippage]);
 
   function updateSwapParams(poolQuotes: any) {
     const poolAddresses: string[] = [];
