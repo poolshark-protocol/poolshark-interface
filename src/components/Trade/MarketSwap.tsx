@@ -38,6 +38,7 @@ import InputBoxContainer from "./common/InputBoxContainer";
 import Option from "./common/Option";
 import useMultiQuote from "../../hooks/contracts/useMultiQuote";
 import useUpdateWethFee from "../../hooks/useUpdateWethFee";
+import SwapNativeButtons from "./common/SwapNativeButtons";
 
 export default function MarketSwap({
   quoteRefetchDelay,
@@ -797,20 +798,9 @@ export default function MarketSwap({
                 gasLimit={swapGasLimit}
                 resetAfterSwap={resetAfterSwap}
               />
-            ) : tradeStore.tokenIn.native ? (
-              <SwapWrapNativeButton
-                disabled={
-                  swapGasLimit.eq(BN_ZERO) || tradeStore.tradeButton.disabled
-                }
-                routerAddress={getRouterAddress(networkName)}
-                wethAddress={chainProperties[networkName]["wethAddress"]}
-                tokenInSymbol={tradeStore.tokenIn.symbol}
-                amountIn={tradeStore.amountIn}
-                gasLimit={swapGasLimit}
-                resetAfterSwap={resetAfterSwap}
-              />
             ) : (
-              <SwapUnwrapNativeButton
+              <SwapNativeButtons
+                native={tradeStore.tokenIn.native}
                 disabled={
                   swapGasLimit.eq(BN_ZERO) || tradeStore.tradeButton.disabled
                 }
