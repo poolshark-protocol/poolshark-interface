@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
+import useMultiMintLimit from "../../hooks/contracts/write/useMultiMintLimit";
 
 export default function LimitAddLiqButton({
   disabled,
@@ -50,68 +51,55 @@ export default function LimitAddLiqButton({
 
   useEffect(() => {}, [disabled]);
 
-  //* hook wrapper
-  const { config } = usePrepareContractWrite({
-    address: routerAddress,
-    abi: poolsharkRouterABI,
-    functionName: "multiMintLimit",
-    args: [
-      [poolAddress],
-      [
-        deepConvertBigIntAndBigNumber({
-          to: to,
-          amount: amount,
-          mintPercent: mintPercent,
-          positionId: positionId,
-          lower: lower,
-          upper: upper,
-          zeroForOne: zeroForOne,
-          callbackData: ethers.utils.formatBytes32String(""),
-        }),
-      ],
-    ],
-    chainId: chainId,
-    enabled: positionId != undefined,
-    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
-  });
+  const [txHash, setTxHash] = useState();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { data, write } = useContractWrite(config);
+  const onSuccess = () => {
+    toast.success("Your transaction was successful", {
+      id: toastId,
+      action: {
+        label: "View",
+        onClick: () =>
+          window.open(
+            `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+            "_blank",
+          ),
+      },
+    });
+    setNeedsSnapshot(true);
+    setNeedsAllowanceIn(true);
+    setNeedsBalanceIn(true);
+    setTimeout(() => {
+      setNeedsRefetch(true);
+      setIsOpen(false);
+    }, 2000);
+  };
 
-  const { isLoading } = useWaitForTransaction({
-    hash: data?.hash,
-    onSuccess() {
-      toast.success("Your transaction was successful", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
-      setNeedsSnapshot(true);
-      setNeedsAllowanceIn(true);
-      setNeedsBalanceIn(true);
-      setTimeout(() => {
-        setNeedsRefetch(true);
-        setIsOpen(false);
-      }, 2000);
-    },
-    onError() {
-      toast.error("Your transaction failed", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
-    },
+  const onError = () => {
+    toast.error("Your transaction failed", {
+      id: toastId,
+      action: {
+        label: "View",
+        onClick: () =>
+          window.open(
+            `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+            "_blank",
+          ),
+      },
+    });
+  };
+
+  const { config, data, write } = useMultiMintLimit({
+    positionId,
+    lower,
+    upper,
+    disabled,
+    amount,
+    gasLimit,
+    setTxHash,
+    setIsLoading,
+    onSuccess,
+    onError,
   });
 
   useEffect(() => {

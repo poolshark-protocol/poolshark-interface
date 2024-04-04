@@ -73,6 +73,7 @@ export default function RangeStakeButton({
     setUnstakeGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
 
+  //* hook wrapper
   const { config: stakeConfig } = usePrepareContractWrite({
     address: getRangeStakerAddress(networkName),
     abi: rangeStakerABI,
@@ -95,6 +96,7 @@ export default function RangeStakeButton({
 
   const { data: stakeData, write: stakeWrite } = useContractWrite(stakeConfig);
 
+  //* hook wrapper
   const { config: approveConfig } = usePrepareContractWrite({
     address: rangePoolTokenAddress,
     abi: positionERC1155ABI,

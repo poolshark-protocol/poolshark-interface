@@ -39,6 +39,7 @@ export default function RangeCompoundButton({
     },
   });
 
+  //* hook wrapper
   const { config: burnStakeConfig } = usePrepareContractWrite({
     address: getRangeStakerAddress(networkName),
     abi: rangeStakerABI,

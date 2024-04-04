@@ -44,6 +44,7 @@ export default function RangeCollectButton({
     },
   });
 
+  //* hook wrapper
   const { config: burnStakeConfig } = usePrepareContractWrite({
     address: getRangeStakerAddress(networkName),
     abi: rangeStakerABI,

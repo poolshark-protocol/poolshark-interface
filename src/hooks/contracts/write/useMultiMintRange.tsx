@@ -8,7 +8,6 @@ import { useConfigStore } from "../../useConfigStore";
 import { getRouterAddress } from "../../../utils/config";
 import { poolsharkRouterABI } from "../../../abis/evm/poolsharkRouter";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
-import { BN_ZERO } from "../../../utils/math/constants";
 import { useRangeLimitStore } from "../../useRangeLimitStore";
 import {
   getRangeMintInputData,
@@ -25,10 +24,10 @@ export default function useMultiMintRange({
   amount0,
   amount1,
   gasLimit,
-  setErrorDisplay,
-  setSuccessDisplay,
   setIsLoading,
   setTxHash,
+  onSuccess,
+  onError,
 }) {
   const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
@@ -93,9 +92,7 @@ export default function useMultiMintRange({
       ),
     ),
     onSuccess() {},
-    onError() {
-      setErrorDisplay(true);
-    },
+    onError() {},
   });
 
   const { data, write } = useContractWrite(config);
@@ -103,20 +100,10 @@ export default function useMultiMintRange({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true);
-      setNeedsBalanceIn(true);
-      setNeedsBalanceOut(true);
-      setNeedsAllowanceIn(true);
-      setNeedsRefetch(true);
-      setNeedsPosRefetch(true);
-      if (amount1.gt(BN_ZERO)) {
-        setNeedsAllowanceOut(true);
-      }
+      onSuccess();
     },
     onError() {
-      setErrorDisplay(true);
-      setNeedsRefetch(false);
-      setNeedsPosRefetch(false);
+      onError();
     },
   });
 
@@ -132,5 +119,5 @@ export default function useMultiMintRange({
     setTxHash(data?.hash);
   }, [data]);
 
-  return { config, data, write };
+  return { config, data, write, isLoading };
 }

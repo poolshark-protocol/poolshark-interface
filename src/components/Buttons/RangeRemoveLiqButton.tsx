@@ -42,6 +42,7 @@ export default function RangeRemoveLiqButton({
 
   const [toastId, setToastId] = useState(null);
 
+  //* hook wrapper
   const { config: burnConfig } = usePrepareContractWrite({
     address: poolAddress,
     abi: rangePoolABI,
@@ -58,6 +59,7 @@ export default function RangeRemoveLiqButton({
     },
   });
 
+  //* hook wrapper
   const { config: burnStakeConfig } = usePrepareContractWrite({
     address: getRangeStakerAddress(networkName),
     abi: rangeStakerABI,

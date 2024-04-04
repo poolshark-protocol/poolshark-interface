@@ -55,7 +55,25 @@ export default function RangeMintButton({
 
   const positionId = 0; /// @dev - assume new position
 
-  const { config, data, write } = useMultiMintRange({
+  const onSuccess = () => {
+    setSuccessDisplay(true);
+    setNeedsBalanceIn(true);
+    setNeedsBalanceOut(true);
+    setNeedsAllowanceIn(true);
+    setNeedsRefetch(true);
+    setNeedsPosRefetch(true);
+    if (amount1.gt(BN_ZERO)) {
+      setNeedsAllowanceOut(true);
+    }
+  };
+
+  const onError = () => {
+    setErrorDisplay(true);
+    setNeedsRefetch(false);
+    setNeedsPosRefetch(false);
+  };
+
+  const { write } = useMultiMintRange({
     positionId,
     lower,
     upper,
@@ -63,10 +81,10 @@ export default function RangeMintButton({
     amount0,
     amount1,
     gasLimit,
-    setErrorDisplay,
-    setSuccessDisplay,
     setIsLoading,
     setTxHash,
+    onSuccess,
+    onError,
   });
 
   const ConfirmTransaction = () => {

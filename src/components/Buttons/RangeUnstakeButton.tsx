@@ -71,6 +71,7 @@ export default function RangeUnstakeButton({
     setUnstakeGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
 
+  //* hook wrapper
   const { config } = usePrepareContractWrite({
     address: getRangeStakerAddress(networkName),
     abi: rangeStakerABI,

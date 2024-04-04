@@ -22,11 +22,10 @@ export default function useMultiMintLimit({
   disabled,
   amount,
   gasLimit,
-  toastId,
   setTxHash,
-  setNeedsSnapshot,
-  setIsOpen,
   setIsLoading,
+  onSuccess,
+  onError,
 }) {
   const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
@@ -88,37 +87,10 @@ export default function useMultiMintLimit({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      toast.success("Your transaction was successful", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
-      setNeedsSnapshot(true);
-      setNeedsAllowanceIn(true);
-      setNeedsBalanceIn(true);
-      setTimeout(() => {
-        setNeedsRefetch(true);
-        setIsOpen(false);
-      }, 2000);
+      onSuccess();
     },
     onError() {
-      toast.error("Your transaction failed", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
+      onError();
     },
   });
 
