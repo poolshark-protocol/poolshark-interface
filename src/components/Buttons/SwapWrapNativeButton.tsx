@@ -14,6 +14,7 @@ import { chainProperties } from "../../utils/chains";
 import { toast } from "sonner";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
+import { SwapNativeButtonsProps } from "../../utils/types";
 
 export default function SwapWrapNativeButton({
   disabled,
@@ -23,7 +24,7 @@ export default function SwapWrapNativeButton({
   amountIn,
   gasLimit,
   resetAfterSwap,
-}) {
+}: SwapNativeButtonsProps) {
   const [chainId, networkName] = useConfigStore(
     useShallow((state) => [state.chainId, state.networkName]),
   );

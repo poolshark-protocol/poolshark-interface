@@ -37,6 +37,7 @@ import AmountOutDisplay from "./common/AmountOutDisplay";
 import InputBoxContainer from "./common/InputBoxContainer";
 import Option from "./common/Option";
 import useMultiQuote from "../../hooks/contracts/useMultiQuote";
+import SwapNativeButtons from "./common/SwapNativeButtons";
 
 export default function MarketSwap() {
   const [chainId, networkName, limitSubgraph] = useConfigStore(
@@ -825,20 +826,9 @@ export default function MarketSwap() {
                 gasLimit={swapGasLimit}
                 resetAfterSwap={resetAfterSwap}
               />
-            ) : tradeStore.tokenIn.native ? (
-              <SwapWrapNativeButton
-                disabled={
-                  swapGasLimit.eq(BN_ZERO) || tradeStore.tradeButton.disabled
-                }
-                routerAddress={getRouterAddress(networkName)}
-                wethAddress={chainProperties[networkName]["wethAddress"]}
-                tokenInSymbol={tradeStore.tokenIn.symbol}
-                amountIn={tradeStore.amountIn}
-                gasLimit={swapGasLimit}
-                resetAfterSwap={resetAfterSwap}
-              />
             ) : (
-              <SwapUnwrapNativeButton
+              <SwapNativeButtons
+                native={tradeStore.tokenIn.native}
                 disabled={
                   swapGasLimit.eq(BN_ZERO) || tradeStore.tradeButton.disabled
                 }

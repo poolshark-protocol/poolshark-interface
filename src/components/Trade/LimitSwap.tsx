@@ -56,6 +56,7 @@ import InputBoxContainer from "./common/InputBoxContainer";
 import FeeTierBox from "./common/FeeTierBox";
 import PriceRangeBox from "./common/PriceRangeBox";
 import Option from "./common/Option";
+import SwapNativeButtons from "./common/SwapNativeButtons";
 
 export default function LimitSwap() {
   //CONFIG STORE
@@ -1126,20 +1127,9 @@ export default function LimitSwap() {
                 gasLimit={mintGasLimit}
               />
             )
-          ) : tradeStore.tokenIn.native ? (
-            <SwapWrapNativeButton
-              disabled={
-                swapGasLimit.eq(BN_ZERO) || tradeStore.tradeButton.disabled
-              }
-              routerAddress={getRouterAddress(networkName)}
-              wethAddress={chainProperties[networkName]["wethAddress"]}
-              tokenInSymbol={tradeStore.tokenIn.symbol}
-              amountIn={tradeStore.amountIn}
-              gasLimit={swapGasLimit}
-              resetAfterSwap={resetAfterSwap}
-            />
           ) : (
-            <SwapUnwrapNativeButton
+            <SwapNativeButtons
+              native={tradeStore.tokenIn.native}
               disabled={
                 swapGasLimit.eq(BN_ZERO) || tradeStore.tradeButton.disabled
               }
