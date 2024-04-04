@@ -4,10 +4,11 @@ import { Alchemy, Network } from "alchemy-sdk";
 import { alchemyNetworks, chainIdsToNames } from "./chains";
 import { BN_ZERO, ZERO_ADDRESS } from "./math/constants";
 import { fetchTokenPrice } from "./queries";
-import { LimitSubgraph, coinsList } from "./types";
+import { LimitSubgraph, coinsList, token } from "./types";
 import { BigNumber, ethers } from "ethers";
 import axios from "axios";
-import { numFormat, numStringFormat } from "./math/valueMath";
+import { numFormat, numStringFormat, parseUnits } from "./math/valueMath";
+import { formatUnits } from "ethers/lib/utils";
 
 export const tokenListsBaseUrl =
   "https://poolshark-token-lists.s3.amazonaws.com/blockchains";
@@ -103,22 +104,32 @@ export const getUserAllowance = (token: any, currentToken: any) => {
   return BN_ZERO;
 };
 
-export const hasAllowance = (token: any, amount: BigNumber): boolean => {
+export const hasAllowance = (token: token, amount: BigNumber): boolean => {
   if (token.native) {
     return true;
   } else if (!token.userRouterAllowance) {
     return false;
   }
-  return token.userRouterAllowance?.gte(amount?.toString());
+  if (BigNumber.isBigNumber(token.userRouterAllowance)) {
+    return token.userRouterAllowance?.gte(amount?.toString());
+  } else if (typeof token.userRouterAllowance == "number") {
+    return (
+      token.userRouterAllowance >=
+      parseFloat(formatUnits(amount, token.decimals))
+    );
+  }
+  return false;
 };
 
-export const hasBalance = (token: any, amount: BigNumber): boolean => {
+export const hasBalance = (token: token, amount: BigNumber): boolean => {
   if (token.native) {
     return true;
   } else if (!token.userBalance) {
     return false;
   }
-  return token.userBalance?.gte(amount?.toString());
+  return parseUnits(token.userBalance?.toString(), token.decimals)?.gte(
+    amount?.toString(),
+  );
 };
 
 export const fetchListedTokenBalances = async (
