@@ -7,6 +7,7 @@ import { useEthersSigner } from "../utils/viemEthersAdapters";
 import { useAccount } from "wagmi";
 import { useTradeStore } from "./useTradeStore";
 import { BigNumber } from "ethers";
+import { hasAllowance } from "../utils/tokens";
 
 const useUpdateWethFee = ({
   setSwapGasFee,
@@ -26,7 +27,7 @@ const useUpdateWethFee = ({
   );
 
   const updateWethFee = async () => {
-    if (tokenIn.userRouterAllowance?.gte(amountIn) || tokenIn.native) {
+    if (hasAllowance(tokenIn, amountIn)) {
       await gasEstimateWethCall(
         chainProperties[networkName]["wethAddress"],
         tokenIn,

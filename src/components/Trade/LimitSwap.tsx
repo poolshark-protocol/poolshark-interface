@@ -44,7 +44,7 @@ import {
 import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import JSBI from "jsbi";
-import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice, hasAllowance } from "../../utils/tokens";
 import BalanceDisplay from "../Display/BalanceDisplay";
 import { getRouterAddress } from "../../utils/config";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
@@ -708,8 +708,7 @@ export default function LimitSwap({
 
   async function updateMintFee() {
     if (
-      (tradeStore.tokenIn.native ||
-        tradeStore.tokenIn.userRouterAllowance?.gte(tradeStore.amountIn)) &&
+      hasAllowance(tradeStore.tokenIn, tradeStore.amountIn) &&
       lowerTick?.lt(upperTick)
     )
       if (tradeStore.tradePoolData?.id != ZERO_ADDRESS) {
@@ -1050,8 +1049,7 @@ export default function LimitSwap({
         <ConnectWalletButton xl={true} />
       ) : (
         <>
-          {tradeStore.tokenIn.userRouterAllowance?.lt(tradeStore.amountIn) &&
-          !tradeStore.tokenIn.native &&
+          {!hasAllowance(tradeStore.tokenIn, tradeStore.amountIn) &&
           tradeStore.pairSelected ? (
             <SwapRouterApproveButton
               routerAddress={getRouterAddress(networkName)}
