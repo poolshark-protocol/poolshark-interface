@@ -19,7 +19,12 @@ import { limitPoolTypeIds } from "../../utils/pools";
 import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import JSBI from "jsbi";
-import { getLogo, logoMapKey, nativeString } from "../../utils/tokens";
+import {
+  hasAllowance,
+  getLogo,
+  logoMapKey,
+  nativeString,
+} from "../../utils/tokens";
 import { getRouterAddress } from "../../utils/config";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { useShallow } from "zustand/react/shallow";
@@ -82,10 +87,8 @@ export default function RangePoolPreview() {
         rangeMintParams.tokenOutAmount?.gt(BN_ZERO)) &&
       Number(rangePositionData.lowerPrice) <
         Number(rangePositionData.upperPrice) && // valid price range
-      (tokenIn.userRouterAllowance?.gte(rangeMintParams.tokenInAmount) ||
-        tokenIn.native) && // allowance in
-      (tokenOut.userRouterAllowance?.gte(rangeMintParams.tokenOutAmount) ||
-        tokenOut.native) && // allowance out
+      hasAllowance(tokenIn, rangeMintParams.tokenInAmount) && // allowance in
+      hasAllowance(tokenOut, rangeMintParams.tokenOutAmount) && // allowance out
       JSBI.greaterThan(rangeMintParams.liquidityAmount, ONE) // non-zero liquidity
     ) {
       updateGasFee();
@@ -386,14 +389,14 @@ export default function RangePoolPreview() {
                         </div>
                       </div>
                       <div className="mt-4">
-                        {tokenIn.userRouterAllowance?.lt(
+                        {!hasAllowance(
+                          tokenIn,
                           rangeMintParams.tokenInAmount,
                         ) &&
-                        tokenOut.userRouterAllowance?.lt(
+                        !hasAllowance(
+                          tokenOut,
                           rangeMintParams.tokenOutAmount,
-                        ) &&
-                        !tokenIn.native &&
-                        !tokenOut.native ? (
+                        ) ? (
                           <RangeMintDoubleApproveButton
                             routerAddress={getRouterAddress(networkName)}
                             tokenIn={tokenIn}
@@ -401,17 +404,19 @@ export default function RangePoolPreview() {
                             amount0={rangeMintParams.tokenInAmount}
                             amount1={rangeMintParams.tokenOutAmount}
                           />
-                        ) : tokenIn.userRouterAllowance?.lt(
+                        ) : !hasAllowance(
+                            tokenIn,
                             rangeMintParams.tokenInAmount,
-                          ) && !tokenIn.native ? (
+                          ) ? (
                           <RangeMintApproveButton
                             routerAddress={getRouterAddress(networkName)}
                             approveToken={tokenIn}
                             amount={rangeMintParams.tokenInAmount}
                           />
-                        ) : tokenOut.userRouterAllowance?.lt(
+                        ) : !hasAllowance(
+                            tokenOut,
                             rangeMintParams.tokenOutAmount,
-                          ) && !tokenOut.native ? (
+                          ) ? (
                           <RangeMintApproveButton
                             routerAddress={getRouterAddress(networkName)}
                             approveToken={tokenOut}
