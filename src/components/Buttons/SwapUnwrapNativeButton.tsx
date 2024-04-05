@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { useEffect } from "react";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
+import { SwapNativeButtonsProps } from "../../utils/types";
 
 export default function SwapUnwrapNativeButton({
   disabled,
@@ -25,7 +26,7 @@ export default function SwapUnwrapNativeButton({
   amountIn,
   gasLimit,
   resetAfterSwap,
-}) {
+}: SwapNativeButtonsProps) {
   const [chainId, networkName] = useConfigStore(
     useShallow((state) => [state.chainId, state.networkName]),
   );

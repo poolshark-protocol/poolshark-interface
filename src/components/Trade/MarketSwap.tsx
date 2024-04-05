@@ -15,8 +15,6 @@ import {
 import { getSwapPools } from "../../utils/pools";
 import { QuoteParams, SwapParams, QuoteResults } from "../../utils/types";
 import { TickMath, maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
-import { displayPoolPrice } from "../../utils/math/priceMath";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import Range from "../Icons/RangeIcon";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
@@ -32,7 +30,14 @@ import { getRouterAddress } from "../../utils/config";
 import BalanceDisplay from "../Display/BalanceDisplay";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import SwitchDirection from "./common/SwitchDirection";
+import AmountInDisplay from "./common/AmountInDisplay";
+import MaxButton from "./common/MaxButton";
+import AmountOutDisplay from "./common/AmountOutDisplay";
+import InputBoxContainer from "./common/InputBoxContainer";
+import Option from "./common/Option";
 import useMultiQuote from "../../hooks/contracts/useMultiQuote";
+import SwapNativeButtons from "./common/SwapNativeButtons";
 import { hasAllowance, hasBalance } from "../../utils/tokens";
 
 export default function MarketSwap() {
@@ -535,104 +540,22 @@ export default function MarketSwap() {
     tradeStore.tokenIn.userRouterAllowance,
   ]);
 
-  ////////////////////////////////
-  const [expanded, setExpanded] = useState(false);
-
-  const Option = () => {
-    if (expanded) {
-      return (
-        <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Expected Output</div>
-            <div
-              className={`ml-auto text-xs ${
-                tradeStore.pairSelected ? "text-white" : "text-[#4C4C4C]"
-              }`}
-            >
-              {tradeStore.pairSelected
-                ? numFormat(
-                    parseFloat(
-                      ethers.utils.formatUnits(
-                        tradeStore.amountOut ?? BN_ZERO,
-                        tradeStore.tokenOut.decimals,
-                      ),
-                    ),
-                    5,
-                  )
-                : "Select Token"}
-            </div>
-          </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            <div
-              className={`ml-auto text-xs ${
-                !hasAllowance(tradeStore.tokenIn, tradeStore.amountIn)
-                  ? "text-[#4C4C4C]"
-                  : "text-white"
-              }`}
-            >
-              {!hasAllowance(tradeStore.tokenIn, tradeStore.amountIn)
-                ? "Approve Token"
-                : swapGasFee}
-            </div>
-          </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">
-              Minimum received after slippage ({tradeStore.tradeSlippage}%)
-            </div>
-            <div className="ml-auto text-xs">
-              {numFormat(
-                (parseFloat(
-                  ethers.utils.formatUnits(
-                    tradeStore.amountOut,
-                    tradeStore.tokenOut.decimals,
-                  ),
-                ) *
-                  (100 - parseFloat(tradeStore.tradeSlippage))) /
-                  100,
-                5,
-              )}
-            </div>
-          </div>
-
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Price Impact</div>
-            <div className="ml-auto text-xs">
-              {tradeStore.pairSelected
-                ? priceImpact
-                  ? priceImpact + "%"
-                  : "0.00%"
-                : "Select Token"}
-            </div>
-          </div>
-        </div>
-      );
-    }
-  };
-
   return (
     <div>
-      <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+      <InputBoxContainer>
         <div className="flex items-end justify-between text-[11px] text-grey1">
-          <span>
-            {" "}
-            $
-            {!isNaN(parseInt(tradeStore.amountIn.toString())) &&
-            !isNaN(tradeStore.tokenIn.decimals) &&
-            !isNaN(tradeStore.tokenIn.USDPrice)
-              ? (
-                  (!isNaN(parseFloat(displayIn)) ? parseFloat(displayIn) : 0) *
-                  (tradeStore.tokenIn.USDPrice ?? 0)
-                ).toFixed(2)
-              : (0).toFixed(2)}
-          </span>
+          <AmountInDisplay
+            amountIn={tradeStore.amountIn}
+            tokenIn={tradeStore.tokenIn}
+            displayIn={displayIn}
+          />
           <BalanceDisplay token={tradeStore.tokenIn}></BalanceDisplay>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3">
           {inputBoxIn("0", tradeStore.tokenIn, "tokenIn", handleInputBox)}
           <div className="flex items-center gap-x-2">
             {isConnected && tradeStore.tokenIn.address != ZERO_ADDRESS ? (
-              <button
+              <MaxButton
                 onClick={() => {
                   handleInputBox({
                     target: {
@@ -641,10 +564,7 @@ export default function MarketSwap() {
                     },
                   });
                 }}
-                className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
-              >
-                MAX
-              </button>
+              />
             ) : null}
             <SelectToken
               index="0"
@@ -660,65 +580,34 @@ export default function MarketSwap() {
             />
           </div>
         </div>
-      </div>
-      <div
-        onClick={() => {
-          tradeStore.switchDirection(
-            tradeStore.exactIn,
-            tradeStore.exactIn ? displayIn : displayOut,
-            tradeStore.exactIn
-              ? tradeStore.setAmountIn
-              : tradeStore.setAmountOut,
-          );
-        }}
-        className="flex items-center justify-center w-full pt-10 pb-3"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="1.5"
-          stroke="currentColor"
-          className="w-5 cursor-pointer"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
-          />
-        </svg>
-      </div>
+      </InputBoxContainer>
+
+      <SwitchDirection
+        displayIn={displayIn}
+        displayOut={displayOut}
+        switchDirection={tradeStore.switchDirection}
+        exactIn={tradeStore.exactIn}
+        setAmountIn={tradeStore.setAmountIn}
+        setAmountOut={tradeStore.setAmountOut}
+      />
+
       <span className="text-[11px] text-grey1">TO</span>
-      <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+      <InputBoxContainer>
         <div className="flex items-end justify-between text-[11px] text-grey1">
-          <span>
-            $
-            {!isNaN(tradeStore.tokenOut.decimals) &&
-            !isNaN(tradeStore.tokenOut.USDPrice) ? (
-              (
-                (!isNaN(parseFloat(displayOut)) ? parseFloat(displayOut) : 0) *
-                (tradeStore.tokenOut.USDPrice ?? 0)
-              ).toFixed(2)
-            ) : (
-              <>{(0).toFixed(2)}</>
-            )}
-          </span>
+          <AmountOutDisplay
+            displayOut={displayOut}
+            tokenOut={tradeStore.tokenOut}
+          />
           <BalanceDisplay token={tradeStore.tokenOut}></BalanceDisplay>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-          {
-            <div>
-              {inputBoxOut(
-                "0",
-                tradeStore.tokenOut,
-                "tokenOut",
-                handleInputBox,
-              )}
-            </div>
-          }
+          <div>
+            {inputBoxOut("0", tradeStore.tokenOut, "tokenOut", handleInputBox)}
+          </div>
+
           <div className="flex items-center gap-x-2">
             {isConnected && tradeStore.tokenOut.address != ZERO_ADDRESS ? (
-              <button
+              <MaxButton
                 onClick={() => {
                   handleInputBox({
                     target: {
@@ -727,10 +616,7 @@ export default function MarketSwap() {
                     },
                   });
                 }}
-                className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
-              >
-                MAX
-              </button>
+              />
             ) : null}
             <SelectToken
               key={"out"}
@@ -746,34 +632,53 @@ export default function MarketSwap() {
             />
           </div>
         </div>
-      </div>
-      <div className="py-2">
-        <div
-          className="flex px-2 cursor-pointer py-2 rounded-[4px]"
-          onClick={() => setExpanded(!expanded)}
-        >
-          <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-            {"1 " + tradeStore.tokenIn.symbol} ={" "}
-            {displayPoolPrice(
-              tradeStore.wethCall,
-              tradeStore.pairSelected,
-              tradeStore.tradePoolData?.poolPrice,
-              tradeStore.tokenIn,
-              tradeStore.tokenOut,
-            ) +
-              " " +
-              tradeStore.tokenOut.symbol}
-          </div>
-          <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
-            <button>
-              <ChevronDownIcon className="w-4 h-4" />
-            </button>
+      </InputBoxContainer>
+
+      <Option>
+        <div className="flex p-1">
+          <div className="text-xs text-[#4C4C4C]">Network Fee</div>
+          <div
+            className={`ml-auto text-xs ${
+              !hasAllowance(tradeStore.tokenIn, tradeStore.amountIn)
+                ? "text-[#4C4C4C]"
+                : "text-white"
+            }`}
+          >
+            {!hasAllowance(tradeStore.tokenIn, tradeStore.amountIn)
+              ? "Approve Token"
+              : swapGasFee}
           </div>
         </div>
-        <div className="flex-wrap w-full break-normal transition ">
-          <Option />
+        <div className="flex p-1">
+          <div className="text-xs text-[#4C4C4C]">
+            Minimum received after slippage ({tradeStore.tradeSlippage}%)
+          </div>
+          <div className="ml-auto text-xs">
+            {numFormat(
+              (parseFloat(
+                ethers.utils.formatUnits(
+                  tradeStore.amountOut,
+                  tradeStore.tokenOut.decimals,
+                ),
+              ) *
+                (100 - parseFloat(tradeStore.tradeSlippage))) /
+                100,
+              5,
+            )}
+          </div>
         </div>
-      </div>
+        <div className="flex p-1">
+          <div className="text-xs text-[#4C4C4C]">Price Impact</div>
+          <div className="ml-auto text-xs">
+            {tradeStore.pairSelected
+              ? priceImpact
+                ? priceImpact + "%"
+                : "0.00%"
+              : "Select Token"}
+          </div>
+        </div>
+      </Option>
+
       {parseFloat(priceImpact) > 5 && (
         <div
           className={`flex justify-between px-5 rounded-[4px] w-full border items-center text-xs py-2  mb-4 ${
@@ -914,20 +819,9 @@ export default function MarketSwap() {
                 gasLimit={swapGasLimit}
                 resetAfterSwap={resetAfterSwap}
               />
-            ) : tradeStore.tokenIn.native ? (
-              <SwapWrapNativeButton
-                disabled={
-                  swapGasLimit.eq(BN_ZERO) || tradeStore.tradeButton.disabled
-                }
-                routerAddress={getRouterAddress(networkName)}
-                wethAddress={chainProperties[networkName]["wethAddress"]}
-                tokenInSymbol={tradeStore.tokenIn.symbol}
-                amountIn={tradeStore.amountIn}
-                gasLimit={swapGasLimit}
-                resetAfterSwap={resetAfterSwap}
-              />
             ) : (
-              <SwapUnwrapNativeButton
+              <SwapNativeButtons
+                native={tradeStore.tokenIn.native}
                 disabled={
                   swapGasLimit.eq(BN_ZERO) || tradeStore.tradeButton.disabled
                 }
