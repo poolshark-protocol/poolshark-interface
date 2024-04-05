@@ -15,6 +15,7 @@ import {
 } from "../../../utils/buttons";
 import { getRangeStakerAddress } from "../../../utils/config";
 import { useEffect } from "react";
+import { getZeroForOne, hasBalance } from "../../../utils/tokens";
 
 export default function useMultiMintRange({
   positionId,
@@ -91,6 +92,9 @@ export default function useMultiMintRange({
         rangeMintParams.tokenOutAmount,
       ),
     ),
+    enabled: getZeroForOne(tokenIn, tokenOut)
+      ? hasBalance(tokenIn, amount0) && hasBalance(tokenOut, amount1)
+      : hasBalance(tokenIn, amount1) && hasBalance(tokenOut, amount0),
     onSuccess() {},
     onError() {},
   });

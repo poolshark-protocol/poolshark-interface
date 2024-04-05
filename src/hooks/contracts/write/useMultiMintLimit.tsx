@@ -14,6 +14,7 @@ import { ethers } from "ethers";
 import { toast } from "sonner";
 import { parseUnits } from "viem";
 import { chainProperties } from "../../../utils/chains";
+import { hasBalance } from "../../../utils/tokens";
 
 export default function useMultiMintLimit({
   positionId,
@@ -78,7 +79,7 @@ export default function useMultiMintLimit({
       ],
     ],
     chainId: chainId,
-    enabled: positionId != undefined,
+    enabled: positionId != undefined && hasBalance(tokenIn, amount),
     gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
   });
 
