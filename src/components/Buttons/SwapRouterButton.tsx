@@ -69,6 +69,8 @@ export default function SwapRouterButton({
   const { address } = useAccount();
   const userAddress = address;
 
+  console.log("pool check", poolAddresses.length > 0, swapParams.length > 0);
+
   const { config } = usePrepareContractWrite({
     address: routerAddress,
     abi: poolsharkRouterABI,

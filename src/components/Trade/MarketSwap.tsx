@@ -466,7 +466,6 @@ export default function MarketSwap() {
   useEffect(() => {
     if (
       !tradeStore.amountIn.eq(BN_ZERO) &&
-      (!tradeStore.needsAllowanceIn || tradeStore.tokenIn.native) &&
       tradeStore.tradePoolData != undefined &&
       !tradeStore.wethCall
     ) {
@@ -487,6 +486,11 @@ export default function MarketSwap() {
   ]);
 
   async function updateGasFee() {
+    console.log(
+      "gas fee check:",
+      hasAllowance(tradeStore.tokenIn, tradeStore.amountIn),
+      hasBalance(tradeStore.tokenIn, tradeStore.amountIn),
+    );
     if (
       hasAllowance(tradeStore.tokenIn, tradeStore.amountIn) &&
       hasBalance(tradeStore.tokenIn, tradeStore.amountIn) &&
@@ -805,7 +809,6 @@ export default function MarketSwap() {
               <SwapRouterButton
                 disabled={
                   tradeStore.tradeButton.disabled ||
-                  (tradeStore.needsAllowanceIn && !tradeStore.tokenIn.native) ||
                   swapGasLimit.lt(BigNumber.from("100000"))
                 }
                 routerAddress={getRouterAddress(networkName)}
