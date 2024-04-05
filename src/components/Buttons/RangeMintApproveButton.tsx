@@ -27,7 +27,6 @@ export default function RangeMintApproveButton({
     (state) => state.setNeedsAllowanceIn,
   );
 
-  //* hook wrapper
   const { config: t0 } = usePrepareContractWrite({
     address: approveToken.address,
     abi: erc20ABI,

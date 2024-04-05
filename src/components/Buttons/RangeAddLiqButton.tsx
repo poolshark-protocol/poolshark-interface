@@ -95,7 +95,6 @@ export default function RangeAddLiqButton({
     setNeedsPosRefetch(false);
   };
 
-  //* hook wrapper
   const { config, data, write, isLoading } = useMultiMintRange({
     positionId,
     lower,
