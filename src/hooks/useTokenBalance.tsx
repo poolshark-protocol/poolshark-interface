@@ -4,7 +4,7 @@ import { useConfigStore } from "./useConfigStore";
 import { ZERO_ADDRESS } from "../utils/math/constants";
 import { useRouter } from "next/router";
 
-export default function useTokenBalance(token) {
+export default function useTokenBalance({ token }) {
   const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
