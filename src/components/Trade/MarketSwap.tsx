@@ -22,8 +22,6 @@ import SwapRouterButton from "../Buttons/SwapRouterButton";
 import { chainProperties } from "../../utils/chains";
 import { gasEstimateSwap } from "../../utils/gas";
 import JSBI from "jsbi";
-import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
-import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { getRouterAddress } from "../../utils/config";

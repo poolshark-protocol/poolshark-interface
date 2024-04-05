@@ -41,8 +41,6 @@ import {
   gasEstimateMintLimit,
   gasEstimateWethCall,
 } from "../../utils/gas";
-import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
-import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import JSBI from "jsbi";
 import { fetchRangeTokenUSDPrice, hasAllowance } from "../../utils/tokens";
 import BalanceDisplay from "../Display/BalanceDisplay";
