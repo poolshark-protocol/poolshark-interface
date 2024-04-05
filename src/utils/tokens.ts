@@ -122,9 +122,7 @@ export const hasAllowance = (token: token, amount: BigNumber): boolean => {
 };
 
 export const hasBalance = (token: token, amount: BigNumber): boolean => {
-  if (token.native) {
-    return true;
-  } else if (!token.userBalance) {
+  if (!token.userBalance) {
     return false;
   }
   return parseUnits(token.userBalance?.toString(), token.decimals)?.gte(
