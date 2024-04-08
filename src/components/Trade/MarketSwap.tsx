@@ -37,6 +37,7 @@ import Option from "./common/Option";
 import useMultiQuote from "../../hooks/contracts/useMultiQuote";
 import useUpdateWethFee from "../../hooks/useUpdateWethFee";
 import SwapNativeButtons from "./common/SwapNativeButtons";
+import { hasAllowance, hasBalance } from "../../utils/tokens";
 
 export default function MarketSwap({
   quoteRefetchDelay,
@@ -492,12 +493,8 @@ export default function MarketSwap({
 
   async function updateGasFee() {
     if (
-      (tradeStore.tokenIn.userRouterAllowance?.gte(tradeStore.amountIn) ||
-        (tradeStore.tokenIn.native &&
-          parseUnits(
-            tradeStore.tokenIn.userBalance?.toString(),
-            tradeStore.tokenIn.decimals,
-          ).gte(tradeStore.amountIn))) &&
+      hasAllowance(tradeStore.tokenIn, tradeStore.amountIn) &&
+      hasBalance(tradeStore.tokenIn, tradeStore.amountIn) &&
       !tradeStore.wethCall
     ) {
       await gasEstimateSwap(
@@ -618,12 +615,12 @@ export default function MarketSwap({
           <div className="text-xs text-[#4C4C4C]">Network Fee</div>
           <div
             className={`ml-auto text-xs ${
-              tradeStore.tokenIn.userRouterAllowance?.lt(tradeStore.amountIn)
+              !hasAllowance(tradeStore.tokenIn, tradeStore.amountIn)
                 ? "text-[#4C4C4C]"
                 : "text-white"
             }`}
           >
-            {tradeStore.tokenIn.userRouterAllowance?.lt(tradeStore.amountIn)
+            {!hasAllowance(tradeStore.tokenIn, tradeStore.amountIn)
               ? "Approve Token"
               : swapGasFee}
           </div>
@@ -769,8 +766,7 @@ export default function MarketSwap({
         <>
           {
             //range buttons
-            tradeStore.tokenIn.userRouterAllowance?.lt(tradeStore.amountIn) &&
-            !tradeStore.tokenIn.native &&
+            !hasAllowance(tradeStore.tokenIn, tradeStore.amountIn) &&
             tradeStore.pairSelected &&
             tradeStore.amountOut.gt(BN_ZERO) ? (
               <div>

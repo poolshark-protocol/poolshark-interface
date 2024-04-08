@@ -28,6 +28,7 @@ import {
 import { weth9ABI } from "../abis/evm/weth9";
 import { rangeStakerABI } from "../abis/evm/rangeStaker";
 import { getRangeStakerAddress, getRouterAddress } from "./config";
+import { hasAllowance } from "./tokens";
 
 export interface gasEstimateResult {
   formattedPrice: string;
@@ -192,7 +193,7 @@ export const gasEstimateMintLimit = async (
       !rangePoolRoute ||
       rangePoolRoute == ZERO_ADDRESS ||
       !signer.provider ||
-      tokenIn.userRouterAllowance?.lt(bnInput)
+      !hasAllowance(tokenIn, bnInput)
     ) {
       setMintGasFee("$0.00");
       setMintGasLimit(BN_ZERO);
@@ -264,7 +265,7 @@ export const gasEstimateLimitCreateAndMint = async (
     if (
       !signer.provider ||
       !isNaN(parseFloat(startPrice)) ||
-      tokenIn.userRouterAllowance?.lt(bnInput)
+      !hasAllowance(tokenIn, bnInput)
     ) {
       setMintGasFee("$0.00");
       setMintGasLimit(BN_ZERO);
