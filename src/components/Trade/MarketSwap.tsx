@@ -7,11 +7,7 @@ import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
 import { BN_ZERO, Q96_BI, ZERO_ADDRESS } from "../../utils/math/constants";
 import SelectToken from "../SelectToken";
-import {
-  inputHandler,
-  numFormat,
-  parseUnits,
-} from "../../utils/math/valueMath";
+import { numFormat, parseUnits } from "../../utils/math/valueMath";
 import { getSwapPools } from "../../utils/pools";
 import { QuoteParams, SwapParams, QuoteResults } from "../../utils/types";
 import { TickMath, maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
@@ -45,7 +41,6 @@ export default function MarketSwap({
 }: {
   quoteRefetchDelay: number;
 }) {
-  //CONFIG STORE
   const [chainId, networkName, limitSubgraph] = useConfigStore(
     useShallow((state) => [
       state.chainId,

@@ -10,11 +10,7 @@ import LimitSwapButton from "../Buttons/LimitSwapButton";
 import SelectToken from "../SelectToken";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { BigNumber, ethers } from "ethers";
-import {
-  inputHandler,
-  numFormat,
-  parseUnits,
-} from "../../utils/math/valueMath";
+import { numFormat, parseUnits } from "../../utils/math/valueMath";
 import {
   getLimitPoolForFeeTier,
   getSwapPools,
