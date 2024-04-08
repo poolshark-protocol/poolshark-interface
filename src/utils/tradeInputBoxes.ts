@@ -1,16 +1,18 @@
+import { BigNumber } from "ethers";
 import { BN_ZERO } from "./math/constants";
 import { inputHandler } from "./math/valueMath";
+import { TradeLimitAction, TradeState } from "../hooks/useTradeStore";
 
 type TradeInputBoxesType = {
-  tradeStore: any;
-  setDisplayIn: any;
-  setDisplayOut: any;
-  setAmounts: any;
-  setPriceImpact?: any;
+  tradeStore: TradeState & TradeLimitAction;
+  setDisplayIn: (s: string) => void;
+  setDisplayOut: (s: string) => void;
+  setAmounts: (bnValue: BigNumber, isAmountIn: boolean) => void;
+  setPriceImpact?: (s: string) => void;
 };
 
 export const tradeInputBoxes = (
-  e: any,
+  e: { target: { value: string; name: string } },
   {
     tradeStore,
     setDisplayIn,
