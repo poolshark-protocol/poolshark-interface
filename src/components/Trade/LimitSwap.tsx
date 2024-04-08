@@ -20,14 +20,8 @@ import {
   getSwapPools,
   limitPoolTypeIds,
 } from "../../utils/pools";
-import { QuoteParams } from "../../utils/types";
 
-import {
-  TickMath,
-  invertPrice,
-  maxPriceBn,
-  minPriceBn,
-} from "../../utils/math/tickMath";
+import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import {
   getExpectedAmountInFromOutput,
   getExpectedAmountOutFromInput,
@@ -39,10 +33,7 @@ import inputFilter from "../../utils/inputFilter";
 import {
   gasEstimateLimitCreateAndMint,
   gasEstimateMintLimit,
-  gasEstimateWethCall,
 } from "../../utils/gas";
-import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
-import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import JSBI from "jsbi";
 import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import BalanceDisplay from "../Display/BalanceDisplay";
@@ -64,7 +55,6 @@ export default function LimitSwap({
 }: {
   quoteRefetchDelay: number;
 }) {
-  //CONFIG STORE
   const [networkName, limitSubgraph] = useConfigStore(
     useShallow((state) => [state.networkName, state.limitSubgraph]),
   );
@@ -85,12 +75,7 @@ export default function LimitSwap({
   const signer = useEthersSigner();
   const [priceRangeSelected, setPriceRangeSelected] = useState(false);
 
-  const [swapParams, setSwapParams] = useState<any[]>([]);
-
   /////////////////////////////Fetch Pools
-  const [availablePools, setAvailablePools] = useState(undefined);
-  const [quoteParams, setQuoteParams] = useState(undefined);
-  const [availableFeeTiers, setAvailableFeeTiers] = useState([]);
   const [selectedFeeTier, setSelectedFeeTier] = useState("3000");
 
   useEffect(() => {
@@ -151,10 +136,7 @@ export default function LimitSwap({
       // adjust decimals when switching directions
       if (!tradeStore.wethCall)
         // only update pools if !wethCall
-        updatePools(
-          tradeStore.exactIn ? tradeStore.amountIn : tradeStore.amountOut,
-          tradeStore.exactIn,
-        );
+        updatePools();
     }
     tradeStore.setNeedsPairUpdate(false);
     tradeStore.setNeedsSetAmounts(true);
@@ -185,7 +167,7 @@ export default function LimitSwap({
   }, [tradeStore.needsSetAmounts, tradeStore.tradePoolData?.id]);
 
   //can go to utils
-  async function updatePools(amount: BigNumber, isAmountIn: boolean) {
+  async function updatePools() {
     const pools = await getSwapPools(
       limitSubgraph,
       tradeStore.tokenIn,
@@ -199,26 +181,9 @@ export default function LimitSwap({
       limitPoolTypeIds["constant-product-1.1"],
       setSelectedFeeTier,
     );
-    const poolAdresses: string[] = [];
-    const quoteList: QuoteParams[] = [];
-    if (pools) {
-      for (let i = 0; i < pools.length; i++) {
-        const params: QuoteParams = {
-          priceLimit: tradeStore.tokenIn.callId == 0 ? minPriceBn : maxPriceBn,
-          amount: amount,
-          exactIn: isAmountIn,
-          zeroForOne: tradeStore.tokenIn.callId == 0,
-        };
-        quoteList[i] = params;
-        poolAdresses[i] = pools[i].id;
-        availableFeeTiers[i] = pools[i].feeTier.id;
-      }
-    }
-    if (pools?.length == 1) {
+    if (pools?.length >= 1) {
       setSelectedFeeTier(pools[0].feeTier.id);
     }
-    setAvailablePools(poolAdresses);
-    setQuoteParams(quoteList);
   }
 
   const handleManualFeeTierChange = async (feeAmount: number) => {
@@ -249,6 +214,8 @@ export default function LimitSwap({
 
   /////////////////////Double Input Boxes
 
+  // @stormcloud266
+  // util function
   const handleInputBox = (e) => {
     if (e.target.name === "tokenIn") {
       const [value, bnValue] = inputHandler(e, tradeStore.tokenIn);
@@ -264,6 +231,7 @@ export default function LimitSwap({
         setDisplayIn(value);
         if (bnValue.eq(BN_ZERO)) {
           setDisplayOut("");
+          setPriceImpact("0.00");
         }
       }
       tradeStore.setExactIn(true);
@@ -693,7 +661,6 @@ export default function LimitSwap({
       updateWethFee();
     }
   }, [
-    swapParams,
     tradeStore.tokenIn.address,
     tradeStore.tokenOut.address,
     tradeStore.tokenIn.native,

@@ -71,6 +71,8 @@ export default function Trade() {
   const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
   const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
 
+  // @stormcloud266
+  // smaller component for token USD price
   useEffect(() => {
     if (
       tradeStore.tokenIn.address != ZERO_ADDRESS &&
@@ -85,6 +87,8 @@ export default function Trade() {
     }
   }, [tradeStore.tokenIn.address]);
 
+  // @stormcloud266
+  // smaller component for token USD price
   useEffect(() => {
     if (
       tradeStore.tokenOut.address != ZERO_ADDRESS &&
@@ -99,7 +103,7 @@ export default function Trade() {
     }
   }, [tradeStore.tokenOut.address]);
 
-  ////////////////////////////////Filled Amount
+  ////////////////////////////////Limit LP Fills
 
   const { data: filledAmountListInt } = useMultiSnapshotLimit();
 
@@ -112,9 +116,12 @@ export default function Trade() {
     }
   }, [filledAmountListInt]);
 
-  //////////////////////Position Data
+  //////////////////////Limit Subgraph Data
 
+  // Active Orders
   const [allLimitPositions, setAllLimitPositions] = useState([]);
+
+  // Order History
   const [allHistoricalOrders, setAllHistoricalOrders] = useState([]);
 
   useEffect(() => {

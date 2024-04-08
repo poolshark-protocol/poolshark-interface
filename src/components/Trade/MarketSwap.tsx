@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
-import { useAccount, useContractRead } from "wagmi";
+import { useAccount } from "wagmi";
 import { useShallow } from "zustand/react/shallow";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
@@ -22,8 +22,6 @@ import SwapRouterButton from "../Buttons/SwapRouterButton";
 import { chainProperties } from "../../utils/chains";
 import { gasEstimateSwap } from "../../utils/gas";
 import JSBI from "jsbi";
-import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
-import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { getRouterAddress } from "../../utils/config";
@@ -216,6 +214,9 @@ export default function MarketSwap({
 
   /////////////////////Double Input Boxes
 
+  // @stormcloud266
+  // util function
+  // use this one as the source of truth - @alphak3y
   const handleInputBox = (e) => {
     if (e.target.name.startsWith("tokenIn")) {
       const [value, bnValue] = inputHandler(
