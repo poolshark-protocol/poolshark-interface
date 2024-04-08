@@ -49,6 +49,7 @@ import PriceRangeBox from "./common/PriceRangeBox";
 import Option from "./common/Option";
 import useUpdateWethFee from "../../hooks/useUpdateWethFee";
 import SwapNativeButtons from "./common/SwapNativeButtons";
+import { tradeInputBoxes } from "../../utils/tradeInputBoxes";
 
 export default function LimitSwap({
   quoteRefetchDelay,
@@ -213,47 +214,14 @@ export default function LimitSwap({
   };
 
   /////////////////////Double Input Boxes
-
-  // @stormcloud266
-  // util function
-  const handleInputBox = (e) => {
-    if (e.target.name === "tokenIn") {
-      const [value, bnValue] = inputHandler(e, tradeStore.tokenIn);
-      if (!tradeStore.pairSelected) {
-        setDisplayIn(value);
-        setDisplayOut("");
-        tradeStore.setAmountIn(bnValue);
-      } else if (!bnValue.eq(tradeStore.amountIn)) {
-        setDisplayIn(value);
-        tradeStore.setAmountIn(bnValue);
-        setAmounts(bnValue, true);
-      } else {
-        setDisplayIn(value);
-        if (bnValue.eq(BN_ZERO)) {
-          setDisplayOut("");
-          setPriceImpact("0.00");
-        }
-      }
-      tradeStore.setExactIn(true);
-    } else if (e.target.name === "tokenOut") {
-      const [value, bnValue] = inputHandler(e, tradeStore.tokenOut);
-      if (!tradeStore.pairSelected) {
-        setDisplayOut(value);
-        setDisplayIn("");
-        tradeStore.setAmountOut(bnValue);
-      } else if (!bnValue.eq(tradeStore.amountOut)) {
-        setDisplayOut(value);
-        tradeStore.setAmountOut(bnValue);
-        setAmounts(bnValue, false);
-      } else {
-        setDisplayOut(value);
-        if (bnValue.eq(BN_ZERO)) {
-          setDisplayIn("");
-        }
-      }
-      tradeStore.setExactIn(false);
-    }
-  };
+  const handleInputBox = (e) =>
+    tradeInputBoxes(e, {
+      tradeStore,
+      setDisplayIn,
+      setDisplayOut,
+      setPriceImpact,
+      setAmounts,
+    });
 
   ///////////////////////////////Limit Params
   const [lowerPriceString, setLowerPriceString] = useState("0");

@@ -38,6 +38,7 @@ import useMultiQuote from "../../hooks/contracts/useMultiQuote";
 import useUpdateWethFee from "../../hooks/useUpdateWethFee";
 import SwapNativeButtons from "./common/SwapNativeButtons";
 import { hasAllowance, hasBalance } from "../../utils/tokens";
+import { tradeInputBoxes } from "../../utils/tradeInputBoxes";
 
 export default function MarketSwap({
   quoteRefetchDelay,
@@ -214,59 +215,14 @@ export default function MarketSwap({
   };
 
   /////////////////////Double Input Boxes
-
-  // @stormcloud266
-  // util function
-  // use this one as the source of truth - @alphak3y
-  const handleInputBox = (e) => {
-    if (e.target.name.startsWith("tokenIn")) {
-      const [value, bnValue] = inputHandler(
-        e,
-        tradeStore.tokenIn,
-        e.target.name.endsWith("Max"),
-      );
-      if (!tradeStore.pairSelected) {
-        setDisplayIn(value);
-        setDisplayOut("");
-        tradeStore.setAmountIn(bnValue);
-        setPriceImpact("0.00");
-      } else if (!bnValue.eq(tradeStore.amountIn)) {
-        setDisplayIn(value);
-        tradeStore.setAmountIn(bnValue);
-        setAmounts(bnValue, true);
-      } else {
-        setDisplayIn(value);
-        if (bnValue.eq(BN_ZERO)) {
-          setDisplayOut("");
-          setPriceImpact("0.00");
-        }
-      }
-      tradeStore.setExactIn(true);
-    } else if (e.target.name.startsWith("tokenOut")) {
-      const [value, bnValue] = inputHandler(
-        e,
-        tradeStore.tokenOut,
-        e.target.name.endsWith("Max"),
-      );
-      if (!tradeStore.pairSelected) {
-        setDisplayOut(value);
-        setDisplayIn("");
-        tradeStore.setAmountOut(bnValue);
-        setPriceImpact("0.00");
-      } else if (!bnValue.eq(tradeStore.amountOut)) {
-        setDisplayOut(value);
-        tradeStore.setAmountOut(bnValue);
-        setAmounts(bnValue, false);
-      } else {
-        setDisplayOut(value);
-        if (bnValue.eq(BN_ZERO)) {
-          setDisplayIn("");
-          setPriceImpact("0.00");
-        }
-      }
-      tradeStore.setExactIn(false);
-    }
-  };
+  const handleInputBox = (e) =>
+    tradeInputBoxes(e, {
+      tradeStore,
+      setDisplayIn,
+      setDisplayOut,
+      setPriceImpact,
+      setAmounts,
+    });
 
   ///////////////////////////////Swap Params
   const [swapPoolAddresses, setSwapPoolAddresses] = useState<string[]>([]);
