@@ -1,14 +1,10 @@
 import { useState, useEffect, Fragment } from "react";
-import { erc20ABI, useAccount, useContractRead, useBalance } from "wagmi";
+import { useAccount } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { chainProperties } from "../utils/chains";
-import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
-import { getLimitTokenUsdPrice } from "../utils/tokens";
-import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
+import { ZERO_ADDRESS } from "../utils/math/constants";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { fetchLimitPositions } from "../utils/queries";
-import { useSwitchNetwork } from "wagmi";
-import { useToken } from "wagmi";
 import { useRouter } from "next/router";
 import {
   getClaimTick,
@@ -24,8 +20,6 @@ import LimitSwap from "../components/Trade/LimitSwap";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import inputFilter from "../utils/inputFilter";
-import { addressMatches, getRouterAddress, isWeth } from "../utils/config";
-import { Network } from "alchemy-sdk";
 import { deepConvertBigIntAndBigNumber } from "../utils/misc";
 import useAllowance from "../hooks/contracts/useAllowance";
 import useTokenBalance from "../hooks/useTokenBalance";
@@ -33,6 +27,7 @@ import useMultiSnapshotLimit from "../hooks/contracts/useMultiSnapshotLimit";
 import useTokenInInfo from "../hooks/contracts/useTokenInInfo";
 import useTokenOutInfo from "../hooks/contracts/useTokenOutInfo";
 import { useShallow } from "zustand/react/shallow";
+import useTokenUSDPrice from "../hooks/useTokenUSDPrice";
 
 //PRICE AND LIQUIDITY FETCHED EVERY 5 SECONDS
 const quoteRefetchDelay = 5000;
@@ -52,11 +47,7 @@ export default function Trade() {
     );
 
   const tradeStore = useTradeStore();
-
-  //*
-  const { error: networkError, switchNetwork } = useSwitchNetwork({
-    onSuccess(data) {},
-  });
+  useTokenUSDPrice();
 
   const router = useRouter();
 
@@ -69,42 +60,8 @@ export default function Trade() {
 
   //log amount in and out
   const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
-  const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
-
-  // @stormcloud266
-  // smaller component for token USD price
-  useEffect(() => {
-    if (
-      tradeStore.tokenIn.address != ZERO_ADDRESS &&
-      (tradeStore.tradePoolData?.id == ZERO_ADDRESS ||
-        tradeStore.tradePoolData?.id == undefined)
-    ) {
-      getLimitTokenUsdPrice(
-        tradeStore.tokenIn.address,
-        tradeStore.setTokenInTradeUSDPrice,
-        limitSubgraph,
-      );
-    }
-  }, [tradeStore.tokenIn.address]);
-
-  // @stormcloud266
-  // smaller component for token USD price
-  useEffect(() => {
-    if (
-      tradeStore.tokenOut.address != ZERO_ADDRESS &&
-      (tradeStore.tradePoolData?.id == ZERO_ADDRESS ||
-        tradeStore.tradePoolData?.id == undefined)
-    ) {
-      getLimitTokenUsdPrice(
-        tradeStore.tokenOut.address,
-        tradeStore.setTokenOutTradeUSDPrice,
-        limitSubgraph,
-      );
-    }
-  }, [tradeStore.tokenOut.address]);
 
   ////////////////////////////////Limit LP Fills
-
   const { data: filledAmountListInt } = useMultiSnapshotLimit();
 
   useEffect(() => {
@@ -112,7 +69,6 @@ export default function Trade() {
       const filledAmountList =
         deepConvertBigIntAndBigNumber(filledAmountListInt);
       setLimitFilledAmountList(filledAmountList[0]);
-      setCurrentAmountOutList(filledAmountList[1]);
     }
   }, [filledAmountListInt]);
 
@@ -263,11 +219,8 @@ export default function Trade() {
   ///////////////////////
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const { tokenInData, refetchTokenInInfo, isTokenInLoading } =
-    useTokenInInfo();
-
-  const { tokenOutData, refetchTokenOutInfo, isTokenOutLoading } =
-    useTokenOutInfo();
+  const { refetchTokenInInfo } = useTokenInInfo();
+  const { refetchTokenOutInfo } = useTokenOutInfo();
 
   useEffect(() => {
     refetchTokenInInfo();

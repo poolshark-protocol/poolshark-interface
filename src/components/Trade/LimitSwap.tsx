@@ -219,7 +219,6 @@ export default function LimitSwap({
       tradeStore,
       setDisplayIn,
       setDisplayOut,
-      setPriceImpact,
       setAmounts,
     });
 
@@ -574,8 +573,6 @@ export default function LimitSwap({
   };
 
   ////////////////////////////////FeeTiers & Slippage
-  const [priceImpact, setPriceImpact] = useState("0.00");
-
   useEffect(() => {
     if (
       tradeStore.tradePoolData?.id == ZERO_ADDRESS &&

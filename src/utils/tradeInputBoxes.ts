@@ -1,9 +1,23 @@
 import { BN_ZERO } from "./math/constants";
 import { inputHandler } from "./math/valueMath";
 
+type TradeInputBoxesType = {
+  tradeStore: any;
+  setDisplayIn: any;
+  setDisplayOut: any;
+  setAmounts: any;
+  setPriceImpact?: any;
+};
+
 export const tradeInputBoxes = (
-  e,
-  { tradeStore, setDisplayIn, setDisplayOut, setPriceImpact, setAmounts },
+  e: any,
+  {
+    tradeStore,
+    setDisplayIn,
+    setDisplayOut,
+    setAmounts,
+    setPriceImpact,
+  }: TradeInputBoxesType,
 ) => {
   if (e.target.name.startsWith("tokenIn")) {
     const [value, bnValue] = inputHandler(
@@ -15,7 +29,9 @@ export const tradeInputBoxes = (
       setDisplayIn(value);
       setDisplayOut("");
       tradeStore.setAmountIn(bnValue);
-      setPriceImpact("0.00");
+      if (typeof setPriceImpact === "function") {
+        setPriceImpact("0.00");
+      }
     } else if (!bnValue.eq(tradeStore.amountIn)) {
       setDisplayIn(value);
       tradeStore.setAmountIn(bnValue);
@@ -24,7 +40,9 @@ export const tradeInputBoxes = (
       setDisplayIn(value);
       if (bnValue.eq(BN_ZERO)) {
         setDisplayOut("");
-        setPriceImpact("0.00");
+        if (typeof setPriceImpact === "function") {
+          setPriceImpact("0.00");
+        }
       }
     }
     tradeStore.setExactIn(true);
@@ -38,7 +56,9 @@ export const tradeInputBoxes = (
       setDisplayOut(value);
       setDisplayIn("");
       tradeStore.setAmountOut(bnValue);
-      setPriceImpact("0.00");
+      if (typeof setPriceImpact === "function") {
+        setPriceImpact("0.00");
+      }
     } else if (!bnValue.eq(tradeStore.amountOut)) {
       setDisplayOut(value);
       tradeStore.setAmountOut(bnValue);
@@ -47,7 +67,9 @@ export const tradeInputBoxes = (
       setDisplayOut(value);
       if (bnValue.eq(BN_ZERO)) {
         setDisplayIn("");
-        setPriceImpact("0.00");
+        if (typeof setPriceImpact === "function") {
+          setPriceImpact("0.00");
+        }
       }
     }
     tradeStore.setExactIn(false);
