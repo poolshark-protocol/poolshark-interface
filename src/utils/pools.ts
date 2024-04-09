@@ -1,7 +1,7 @@
 import { formatBytes32String } from "ethers/lib/utils.js";
 import { getLimitPoolFromFactory } from "./queries";
 import { LimitSubgraph, tokenSwap } from "./types";
-import { ZERO, ZERO_ADDRESS } from "./math/constants";
+import { ZERO_ADDRESS } from "./math/constants";
 import { fetchRangeTokenUSDPrice } from "./tokens";
 
 export const getSwapPools = async (

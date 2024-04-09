@@ -1,9 +1,6 @@
 import { erc20ABI, useAccount, useContractRead } from "wagmi";
 import { useConfigStore } from "../useConfigStore";
 import { getRouterAddress } from "../../utils/config";
-import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
-import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
-import { useTradeStore } from "../useTradeStore";
 import { ZERO_ADDRESS } from "../../utils/math/constants";
 import { useRouter } from "next/router";
 
@@ -30,7 +27,6 @@ export default function useAllowance({ token }) {
       token.address != ZERO_ADDRESS &&
       !token.native,
     onSuccess(data) {
-      //console.log("allowance fetched", allowanceOutRange?.toString());
       //setNeedsAllowanceOut(false);
     },
     onError(error) {

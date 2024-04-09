@@ -1,14 +1,12 @@
 import { useState, useEffect, Fragment } from "react";
-import { erc20ABI, useAccount, useContractRead, useBalance } from "wagmi";
+import { useAccount } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { chainProperties } from "../utils/chains";
-import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
+import { ZERO_ADDRESS } from "../utils/math/constants";
 import { getLimitTokenUsdPrice } from "../utils/tokens";
-import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { fetchLimitPositions } from "../utils/queries";
 import { useSwitchNetwork } from "wagmi";
-import { useToken } from "wagmi";
 import { useRouter } from "next/router";
 import {
   getClaimTick,
@@ -24,8 +22,6 @@ import LimitSwap from "../components/Trade/LimitSwap";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import inputFilter from "../utils/inputFilter";
-import { addressMatches, getRouterAddress, isWeth } from "../utils/config";
-import { Network } from "alchemy-sdk";
 import { deepConvertBigIntAndBigNumber } from "../utils/misc";
 import useAllowance from "../hooks/contracts/useAllowance";
 import useTokenBalance from "../hooks/useTokenBalance";
