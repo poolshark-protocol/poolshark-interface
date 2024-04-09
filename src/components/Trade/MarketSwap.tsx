@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
-import { useAccount, useContractRead } from "wagmi";
+import { useAccount } from "wagmi";
 import { useShallow } from "zustand/react/shallow";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
@@ -22,8 +22,6 @@ import SwapRouterButton from "../Buttons/SwapRouterButton";
 import { chainProperties } from "../../utils/chains";
 import { gasEstimateSwap, gasEstimateWethCall } from "../../utils/gas";
 import JSBI from "jsbi";
-import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
-import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { getRouterAddress } from "../../utils/config";
@@ -466,7 +464,6 @@ export default function MarketSwap() {
   useEffect(() => {
     if (
       !tradeStore.amountIn.eq(BN_ZERO) &&
-      (!tradeStore.needsAllowanceIn || tradeStore.tokenIn.native) &&
       tradeStore.tradePoolData != undefined &&
       !tradeStore.wethCall
     ) {
@@ -487,6 +484,11 @@ export default function MarketSwap() {
   ]);
 
   async function updateGasFee() {
+    console.log(
+      "gas fee check:",
+      hasAllowance(tradeStore.tokenIn, tradeStore.amountIn),
+      hasBalance(tradeStore.tokenIn, tradeStore.amountIn),
+    );
     if (
       hasAllowance(tradeStore.tokenIn, tradeStore.amountIn) &&
       hasBalance(tradeStore.tokenIn, tradeStore.amountIn) &&
@@ -805,7 +807,6 @@ export default function MarketSwap() {
               <SwapRouterButton
                 disabled={
                   tradeStore.tradeButton.disabled ||
-                  (tradeStore.needsAllowanceIn && !tradeStore.tokenIn.native) ||
                   swapGasLimit.lt(BigNumber.from("100000"))
                 }
                 routerAddress={getRouterAddress(networkName)}

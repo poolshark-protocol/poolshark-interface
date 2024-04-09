@@ -1,9 +1,4 @@
-import {
-  ApolloClient,
-  InMemoryCache,
-  NormalizedCacheObject,
-  gql,
-} from "@apollo/client";
+import * as client_1 from "@apollo/client";
 import { BigNumber } from "ethers";
 import { CoverSubgraph, FinSubgraph, LimitSubgraph } from "./types";
 import { limitPoolTypeIds } from "./pools";
@@ -115,7 +110,7 @@ export const getRangePoolFromFactory = (
       }
       `;
     client
-      ?.query({ query: gql(getPool) })
+      ?.query({ query: client_1.gql(getPool) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -169,12 +164,12 @@ export const getCoverPoolFromFactory = (
             }
           }
          `;
-    const client = new ApolloClient({
+    const client = new client_1.ApolloClient({
       uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
-      cache: new InMemoryCache(),
+      cache: new client_1.InMemoryCache(),
     });
     client
-      ?.query({ query: gql(getPool) })
+      ?.query({ query: client_1.gql(getPool) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -300,7 +295,7 @@ export const getLimitPoolFromFactory = (
         }
        `;
     client
-      ?.query({ query: gql(getPool) })
+      ?.query({ query: client_1.gql(getPool) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -333,7 +328,7 @@ export const getCoverTickIfZeroForOne = (
       }
         `;
     client
-      ?.query({ query: gql(getTicks) })
+      ?.query({ query: client_1.gql(getTicks) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -365,7 +360,7 @@ export const getCoverTickIfNotZeroForOne = (
       }
         `;
     client
-      ?.query({ query: gql(getTicks) })
+      ?.query({ query: client_1.gql(getTicks) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -397,7 +392,7 @@ export const getLimitTickIfNotZeroForOne = (
       }
         `;
     client
-      ?.query({ query: gql(getTicks) })
+      ?.query({ query: client_1.gql(getTicks) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -429,7 +424,7 @@ export const getLimitTickIfZeroForOne = (
       }
         `;
     client
-      ?.query({ query: gql(getTicks) })
+      ?.query({ query: client_1.gql(getTicks) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -505,7 +500,7 @@ export const fetchCoverPositions = (client: CoverSubgraph, address: string) => {
     `;
     client
       ?.query({
-        query: gql(positionsQuery),
+        query: client_1.gql(positionsQuery),
         variables: {
           owner: address,
         },
@@ -562,7 +557,7 @@ export const fetchCoverPools = (client: CoverSubgraph) => {
             }
         `;
     client
-      ?.query({ query: gql(poolsQuery) })
+      ?.query({ query: client_1.gql(poolsQuery) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -584,7 +579,7 @@ export const fetchCoverPoolMetrics = (client: CoverSubgraph) => {
             }
         `;
     client
-      ?.query({ query: gql(poolsMetricsQuery) })
+      ?.query({ query: client_1.gql(poolsMetricsQuery) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -678,7 +673,7 @@ export const fetchLimitPositions = (client: LimitSubgraph, address: string) => {
     `;
     client
       ?.query({
-        query: gql(positionsQuery),
+        query: client_1.gql(positionsQuery),
         variables: {
           owner: address,
         },
@@ -742,7 +737,7 @@ export const fetchLimitPools = (client: LimitSubgraph) => {
             }
         `;
     client
-      ?.query({ query: gql(poolsQuery) })
+      ?.query({ query: client_1.gql(poolsQuery) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -764,7 +759,7 @@ export const fetchLimitPoolMetrics = (client: LimitSubgraph) => {
             }
         `;
     client
-      ?.query({ query: gql(poolsMetricsQuery) })
+      ?.query({ query: client_1.gql(poolsMetricsQuery) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -830,7 +825,7 @@ export const fetchRangePools = (client: LimitSubgraph) => {
             }
         `;
     client
-      ?.query({ query: gql(poolsQuery) })
+      ?.query({ query: client_1.gql(poolsQuery) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -900,7 +895,7 @@ export const fetchRangePositions = (client: LimitSubgraph, address: string) => {
     `;
     client
       ?.query({
-        query: gql(positionsQuery),
+        query: client_1.gql(positionsQuery),
         variables: {
           owner: address,
         },
@@ -943,12 +938,12 @@ export const fetchUniV3Pools = () => {
                 }
             }
         `;
-    const client = new ApolloClient({
+    const client = new client_1.ApolloClient({
       uri: "https://api.thegraph.com/subgraphs/name/liqwiz/uniswap-v3-goerli",
-      cache: new InMemoryCache(),
+      cache: new client_1.InMemoryCache(),
     });
     client
-      ?.query({ query: gql(univ3PoolsQuery) })
+      ?.query({ query: client_1.gql(univ3PoolsQuery) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -989,13 +984,13 @@ export const fetchUniV3Positions = (address: string) => {
                 }
             }
         `;
-    const client = new ApolloClient({
+    const client = new client_1.ApolloClient({
       uri: "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
-      cache: new InMemoryCache(),
+      cache: new client_1.InMemoryCache(),
     });
     client
       ?.query({
-        query: gql(univ3PositionsQuery),
+        query: client_1.gql(univ3PositionsQuery),
         variables: {
           owner: address,
         },
@@ -1027,7 +1022,7 @@ export const fetchTokenPrice = (
         `;
     client
       ?.query({
-        query: gql(tokenQuery),
+        query: client_1.gql(tokenQuery),
       })
       .then((data) => {
         resolve(data);
@@ -1050,7 +1045,7 @@ export const fetchEthPrice = (client: LimitSubgraph): Promise<number> => {
     `;
     client
       ?.query({
-        query: gql(ethPrice),
+        query: client_1.gql(ethPrice),
       })
       .then((data) => {
         resolve(data["data"]?.basePrices[0]?.USD ?? 0);
@@ -1078,7 +1073,7 @@ export const fetchUserVFinPositions = (
         `;
     client
       ?.query({
-        query: gql(userVestingQuery),
+        query: client_1.gql(userVestingQuery),
       })
       .then((data) => {
         resolve(data);
@@ -1123,7 +1118,7 @@ export const fetchSeason1Rewards = (
     }
   `;
     client
-      ?.query({ query: gql(poolsQuery) })
+      ?.query({ query: client_1.gql(poolsQuery) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
@@ -1173,13 +1168,13 @@ export const fetchUserBonds = (
             }
           }
         `;
-    const client = new ApolloClient({
+    const client = new client_1.ApolloClient({
       uri: subgraphUrl,
-      cache: new InMemoryCache(),
+      cache: new client_1.InMemoryCache(),
     });
     client
       ?.query({
-        query: gql(userBondsQuery),
+        query: client_1.gql(userBondsQuery),
       })
       .then((data) => {
         resolve(data);
@@ -1266,13 +1261,13 @@ export const fetchBondMarket = (marketId: string, subgraphUrl: string) => {
                 }
               }
         `;
-    const client = new ApolloClient({
+    const client = new client_1.ApolloClient({
       uri: subgraphUrl,
-      cache: new InMemoryCache(),
+      cache: new client_1.InMemoryCache(),
     });
     client
       ?.query({
-        query: gql(bondMarketQuery),
+        query: client_1.gql(bondMarketQuery),
       })
       .then((data) => {
         resolve(data);
@@ -1298,7 +1293,7 @@ export const fetchFinTokenData = (client: FinSubgraph) => {
     }
         `;
     client
-      ?.query({ query: gql(finQuery) })
+      ?.query({ query: client_1.gql(finQuery) })
       .then((data) => {
         resolve(data);
         /* console.log(data) */
