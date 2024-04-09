@@ -209,7 +209,7 @@ export default function Trade() {
   });
 
   useEffect(() => {
-    if (allowanceInRouter) {
+    if (allowanceInRouter != undefined) {
       tradeStore.setTokenInTradeAllowance(
         deepConvertBigIntAndBigNumber(allowanceInRouter),
       );
