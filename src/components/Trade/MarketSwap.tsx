@@ -484,11 +484,6 @@ export default function MarketSwap() {
   ]);
 
   async function updateGasFee() {
-    console.log(
-      "gas fee check:",
-      hasAllowance(tradeStore.tokenIn, tradeStore.amountIn),
-      hasBalance(tradeStore.tokenIn, tradeStore.amountIn),
-    );
     if (
       hasAllowance(tradeStore.tokenIn, tradeStore.amountIn) &&
       hasBalance(tradeStore.tokenIn, tradeStore.amountIn) &&
