@@ -3,10 +3,8 @@ import { useAccount } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { chainProperties } from "../utils/chains";
 import { ZERO_ADDRESS } from "../utils/math/constants";
-import { getLimitTokenUsdPrice } from "../utils/tokens";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { fetchLimitPositions } from "../utils/queries";
-import { useSwitchNetwork } from "wagmi";
 import { useRouter } from "next/router";
 import {
   getClaimTick,
@@ -29,6 +27,10 @@ import useMultiSnapshotLimit from "../hooks/contracts/useMultiSnapshotLimit";
 import useTokenInInfo from "../hooks/contracts/useTokenInInfo";
 import useTokenOutInfo from "../hooks/contracts/useTokenOutInfo";
 import { useShallow } from "zustand/react/shallow";
+import useTokenUSDPrice from "../hooks/useTokenUSDPrice";
+
+//PRICE AND LIQUIDITY FETCHED EVERY 5 SECONDS
+const quoteRefetchDelay = 5000;
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -45,11 +47,7 @@ export default function Trade() {
     );
 
   const tradeStore = useTradeStore();
-
-  //*
-  const { error: networkError, switchNetwork } = useSwitchNetwork({
-    onSuccess(data) {},
-  });
+  useTokenUSDPrice();
 
   const router = useRouter();
 
@@ -62,38 +60,8 @@ export default function Trade() {
 
   //log amount in and out
   const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
-  const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
 
-  useEffect(() => {
-    if (
-      tradeStore.tokenIn.address != ZERO_ADDRESS &&
-      (tradeStore.tradePoolData?.id == ZERO_ADDRESS ||
-        tradeStore.tradePoolData?.id == undefined)
-    ) {
-      getLimitTokenUsdPrice(
-        tradeStore.tokenIn.address,
-        tradeStore.setTokenInTradeUSDPrice,
-        limitSubgraph,
-      );
-    }
-  }, [tradeStore.tokenIn.address]);
-
-  useEffect(() => {
-    if (
-      tradeStore.tokenOut.address != ZERO_ADDRESS &&
-      (tradeStore.tradePoolData?.id == ZERO_ADDRESS ||
-        tradeStore.tradePoolData?.id == undefined)
-    ) {
-      getLimitTokenUsdPrice(
-        tradeStore.tokenOut.address,
-        tradeStore.setTokenOutTradeUSDPrice,
-        limitSubgraph,
-      );
-    }
-  }, [tradeStore.tokenOut.address]);
-
-  ////////////////////////////////Filled Amount
-
+  ////////////////////////////////Limit LP Fills
   const { data: filledAmountListInt } = useMultiSnapshotLimit();
 
   useEffect(() => {
@@ -101,13 +69,15 @@ export default function Trade() {
       const filledAmountList =
         deepConvertBigIntAndBigNumber(filledAmountListInt);
       setLimitFilledAmountList(filledAmountList[0]);
-      setCurrentAmountOutList(filledAmountList[1]);
     }
   }, [filledAmountListInt]);
 
-  //////////////////////Position Data
+  //////////////////////Limit Subgraph Data
 
+  // Active Orders
   const [allLimitPositions, setAllLimitPositions] = useState([]);
+
+  // Order History
   const [allHistoricalOrders, setAllHistoricalOrders] = useState([]);
 
   useEffect(() => {
@@ -249,11 +219,8 @@ export default function Trade() {
   ///////////////////////
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const { tokenInData, refetchTokenInInfo, isTokenInLoading } =
-    useTokenInInfo();
-
-  const { tokenOutData, refetchTokenOutInfo, isTokenOutLoading } =
-    useTokenOutInfo();
+  const { refetchTokenInInfo } = useTokenInInfo();
+  const { refetchTokenOutInfo } = useTokenOutInfo();
 
   useEffect(() => {
     refetchTokenInInfo();
@@ -314,6 +281,19 @@ export default function Trade() {
     chainId,
   ]);
 
+  /////////////////////////////Button States
+
+  useEffect(() => {
+    tradeStore.setTradeButtonState();
+  }, [
+    tradeStore.amountIn,
+    tradeStore.amountOut,
+    tradeStore.tokenIn.userBalance,
+    tradeStore.tokenIn.address,
+    tradeStore.tokenOut.address,
+    tradeStore.tokenIn.userRouterAllowance,
+  ]);
+
   return (
     <div className="min-h-[calc(100vh-160px)] w-[48rem] px-3 md:px-0">
       <div className="flex w-full mt-[10vh] justify-center mb-20 ">
@@ -363,7 +343,11 @@ export default function Trade() {
                 </svg>
               </div>
             </div>
-            {!tradeStore.limitTabSelected ? <MarketSwap /> : <LimitSwap />}
+            {!tradeStore.limitTabSelected ? (
+              <MarketSwap quoteRefetchDelay={quoteRefetchDelay} />
+            ) : (
+              <LimitSwap quoteRefetchDelay={quoteRefetchDelay} />
+            )}
           </div>
         </div>
       </div>

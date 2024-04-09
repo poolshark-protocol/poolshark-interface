@@ -10,24 +10,14 @@ import LimitSwapButton from "../Buttons/LimitSwapButton";
 import SelectToken from "../SelectToken";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { BigNumber, ethers } from "ethers";
-import {
-  inputHandler,
-  numFormat,
-  parseUnits,
-} from "../../utils/math/valueMath";
+import { numFormat, parseUnits } from "../../utils/math/valueMath";
 import {
   getLimitPoolForFeeTier,
   getSwapPools,
   limitPoolTypeIds,
 } from "../../utils/pools";
-import { QuoteParams } from "../../utils/types";
 
-import {
-  TickMath,
-  invertPrice,
-  maxPriceBn,
-  minPriceBn,
-} from "../../utils/math/tickMath";
+import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import {
   getExpectedAmountInFromOutput,
   getExpectedAmountOutFromInput,
@@ -39,7 +29,6 @@ import inputFilter from "../../utils/inputFilter";
 import {
   gasEstimateLimitCreateAndMint,
   gasEstimateMintLimit,
-  gasEstimateWethCall,
 } from "../../utils/gas";
 import JSBI from "jsbi";
 import { fetchRangeTokenUSDPrice, hasAllowance } from "../../utils/tokens";
@@ -54,19 +43,18 @@ import InputBoxContainer from "./common/InputBoxContainer";
 import FeeTierBox from "./common/FeeTierBox";
 import PriceRangeBox from "./common/PriceRangeBox";
 import Option from "./common/Option";
+import useUpdateWethFee from "../../hooks/useUpdateWethFee";
 import SwapNativeButtons from "./common/SwapNativeButtons";
+import { tradeInputBoxes } from "../../utils/tradeInputBoxes";
 
-export default function LimitSwap() {
-  //CONFIG STORE
+export default function LimitSwap({
+  quoteRefetchDelay,
+}: {
+  quoteRefetchDelay: number;
+}) {
   const [networkName, limitSubgraph] = useConfigStore(
     useShallow((state) => [state.networkName, state.limitSubgraph]),
   );
-
-  const [stateChainName, setStateChainName] = useState();
-
-  //PRICE AND LIQUIDITY FETCHED EVERY 5 SECONDS
-  const quoteRefetchDelay = 5000;
-
   const tradeStore = useTradeStore();
 
   const {
@@ -84,12 +72,7 @@ export default function LimitSwap() {
   const signer = useEthersSigner();
   const [priceRangeSelected, setPriceRangeSelected] = useState(false);
 
-  const [swapParams, setSwapParams] = useState<any[]>([]);
-
   /////////////////////////////Fetch Pools
-  const [availablePools, setAvailablePools] = useState(undefined);
-  const [quoteParams, setQuoteParams] = useState(undefined);
-  const [availableFeeTiers, setAvailableFeeTiers] = useState([]);
   const [selectedFeeTier, setSelectedFeeTier] = useState("3000");
 
   useEffect(() => {
@@ -150,10 +133,7 @@ export default function LimitSwap() {
       // adjust decimals when switching directions
       if (!tradeStore.wethCall)
         // only update pools if !wethCall
-        updatePools(
-          tradeStore.exactIn ? tradeStore.amountIn : tradeStore.amountOut,
-          tradeStore.exactIn,
-        );
+        updatePools();
     }
     tradeStore.setNeedsPairUpdate(false);
     tradeStore.setNeedsSetAmounts(true);
@@ -184,7 +164,7 @@ export default function LimitSwap() {
   }, [tradeStore.needsSetAmounts, tradeStore.tradePoolData?.id]);
 
   //can go to utils
-  async function updatePools(amount: BigNumber, isAmountIn: boolean) {
+  async function updatePools() {
     const pools = await getSwapPools(
       limitSubgraph,
       tradeStore.tokenIn,
@@ -198,26 +178,9 @@ export default function LimitSwap() {
       limitPoolTypeIds["constant-product-1.1"],
       setSelectedFeeTier,
     );
-    const poolAdresses: string[] = [];
-    const quoteList: QuoteParams[] = [];
-    if (pools) {
-      for (let i = 0; i < pools.length; i++) {
-        const params: QuoteParams = {
-          priceLimit: tradeStore.tokenIn.callId == 0 ? minPriceBn : maxPriceBn,
-          amount: amount,
-          exactIn: isAmountIn,
-          zeroForOne: tradeStore.tokenIn.callId == 0,
-        };
-        quoteList[i] = params;
-        poolAdresses[i] = pools[i].id;
-        availableFeeTiers[i] = pools[i].feeTier.id;
-      }
-    }
-    if (pools?.length == 1) {
+    if (pools?.length >= 1) {
       setSelectedFeeTier(pools[0].feeTier.id);
     }
-    setAvailablePools(poolAdresses);
-    setQuoteParams(quoteList);
   }
 
   const handleManualFeeTierChange = async (feeAmount: number) => {
@@ -247,44 +210,13 @@ export default function LimitSwap() {
   };
 
   /////////////////////Double Input Boxes
-
-  const handleInputBox = (e) => {
-    if (e.target.name === "tokenIn") {
-      const [value, bnValue] = inputHandler(e, tradeStore.tokenIn);
-      if (!tradeStore.pairSelected) {
-        setDisplayIn(value);
-        setDisplayOut("");
-        tradeStore.setAmountIn(bnValue);
-      } else if (!bnValue.eq(tradeStore.amountIn)) {
-        setDisplayIn(value);
-        tradeStore.setAmountIn(bnValue);
-        setAmounts(bnValue, true);
-      } else {
-        setDisplayIn(value);
-        if (bnValue.eq(BN_ZERO)) {
-          setDisplayOut("");
-        }
-      }
-      tradeStore.setExactIn(true);
-    } else if (e.target.name === "tokenOut") {
-      const [value, bnValue] = inputHandler(e, tradeStore.tokenOut);
-      if (!tradeStore.pairSelected) {
-        setDisplayOut(value);
-        setDisplayIn("");
-        tradeStore.setAmountOut(bnValue);
-      } else if (!bnValue.eq(tradeStore.amountOut)) {
-        setDisplayOut(value);
-        tradeStore.setAmountOut(bnValue);
-        setAmounts(bnValue, false);
-      } else {
-        setDisplayOut(value);
-        if (bnValue.eq(BN_ZERO)) {
-          setDisplayIn("");
-        }
-      }
-      tradeStore.setExactIn(false);
-    }
-  };
+  const handleInputBox = (e) =>
+    tradeInputBoxes(e, {
+      tradeStore,
+      setDisplayIn,
+      setDisplayOut,
+      setAmounts,
+    });
 
   ///////////////////////////////Limit Params
   const [lowerPriceString, setLowerPriceString] = useState("0");
@@ -637,8 +569,6 @@ export default function LimitSwap() {
   };
 
   ////////////////////////////////FeeTiers & Slippage
-  const [priceImpact, setPriceImpact] = useState("0.00");
-
   useEffect(() => {
     if (
       tradeStore.tradePoolData?.id == ZERO_ADDRESS &&
@@ -675,6 +605,11 @@ export default function LimitSwap() {
   const [swapGasFee, setSwapGasFee] = useState("$0.00");
   const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
 
+  const updateWethFee = useUpdateWethFee({
+    setSwapGasFee,
+    setSwapGasLimit,
+  });
+
   useEffect(() => {
     if (
       !tradeStore.amountIn.eq(BN_ZERO) &&
@@ -687,7 +622,6 @@ export default function LimitSwap() {
       updateWethFee();
     }
   }, [
-    swapParams,
     tradeStore.tokenIn.address,
     tradeStore.tokenOut.address,
     tradeStore.tokenIn.native,
@@ -740,35 +674,6 @@ export default function LimitSwap() {
         );
       }
   }
-
-  async function updateWethFee() {
-    if (hasAllowance(tradeStore.tokenIn, tradeStore.amountIn)) {
-      await gasEstimateWethCall(
-        chainProperties[networkName]["wethAddress"],
-        tradeStore.tokenIn,
-        tradeStore.tokenOut,
-        tradeStore.amountIn,
-        signer,
-        isConnected,
-        setSwapGasFee,
-        setSwapGasLimit,
-        limitSubgraph,
-      );
-    }
-  }
-
-  ////////////////////////////////Button State
-
-  useEffect(() => {
-    tradeStore.setTradeButtonState();
-  }, [
-    tradeStore.amountIn,
-    tradeStore.amountOut,
-    tradeStore.tokenIn.userBalance,
-    tradeStore.tokenIn.address,
-    tradeStore.tokenOut.address,
-    tradeStore.tokenIn.userRouterAllowance,
-  ]);
 
   return (
     <div>

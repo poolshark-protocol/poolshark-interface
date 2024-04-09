@@ -7,11 +7,7 @@ import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
 import { BN_ZERO, Q96_BI, ZERO_ADDRESS } from "../../utils/math/constants";
 import SelectToken from "../SelectToken";
-import {
-  inputHandler,
-  numFormat,
-  parseUnits,
-} from "../../utils/math/valueMath";
+import { numFormat, parseUnits } from "../../utils/math/valueMath";
 import { getSwapPools } from "../../utils/pools";
 import { QuoteParams, SwapParams, QuoteResults } from "../../utils/types";
 import { TickMath, maxPriceBn, minPriceBn } from "../../utils/math/tickMath";
@@ -20,7 +16,7 @@ import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
 import SwapRouterButton from "../Buttons/SwapRouterButton";
 import { chainProperties } from "../../utils/chains";
-import { gasEstimateSwap, gasEstimateWethCall } from "../../utils/gas";
+import { gasEstimateSwap } from "../../utils/gas";
 import JSBI from "jsbi";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
@@ -35,10 +31,16 @@ import AmountOutDisplay from "./common/AmountOutDisplay";
 import InputBoxContainer from "./common/InputBoxContainer";
 import Option from "./common/Option";
 import useMultiQuote from "../../hooks/contracts/useMultiQuote";
+import useUpdateWethFee from "../../hooks/useUpdateWethFee";
 import SwapNativeButtons from "./common/SwapNativeButtons";
 import { hasAllowance, hasBalance } from "../../utils/tokens";
+import { tradeInputBoxes } from "../../utils/tradeInputBoxes";
 
-export default function MarketSwap() {
+export default function MarketSwap({
+  quoteRefetchDelay,
+}: {
+  quoteRefetchDelay: number;
+}) {
   const [chainId, networkName, limitSubgraph] = useConfigStore(
     useShallow((state) => [
       state.chainId,
@@ -46,13 +48,6 @@ export default function MarketSwap() {
       state.limitSubgraph,
     ]),
   );
-
-  //CONFIG STORE
-  const [stateChainName, setStateChainName] = useState();
-
-  //PRICE AND LIQUIDITY FETCHED EVERY 5 SECONDS
-  const quoteRefetchDelay = 5000;
-
   const tradeStore = useTradeStore();
 
   const [setRangeTokenIn, setRangeTokenOut] = useRangeLimitStore(
@@ -215,56 +210,14 @@ export default function MarketSwap() {
   };
 
   /////////////////////Double Input Boxes
-
-  const handleInputBox = (e) => {
-    if (e.target.name.startsWith("tokenIn")) {
-      const [value, bnValue] = inputHandler(
-        e,
-        tradeStore.tokenIn,
-        e.target.name.endsWith("Max"),
-      );
-      if (!tradeStore.pairSelected) {
-        setDisplayIn(value);
-        setDisplayOut("");
-        tradeStore.setAmountIn(bnValue);
-        setPriceImpact("0.00");
-      } else if (!bnValue.eq(tradeStore.amountIn)) {
-        setDisplayIn(value);
-        tradeStore.setAmountIn(bnValue);
-        setAmounts(bnValue, true);
-      } else {
-        setDisplayIn(value);
-        if (bnValue.eq(BN_ZERO)) {
-          setDisplayOut("");
-          setPriceImpact("0.00");
-        }
-      }
-      tradeStore.setExactIn(true);
-    } else if (e.target.name.startsWith("tokenOut")) {
-      const [value, bnValue] = inputHandler(
-        e,
-        tradeStore.tokenOut,
-        e.target.name.endsWith("Max"),
-      );
-      if (!tradeStore.pairSelected) {
-        setDisplayOut(value);
-        setDisplayIn("");
-        tradeStore.setAmountOut(bnValue);
-        setPriceImpact("0.00");
-      } else if (!bnValue.eq(tradeStore.amountOut)) {
-        setDisplayOut(value);
-        tradeStore.setAmountOut(bnValue);
-        setAmounts(bnValue, false);
-      } else {
-        setDisplayOut(value);
-        if (bnValue.eq(BN_ZERO)) {
-          setDisplayIn("");
-          setPriceImpact("0.00");
-        }
-      }
-      tradeStore.setExactIn(false);
-    }
-  };
+  const handleInputBox = (e) =>
+    tradeInputBoxes(e, {
+      tradeStore,
+      setDisplayIn,
+      setDisplayOut,
+      setPriceImpact,
+      setAmounts,
+    });
 
   ///////////////////////////////Swap Params
   const [swapPoolAddresses, setSwapPoolAddresses] = useState<string[]>([]);
@@ -461,6 +414,11 @@ export default function MarketSwap() {
   const [swapGasFee, setSwapGasFee] = useState("$0.00");
   const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
 
+  const updateWethFee = useUpdateWethFee({
+    setSwapGasFee,
+    setSwapGasLimit,
+  });
+
   useEffect(() => {
     if (
       !tradeStore.amountIn.eq(BN_ZERO) &&
@@ -507,35 +465,6 @@ export default function MarketSwap() {
       setSwapGasLimit(BN_ZERO);
     }
   }
-
-  async function updateWethFee() {
-    if (hasAllowance(tradeStore.tokenIn, tradeStore.amountIn)) {
-      await gasEstimateWethCall(
-        chainProperties[networkName]["wethAddress"],
-        tradeStore.tokenIn,
-        tradeStore.tokenOut,
-        tradeStore.amountIn,
-        signer,
-        isConnected,
-        setSwapGasFee,
-        setSwapGasLimit,
-        limitSubgraph,
-      );
-    }
-  }
-
-  /////////////////////////////Button States
-
-  useEffect(() => {
-    tradeStore.setTradeButtonState();
-  }, [
-    tradeStore.amountIn,
-    tradeStore.amountOut,
-    tradeStore.tokenIn.userBalance,
-    tradeStore.tokenIn.address,
-    tradeStore.tokenOut.address,
-    tradeStore.tokenIn.userRouterAllowance,
-  ]);
 
   return (
     <div>
