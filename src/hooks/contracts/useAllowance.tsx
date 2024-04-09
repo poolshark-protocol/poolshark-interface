@@ -20,7 +20,7 @@ export default function useAllowance({ token }) {
     functionName: "allowance",
     args: [address, getRouterAddress(networkName)],
     chainId: chainId,
-    watch: !token.native && router.isReady,
+    watch: true,
     enabled:
       isConnected &&
       token.address &&
