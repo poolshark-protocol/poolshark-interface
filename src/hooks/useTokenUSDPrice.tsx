@@ -34,9 +34,7 @@ const useTokenUSDPrice = () => {
         limitSubgraph,
       );
     }
-  }, [tokenIn.address]);
 
-  useEffect(() => {
     if (
       tokenOut.address != ZERO_ADDRESS &&
       (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
@@ -47,7 +45,7 @@ const useTokenUSDPrice = () => {
         limitSubgraph,
       );
     }
-  }, [tokenOut.address]);
+  }, [tradePoolData.poolPrice]);
 };
 
 export default useTokenUSDPrice;
