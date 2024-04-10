@@ -3,7 +3,10 @@ import { useConfigStore } from "./useConfigStore";
 import { useShallow } from "zustand/react/shallow";
 import { useTradeStore } from "./useTradeStore";
 import { ZERO_ADDRESS } from "../utils/math/constants";
-import { getLimitTokenUsdPrice } from "../utils/tokens";
+import {
+  fetchLimitTokenUSDPrice,
+  getLimitTokenUsdPrice,
+} from "../utils/tokens";
 
 const useTokenUSDPrice = () => {
   const limitSubgraph = useConfigStore((state) => state.limitSubgraph);
@@ -34,7 +37,9 @@ const useTokenUSDPrice = () => {
         limitSubgraph,
       );
     }
+  }, [tokenIn.address]);
 
+  useEffect(() => {
     if (
       tokenOut.address != ZERO_ADDRESS &&
       (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
@@ -43,6 +48,22 @@ const useTokenUSDPrice = () => {
         tokenOut.address,
         setTokenOutTradeUSDPrice,
         limitSubgraph,
+      );
+    }
+  }, [tokenOut.address]);
+
+  useEffect(() => {
+    if (
+      tokenIn.address != ZERO_ADDRESS &&
+      tokenOut.address != ZERO_ADDRESS &&
+      tradePoolData?.id != ZERO_ADDRESS &&
+      tradePoolData?.id != undefined
+    ) {
+      fetchLimitTokenUSDPrice(tradePoolData, tokenIn, setTokenInTradeUSDPrice);
+      fetchLimitTokenUSDPrice(
+        tradePoolData,
+        tokenOut,
+        setTokenOutTradeUSDPrice,
       );
     }
   }, [tradePoolData.poolPrice]);
