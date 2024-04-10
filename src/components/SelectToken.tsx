@@ -239,8 +239,8 @@ export default function SelectToken(props) {
                   <div className="h-[360px] overflow-y-auto">
                     {customInput == ""
                       ? listedTokenList
-                          .sort((a, b) => b.balance - a.balance)
-                          .map((coin) => {
+                          ?.sort((a, b) => b.balance - a.balance)
+                          ?.map((coin) => {
                             if (
                               customInput.toLowerCase() == "" ||
                               customInput.toLowerCase() == " " ||
@@ -263,8 +263,8 @@ export default function SelectToken(props) {
                             }
                           })
                       : searchtokenList
-                          .sort((a, b) => b.balance - a.balance)
-                          .map((coin) => {
+                          ?.sort((a, b) => b.balance - a.balance)
+                          ?.map((coin) => {
                             if (
                               customInput.toLowerCase() == "" ||
                               customInput.toLowerCase() == " " ||

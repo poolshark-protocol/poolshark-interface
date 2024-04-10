@@ -15,7 +15,7 @@ import {
 } from "../utils/chains";
 import { tokenListsBaseUrl } from "../utils/tokens";
 
-type TradeState = {
+export type TradeState = {
   //tradePoolData contains all the info about the pool
   tradePoolData: any;
   feeTierTradeId: number;
@@ -67,7 +67,7 @@ type TradeState = {
   tokenOutInfo: any;
 };
 
-type TradeLimitAction = {
+export type TradeLimitAction = {
   //
   setTradePoolData: (data: any) => void;
   setTradePoolPrice: (poolPrice: any) => void;

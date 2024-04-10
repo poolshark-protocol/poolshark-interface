@@ -10,59 +10,51 @@ import LimitSwapButton from "../Buttons/LimitSwapButton";
 import SelectToken from "../SelectToken";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { BigNumber, ethers } from "ethers";
+import { numFormat, parseUnits } from "../../utils/math/valueMath";
 import {
-  inputHandler,
-  numFormat,
-  parseUnits,
-} from "../../utils/math/valueMath";
-import {
-  feeTierMap,
   getLimitPoolForFeeTier,
   getSwapPools,
   limitPoolTypeIds,
 } from "../../utils/pools";
-import { QuoteParams } from "../../utils/types";
 
+import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import {
-  TickMath,
-  invertPrice,
-  maxPriceBn,
-  minPriceBn,
-} from "../../utils/math/tickMath";
-import {
-  displayPoolPrice,
   getExpectedAmountInFromOutput,
   getExpectedAmountOutFromInput,
   getMarketPriceAboveBelowString,
 } from "../../utils/math/priceMath";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { chainProperties } from "../../utils/chains";
 import LimitCreateAndMintButton from "../Buttons/LimitCreateAndMintButton";
 import inputFilter from "../../utils/inputFilter";
 import {
   gasEstimateLimitCreateAndMint,
   gasEstimateMintLimit,
-  gasEstimateWethCall,
 } from "../../utils/gas";
-import SwapWrapNativeButton from "../Buttons/SwapWrapNativeButton";
-import SwapUnwrapNativeButton from "../Buttons/SwapUnwrapNativeButton";
 import JSBI from "jsbi";
 import { fetchRangeTokenUSDPrice, hasAllowance } from "../../utils/tokens";
 import BalanceDisplay from "../Display/BalanceDisplay";
 import { getRouterAddress } from "../../utils/config";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
+import SwitchDirection from "./common/SwitchDirection";
+import AmountInDisplay from "./common/AmountInDisplay";
+import MaxButton from "./common/MaxButton";
+import AmountOutDisplay from "./common/AmountOutDisplay";
+import InputBoxContainer from "./common/InputBoxContainer";
+import FeeTierBox from "./common/FeeTierBox";
+import PriceRangeBox from "./common/PriceRangeBox";
+import Option from "./common/Option";
+import useUpdateWethFee from "../../hooks/useUpdateWethFee";
+import SwapNativeButtons from "./common/SwapNativeButtons";
+import { tradeInputBoxes } from "../../utils/tradeInputBoxes";
 
-export default function LimitSwap() {
-  //CONFIG STORE
+export default function LimitSwap({
+  quoteRefetchDelay,
+}: {
+  quoteRefetchDelay: number;
+}) {
   const [networkName, limitSubgraph] = useConfigStore(
     useShallow((state) => [state.networkName, state.limitSubgraph]),
   );
-
-  const [stateChainName, setStateChainName] = useState();
-
-  //PRICE AND LIQUIDITY FETCHED EVERY 5 SECONDS
-  const quoteRefetchDelay = 5000;
-
   const tradeStore = useTradeStore();
 
   const {
@@ -80,12 +72,7 @@ export default function LimitSwap() {
   const signer = useEthersSigner();
   const [priceRangeSelected, setPriceRangeSelected] = useState(false);
 
-  const [swapParams, setSwapParams] = useState<any[]>([]);
-
   /////////////////////////////Fetch Pools
-  const [availablePools, setAvailablePools] = useState(undefined);
-  const [quoteParams, setQuoteParams] = useState(undefined);
-  const [availableFeeTiers, setAvailableFeeTiers] = useState([]);
   const [selectedFeeTier, setSelectedFeeTier] = useState("3000");
 
   useEffect(() => {
@@ -146,10 +133,7 @@ export default function LimitSwap() {
       // adjust decimals when switching directions
       if (!tradeStore.wethCall)
         // only update pools if !wethCall
-        updatePools(
-          tradeStore.exactIn ? tradeStore.amountIn : tradeStore.amountOut,
-          tradeStore.exactIn,
-        );
+        updatePools();
     }
     tradeStore.setNeedsPairUpdate(false);
     tradeStore.setNeedsSetAmounts(true);
@@ -180,7 +164,7 @@ export default function LimitSwap() {
   }, [tradeStore.needsSetAmounts, tradeStore.tradePoolData?.id]);
 
   //can go to utils
-  async function updatePools(amount: BigNumber, isAmountIn: boolean) {
+  async function updatePools() {
     const pools = await getSwapPools(
       limitSubgraph,
       tradeStore.tokenIn,
@@ -194,26 +178,9 @@ export default function LimitSwap() {
       limitPoolTypeIds["constant-product-1.1"],
       setSelectedFeeTier,
     );
-    const poolAdresses: string[] = [];
-    const quoteList: QuoteParams[] = [];
-    if (pools) {
-      for (let i = 0; i < pools.length; i++) {
-        const params: QuoteParams = {
-          priceLimit: tradeStore.tokenIn.callId == 0 ? minPriceBn : maxPriceBn,
-          amount: amount,
-          exactIn: isAmountIn,
-          zeroForOne: tradeStore.tokenIn.callId == 0,
-        };
-        quoteList[i] = params;
-        poolAdresses[i] = pools[i].id;
-        availableFeeTiers[i] = pools[i].feeTier.id;
-      }
-    }
-    if (pools?.length == 1) {
+    if (pools?.length >= 1) {
       setSelectedFeeTier(pools[0].feeTier.id);
     }
-    setAvailablePools(poolAdresses);
-    setQuoteParams(quoteList);
   }
 
   const handleManualFeeTierChange = async (feeAmount: number) => {
@@ -243,44 +210,13 @@ export default function LimitSwap() {
   };
 
   /////////////////////Double Input Boxes
-
-  const handleInputBox = (e) => {
-    if (e.target.name === "tokenIn") {
-      const [value, bnValue] = inputHandler(e, tradeStore.tokenIn);
-      if (!tradeStore.pairSelected) {
-        setDisplayIn(value);
-        setDisplayOut("");
-        tradeStore.setAmountIn(bnValue);
-      } else if (!bnValue.eq(tradeStore.amountIn)) {
-        setDisplayIn(value);
-        tradeStore.setAmountIn(bnValue);
-        setAmounts(bnValue, true);
-      } else {
-        setDisplayIn(value);
-        if (bnValue.eq(BN_ZERO)) {
-          setDisplayOut("");
-        }
-      }
-      tradeStore.setExactIn(true);
-    } else if (e.target.name === "tokenOut") {
-      const [value, bnValue] = inputHandler(e, tradeStore.tokenOut);
-      if (!tradeStore.pairSelected) {
-        setDisplayOut(value);
-        setDisplayIn("");
-        tradeStore.setAmountOut(bnValue);
-      } else if (!bnValue.eq(tradeStore.amountOut)) {
-        setDisplayOut(value);
-        tradeStore.setAmountOut(bnValue);
-        setAmounts(bnValue, false);
-      } else {
-        setDisplayOut(value);
-        if (bnValue.eq(BN_ZERO)) {
-          setDisplayIn("");
-        }
-      }
-      tradeStore.setExactIn(false);
-    }
-  };
+  const handleInputBox = (e) =>
+    tradeInputBoxes(e, {
+      tradeStore,
+      setDisplayIn,
+      setDisplayOut,
+      setAmounts,
+    });
 
   ///////////////////////////////Limit Params
   const [lowerPriceString, setLowerPriceString] = useState("0");
@@ -633,8 +569,6 @@ export default function LimitSwap() {
   };
 
   ////////////////////////////////FeeTiers & Slippage
-  const [priceImpact, setPriceImpact] = useState("0.00");
-
   useEffect(() => {
     if (
       tradeStore.tradePoolData?.id == ZERO_ADDRESS &&
@@ -671,6 +605,11 @@ export default function LimitSwap() {
   const [swapGasFee, setSwapGasFee] = useState("$0.00");
   const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
 
+  const updateWethFee = useUpdateWethFee({
+    setSwapGasFee,
+    setSwapGasLimit,
+  });
+
   useEffect(() => {
     if (
       !tradeStore.amountIn.eq(BN_ZERO) &&
@@ -683,7 +622,6 @@ export default function LimitSwap() {
       updateWethFee();
     }
   }, [
-    swapParams,
     tradeStore.tokenIn.address,
     tradeStore.tokenOut.address,
     tradeStore.tokenIn.native,
@@ -737,104 +675,23 @@ export default function LimitSwap() {
       }
   }
 
-  async function updateWethFee() {
-    if (hasAllowance(tradeStore.tokenIn, tradeStore.amountIn)) {
-      await gasEstimateWethCall(
-        chainProperties[networkName]["wethAddress"],
-        tradeStore.tokenIn,
-        tradeStore.tokenOut,
-        tradeStore.amountIn,
-        signer,
-        isConnected,
-        setSwapGasFee,
-        setSwapGasLimit,
-        limitSubgraph,
-      );
-    }
-  }
-
-  ////////////////////////////////Button State
-
-  useEffect(() => {
-    tradeStore.setTradeButtonState();
-  }, [
-    tradeStore.amountIn,
-    tradeStore.amountOut,
-    tradeStore.tokenIn.userBalance,
-    tradeStore.tokenIn.address,
-    tradeStore.tokenOut.address,
-    tradeStore.tokenIn.userRouterAllowance,
-  ]);
-
-  ////////////////////////////////Expanded
-  const [expanded, setExpanded] = useState(false);
-
-  const Option = () => {
-    if (expanded) {
-      return (
-        <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Expected Output</div>
-            <div className="ml-auto text-xs">
-              {tradeStore.pairSelected
-                ? numFormat(
-                    parseFloat(
-                      ethers.utils.formatUnits(
-                        tradeStore.amountOut ?? BN_ZERO,
-                        tradeStore.tokenOut.decimals,
-                      ),
-                    ),
-                    5,
-                  )
-                : "Select Token"}
-            </div>
-          </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">
-              Minimum received after slippage ({tradeStore.tradeSlippage}%)
-            </div>
-            <div className="ml-auto text-xs">
-              {numFormat(
-                (parseFloat(
-                  ethers.utils.formatUnits(
-                    tradeStore.amountOut,
-                    tradeStore.tokenOut.decimals,
-                  ),
-                ) *
-                  (100 - parseFloat(tradeStore.tradeSlippage))) /
-                  100,
-                5,
-              )}
-            </div>
-          </div>
-        </div>
-      );
-    }
-  };
-
   return (
     <div>
-      <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+      <InputBoxContainer>
         <div className="flex items-end justify-between text-[11px] text-grey1">
-          <span>
-            {" "}
-            ~$
-            {!isNaN(parseInt(tradeStore.amountIn.toString())) &&
-            !isNaN(tradeStore.tokenIn.decimals) &&
-            !isNaN(tradeStore.tokenIn.USDPrice)
-              ? (
-                  (!isNaN(parseFloat(displayIn)) ? parseFloat(displayIn) : 0) *
-                  (tradeStore.tokenIn.USDPrice ?? 0)
-                ).toFixed(2)
-              : (0).toFixed(2)}
-          </span>
+          <AmountInDisplay
+            displayIn={displayIn}
+            amountIn={tradeStore.amountIn}
+            tokenIn={tradeStore.tokenIn}
+            approximate
+          />
           <BalanceDisplay token={tradeStore.tokenIn}></BalanceDisplay>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3">
           {inputBoxIn("0", tradeStore.tokenIn, "tokenIn", handleInputBox)}
           <div className="flex items-center gap-x-2">
             {isConnected && tradeStore.tokenIn.address != ZERO_ADDRESS ? (
-              <button
+              <MaxButton
                 onClick={() => {
                   handleInputBox({
                     target: {
@@ -843,10 +700,7 @@ export default function LimitSwap() {
                     },
                   });
                 }}
-                className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
-              >
-                MAX
-              </button>
+              />
             ) : null}
             <SelectToken
               index="0"
@@ -862,49 +716,25 @@ export default function LimitSwap() {
             />
           </div>
         </div>
-      </div>
-      <div
-        onClick={() => {
-          tradeStore.switchDirection(
-            tradeStore.exactIn,
-            tradeStore.exactIn ? displayIn : displayOut,
-            tradeStore.exactIn
-              ? tradeStore.setAmountIn
-              : tradeStore.setAmountOut,
-          );
-        }}
-        className="flex items-center justify-center w-full pt-10 pb-3"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="1.5"
-          stroke="currentColor"
-          className="w-5 cursor-pointer"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
-          />
-        </svg>
-      </div>
+      </InputBoxContainer>
+
+      <SwitchDirection
+        displayIn={displayIn}
+        displayOut={displayOut}
+        switchDirection={tradeStore.switchDirection}
+        exactIn={tradeStore.exactIn}
+        setAmountIn={tradeStore.setAmountIn}
+        setAmountOut={tradeStore.setAmountOut}
+      />
+
       <span className="text-[11px] text-grey1">TO</span>
-      <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+      <InputBoxContainer>
         <div className="flex items-end justify-between text-[11px] text-grey1">
-          <span>
-            ~$
-            {!isNaN(tradeStore.tokenOut.decimals) &&
-            !isNaN(tradeStore.tokenOut.USDPrice) ? (
-              (
-                (!isNaN(parseFloat(displayOut)) ? parseFloat(displayOut) : 0) *
-                (tradeStore.tokenOut.USDPrice ?? 0)
-              ).toFixed(2)
-            ) : (
-              <>{(0).toFixed(2)}</>
-            )}
-          </span>
+          <AmountOutDisplay
+            displayOut={displayOut}
+            tokenOut={tradeStore.tokenOut}
+            approximate
+          />
           <span>
             {tradeStore.pairSelected ? (
               "Balance: " +
@@ -917,21 +747,13 @@ export default function LimitSwap() {
           </span>
         </div>
         <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-          {
-            <div>
-              <div>
-                {inputBoxOut(
-                  "0",
-                  tradeStore.tokenOut,
-                  "tokenOut",
-                  handleInputBox,
-                )}
-              </div>
-            </div>
-          }
+          <div>
+            {inputBoxOut("0", tradeStore.tokenOut, "tokenOut", handleInputBox)}
+          </div>
+
           <div className="flex items-center gap-x-2">
             {isConnected && tradeStore.tokenOut.address != ZERO_ADDRESS ? (
-              <button
+              <MaxButton
                 onClick={() => {
                   handleInputBox({
                     target: {
@@ -940,10 +762,7 @@ export default function LimitSwap() {
                     },
                   });
                 }}
-                className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
-              >
-                MAX
-              </button>
+              />
             ) : null}
             <SelectToken
               key={"out"}
@@ -959,49 +778,31 @@ export default function LimitSwap() {
             />
           </div>
         </div>
-      </div>
+      </InputBoxContainer>
       {tradeStore.pairSelected ? (
         <div className="flex gap-y-4 w-full items-center mt-5 justify-between bg-dark border-grey/80 p-2 border rounded-[4px]">
           <div className="bg-dark text-sm uppercase pl-2 rounded-[4px] flex items-center gap-x-2">
             <span className="md:block hidden">SELECT A</span> Fee tier:
           </div>
           <div className="grid grid-cols-3 gap-x-3">
-            <div
-              className={
-                selectedFeeTier == "1000"
-                  ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-                  : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-              }
-              onClick={() => {
-                handleManualFeeTierChange(1000);
-              }}
+            <FeeTierBox
+              selected={selectedFeeTier == "1000"}
+              onClick={() => handleManualFeeTierChange(1000)}
             >
               0.1%
-            </div>
-            <div
-              className={
-                selectedFeeTier == "3000"
-                  ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-                  : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-              }
-              onClick={() => {
-                handleManualFeeTierChange(3000);
-              }}
+            </FeeTierBox>
+            <FeeTierBox
+              selected={selectedFeeTier == "3000"}
+              onClick={() => handleManualFeeTierChange(3000)}
             >
               0.3%
-            </div>
-            <div
-              className={
-                selectedFeeTier == "10000"
-                  ? "py-1.5 text-sm border-grey1 bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-                  : "py-1.5 text-sm bg-dark hover:border-grey1 hover:bg-grey/40 transition-all cursor-pointer border border-grey md:px-5 px-3 rounded-[4px]"
-              }
-              onClick={() => {
-                handleManualFeeTierChange(10000);
-              }}
+            </FeeTierBox>
+            <FeeTierBox
+              selected={selectedFeeTier == "10000"}
+              onClick={() => handleManualFeeTierChange(10000)}
             >
               1.0%
-            </div>
+            </FeeTierBox>
           </div>
         </div>
       ) : null}
@@ -1071,41 +872,24 @@ export default function LimitSwap() {
           </span>
         </div>
         {priceRangeSelected ? (
-          <div>
-            <div className="flex items-center justify-between gap-x-10 mt-4">
-              <div className="border border-grey w-full bg-dark flex flex-col items-center justify-center py-4">
-                <span className="text-center text-xs text-grey1 mb-2">
-                  MIN. PRICE
-                </span>
-                <input
-                  autoComplete="off"
-                  className="outline-none bg-transparent text-3xl w-1/2 md:w-56 text-center mb-2"
-                  value={
-                    !isNaN(parseFloat(lowerPriceString)) ? lowerPriceString : 0
-                  }
-                  type="text"
-                  onChange={(e) => {
-                    setLowerPriceString(inputFilter(e.target.value));
-                  }}
-                />
-              </div>
-              <div className="border border-grey w-full bg-dark flex flex-col items-center justify-center py-4">
-                <span className="text-center text-xs text-grey1 mb-2">
-                  MAX. PRICE
-                </span>
-                <input
-                  autoComplete="off"
-                  className="outline-none bg-transparent text-3xl w-1/2 md:w-56 text-center mb-2"
-                  value={
-                    !isNaN(parseFloat(upperPriceString)) ? upperPriceString : 0
-                  }
-                  type="text"
-                  onChange={(e) => {
-                    setUpperPriceString(inputFilter(e.target.value));
-                  }}
-                />
-              </div>
-            </div>
+          <div className="flex items-center justify-between gap-x-10 mt-4">
+            <PriceRangeBox
+              value={lowerPriceString}
+              onChange={(e) => {
+                setLowerPriceString(inputFilter(e.target.value));
+              }}
+            >
+              MIN. PRICE
+            </PriceRangeBox>
+
+            <PriceRangeBox
+              value={upperPriceString}
+              onChange={(e) => {
+                setUpperPriceString(inputFilter(e.target.value));
+              }}
+            >
+              MAX. PRICE
+            </PriceRangeBox>
           </div>
         ) : (
           <div className="bg-dark py-3 px-5 border border-grey rounded-[4px] mt-4">
@@ -1167,35 +951,27 @@ export default function LimitSwap() {
       ) : (
         <></>
       )}
-      <div className="py-4">
-        <div
-          className="flex px-2 cursor-pointer py-2 rounded-[4px]"
-          onClick={() => setExpanded(!expanded)}
-        >
-          <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-            {"1 " + tradeStore.tokenIn.symbol} ={" "}
-            {tradeStore.tradePoolData?.id != ZERO_ADDRESS
-              ? displayPoolPrice(
-                  tradeStore.wethCall,
-                  tradeStore.pairSelected,
-                  tradeStore.tradePoolData?.poolPrice,
-                  tradeStore.tokenIn,
-                  tradeStore.tokenOut,
-                ) +
-                " " +
-                tradeStore.tokenOut.symbol
-              : "?"}
+
+      <Option>
+        <div className="flex p-1">
+          <div className="text-xs text-[#4C4C4C]">
+            Minimum received after slippage ({tradeStore.tradeSlippage}%)
           </div>
-          <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
-            <button>
-              <ChevronDownIcon className="w-4 h-4" />
-            </button>
+          <div className="ml-auto text-xs">
+            {numFormat(
+              (parseFloat(
+                ethers.utils.formatUnits(
+                  tradeStore.amountOut,
+                  tradeStore.tokenOut.decimals,
+                ),
+              ) *
+                (100 - parseFloat(tradeStore.tradeSlippage))) /
+                100,
+              5,
+            )}
           </div>
         </div>
-        <div className="flex-wrap w-full break-normal transition ">
-          <Option />
-        </div>
-      </div>
+      </Option>
 
       {isDisconnected ? (
         <ConnectWalletButton xl={true} />
@@ -1249,20 +1025,9 @@ export default function LimitSwap() {
                 gasLimit={mintGasLimit}
               />
             )
-          ) : tradeStore.tokenIn.native ? (
-            <SwapWrapNativeButton
-              disabled={
-                swapGasLimit.eq(BN_ZERO) || tradeStore.tradeButton.disabled
-              }
-              routerAddress={getRouterAddress(networkName)}
-              wethAddress={chainProperties[networkName]["wethAddress"]}
-              tokenInSymbol={tradeStore.tokenIn.symbol}
-              amountIn={tradeStore.amountIn}
-              gasLimit={swapGasLimit}
-              resetAfterSwap={resetAfterSwap}
-            />
           ) : (
-            <SwapUnwrapNativeButton
+            <SwapNativeButtons
+              native={tradeStore.tokenIn.native}
               disabled={
                 swapGasLimit.eq(BN_ZERO) || tradeStore.tradeButton.disabled
               }

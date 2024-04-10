@@ -94,6 +94,16 @@ export type baseToken = {
   decimals: number;
 };
 
+export type SwapNativeButtonsProps = {
+  disabled: boolean;
+  routerAddress: any;
+  wethAddress: any;
+  tokenInSymbol: string;
+  amountIn: BigNumber;
+  gasLimit: BigNumber;
+  resetAfterSwap: () => void;
+};
+
 export type token = tokenCover | tokenRangeLimit | tokenSwap;
 
 export type LimitSubgraph = ApolloClient<NormalizedCacheObject>;
