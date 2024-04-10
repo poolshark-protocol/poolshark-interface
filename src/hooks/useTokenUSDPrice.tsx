@@ -8,8 +8,11 @@ import {
   getLimitTokenUsdPrice,
 } from "../utils/tokens";
 
-const useTokenUSDPrice = () => {
+const useTokenUSDPrice = (poolData) => {
   const limitSubgraph = useConfigStore((state) => state.limitSubgraph);
+
+  //1. each of these should be passed in
+  //2. refactor to use passed in values
   const [
     tokenIn,
     tradePoolData,
@@ -19,7 +22,7 @@ const useTokenUSDPrice = () => {
   ] = useTradeStore(
     useShallow((state) => [
       state.tokenIn,
-      state.tradePoolData,
+      state.tradePoolData, // change to `poolData`
       state.setTokenInTradeUSDPrice,
       state.tokenOut,
       state.setTokenOutTradeUSDPrice,
