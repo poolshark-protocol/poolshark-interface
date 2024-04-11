@@ -1,52 +1,44 @@
 import { useEffect } from "react";
 import { useConfigStore } from "./useConfigStore";
-import { useShallow } from "zustand/react/shallow";
-import { useTradeStore } from "./useTradeStore";
 import { ZERO_ADDRESS } from "../utils/math/constants";
 import {
   fetchLimitTokenUSDPrice,
   getLimitTokenUsdPrice,
 } from "../utils/tokens";
+import { tokenSwap } from "../utils/types";
 
-const useTokenUSDPrice = () => {
+const useTokenUSDPrice = ({
+  poolData,
+  tokenIn,
+  tokenOut,
+  setTokenInUSDPrice,
+  setTokenOutUSDPrice,
+}: {
+  poolData: any;
+  tokenIn: tokenSwap;
+  tokenOut: tokenSwap;
+  setTokenInUSDPrice: (n: number) => void;
+  setTokenOutUSDPrice: (n: number) => void;
+}) => {
   const limitSubgraph = useConfigStore((state) => state.limitSubgraph);
-  const [
-    tokenIn,
-    tradePoolData,
-    setTokenInTradeUSDPrice,
-    tokenOut,
-    setTokenOutTradeUSDPrice,
-  ] = useTradeStore(
-    useShallow((state) => [
-      state.tokenIn,
-      state.tradePoolData,
-      state.setTokenInTradeUSDPrice,
-      state.tokenOut,
-      state.setTokenOutTradeUSDPrice,
-    ]),
-  );
 
   useEffect(() => {
     if (
       tokenIn.address != ZERO_ADDRESS &&
-      (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
+      (poolData?.id == ZERO_ADDRESS || poolData?.id == undefined)
     ) {
-      getLimitTokenUsdPrice(
-        tokenIn.address,
-        setTokenInTradeUSDPrice,
-        limitSubgraph,
-      );
+      getLimitTokenUsdPrice(tokenIn.address, setTokenInUSDPrice, limitSubgraph);
     }
   }, [tokenIn.address]);
 
   useEffect(() => {
     if (
       tokenOut.address != ZERO_ADDRESS &&
-      (tradePoolData?.id == ZERO_ADDRESS || tradePoolData?.id == undefined)
+      (poolData?.id == ZERO_ADDRESS || poolData?.id == undefined)
     ) {
       getLimitTokenUsdPrice(
         tokenOut.address,
-        setTokenOutTradeUSDPrice,
+        setTokenOutUSDPrice,
         limitSubgraph,
       );
     }
@@ -56,17 +48,13 @@ const useTokenUSDPrice = () => {
     if (
       tokenIn.address != ZERO_ADDRESS &&
       tokenOut.address != ZERO_ADDRESS &&
-      tradePoolData?.id != ZERO_ADDRESS &&
-      tradePoolData?.id != undefined
+      poolData?.id != ZERO_ADDRESS &&
+      poolData?.id != undefined
     ) {
-      fetchLimitTokenUSDPrice(tradePoolData, tokenIn, setTokenInTradeUSDPrice);
-      fetchLimitTokenUSDPrice(
-        tradePoolData,
-        tokenOut,
-        setTokenOutTradeUSDPrice,
-      );
+      fetchLimitTokenUSDPrice(poolData, tokenIn, setTokenInUSDPrice);
+      fetchLimitTokenUSDPrice(poolData, tokenOut, setTokenOutUSDPrice);
     }
-  }, [tradePoolData.poolPrice]);
+  }, [poolData.poolPrice]);
 };
 
 export default useTokenUSDPrice;
