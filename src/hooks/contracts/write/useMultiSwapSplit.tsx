@@ -4,17 +4,17 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import { useConfigStore } from "../../useConfigStore";
-import { getRouterAddress } from "../../../utils/config";
-import { poolsharkRouterABI } from "../../../abis/evm/poolsharkRouter";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
+import { poolsharkRouterABI } from "../../../abis/evm/poolsharkRouter";
+import { BN_ZERO } from "../../../utils/math/constants";
 
-export default function useCreateLimitPoolAndMint({
-  poolConfig,
-  rangePositions,
-  limitPositions,
-  msgValue,
+export default function useMultiSwapSplit({
+  routerAddress,
+  poolAddresses,
+  swapParams,
   enabled,
   gasLimit,
+  msgValue,
   onSuccess,
   onError,
 }) {
@@ -24,14 +24,15 @@ export default function useCreateLimitPoolAndMint({
   ]);
 
   const { config } = usePrepareContractWrite({
-    address: getRouterAddress(networkName),
+    address: routerAddress,
     abi: poolsharkRouterABI,
-    functionName: "createLimitPoolAndMint",
-    args: [
-      poolConfig, // pool params
-      rangePositions, // range positions
-      limitPositions, // limit positions
-    ],
+    functionName: "multiSwapSplit",
+    args: deepConvertBigIntAndBigNumber([
+      poolAddresses,
+      swapParams[0],
+      BN_ZERO,
+      1897483712,
+    ]),
     enabled: enabled,
     chainId: chainId,
     gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
@@ -49,6 +50,5 @@ export default function useCreateLimitPoolAndMint({
       onError();
     },
   });
-
   return { config, data, write, isLoading };
 }

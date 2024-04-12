@@ -21,6 +21,7 @@ import { BN_ZERO } from "../../../utils/math/constants";
 export default function useBurnLimit({
   poolAddress,
   address,
+  burnPercent,
   positionId,
   claim,
   zeroForOne,
@@ -40,7 +41,7 @@ export default function useBurnLimit({
     args: [
       deepConvertBigIntAndBigNumber({
         to: address,
-        burnPercent: BN_ZERO,
+        burnPercent: burnPercent,
         positionId: positionId,
         claim: claim,
         zeroForOne: zeroForOne,
@@ -63,5 +64,5 @@ export default function useBurnLimit({
     },
   });
 
-  return { config, data, write };
+  return { config, data, write, isLoading };
 }

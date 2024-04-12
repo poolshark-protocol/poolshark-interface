@@ -11,9 +11,7 @@ import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useRangeLimitStore } from "../../useRangeLimitStore";
 import { useEffect } from "react";
 import { ethers } from "ethers";
-import { toast } from "sonner";
 import { parseUnits } from "viem";
-import { chainProperties } from "../../../utils/chains";
 import { hasBalance } from "../../../utils/tokens";
 
 export default function useMultiMintLimit({
@@ -97,15 +95,15 @@ export default function useMultiMintLimit({
 
   useEffect(() => {
     if (isLoading) {
-      setIsLoading(true);
+      if (typeof setIsLoading === "function") setIsLoading(true);
     } else {
-      setIsLoading(false);
+      if (typeof setIsLoading === "function") setIsLoading(false);
     }
   }, [isLoading]);
 
   useEffect(() => {
-    setTxHash(data?.hash);
+    if (typeof setTxHash === "function") setTxHash(data?.hash);
   }, [data]);
 
-  return { config, data, write };
+  return { config, data, write, isLoading };
 }

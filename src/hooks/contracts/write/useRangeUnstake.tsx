@@ -4,17 +4,15 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import { useConfigStore } from "../../useConfigStore";
-import { getRouterAddress } from "../../../utils/config";
-import { poolsharkRouterABI } from "../../../abis/evm/poolsharkRouter";
+import { getRangeStakerAddress } from "../../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
+import { rangeStakerABI } from "../../../abis/evm/rangeStaker";
 
-export default function useCreateLimitPoolAndMint({
-  poolConfig,
-  rangePositions,
-  limitPositions,
-  msgValue,
-  enabled,
-  gasLimit,
+export default function useRangeUnstake({
+  rangePoolAddress,
+  address,
+  unstakeGasLimit,
+  positionId,
   onSuccess,
   onError,
 }) {
@@ -24,18 +22,23 @@ export default function useCreateLimitPoolAndMint({
   ]);
 
   const { config } = usePrepareContractWrite({
-    address: getRouterAddress(networkName),
-    abi: poolsharkRouterABI,
-    functionName: "createLimitPoolAndMint",
+    address: getRangeStakerAddress(networkName),
+    abi: rangeStakerABI,
+    functionName: "unstakeRange",
     args: [
-      poolConfig, // pool params
-      rangePositions, // range positions
-      limitPositions, // limit positions
+      deepConvertBigIntAndBigNumber({
+        to: address,
+        pool: rangePoolAddress,
+        positionId: positionId,
+      }),
     ],
-    enabled: enabled,
     chainId: chainId,
-    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
-    value: msgValue,
+    enabled: rangePoolAddress != undefined,
+    gasLimit: deepConvertBigIntAndBigNumber(unstakeGasLimit),
+    onSuccess() {},
+    onError() {
+      console.log("error unstaked", rangePoolAddress, positionId);
+    },
   });
 
   const { data, write } = useContractWrite(config);

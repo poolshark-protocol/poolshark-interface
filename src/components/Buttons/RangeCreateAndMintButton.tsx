@@ -17,6 +17,7 @@ import {
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
+import useCreateLimitPoolAndMint from "../../hooks/contracts/write/useCreateLimitPoolAndMint";
 
 export default function RangeCreateAndMintButton({
   disabled,
@@ -69,41 +70,54 @@ export default function RangeCreateAndMintButton({
 
   useEffect(() => {}, [disabled]);
 
+  const onSuccess = () => {
+    setSuccessDisplay(true);
+    setNeedsAllowanceIn(true);
+    if (amount1.gt(BN_ZERO)) {
+      setNeedsAllowanceOut(true);
+    }
+    setNeedsBalanceIn(true);
+    setNeedsBalanceOut(true);
+    setTimeout(() => {
+      setNeedsRefetch(true);
+      setNeedsPosRefetch(true);
+      closeModal();
+    }, 2000);
+  };
+
+  const onError = () => {
+    setErrorDisplay(true);
+    setNeedsRefetch(false);
+    setNeedsPosRefetch(false);
+  };
+
   // creates new position every time
   const positionId = 0;
 
-  //* hook wrapper
-  const { config } = usePrepareContractWrite({
-    address: routerAddress,
-    abi: poolsharkRouterABI,
-    functionName: "createLimitPoolAndMint",
-    args: [
+  const { data, write, isLoading } = useCreateLimitPoolAndMint({
+    poolConfig: deepConvertBigIntAndBigNumber({
+      poolTypeId: poolTypeId,
+      tokenIn: token0.address,
+      tokenOut: token1.address,
+      startPrice: startPrice,
+      swapFee: feeTier,
+    }), // pool params
+    rangePositions: [
       deepConvertBigIntAndBigNumber({
-        poolTypeId: poolTypeId,
-        tokenIn: token0.address,
-        tokenOut: token1.address,
-        startPrice: startPrice,
-        swapFee: feeTier,
-      }), // pool params
-      [
-        deepConvertBigIntAndBigNumber({
-          to: to,
-          lower: lower,
-          upper: upper,
-          positionId: positionId,
-          amount0: amount0,
-          amount1: amount1,
-          callbackData: getRangeMintInputData(
-            rangeMintParams.stakeFlag,
-            chainProperties[networkName]["rangeStakerAddress"],
-          ),
-        }),
-      ], // range positions
-      [], // limit positions
-    ],
-    chainId: chainId,
-    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
-    value: deepConvertBigIntAndBigNumber(
+        to: to,
+        lower: lower,
+        upper: upper,
+        positionId: positionId,
+        amount0: amount0,
+        amount1: amount1,
+        callbackData: getRangeMintInputData(
+          rangeMintParams.stakeFlag,
+          chainProperties[networkName]["rangeStakerAddress"],
+        ),
+      }),
+    ], // range positions
+    limitPositions: [],
+    msgValue: deepConvertBigIntAndBigNumber(
       getRangeMintButtonMsgValue(
         tokenIn.native,
         tokenOut.native,
@@ -111,36 +125,10 @@ export default function RangeCreateAndMintButton({
         rangeMintParams.tokenOutAmount,
       ),
     ),
-    onSuccess() {},
-    onError() {
-      setErrorDisplay(true);
-    },
-  });
-
-  const { data, write } = useContractWrite(config);
-
-  const { isLoading } = useWaitForTransaction({
-    hash: data?.hash,
-    onSuccess() {
-      setSuccessDisplay(true);
-      setNeedsAllowanceIn(true);
-      if (amount1.gt(BN_ZERO)) {
-        setNeedsAllowanceOut(true);
-      }
-      setNeedsBalanceIn(true);
-      setNeedsBalanceOut(true);
-      setTimeout(() => {
-        setNeedsRefetch(true);
-        setNeedsPosRefetch(true);
-        closeModal();
-      }, 2000);
-    },
-
-    onError() {
-      setErrorDisplay(true);
-      setNeedsRefetch(false);
-      setNeedsPosRefetch(false);
-    },
+    enabled: true,
+    gasLimit,
+    onSuccess,
+    onError,
   });
 
   useEffect(() => {
