@@ -47,7 +47,14 @@ export default function Trade() {
     );
 
   const tradeStore = useTradeStore();
-  useTokenUSDPrice();
+
+  useTokenUSDPrice({
+    poolData: tradeStore.tradePoolData,
+    tokenIn: tradeStore.tokenIn,
+    tokenOut: tradeStore.tokenOut,
+    setTokenInUSDPrice: tradeStore.setTokenInTradeUSDPrice,
+    setTokenOutUSDPrice: tradeStore.setTokenOutTradeUSDPrice,
+  });
 
   const router = useRouter();
 
