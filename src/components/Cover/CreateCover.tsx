@@ -11,7 +11,7 @@ import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
-import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
+import { fetchTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
 import {
@@ -117,14 +117,14 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     if (coverStore.coverPoolData.token0 && coverStore.coverPoolData.token1) {
       if (coverStore.tokenIn.address) {
-        fetchCoverTokenUSDPrice(
+        fetchTokenUSDPrice(
           coverStore.coverPoolData,
           coverStore.tokenIn,
           coverStore.setTokenInCoverUSDPrice,
         );
       }
       if (coverStore.tokenOut.address) {
-        fetchCoverTokenUSDPrice(
+        fetchTokenUSDPrice(
           coverStore.coverPoolData,
           coverStore.tokenOut,
           coverStore.setTokenOutCoverUSDPrice,

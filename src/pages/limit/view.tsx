@@ -1,7 +1,7 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { useAccount, useContractRead } from "wagmi";
+import { useAccount } from "wagmi";
 import LimitCollectButton from "../../components/Buttons/LimitCollectButton";
 import { BigNumber, ethers } from "ethers";
 import {
@@ -10,11 +10,10 @@ import {
   roundDown,
   roundUp,
 } from "../../utils/math/tickMath";
-import { limitPoolABI } from "../../abis/evm/limitPool";
 import { getClaimTick, mapUserLimitPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Limit/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Limit/AddLiquidity";
-import { fetchLimitTokenUSDPrice, getLogo } from "../../utils/tokens";
+import { getLogo } from "../../utils/tokens";
 import { fetchLimitPositions } from "../../utils/queries";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
@@ -24,11 +23,9 @@ import { BN_ZERO } from "../../utils/math/constants";
 import { gasEstimateBurnLimit } from "../../utils/gas";
 import { getExpectedAmountOut } from "../../utils/math/priceMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { parseUnits } from "../../utils/math/valueMath";
 import { chainProperties } from "../../utils/chains";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
-import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import useSnapshotLimit from "../../hooks/contracts/useSnapshotLimit";
 import { useShallow } from "zustand/react/shallow";
 import useTokenUSDPrice from "../../hooks/useTokenUSDPrice";

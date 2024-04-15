@@ -2,7 +2,7 @@ import { formatBytes32String } from "ethers/lib/utils.js";
 import { getLimitPoolFromFactory } from "./queries";
 import { LimitSubgraph, tokenSwap } from "./types";
 import { ZERO_ADDRESS } from "./math/constants";
-import { fetchRangeTokenUSDPrice } from "./tokens";
+import { fetchTokenUSDPrice } from "./tokens";
 
 export const getSwapPools = async (
   client: LimitSubgraph,
@@ -49,8 +49,8 @@ export const getSwapPools = async (
           }
         }
       }
-      fetchRangeTokenUSDPrice(selectedPool, tokenIn, setTokenInTradeUSDPrice);
-      fetchRangeTokenUSDPrice(selectedPool, tokenOut, setTokenOutTradeUSDPrice);
+      fetchTokenUSDPrice(selectedPool, tokenIn, setTokenInTradeUSDPrice);
+      fetchTokenUSDPrice(selectedPool, tokenOut, setTokenOutTradeUSDPrice);
       return allPools;
     } else {
       return setSwapPoolData({

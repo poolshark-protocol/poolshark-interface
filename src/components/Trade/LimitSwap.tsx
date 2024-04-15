@@ -31,7 +31,7 @@ import {
   gasEstimateMintLimit,
 } from "../../utils/gas";
 import JSBI from "jsbi";
-import { fetchRangeTokenUSDPrice, hasAllowance } from "../../utils/tokens";
+import { fetchTokenUSDPrice, hasAllowance } from "../../utils/tokens";
 import BalanceDisplay from "../Display/BalanceDisplay";
 import { getRouterAddress } from "../../utils/config";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
@@ -195,12 +195,12 @@ export default function LimitSwap({
     setSelectedFeeTier(feeAmount.toString());
     tradeStore.setTradePoolData(pool);
     if (pool.id != ZERO_ADDRESS) {
-      fetchRangeTokenUSDPrice(
+      fetchTokenUSDPrice(
         pool,
         tradeStore.tokenIn,
         tradeStore.setTokenInTradeUSDPrice,
       );
-      fetchRangeTokenUSDPrice(
+      fetchTokenUSDPrice(
         pool,
         tradeStore.tokenOut,
         tradeStore.setTokenOutTradeUSDPrice,

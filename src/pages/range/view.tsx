@@ -9,7 +9,7 @@ import { DyDxMath } from "../../utils/math/dydxMath";
 import RemoveLiquidity from "../../components/Modals/Range/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Range/AddLiquidity";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { fetchRangeTokenUSDPrice, getLogo } from "../../utils/tokens";
+import { getLogo } from "../../utils/tokens";
 import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";

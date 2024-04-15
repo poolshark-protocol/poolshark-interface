@@ -16,27 +16,7 @@ export const tokenListsBaseUrl =
 export const defaultTokenLogo =
   tokenListsBaseUrl + "/arbitrum-one/tokenZero.png";
 
-export const fetchRangeTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
-  try {
-    setTokenUSDPrice(
-      token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice,
-    );
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-export const fetchLimitTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
-  try {
-    setTokenUSDPrice(
-      token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice,
-    );
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-export const fetchCoverTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
+export const fetchTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
   try {
     setTokenUSDPrice(
       token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice,

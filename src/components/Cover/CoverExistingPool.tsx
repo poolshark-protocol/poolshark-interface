@@ -10,7 +10,7 @@ import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
 import CoverCreateAndMintButton from "../Buttons/CoverCreateAndMintButton";
-import { fetchCoverTokenUSDPrice, getLogo } from "../../utils/tokens";
+import { fetchTokenUSDPrice, getLogo } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
 import {
   gasEstimateCoverCreateAndMint,
@@ -130,14 +130,14 @@ export default function CoverExistingPool({ goBack }) {
   useEffect(() => {
     if (coverStore.coverPoolData.token0 && coverStore.coverPoolData.token1) {
       if (coverStore.tokenIn.address) {
-        fetchCoverTokenUSDPrice(
+        fetchTokenUSDPrice(
           coverStore.coverPoolData,
           coverStore.tokenIn,
           coverStore.setTokenInCoverUSDPrice,
         );
       }
       if (coverStore.tokenOut.address) {
-        fetchCoverTokenUSDPrice(
+        fetchTokenUSDPrice(
           coverStore.coverPoolData,
           coverStore.tokenOut,
           coverStore.setTokenOutCoverUSDPrice,
