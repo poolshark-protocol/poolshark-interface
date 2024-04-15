@@ -31,6 +31,7 @@ import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import useSnapshotLimit from "../../hooks/contracts/useSnapshotLimit";
 import { useShallow } from "zustand/react/shallow";
+import useTokenUSDPrice from "../../hooks/useTokenUSDPrice";
 
 export default function ViewLimit() {
   const [chainId, logoMap, networkName, limitSubgraph, setLimitSubgraph] =
@@ -134,29 +135,13 @@ export default function ViewLimit() {
   const [collectGasFee, setCollectGasFee] = useState("$0.00");
 
   ////////////////////////////////Fetch Pool Data
-  useEffect(() => {
-    if (limitPoolData.token0 && limitPoolData.token1) {
-      if (tokenIn.address) {
-        fetchLimitTokenUSDPrice(
-          limitPoolData,
-          tokenIn,
-          setTokenInLimitUSDPrice,
-        );
-      }
-      if (tokenOut.address) {
-        fetchLimitTokenUSDPrice(
-          limitPoolData,
-          tokenOut,
-          setTokenOutLimitUSDPrice,
-        );
-      }
-    }
-  }, [
-    limitFilledAmount,
-    tokenIn.address,
-    tokenOut.address,
-    limitPositionData.liquidity,
-  ]);
+  useTokenUSDPrice({
+    poolData: limitPoolData,
+    tokenIn,
+    tokenOut,
+    setTokenInUSDPrice: setTokenInLimitUSDPrice,
+    setTokenOutUSDPrice: setTokenOutLimitUSDPrice,
+  });
 
   useEffect(() => {
     if (

@@ -26,6 +26,7 @@ import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import useSnapshotRange from "../../hooks/contracts/useSnapshotRange";
 import useIsApprovedForAll from "../../hooks/contracts/useIsApprovedForAll";
 import { useShallow } from "zustand/react/shallow";
+import useTokenUSDPrice from "../../hooks/useTokenUSDPrice";
 
 export default function ViewRange() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -274,25 +275,13 @@ export default function ViewRange() {
   }
 
   ////////////////////////Prices
-
-  useEffect(() => {
-    if (rangePoolData.token0 && rangePoolData.token1) {
-      if (tokenIn.address) {
-        fetchRangeTokenUSDPrice(
-          rangePoolData,
-          tokenIn,
-          setTokenInRangeUSDPrice,
-        );
-      }
-      if (tokenOut.address) {
-        fetchRangeTokenUSDPrice(
-          rangePoolData,
-          tokenOut,
-          setTokenOutRangeUSDPrice,
-        );
-      }
-    }
-  }, [rangePoolData?.token0, rangePoolData?.token1]);
+  useTokenUSDPrice({
+    poolData: rangePoolData,
+    tokenIn,
+    tokenOut,
+    setTokenInUSDPrice: setTokenInRangeUSDPrice,
+    setTokenOutUSDPrice: setTokenOutRangeUSDPrice,
+  });
 
   useEffect(() => {
     if (rangePositionData.min && rangePositionData.max) {

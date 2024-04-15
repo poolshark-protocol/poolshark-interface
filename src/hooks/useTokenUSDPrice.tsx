@@ -54,7 +54,7 @@ const useTokenUSDPrice = ({
       fetchLimitTokenUSDPrice(poolData, tokenIn, setTokenInUSDPrice);
       fetchLimitTokenUSDPrice(poolData, tokenOut, setTokenOutUSDPrice);
     }
-  }, [poolData.poolPrice]);
+  }, [poolData.poolPrice, poolData?.token0?.price, poolData?.token1?.price]);
 };
 
 export default useTokenUSDPrice;
