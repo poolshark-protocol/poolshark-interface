@@ -13,7 +13,7 @@ import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ONE, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
-import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
+import { fetchTokenUSDPrice } from "../../utils/tokens";
 import { InformationCircleIcon } from "@heroicons/react/20/solid";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
@@ -402,35 +402,6 @@ export default function AddLiquidity({}) {
       }
     }
   }, [tokenInBal, tokenOutBal]);
-
-  ////////////////////////////////TokenUSDPrices
-
-  useEffect(() => {
-    if (
-      rangeLimitStore.rangePoolData.token0 &&
-      rangeLimitStore.rangePoolData.token1
-    ) {
-      if (rangeLimitStore.tokenIn.address) {
-        fetchRangeTokenUSDPrice(
-          rangeLimitStore.rangePoolData,
-          rangeLimitStore.tokenIn,
-          rangeLimitStore.setTokenInRangeUSDPrice,
-        );
-      }
-      if (rangeLimitStore.tokenOut.address) {
-        fetchRangeTokenUSDPrice(
-          rangeLimitStore.rangePoolData,
-          rangeLimitStore.tokenOut,
-          rangeLimitStore.setTokenOutRangeUSDPrice,
-        );
-      }
-    }
-  }, [
-    rangeLimitStore.rangePoolData.token0,
-    rangeLimitStore.rangePoolData.token1,
-    rangeLimitStore.tokenIn.native,
-    rangeLimitStore.tokenOut.native,
-  ]);
 
   ////////////////////////////////Prices and Ticks
   const [rangePrice, setRangePrice] = useState(undefined);

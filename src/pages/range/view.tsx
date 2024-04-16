@@ -9,7 +9,7 @@ import { DyDxMath } from "../../utils/math/dydxMath";
 import RemoveLiquidity from "../../components/Modals/Range/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Range/AddLiquidity";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { fetchRangeTokenUSDPrice, getLogo } from "../../utils/tokens";
+import { getLogo } from "../../utils/tokens";
 import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
@@ -26,6 +26,7 @@ import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import useSnapshotRange from "../../hooks/contracts/useSnapshotRange";
 import useIsApprovedForAll from "../../hooks/contracts/useIsApprovedForAll";
 import { useShallow } from "zustand/react/shallow";
+import useTokenUSDPrice from "../../hooks/useTokenUSDPrice";
 
 export default function ViewRange() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -274,25 +275,13 @@ export default function ViewRange() {
   }
 
   ////////////////////////Prices
-
-  useEffect(() => {
-    if (rangePoolData.token0 && rangePoolData.token1) {
-      if (tokenIn.address) {
-        fetchRangeTokenUSDPrice(
-          rangePoolData,
-          tokenIn,
-          setTokenInRangeUSDPrice,
-        );
-      }
-      if (tokenOut.address) {
-        fetchRangeTokenUSDPrice(
-          rangePoolData,
-          tokenOut,
-          setTokenOutRangeUSDPrice,
-        );
-      }
-    }
-  }, [rangePoolData?.token0, rangePoolData?.token1]);
+  useTokenUSDPrice({
+    poolData: rangePoolData,
+    tokenIn,
+    tokenOut,
+    setTokenInUSDPrice: setTokenInRangeUSDPrice,
+    setTokenOutUSDPrice: setTokenOutRangeUSDPrice,
+  });
 
   useEffect(() => {
     if (rangePositionData.min && rangePositionData.max) {

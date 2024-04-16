@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { TickMath } from "../../utils/math/tickMath";
-import { fetchRangeTokenUSDPrice, getLogo } from "../../utils/tokens";
+import { fetchTokenUSDPrice, getLogo } from "../../utils/tokens";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
@@ -110,14 +110,14 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
           setRangePoolData(poolData);
           if (poolData.token0 && poolData.token1) {
             if (rangeTokenIn.address) {
-              fetchRangeTokenUSDPrice(
+              fetchTokenUSDPrice(
                 poolData,
                 rangeTokenIn,
                 setRangeTokenInUSDPrice,
               );
             }
             if (rangeTokenOut.address) {
-              fetchRangeTokenUSDPrice(
+              fetchTokenUSDPrice(
                 poolData,
                 rangeTokenOut,
                 setTokenOutRangeUSDPrice,

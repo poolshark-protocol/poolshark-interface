@@ -11,7 +11,7 @@ import RemoveLiquidity from "../../components/Modals/Cover/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Cover/AddLiquidity";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { fetchCoverTokenUSDPrice, getLogo } from "../../utils/tokens";
+import { fetchTokenUSDPrice, getLogo } from "../../utils/tokens";
 import { fetchCoverPositions } from "../../utils/queries";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
@@ -185,18 +185,10 @@ export default function ViewCover() {
   useEffect(() => {
     if (coverPoolData.token0 && coverPoolData.token1) {
       if (tokenIn.address) {
-        fetchCoverTokenUSDPrice(
-          coverPoolData,
-          tokenIn,
-          setTokenInCoverUSDPrice,
-        );
+        fetchTokenUSDPrice(coverPoolData, tokenIn, setTokenInCoverUSDPrice);
       }
       if (tokenOut.address) {
-        fetchCoverTokenUSDPrice(
-          coverPoolData,
-          tokenOut,
-          setTokenOutCoverUSDPrice,
-        );
+        fetchTokenUSDPrice(coverPoolData, tokenOut, setTokenOutCoverUSDPrice);
       }
     }
   }, [coverPoolData?.token0, coverPoolData?.token1]);

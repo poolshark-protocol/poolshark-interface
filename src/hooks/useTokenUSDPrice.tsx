@@ -1,10 +1,7 @@
 import { useEffect } from "react";
 import { useConfigStore } from "./useConfigStore";
 import { ZERO_ADDRESS } from "../utils/math/constants";
-import {
-  fetchLimitTokenUSDPrice,
-  getLimitTokenUsdPrice,
-} from "../utils/tokens";
+import { fetchTokenUSDPrice, getLimitTokenUsdPrice } from "../utils/tokens";
 import { tokenSwap } from "../utils/types";
 
 const useTokenUSDPrice = ({
@@ -51,10 +48,10 @@ const useTokenUSDPrice = ({
       poolData?.id != ZERO_ADDRESS &&
       poolData?.id != undefined
     ) {
-      fetchLimitTokenUSDPrice(poolData, tokenIn, setTokenInUSDPrice);
-      fetchLimitTokenUSDPrice(poolData, tokenOut, setTokenOutUSDPrice);
+      fetchTokenUSDPrice(poolData, tokenIn, setTokenInUSDPrice);
+      fetchTokenUSDPrice(poolData, tokenOut, setTokenOutUSDPrice);
     }
-  }, [poolData.poolPrice]);
+  }, [poolData.poolPrice, poolData?.token0?.price, poolData?.token1?.price]);
 };
 
 export default useTokenUSDPrice;
