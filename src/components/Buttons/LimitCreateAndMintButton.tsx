@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
+import useCreateLimitPoolAndMint from "../../hooks/contracts/write/useCreateLimitPoolAndMint";
 
 export default function LimitCreateAndMintButton({
   disabled,
@@ -53,82 +54,71 @@ export default function LimitCreateAndMintButton({
 
   useEffect(() => {}, [disabled]);
 
-  //* hook wrapper
-  const { config } = usePrepareContractWrite({
-    address: routerAddress,
-    abi: poolsharkRouterABI,
-    functionName: "createLimitPoolAndMint",
-    args: [
-      deepConvertBigIntAndBigNumber({
-        poolTypeId: poolTypeId,
-        tokenIn: tokenIn.address,
-        tokenOut: tokenOut.address,
-        startPrice: BigNumber.from(
-          String(
-            TickMath.getSqrtRatioAtTick(Number(zeroForOne ? lower : upper)),
+  const onSuccess = () => {
+    toast.success("Your transaction was successful", {
+      id: toastId,
+      action: {
+        label: "View",
+        onClick: () =>
+          window.open(
+            `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+            "_blank",
           ),
-        ),
-        swapFee: feeTier ?? 3000,
-      }), // pool params
-      [], // range positions
-      [
-        deepConvertBigIntAndBigNumber({
-          to: to,
-          amount: amount,
-          mintPercent: mintPercent,
-          positionId: BN_ZERO,
-          lower: lower,
-          upper: upper,
-          zeroForOne: zeroForOne,
-          callbackData: ethers.utils.formatBytes32String(""),
-        }),
-      ], // limit positions
+      },
+    });
+    setNeedsBalanceIn(true);
+    setNeedsAllowanceIn(true);
+    setNeedsSnapshot(true);
+    setTimeout(() => {
+      setNeedsRefetch(true);
+      closeModal();
+    }, 1000);
+  };
+
+  const onError = () => {
+    toast.error("Your transaction failed", {
+      id: toastId,
+      action: {
+        label: "View",
+        onClick: () =>
+          window.open(
+            `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+            "_blank",
+          ),
+      },
+    });
+  };
+
+  const { data, write, isLoading } = useCreateLimitPoolAndMint({
+    poolConfig: deepConvertBigIntAndBigNumber({
+      poolTypeId: poolTypeId,
+      tokenIn: tokenIn.address,
+      tokenOut: tokenOut.address,
+      startPrice: BigNumber.from(
+        String(TickMath.getSqrtRatioAtTick(Number(zeroForOne ? lower : upper))),
+      ),
+      swapFee: feeTier ?? 3000,
+    }), // pool params
+    rangePositions: [],
+    limitPositions: [
+      deepConvertBigIntAndBigNumber({
+        to: to,
+        amount: amount,
+        mintPercent: mintPercent,
+        positionId: BN_ZERO,
+        lower: lower,
+        upper: upper,
+        zeroForOne: zeroForOne,
+        callbackData: ethers.utils.formatBytes32String(""),
+      }),
     ],
-    enabled: feeTier != undefined && gasLimit.gt(BN_ZERO),
-    chainId: chainId,
-    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
-    value: deepConvertBigIntAndBigNumber(
+    msgValue: deepConvertBigIntAndBigNumber(
       getLimitSwapButtonMsgValue(tokenIn.native, amount),
     ),
-  });
-
-  const { data, write } = useContractWrite(config);
-
-  const { isLoading } = useWaitForTransaction({
-    hash: data?.hash,
-    onSuccess() {
-      toast.success("Your transaction was successful", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
-      setNeedsBalanceIn(true);
-      setNeedsAllowanceIn(true);
-      setNeedsSnapshot(true);
-      setTimeout(() => {
-        setNeedsRefetch(true);
-        closeModal();
-      }, 1000);
-    },
-    onError() {
-      toast.error("Your transaction failed", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
-    },
+    enabled: feeTier != undefined && gasLimit.gt(BN_ZERO),
+    gasLimit,
+    onSuccess,
+    onError,
   });
 
   useEffect(() => {

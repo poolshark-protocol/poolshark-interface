@@ -92,6 +92,11 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const { address } = useAccount();
   const signer = useEthersSigner();
 
+  const [successDisplay, setSuccessDisplay] = useState(false);
+  const [errorDisplay, setErrorDisplay] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [txHash, setTxHash] = useState();
+
   const [disabled, setDisabled] = useState(false);
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
     Number(rangePositionData.min),
@@ -622,6 +627,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                           setIsOpen={setIsOpen}
                           positionId={rangePositionData.positionId}
                           gasLimit={mintGasLimit}
+                          setSuccessDisplay={setSuccessDisplay}
+                          setErrorDisplay={setErrorDisplay}
+                          setIsLoading={setIsLoading}
+                          setTxHash={setTxHash}
                         />
                       ) : (tokenInAllowance.lt(rangeMintParams.tokenInAmount) &&
                           tokenOutAllowance.lt(

@@ -321,7 +321,6 @@ export default function ViewCover() {
 
   ////////////////////////////////Filled Amount
 
-  //* hook wrapper
   const { data: filledAmount } = useContractRead({
     address: coverPoolAddress,
     abi: coverPoolABI,
@@ -360,7 +359,6 @@ export default function ViewCover() {
 
   ////////////////////////////////Latest Tick
 
-  //* hook wrapper
   const { data: newLatestTick } = useContractRead({
     address: coverPoolAddress,
     abi: coverPoolABI,

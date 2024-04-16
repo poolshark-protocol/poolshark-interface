@@ -1,22 +1,14 @@
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-  useAccount,
-} from "wagmi";
 import React, { useState } from "react";
 import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
-import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { getSwapRouterButtonMsgValue } from "../../utils/buttons";
 import { chainProperties } from "../../utils/chains";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { BigNumber, ethers } from "ethers";
-import { formatCurrency } from "@usedapp/core/dist/esm/src/model";
-import { BN_ZERO } from "../../utils/math/constants";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
+import useMultiSwapSplit from "../../hooks/contracts/write/useMultiSwapSplit";
 
 declare global {
   interface Window {
@@ -63,64 +55,49 @@ export default function SwapRouterButton({
     ]),
   );
 
-  const [errorDisplay, setErrorDisplay] = useState(false);
-  const [successDisplay, setSuccessDisplay] = useState(false);
+  const onSuccess = () => {
+    toast.success("Your transaction was successful", {
+      id: toastId,
+      action: {
+        label: "View",
+        onClick: () =>
+          window.open(
+            `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+            "_blank",
+          ),
+      },
+    });
+    resetAfterSwap();
+    setNeedsAllowanceIn(true);
+    setNeedsBalanceIn(true);
+    setNeedsBalanceOut(true);
+  };
 
-  const { address } = useAccount();
-  const userAddress = address;
+  const onError = () => {
+    toast.error("Your transaction failed", {
+      id: toastId,
+      action: {
+        label: "View",
+        onClick: () =>
+          window.open(
+            `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+            "_blank",
+          ),
+      },
+    });
+  };
 
-  const { config } = usePrepareContractWrite({
-    address: routerAddress,
-    abi: poolsharkRouterABI,
-    functionName: "multiSwapSplit",
-    args: deepConvertBigIntAndBigNumber([
-      poolAddresses,
-      swapParams[0],
-      BN_ZERO,
-      1897483712,
-    ]),
+  const { data, write, isLoading } = useMultiSwapSplit({
+    routerAddress,
+    poolAddresses,
+    swapParams,
     enabled: poolAddresses.length > 0 && swapParams.length > 0,
-    chainId: chainId,
-    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
-    value: deepConvertBigIntAndBigNumber(
+    gasLimit,
+    msgValue: deepConvertBigIntAndBigNumber(
       getSwapRouterButtonMsgValue(tokenInNative, tokenOutNative, amountIn),
     ),
-  });
-
-  const { data, write } = useContractWrite(config);
-
-  const { isLoading } = useWaitForTransaction({
-    hash: data?.hash,
-    onSuccess() {
-      toast.success("Your transaction was successful", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
-      resetAfterSwap();
-      setNeedsAllowanceIn(true);
-      setNeedsBalanceIn(true);
-      setNeedsBalanceOut(true);
-    },
-    onError() {
-      toast.error("Your transaction failed", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
-    },
+    onSuccess,
+    onError,
   });
 
   useEffect(() => {

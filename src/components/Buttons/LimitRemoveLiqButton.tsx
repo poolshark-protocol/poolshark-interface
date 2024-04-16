@@ -18,6 +18,7 @@ import { chainProperties } from "../../utils/chains";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
+import useBurnLimit from "../../hooks/contracts/write/useBurnLimit";
 
 export default function LimitRemoveLiqButton({
   poolAddress,
@@ -107,67 +108,56 @@ export default function LimitRemoveLiqButton({
 
   const [toastId, setToastId] = useState(null);
 
-  //* hook wrapper
-  const { config } = usePrepareContractWrite({
-    address: poolAddress,
-    abi: limitPoolABI,
-    functionName: "burnLimit",
-    args: [
-      deepConvertBigIntAndBigNumber({
-        to: address,
-        burnPercent: burnPercent,
-        positionId: positionId,
-        claim: BigNumber.from(claimTick ?? 0),
-        zeroForOne: zeroForOne,
-      }),
-    ],
-    enabled: positionId != undefined && claimTick != undefined,
-    chainId: chainId,
-    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
-  });
-
-  const { data, isSuccess, write } = useContractWrite(config);
-
-  const { isLoading } = useWaitForTransaction({
-    hash: data?.hash,
-    onSuccess() {
-      toast.success("Your transaction was successful", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
-      if (burnPercent.eq(parseUnits("1", 38))) {
-        setTimeout(() => {
-          setNeedsRefetch(true);
-        }, 1000);
-      }
+  const onSuccess = () => {
+    toast.success("Your transaction was successful", {
+      id: toastId,
+      action: {
+        label: "View",
+        onClick: () =>
+          window.open(
+            `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+            "_blank",
+          ),
+      },
+    });
+    if (burnPercent.eq(parseUnits("1", 38))) {
       setTimeout(() => {
-        setNeedsBalanceIn(true);
-        setNeedsBalanceOut(true);
-        setNeedsSnapshot(true);
-        setIsOpen(false);
-        closeModal();
+        setNeedsRefetch(true);
       }, 1000);
-    },
-    onError() {
-      toast.error("Your transaction failed", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
-    },
+    }
+    setTimeout(() => {
+      setNeedsBalanceIn(true);
+      setNeedsBalanceOut(true);
+      setNeedsSnapshot(true);
+      setIsOpen(false);
+      closeModal();
+    }, 1000);
+  };
+
+  const onError = () => {
+    toast.error("Your transaction failed", {
+      id: toastId,
+      action: {
+        label: "View",
+        onClick: () =>
+          window.open(
+            `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+            "_blank",
+          ),
+      },
+    });
+  };
+
+  const { write, data, isLoading } = useBurnLimit({
+    poolAddress,
+    address,
+    burnPercent,
+    positionId,
+    claim: BigNumber.from(claimTick ?? 0),
+    zeroForOne,
+    gasLimit,
+    onSuccess,
+    onError,
   });
 
   useEffect(() => {

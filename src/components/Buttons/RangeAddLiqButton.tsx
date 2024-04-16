@@ -1,22 +1,14 @@
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
+import { useWaitForTransaction } from "wagmi";
 import React, { useState, useEffect } from "react";
-import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { BigNumber, ethers } from "ethers";
-import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+import { BigNumber } from "ethers";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { getRangeMintInputData } from "../../utils/buttons";
 import { chainProperties } from "../../utils/chains";
-import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
-import { useEthersSigner } from "../../utils/viemEthersAdapters";
-import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
+import useMultiMintRange from "../../hooks/contracts/write/useMultiMintRange";
 
 export default function RangeAddLiqButton({
   routerAddress,
@@ -30,6 +22,10 @@ export default function RangeAddLiqButton({
   disabled,
   setIsOpen,
   gasLimit,
+  setSuccessDisplay,
+  setErrorDisplay,
+  setIsLoading,
+  setTxHash,
 }) {
   const [chainId, networkName] = useConfigStore(
     useShallow((state) => [state.chainId, state.networkName]),
@@ -58,84 +54,59 @@ export default function RangeAddLiqButton({
   );
   const [toastId, setToastId] = useState(null);
 
-  const signer = useEthersSigner();
-
-  //* hook wrapper
-  const { config } = usePrepareContractWrite({
-    address: routerAddress,
-    abi: poolsharkRouterABI,
-    functionName: "multiMintRange",
-    args: [
-      [poolAddress],
-      [
-        deepConvertBigIntAndBigNumber({
-          to: address,
-          lower: lower,
-          upper: upper,
-          positionId: positionId,
-          amount0: amount0,
-          amount1: amount1,
-          callbackData: getRangeMintInputData(
-            rangePositionData.staked,
-            getRangeStakerAddress(networkName),
+  const onSuccess = () => {
+    toast.success("Your transaction was successful", {
+      id: toastId,
+      action: {
+        label: "View",
+        onClick: () =>
+          window.open(
+            `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+            "_blank",
           ),
-        }),
-      ],
-    ],
-    chainId: chainId,
-    enabled:
-      positionId != undefined &&
-      poolAddress != ZERO_ADDRESS &&
-      (amount0?.gt(BN_ZERO) || amount1?.gt(BN_ZERO)),
-    gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
-    onError(err) {
-      console.log("range add liq error");
-    },
-  });
+      },
+    });
+    setNeedsAllowanceIn(true);
+    setNeedsBalanceIn(true);
+    setTimeout(() => {
+      setNeedsRefetch(true);
+      setNeedsPosRefetch(true);
+      setIsOpen(false);
+    }, 2500);
+    if (amount1.gt(BigNumber.from(0))) {
+      setNeedsAllowanceOut(true);
+      setNeedsBalanceOut(true);
+    }
+  };
 
-  const { data, isSuccess, write } = useContractWrite(config);
+  const onError = () => {
+    toast.error("Your transaction failed", {
+      id: toastId,
+      action: {
+        label: "View",
+        onClick: () =>
+          window.open(
+            `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+            "_blank",
+          ),
+      },
+    });
+    setNeedsRefetch(false);
+    setNeedsPosRefetch(false);
+  };
 
-  const { isLoading } = useWaitForTransaction({
-    hash: data?.hash,
-    onSuccess() {
-      toast.success("Your transaction was successful", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
-      setNeedsAllowanceIn(true);
-      setNeedsBalanceIn(true);
-      setTimeout(() => {
-        setNeedsRefetch(true);
-        setNeedsPosRefetch(true);
-        setIsOpen(false);
-      }, 2500);
-      if (amount1.gt(BigNumber.from(0))) {
-        setNeedsAllowanceOut(true);
-        setNeedsBalanceOut(true);
-      }
-    },
-    onError() {
-      toast.error("Your transaction failed", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
-      setNeedsRefetch(false);
-      setNeedsPosRefetch(false);
-    },
+  const { data, write, isLoading } = useMultiMintRange({
+    positionId,
+    lower,
+    upper,
+    staked: rangePositionData.staked,
+    amount0,
+    amount1,
+    gasLimit,
+    setIsLoading,
+    setTxHash,
+    onSuccess,
+    onError,
   });
 
   useEffect(() => {

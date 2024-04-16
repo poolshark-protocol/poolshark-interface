@@ -118,7 +118,6 @@ export default function Sale() {
     setEndUsdPrice(`${(ethUsdPrice / endPrice).toFixed(2)}`);
   }, [ethUsdPrice]);
 
-  //* hook wrapper
   const { data: filledAmount } = useContractRead({
     address: saleConfig.poolAddress as `0x${string}`,
     abi: limitPoolABI,

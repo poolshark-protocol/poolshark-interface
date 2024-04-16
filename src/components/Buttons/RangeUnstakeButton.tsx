@@ -1,19 +1,12 @@
-import {
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
 import React, { useEffect, useState } from "react";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
-import { rangeStakerABI } from "../../abis/evm/rangeStaker";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { gasEstimateRangeUnstake } from "../../utils/gas";
-import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
-import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
+import useRangeUnstake from "../../hooks/contracts/write/useRangeUnstake";
 
 // unstake position
 // add liquidity while staked
@@ -71,64 +64,49 @@ export default function RangeUnstakeButton({
     setUnstakeGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
 
-  const { config } = usePrepareContractWrite({
-    address: getRangeStakerAddress(networkName),
-    abi: rangeStakerABI,
-    functionName: "unstakeRange",
-    args: [
-      deepConvertBigIntAndBigNumber({
-        to: address,
-        pool: rangePoolAddress,
-        positionId: positionId,
-      }),
-    ],
-    chainId: chainId,
-    enabled: rangePoolAddress != undefined,
-    gasLimit: deepConvertBigIntAndBigNumber(unstakeGasLimit),
-    onSuccess() {},
-    onError() {
-      console.log("error unstaked", rangePoolAddress, positionId);
-    },
-  });
+  const onSuccess = () => {
+    toast.success("Your transaction was successful", {
+      id: toastId,
+      action: {
+        label: "View",
+        onClick: () =>
+          window.open(
+            `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+            "_blank",
+          ),
+      },
+    });
+    setNeedsAllowanceIn(true);
+    setNeedsBalanceIn(true);
+    setTimeout(() => {
+      setNeedsRefetch(true);
+      setNeedsPosRefetch(true);
+    }, 2500);
+  };
 
-  const { data, write } = useContractWrite(config);
+  const onError = () => {
+    toast.error("Your transaction failed", {
+      id: toastId,
+      action: {
+        label: "View",
+        onClick: () =>
+          window.open(
+            `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+            "_blank",
+          ),
+      },
+    });
+    setNeedsRefetch(false);
+    setNeedsPosRefetch(false);
+  };
 
-  const { isLoading } = useWaitForTransaction({
-    hash: data?.hash,
-    onSuccess() {
-      toast.success("Your transaction was successful", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
-      setNeedsAllowanceIn(true);
-      setNeedsBalanceIn(true);
-      setTimeout(() => {
-        setNeedsRefetch(true);
-        setNeedsPosRefetch(true);
-      }, 2500);
-    },
-    onError() {
-      toast.error("Your transaction failed", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
-      setNeedsRefetch(false);
-      setNeedsPosRefetch(false);
-    },
+  const { data, write, isLoading } = useRangeUnstake({
+    rangePoolAddress,
+    address,
+    unstakeGasLimit,
+    positionId,
+    onSuccess,
+    onError,
   });
 
   useEffect(() => {

@@ -15,6 +15,7 @@ import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
+import useRangeStake from "../../hooks/contracts/write/useRangeStake";
 
 // unstake position
 // add liquidity while staked
@@ -73,83 +74,51 @@ export default function RangeStakeButton({
     setUnstakeGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
 
-  const { config: stakeConfig } = usePrepareContractWrite({
-    address: getRangeStakerAddress(networkName),
-    abi: rangeStakerABI,
-    functionName: "stakeRange",
-    args: [
-      deepConvertBigIntAndBigNumber({
-        to: address,
-        pool: rangePoolAddress,
-        positionId: positionId,
-      }),
-    ],
-    chainId: chainId,
-    enabled: positionId != undefined && stakeApproved,
-    gasLimit: deepConvertBigIntAndBigNumber(stakeGasLimit),
-    onSuccess() {},
-    onError() {
-      console.log("error stake");
-    },
-  });
+  const onSuccess = () => {
+    toast.success("Your transaction was successful", {
+      id: toastId,
+      action: {
+        label: "View",
+        onClick: () =>
+          window.open(
+            `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+            "_blank",
+          ),
+      },
+    });
+    setNeedsAllowanceIn(true);
+    setNeedsBalanceIn(true);
+    setTimeout(() => {
+      setNeedsRefetch(true);
+      setNeedsPosRefetch(true);
+    }, 2500);
+  };
 
-  const { data: stakeData, write: stakeWrite } = useContractWrite(stakeConfig);
+  const onError = () => {
+    toast.error("Your transaction failed", {
+      id: toastId,
+      action: {
+        label: "View",
+        onClick: () =>
+          window.open(
+            `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+            "_blank",
+          ),
+      },
+    });
+    setNeedsRefetch(false);
+    setNeedsPosRefetch(false);
+  };
 
-  const { config: approveConfig } = usePrepareContractWrite({
-    address: rangePoolTokenAddress,
-    abi: positionERC1155ABI,
-    functionName: "setApprovalForAll",
-    args: [getRangeStakerAddress(networkName), true],
-    chainId: chainId,
-    enabled: rangePoolTokenAddress != ZERO_ADDRESS && !stakeApproved,
-    onSuccess() {},
-    onError() {
-      console.log("error approve all");
-    },
-  });
-
-  const { data: approveData, write: approveWrite } =
-    useContractWrite(approveConfig);
-
-  const data = stakeApproved ? stakeData : approveData;
-  const write = stakeApproved ? stakeWrite : approveWrite;
-
-  const { isLoading } = useWaitForTransaction({
-    hash: data?.hash,
-    onSuccess() {
-      toast.success("Your transaction was successful", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
-      setNeedsAllowanceIn(true);
-      setNeedsBalanceIn(true);
-      setTimeout(() => {
-        setNeedsRefetch(true);
-        setNeedsPosRefetch(true);
-      }, 2500);
-    },
-    onError() {
-      toast.error("Your transaction failed", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
-      setNeedsRefetch(false);
-      setNeedsPosRefetch(false);
-    },
+  const { write, data, isLoading } = useRangeStake({
+    rangePoolAddress,
+    rangePoolTokenAddress,
+    address,
+    stakeApproved,
+    stakeGasLimit,
+    positionId,
+    onSuccess,
+    onError,
   });
 
   useEffect(() => {

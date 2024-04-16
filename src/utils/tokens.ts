@@ -46,6 +46,10 @@ export const fetchCoverTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
   }
 };
 
+export const getZeroForOne = (tokenA: any, tokenB: any) => {
+  return tokenA.address.localeCompare(tokenB.address) < 0;
+};
+
 export const getLimitTokenUsdPrice = async (
   tokenAddress: string,
   setTokenUSDPrice,

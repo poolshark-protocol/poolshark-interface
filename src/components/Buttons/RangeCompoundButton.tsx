@@ -13,6 +13,7 @@ import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
+import useBurnRange from "../../hooks/contracts/write/useBurnRange";
 
 export default function RangeCompoundButton({
   poolAddress,
@@ -26,73 +27,42 @@ export default function RangeCompoundButton({
     useShallow((state) => [state.chainId, state.networkName]),
   );
 
-  //* hook wrapper
-  const { config: burnConfig } = usePrepareContractWrite({
-    address: poolAddress,
-    abi: rangePoolABI,
-    functionName: "burnRange",
-    enabled: positionId != undefined && staked != undefined && !staked,
-    args: [deepConvertBigIntAndBigNumber([address, positionId, BN_ZERO])],
-    chainId: chainId,
-    onError(err) {
-      console.log("compound error");
-    },
-  });
+  const onSuccess = () => {
+    toast.success("Your transaction was successful", {
+      id: toastId,
+      action: {
+        label: "View",
+        onClick: () =>
+          window.open(
+            `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+            "_blank",
+          ),
+      },
+    });
+  };
 
-  const { config: burnStakeConfig } = usePrepareContractWrite({
-    address: getRangeStakerAddress(networkName),
-    abi: rangeStakerABI,
-    functionName: "burnRangeStake",
-    args: [
-      poolAddress,
-      deepConvertBigIntAndBigNumber({
-        to: address,
-        positionId: positionId,
-        burnPercent: BN_ZERO,
-      }),
-    ],
-    chainId: chainId,
-    enabled: poolAddress != ZERO_ADDRESS && staked != undefined && staked,
-    onError(err) {
-      console.log("compound stake errored");
-    },
-  });
+  const onError = () => {
+    toast.error("Your transaction failed", {
+      id: toastId,
+      action: {
+        label: "View",
+        onClick: () =>
+          window.open(
+            `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
+            "_blank",
+          ),
+      },
+    });
+  };
 
-  const { data: burnData, write: burnWrite } = useContractWrite(burnConfig);
-  const { data: burnStakeData, write: burnStakeWrite } =
-    useContractWrite(burnStakeConfig);
-
-  const data = !staked ? burnData : burnStakeData;
-  const write = !staked ? burnWrite : burnStakeWrite;
-
-  const { isLoading } = useWaitForTransaction({
-    hash: data?.hash,
-    onSuccess() {
-      toast.success("Your transaction was successful", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
-    },
-    onError() {
-      toast.error("Your transaction failed", {
-        id: toastId,
-        action: {
-          label: "View",
-          onClick: () =>
-            window.open(
-              `${chainProperties[networkName]["explorerUrl"]}/tx/${data?.hash}`,
-              "_blank",
-            ),
-        },
-      });
-    },
+  const { write, data, isLoading } = useBurnRange({
+    poolAddress,
+    address,
+    staked,
+    positionId,
+    burnPercent: BN_ZERO,
+    onSuccess,
+    onError,
   });
 
   useEffect(() => {
