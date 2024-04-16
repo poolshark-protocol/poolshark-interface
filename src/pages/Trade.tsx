@@ -28,12 +28,14 @@ import useTokenInInfo from "../hooks/contracts/useTokenInInfo";
 import useTokenOutInfo from "../hooks/contracts/useTokenOutInfo";
 import { useShallow } from "zustand/react/shallow";
 import useTokenUSDPrice from "../hooks/useTokenUSDPrice";
+import useAddress from "../hooks/useAddress";
 
 //PRICE AND LIQUIDITY FETCHED EVERY 5 SECONDS
 const quoteRefetchDelay = 5000;
 
 export default function Trade() {
-  const { address, isDisconnected, isConnected } = useAccount();
+  const { isDisconnected, isConnected } = useAccount();
+  const address = useAddress();
 
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
     useConfigStore(

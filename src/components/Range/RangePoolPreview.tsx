@@ -2,7 +2,6 @@ import { Fragment, useEffect, useState } from "react";
 import { Transition, Dialog } from "@headlessui/react";
 import RangeMintButton from "../Buttons/RangeMintButton";
 import { BigNumber, ethers } from "ethers";
-import { erc20ABI, useAccount } from "wagmi";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButton";
 import { useRouter } from "next/router";
@@ -14,20 +13,15 @@ import {
   gasEstimateRangeMint,
 } from "../../utils/gas";
 import RangeCreateAndMintButton from "../Buttons/RangeCreateAndMintButton";
-import { chainProperties } from "../../utils/chains";
 import { limitPoolTypeIds } from "../../utils/pools";
 import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import JSBI from "jsbi";
-import {
-  hasAllowance,
-  getLogo,
-  logoMapKey,
-  nativeString,
-} from "../../utils/tokens";
+import { hasAllowance, getLogo } from "../../utils/tokens";
 import { getRouterAddress } from "../../utils/config";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { useShallow } from "zustand/react/shallow";
+import useAddress from "../../hooks/useAddress";
 
 export default function RangePoolPreview() {
   const [logoMap, networkName, limitSubgraph] = useConfigStore(
@@ -68,7 +62,7 @@ export default function RangePoolPreview() {
     tokenIn.address.localeCompare(tokenOut.address) < 0,
   );
   const router = useRouter();
-  const { address } = useAccount();
+  const address = useAddress();
   const signer = useEthersSigner();
 
   ///////////////////////////////Modal

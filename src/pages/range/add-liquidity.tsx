@@ -13,7 +13,6 @@ import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ONE, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
-import { fetchTokenUSDPrice } from "../../utils/tokens";
 import { InformationCircleIcon } from "@heroicons/react/20/solid";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
@@ -43,6 +42,7 @@ import { getLogo } from "../../utils/tokens";
 import useAllowance from "../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 import useTokenUSDPrice from "../../hooks/useTokenUSDPrice";
+import useAddress from "../../hooks/useAddress";
 
 export default function AddLiquidity({}) {
   const [chainId, networkName, limitSubgraph, logoMap, searchtokenList] =
@@ -58,7 +58,9 @@ export default function AddLiquidity({}) {
 
   const rangeLimitStore = useRangeLimitStore();
 
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
+  const address = useAddress();
+
   const {
     inputBox: inputBoxIn,
     setDisplay: setDisplayIn,

@@ -2,19 +2,14 @@ import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useState, useEffect } from "react";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import UserRangePool from "../Range/UserRangePool";
-import {
-  fetchLimitPositions,
-  fetchRangePositions,
-  fetchUniV3Positions,
-} from "../../utils/queries";
-import { useAccount } from "wagmi";
-import { BigNumber } from "ethers";
+import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useShallow } from "zustand/react/shallow";
+import useAddress from "../../hooks/useAddress";
 
 export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
-  const { address } = useAccount();
+  const address = useAddress();
 
   const [searchTerm, setSearchTerm] = useState("");
 

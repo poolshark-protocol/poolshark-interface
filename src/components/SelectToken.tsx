@@ -7,7 +7,7 @@ import {
 import { Transition, Dialog } from "@headlessui/react";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
-import { useAccount, useToken } from "wagmi";
+import { useToken } from "wagmi";
 import { useConfigStore } from "../hooks/useConfigStore";
 import { defaultTokenLogo, getLogo, logoMapKey } from "../utils/tokens";
 import { isAddress } from "@ethersproject/address";
@@ -15,7 +15,6 @@ import { deepConvertBigIntAndBigNumber } from "../utils/misc";
 import { useShallow } from "zustand/react/shallow";
 
 export default function SelectToken(props) {
-  const { address } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
   const [customInput, setCustomInput] = useState("");
   const [tokenInfo, setTokenInfo] = useState(undefined);

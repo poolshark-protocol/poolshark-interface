@@ -2,7 +2,6 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
-  useAccount,
 } from "wagmi";
 import React, { useState } from "react";
 import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
@@ -15,6 +14,7 @@ import { toast } from "sonner";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
 import { SwapNativeButtonsProps } from "../../utils/types";
+import useAddress from "../../hooks/useAddress";
 
 export default function SwapWrapNativeButton({
   disabled,
@@ -45,8 +45,7 @@ export default function SwapWrapNativeButton({
     ]),
   );
 
-  const { address } = useAccount();
-  const userAddress = address;
+  const address = useAddress();
 
   const { config } = usePrepareContractWrite({
     address: wethAddress,

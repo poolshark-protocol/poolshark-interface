@@ -24,6 +24,7 @@ import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 import { hasAllowance, getLogo } from "../../../utils/tokens";
 import useAllowance from "../../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
+import useAddress from "../../../hooks/useAddress";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [chainId, networkName, logoMap, limitSubgraph] = useConfigStore(
@@ -89,7 +90,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   } = useInputBox();
   const router = useRouter();
   const provider = usePublicClient();
-  const { address } = useAccount();
+  const address = useAddress();
   const signer = useEthersSigner();
 
   const [successDisplay, setSuccessDisplay] = useState(false);

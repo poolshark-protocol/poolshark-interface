@@ -19,6 +19,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { useShallow } from "zustand/react/shallow";
+import useAddress from "../../hooks/useAddress";
 
 export default function ViewCover() {
   const [chainId, networkName, coverSubgraph, setCoverSubgraph, logoMap] =
@@ -74,7 +75,8 @@ export default function ViewCover() {
     ]),
   );
 
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
+  const address = useAddress();
   const [isLoading, setIsLoading] = useState(true);
   const signer = useEthersSigner();
 

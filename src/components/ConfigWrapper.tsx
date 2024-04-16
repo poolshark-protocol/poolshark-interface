@@ -8,13 +8,14 @@ import { useRangeLimitStore } from "../hooks/useRangeLimitStore";
 import { fetchListedTokenBalances, fetchTokenMetadata } from "../utils/tokens";
 import { chainProperties, supportedNetworkNames } from "../utils/chains";
 import { useShallow } from "zustand/react/shallow";
+import useAddress from "../hooks/useAddress";
 
 interface ConfigWrapperProps {}
 
 const ConfigWrapper = ({ children }: PropsWithChildren) => {
   const [isLoading, setIsLoading] = useState(true);
-  const { address, isConnected } = useAccount();
-
+  const { isConnected } = useAccount();
+  const address = useAddress();
   const [_isConnected, _setIsConnected] = useState(false);
   const [_isMobile, _setIsMobile] = useState(false);
 

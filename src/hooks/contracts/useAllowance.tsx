@@ -3,6 +3,7 @@ import { useConfigStore } from "../useConfigStore";
 import { getRouterAddress } from "../../utils/config";
 import { ZERO_ADDRESS } from "../../utils/math/constants";
 import { useRouter } from "next/router";
+import useAddress from "../useAddress";
 
 export default function useAllowance({ token }) {
   const [chainId, networkName] = useConfigStore((state) => [
@@ -10,8 +11,8 @@ export default function useAllowance({ token }) {
     state.networkName,
   ]);
 
-  const { address, isDisconnected, isConnected } = useAccount();
-
+  const { isDisconnected, isConnected } = useAccount();
+  const address = useAddress();
   const router = useRouter();
 
   const { data: allowance, refetch: refetchAllowanceOut } = useContractRead({

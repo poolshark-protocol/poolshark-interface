@@ -19,13 +19,14 @@ import { tokenRangeLimit } from "../../utils/types";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 import { Checkbox } from "../../components/ui/checkbox";
-import { isWhitelistedPool } from "../../utils/config";
-import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/20/solid";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { limitPoolTypeIds } from "../../utils/pools";
 import { useShallow } from "zustand/react/shallow";
+import useAddress from "../../hooks/useAddress";
 
 export default function Range() {
-  const { address, isDisconnected } = useAccount();
+  const { isDisconnected } = useAccount();
+  const address = useAddress();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [allRangePositions, setAllRangePositions] = useState([]);

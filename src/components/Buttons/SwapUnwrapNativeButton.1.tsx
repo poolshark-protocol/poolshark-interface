@@ -14,7 +14,6 @@ import { useEffect } from "react";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
 import { SwapNativeButtonsProps } from "../../utils/types";
-import useAddress from "../../hooks/useAddress";
 
 export default function SwapUnwrapNativeButton({
   disabled,

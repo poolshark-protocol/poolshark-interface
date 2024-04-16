@@ -1,5 +1,4 @@
 import {
-  useAccount,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction,
@@ -20,8 +19,6 @@ export default function RedeemBondButton({
 
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
-
-  const { address } = useAccount();
 
   const { config } = usePrepareContractWrite({
     address: tellerAddress,

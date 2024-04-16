@@ -35,6 +35,7 @@ import useUpdateWethFee from "../../hooks/useUpdateWethFee";
 import SwapNativeButtons from "./common/SwapNativeButtons";
 import { hasAllowance, hasBalance } from "../../utils/tokens";
 import { tradeInputBoxes } from "../../utils/tradeInputBoxes";
+import useAddress from "../../hooks/useAddress";
 
 export default function MarketSwap({
   quoteRefetchDelay,
@@ -65,8 +66,8 @@ export default function MarketSwap({
     setDisplay: setDisplayOut,
   } = useInputBox();
 
-  const { address, isDisconnected, isConnected } = useAccount();
-
+  const { isDisconnected, isConnected } = useAccount();
+  const address = useAddress();
   //* signer wrapper
   const signer = useEthersSigner();
 

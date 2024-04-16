@@ -27,6 +27,7 @@ import useSnapshotRange from "../../hooks/contracts/useSnapshotRange";
 import useIsApprovedForAll from "../../hooks/contracts/useIsApprovedForAll";
 import { useShallow } from "zustand/react/shallow";
 import useTokenUSDPrice from "../../hooks/useTokenUSDPrice";
+import useAddress from "../../hooks/useAddress";
 
 export default function ViewRange() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -84,7 +85,8 @@ export default function ViewRange() {
     ]),
   );
 
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
+  const address = useAddress();
   const signer = useEthersSigner();
 
   const [isAddOpen, setIsAddOpen] = useState(false);

@@ -1,5 +1,4 @@
 import {
-  useAccount,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction,
@@ -11,6 +10,7 @@ import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
+import useAddress from "../../hooks/useAddress";
 
 export default function RedeemMulticallBondButton({
   tellerAddress,
@@ -24,8 +24,7 @@ export default function RedeemMulticallBondButton({
 
   const [toastId, setToastId] = useState(null);
 
-  const { address } = useAccount();
-
+  const address = useAddress();
   const { config } = usePrepareContractWrite({
     address: tellerAddress,
     abi: bondTellerABI,

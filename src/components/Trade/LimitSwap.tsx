@@ -46,6 +46,7 @@ import Option from "./common/Option";
 import useUpdateWethFee from "../../hooks/useUpdateWethFee";
 import SwapNativeButtons from "./common/SwapNativeButtons";
 import { tradeInputBoxes } from "../../utils/tradeInputBoxes";
+import useAddress from "../../hooks/useAddress";
 
 export default function LimitSwap({
   quoteRefetchDelay,
@@ -68,7 +69,8 @@ export default function LimitSwap({
     setDisplay: setDisplayOut,
   } = useInputBox();
 
-  const { address, isDisconnected, isConnected } = useAccount();
+  const address = useAddress();
+  const { isDisconnected, isConnected } = useAccount();
   const signer = useEthersSigner();
   const [priceRangeSelected, setPriceRangeSelected] = useState(false);
 

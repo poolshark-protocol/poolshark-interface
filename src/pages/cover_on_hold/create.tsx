@@ -1,17 +1,16 @@
 import Navbar from "../../components/Navbar";
-import { MinusIcon, PlusIcon } from "@heroicons/react/20/solid";
 import { useEffect, useState } from "react";
 import PoolsModal from "../../components/Cover/PoolsModal";
-import { useAccount } from "wagmi";
 import { useRouter } from "next/router";
 import CreateCover from "../../components/Cover/CreateCover";
 import CoverExistingPool from "../../components/Cover/CoverExistingPool";
 import { fetchCoverPositions } from "../../utils/queries";
 import { mapUserCoverPositions } from "../../utils/maps";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import useAddress from "../../hooks/useAddress";
 
 export default function CoverCreate() {
-  const { address, isConnected, isDisconnected } = useAccount();
+  const address = useAddress();
   const router = useRouter();
 
   const coverSubgraph = useConfigStore((state) => state.coverSubgraph);

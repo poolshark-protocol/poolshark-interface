@@ -1,13 +1,9 @@
-import { useAccount, useContractRead } from "wagmi";
-import { limitPoolABI } from "../../abis/evm/limitPool";
+import { useContractRead } from "wagmi";
 import { useConfigStore } from "../useConfigStore";
 import { useRangeLimitStore } from "../useRangeLimitStore";
-import { BigNumber } from "ethers";
-import router from "next/router";
-import { parseUnits } from "viem";
-import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
 import { getRangeStakerAddress } from "../../utils/config";
+import useAddress from "../useAddress";
 
 export default function useIsApprovedForAll() {
   const [chainId, networkName] = useConfigStore((state) => [
@@ -17,7 +13,7 @@ export default function useIsApprovedForAll() {
 
   const rangeStore = useRangeLimitStore((state) => state);
 
-  const { address } = useAccount();
+  const address = useAddress();
 
   const { data: stakeApproveStatus } = useContractRead({
     address: rangeStore.rangePoolData.poolToken,

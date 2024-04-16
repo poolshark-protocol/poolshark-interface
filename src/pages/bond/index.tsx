@@ -3,7 +3,7 @@ import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import RedeemMulticallBondButton from "../../components/Buttons/RedeemMulticallBondButton";
 import { useEffect, useState } from "react";
 import { BigNumber } from "ethers";
-import { useAccount, useBalance, useContractRead } from "wagmi";
+import { useAccount, useContractRead } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { bondTellerABI } from "../../abis/evm/bondTeller";
 import {
@@ -14,22 +14,22 @@ import {
 } from "../../utils/queries";
 import { mapBondMarkets, mapUserBondPurchases } from "../../utils/maps";
 import { convertTimestampToDateFormat } from "../../utils/time";
-import { formatEther, formatUnits, parseUnits } from "ethers/lib/utils.js";
-import { methABI } from "../../abis/evm/meth";
+import { formatEther, formatUnits } from "ethers/lib/utils.js";
 import { auctioneerABI } from "../../abis/evm/bondAuctioneer";
-import useInputBox from "../../hooks/useInputBox";
-import { chainProperties, supportedNetworkNames } from "../../utils/chains";
+import { chainProperties } from "../../utils/chains";
 import ClaimFinButton from "../../components/Buttons/ClaimFinButton";
 import VestFinButton from "../../components/Buttons/VestFinButton";
 import { vFinABI } from "../../abis/evm/vFin";
-import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO } from "../../utils/math/constants";
 import { numFormat } from "../../utils/math/valueMath";
 import RedeemBondButton from "../../components/Buttons/RedeemBondButton";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
+import useAddress from "../../hooks/useAddress";
 
 export default function Bond() {
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
+  const address = useAddress();
 
   const [needsSubgraph, setNeedsSubgraph] = useState(true);
   const [isVested, setIsVested] = useState(true);

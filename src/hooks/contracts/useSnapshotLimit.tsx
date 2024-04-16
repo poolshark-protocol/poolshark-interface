@@ -6,6 +6,7 @@ import { BigNumber } from "ethers";
 import router from "next/router";
 import { parseUnits } from "viem";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
+import useAddress from "../useAddress";
 
 export default function useSnapshotLimit() {
   const [chainId, networkName] = useConfigStore((state) => [
@@ -15,7 +16,8 @@ export default function useSnapshotLimit() {
 
   const limitStore = useRangeLimitStore((state) => state);
 
-  const { address, isDisconnected, isConnected } = useAccount();
+  const { isConnected } = useAccount();
+  const address = useAddress();
 
   const { data } = useContractRead({
     address: limitStore.limitPoolAddress,

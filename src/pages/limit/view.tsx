@@ -1,7 +1,6 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { useAccount } from "wagmi";
 import LimitCollectButton from "../../components/Buttons/LimitCollectButton";
 import { BigNumber, ethers } from "ethers";
 import {
@@ -29,6 +28,7 @@ import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import useSnapshotLimit from "../../hooks/contracts/useSnapshotLimit";
 import { useShallow } from "zustand/react/shallow";
 import useTokenUSDPrice from "../../hooks/useTokenUSDPrice";
+import useAddress from "../../hooks/useAddress";
 
 export default function ViewLimit() {
   const [chainId, logoMap, networkName, limitSubgraph, setLimitSubgraph] =
@@ -98,7 +98,7 @@ export default function ViewLimit() {
     ]),
   );
 
-  const { address, isConnected } = useAccount();
+  const address = useAddress();
   const signer = useEthersSigner();
 
   const router = useRouter();
