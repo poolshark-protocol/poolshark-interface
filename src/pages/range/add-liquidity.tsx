@@ -403,35 +403,6 @@ export default function AddLiquidity({}) {
     }
   }, [tokenInBal, tokenOutBal]);
 
-  ////////////////////////////////TokenUSDPrices
-
-  useEffect(() => {
-    if (
-      rangeLimitStore.rangePoolData.token0 &&
-      rangeLimitStore.rangePoolData.token1
-    ) {
-      if (rangeLimitStore.tokenIn.address) {
-        fetchTokenUSDPrice(
-          rangeLimitStore.rangePoolData,
-          rangeLimitStore.tokenIn,
-          rangeLimitStore.setTokenInRangeUSDPrice,
-        );
-      }
-      if (rangeLimitStore.tokenOut.address) {
-        fetchTokenUSDPrice(
-          rangeLimitStore.rangePoolData,
-          rangeLimitStore.tokenOut,
-          rangeLimitStore.setTokenOutRangeUSDPrice,
-        );
-      }
-    }
-  }, [
-    rangeLimitStore.rangePoolData.token0,
-    rangeLimitStore.rangePoolData.token1,
-    rangeLimitStore.tokenIn.native,
-    rangeLimitStore.tokenOut.native,
-  ]);
-
   ////////////////////////////////Prices and Ticks
   const [rangePrice, setRangePrice] = useState(undefined);
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(undefined);
