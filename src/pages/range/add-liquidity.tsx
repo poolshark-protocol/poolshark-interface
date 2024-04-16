@@ -8,16 +8,12 @@ import {
 } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import useInputBox from "../../hooks/useInputBox";
-import { erc20ABI, useAccount, useBalance, useContractRead } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ONE, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
-import {
-  fetchRangeTokenUSDPrice,
-  getLimitTokenUsdPrice,
-  logoMapKey,
-} from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import { InformationCircleIcon } from "@heroicons/react/20/solid";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
@@ -30,12 +26,7 @@ import { feeTierMap, feeTiers, limitPoolTypeIds } from "../../utils/pools";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { fetchRangePools } from "../../utils/queries";
 import { ConnectWalletButton } from "../../components/Buttons/ConnectWalletButton";
-import {
-  getRouterAddress,
-  isStablePair,
-  isWhitelistedPair,
-  setDefaultRange,
-} from "../../utils/config";
+import { isWhitelistedPair, setDefaultRange } from "../../utils/config";
 import BalanceDisplay from "../../components/Display/BalanceDisplay";
 import {
   Tooltip,
@@ -43,17 +34,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../../components/ui/tooltip";
-import { Checkbox } from "../../components/ui/checkbox";
-import { isAddress } from "ethers/lib/utils.js";
 import {
   ArrowTopRightOnSquareIcon,
   SparklesIcon,
 } from "@heroicons/react/20/solid";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
-import { XOctagon } from "lucide-react";
 import { getLogo } from "../../utils/tokens";
 import useAllowance from "../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
+import useTokenUSDPrice from "../../hooks/useTokenUSDPrice";
 
 export default function AddLiquidity({}) {
   const [chainId, networkName, limitSubgraph, logoMap, searchtokenList] =
@@ -338,34 +327,13 @@ export default function AddLiquidity({}) {
   };
 
   ////////////////////////////////Token Prices
-
-  useEffect(() => {
-    if (
-      rangeLimitStore.tokenIn.address != ZERO_ADDRESS &&
-      (rangeLimitStore.rangePoolData?.id == ZERO_ADDRESS ||
-        rangeLimitStore.rangePoolData?.id == undefined)
-    ) {
-      getLimitTokenUsdPrice(
-        rangeLimitStore.tokenIn.address,
-        rangeLimitStore.setTokenInRangeUSDPrice,
-        limitSubgraph,
-      );
-    }
-  }, [rangeLimitStore.tokenIn.address]);
-
-  useEffect(() => {
-    if (
-      rangeLimitStore.tokenOut.address != ZERO_ADDRESS &&
-      (rangeLimitStore.rangePoolData?.id == ZERO_ADDRESS ||
-        rangeLimitStore.rangePoolData?.id == undefined)
-    ) {
-      getLimitTokenUsdPrice(
-        rangeLimitStore.tokenOut.address,
-        rangeLimitStore.setTokenOutRangeUSDPrice,
-        limitSubgraph,
-      );
-    }
-  }, [rangeLimitStore.tokenOut.address]);
+  useTokenUSDPrice({
+    poolData: rangeLimitStore.rangePoolData,
+    tokenIn: rangeLimitStore.tokenIn,
+    tokenOut: rangeLimitStore.tokenOut,
+    setTokenInUSDPrice: rangeLimitStore.setTokenInRangeUSDPrice,
+    setTokenOutUSDPrice: rangeLimitStore.setTokenOutRangeUSDPrice,
+  });
 
   ////////////////////////////////Allowances
   const { allowance: allowanceInRange } = useAllowance({
