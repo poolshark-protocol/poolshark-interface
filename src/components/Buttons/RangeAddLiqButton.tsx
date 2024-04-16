@@ -95,11 +95,11 @@ export default function RangeAddLiqButton({
     setNeedsPosRefetch(false);
   };
 
-  const { config, data, write, isLoading } = useMultiMintRange({
+  const { data, write, isLoading } = useMultiMintRange({
     positionId,
     lower,
     upper,
-    disabled,
+    staked: rangePositionData.staked,
     amount0,
     amount1,
     gasLimit,

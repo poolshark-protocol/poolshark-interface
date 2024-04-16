@@ -21,7 +21,7 @@ export default function useMultiMintRange({
   positionId,
   lower,
   upper,
-  disabled,
+  staked,
   amount0,
   amount1,
   gasLimit,
@@ -76,7 +76,7 @@ export default function useMultiMintRange({
           amount0: amount0,
           amount1: amount1,
           callbackData: getRangeMintInputData(
-            rangeMintParams.stakeFlag,
+            staked,
             getRangeStakerAddress(networkName),
           ),
         }),
@@ -95,8 +95,12 @@ export default function useMultiMintRange({
     enabled: getZeroForOne(tokenIn, tokenOut)
       ? hasBalance(tokenIn, amount0) && hasBalance(tokenOut, amount1)
       : hasBalance(tokenIn, amount1) && hasBalance(tokenOut, amount0),
-    onSuccess() {},
-    onError() {},
+    onSuccess() {
+      console.log("success mint");
+    },
+    onError() {
+      console.log("error mint", address);
+    },
   });
 
   const { data, write } = useContractWrite(config);

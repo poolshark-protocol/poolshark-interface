@@ -77,7 +77,7 @@ export default function RangeMintButton({
     positionId,
     lower,
     upper,
-    disabled,
+    staked: rangeMintParams.stakeFlag,
     amount0,
     amount1,
     gasLimit,

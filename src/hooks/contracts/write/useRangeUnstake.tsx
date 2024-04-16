@@ -7,6 +7,7 @@ import { useConfigStore } from "../../useConfigStore";
 import { getRangeStakerAddress } from "../../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { rangeStakerABI } from "../../../abis/evm/rangeStaker";
+import { ZERO_ADDRESS } from "../../../utils/math/constants";
 
 export default function useRangeUnstake({
   rangePoolAddress,
@@ -33,7 +34,7 @@ export default function useRangeUnstake({
       }),
     ],
     chainId: chainId,
-    enabled: rangePoolAddress != undefined,
+    enabled: rangePoolAddress != undefined && rangePoolAddress != ZERO_ADDRESS,
     gasLimit: deepConvertBigIntAndBigNumber(unstakeGasLimit),
     onSuccess() {},
     onError() {
