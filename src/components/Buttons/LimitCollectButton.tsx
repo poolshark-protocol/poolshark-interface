@@ -1,18 +1,10 @@
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
-import { limitPoolABI } from "../../abis/evm/limitPool";
 import React, { useState, useEffect } from "react";
-import { BigNumber } from "ethers";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { BN_ZERO } from "../../utils/math/constants";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
-import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
 import useBurnLimit from "../../hooks/contracts/write/useBurnLimit";
 
@@ -23,7 +15,6 @@ export default function LimitCollectButton({
   claim,
   zeroForOne,
   gasLimit,
-  gasFee,
   disabled,
 }) {
   const [toastId, setToastId] = useState(null);

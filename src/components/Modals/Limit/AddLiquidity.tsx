@@ -237,14 +237,9 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                   ) : (
                     <LimitAddLiqButton
                       disabled={disabled || mintGasLimit.lte(BN_ZERO)}
-                      to={address}
-                      poolAddress={limitPoolAddress}
-                      routerAddress={getRouterAddress(networkName)}
                       lower={Number(limitPositionData.min)}
                       upper={Number(limitPositionData.max)}
                       positionId={BigNumber.from(limitPositionData.positionId)}
-                      mintPercent={parseUnits("1", 24)}
-                      zeroForOne={tokenIn.callId == 0}
                       amount={bnInput}
                       gasLimit={mintGasLimit}
                       buttonState={buttonState}

@@ -15,6 +15,7 @@ import { deepConvertBigIntAndBigNumber } from "../utils/misc";
 import { useShallow } from "zustand/react/shallow";
 
 export default function SelectToken(props) {
+  //@memo - useAddress hook wrapper
   const { address } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
   const [customInput, setCustomInput] = useState("");
@@ -36,6 +37,7 @@ export default function SelectToken(props) {
     ]),
   );
 
+  //@memo - useToken hook wrapper
   const {
     data: tokenData,
     isError,

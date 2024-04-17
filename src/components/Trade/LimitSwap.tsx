@@ -1010,7 +1010,6 @@ export default function LimitSwap({
                 disabled={
                   mintGasLimit.eq(BN_ZERO) || tradeStore.tradeButton.disabled
                 }
-                routerAddress={getRouterAddress(networkName)}
                 poolTypeId={limitPoolTypeIds["constant-product-1.1"]}
                 tokenIn={tradeStore.tokenIn}
                 tokenOut={tradeStore.tokenOut}
