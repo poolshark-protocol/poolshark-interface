@@ -1,7 +1,6 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import RangeCompoundButton from "../../components/Buttons/RangeCompoundButton";
-import { useAccount } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
@@ -27,7 +26,7 @@ import useSnapshotRange from "../../hooks/contracts/useSnapshotRange";
 import useIsApprovedForAll from "../../hooks/contracts/useIsApprovedForAll";
 import { useShallow } from "zustand/react/shallow";
 import useTokenUSDPrice from "../../hooks/useTokenUSDPrice";
-import useAddress from "../../hooks/useAddress";
+import useAccount from "../../hooks/useAccount";
 
 export default function ViewRange() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -85,8 +84,7 @@ export default function ViewRange() {
     ]),
   );
 
-  const { isConnected } = useAccount();
-  const address = useAddress();
+  const { address } = useAccount();
   const signer = useEthersSigner();
 
   const [isAddOpen, setIsAddOpen] = useState(false);

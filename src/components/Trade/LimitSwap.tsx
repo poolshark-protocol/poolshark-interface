@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import useInputBox from "../../hooks/useInputBox";
-import { useAccount } from "wagmi";
 import { useShallow } from "zustand/react/shallow";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import SwapRouterApproveButton from "../Buttons/SwapRouterApproveButton";
@@ -46,7 +45,7 @@ import Option from "./common/Option";
 import useUpdateWethFee from "../../hooks/useUpdateWethFee";
 import SwapNativeButtons from "./common/SwapNativeButtons";
 import { tradeInputBoxes } from "../../utils/tradeInputBoxes";
-import useAddress from "../../hooks/useAddress";
+import useAccount from "../../hooks/useAccount";
 
 export default function LimitSwap({
   quoteRefetchDelay,
@@ -69,8 +68,7 @@ export default function LimitSwap({
     setDisplay: setDisplayOut,
   } = useInputBox();
 
-  const address = useAddress();
-  const { isDisconnected, isConnected } = useAccount();
+  const { address, isDisconnected, isConnected } = useAccount();
   const signer = useEthersSigner();
   const [priceRangeSelected, setPriceRangeSelected] = useState(false);
 

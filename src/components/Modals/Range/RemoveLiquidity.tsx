@@ -14,7 +14,7 @@ import { parseUnits } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getLogo } from "../../../utils/tokens";
 import { useShallow } from "zustand/react/shallow";
-import useAddress from "../../../hooks/useAddress";
+import useAccount from "../../../hooks/useAccount";
 
 export default function RangeRemoveLiquidity({
   isOpen,
@@ -49,7 +49,7 @@ export default function RangeRemoveLiquidity({
   );
 
   const router = useRouter();
-  const address = useAddress();
+  const { address } = useAccount();
 
   const [sliderValue, setSliderValue] = useState(50);
   const [sliderOutput, setSliderOutput] = useState("1");

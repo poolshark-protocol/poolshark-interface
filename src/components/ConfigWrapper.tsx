@@ -1,6 +1,6 @@
 import { PropsWithChildren, useEffect, useState } from "react";
 import TermsOfService from "./Modals/ToS";
-import { useAccount, usePublicClient } from "wagmi";
+import { usePublicClient } from "wagmi";
 import { isMobile } from "react-device-detect";
 import { useConfigStore } from "../hooks/useConfigStore";
 import { useTradeStore } from "../hooks/useTradeStore";
@@ -8,14 +8,13 @@ import { useRangeLimitStore } from "../hooks/useRangeLimitStore";
 import { fetchListedTokenBalances, fetchTokenMetadata } from "../utils/tokens";
 import { chainProperties, supportedNetworkNames } from "../utils/chains";
 import { useShallow } from "zustand/react/shallow";
-import useAddress from "../hooks/useAddress";
+import useAccount from "../hooks/useAccount";
 
 interface ConfigWrapperProps {}
 
 const ConfigWrapper = ({ children }: PropsWithChildren) => {
   const [isLoading, setIsLoading] = useState(true);
-  const { isConnected } = useAccount();
-  const address = useAddress();
+  const { address, isConnected } = useAccount();
   const [_isConnected, _setIsConnected] = useState(false);
   const [_isMobile, _setIsMobile] = useState(false);
 

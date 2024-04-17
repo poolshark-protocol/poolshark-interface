@@ -1,8 +1,9 @@
-import { useAccount, useContractRead } from "wagmi";
+import { useContractRead } from "wagmi";
 import { useConfigStore } from "../useConfigStore";
 import { useRangeLimitStore } from "../useRangeLimitStore";
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import { ZERO_ADDRESS } from "../../utils/math/constants";
+import useAccount from "../useAccount";
 
 export default function useSnapshotRange() {
   const [chainId, networkName] = useConfigStore((state) => [

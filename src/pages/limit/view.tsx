@@ -28,7 +28,7 @@ import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import useSnapshotLimit from "../../hooks/contracts/useSnapshotLimit";
 import { useShallow } from "zustand/react/shallow";
 import useTokenUSDPrice from "../../hooks/useTokenUSDPrice";
-import useAddress from "../../hooks/useAddress";
+import useAccount from "../../hooks/useAccount";
 
 export default function ViewLimit() {
   const [chainId, logoMap, networkName, limitSubgraph, setLimitSubgraph] =
@@ -98,7 +98,7 @@ export default function ViewLimit() {
     ]),
   );
 
-  const address = useAddress();
+  const { address } = useAccount();
   const signer = useEthersSigner();
 
   const router = useRouter();

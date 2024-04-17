@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ArrowLongRightIcon } from "@heroicons/react/20/solid";
-import { erc20ABI, useAccount, useContractRead, useBalance } from "wagmi";
+import { erc20ABI, useContractRead, useBalance } from "wagmi";
 import DoubleArrowIcon from "../Icons/DoubleArrowIcon";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import { useEffect, useMemo, useState } from "react";
@@ -31,6 +31,7 @@ import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import useAllowance from "../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
+import useAccount from "../../hooks/useAccount";
 
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -64,7 +65,7 @@ export default function CoverExistingPool({ goBack }) {
   const [txHash, setTxHash] = useState();
 
   const signer = useEthersSigner();
-  const { address, isConnected, isDisconnected } = useAccount();
+  const { address, isConnected } = useAccount();
 
   const router = useRouter();
 

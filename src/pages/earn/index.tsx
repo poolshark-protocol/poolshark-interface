@@ -1,7 +1,6 @@
 import Navbar from "../../components/Navbar";
 import Info from "../../components/Icons/InfoIcon";
 import ClaimRewardsButton from "../../components/Buttons/ClaimRewardsButton";
-import { useAccount } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useEffect, useState } from "react";
 import { fetchSeason1Rewards } from "../../utils/queries";
@@ -9,11 +8,10 @@ import { useEarnStore } from "../../hooks/useEarnStore";
 import { chainProperties } from "../../utils/chains";
 import { formatOFin } from "../../utils/math/valueMath";
 import { useShallow } from "zustand/react/shallow";
-import useAddress from "../../hooks/useAddress";
+import useAccount from "../../hooks/useAccount";
 
 export default function Earn() {
-  const { isConnected } = useAccount();
-  const address = useAddress();
+  const { address, isConnected } = useAccount();
   const [block, setBlock] = useState("Block 1");
   const [isLoading, setIsLoading] = useState(true);
 

@@ -7,10 +7,10 @@ import CoverExistingPool from "../../components/Cover/CoverExistingPool";
 import { fetchCoverPositions } from "../../utils/queries";
 import { mapUserCoverPositions } from "../../utils/maps";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import useAddress from "../../hooks/useAddress";
+import useAccount from "../../hooks/useAccount";
 
 export default function CoverCreate() {
-  const address = useAddress();
+  const { address } = useAccount();
   const router = useRouter();
 
   const coverSubgraph = useConfigStore((state) => state.coverSubgraph);

@@ -5,7 +5,6 @@ import {
   fetchRangePositions,
 } from "../../utils/queries";
 import { useState, useEffect } from "react";
-import { useAccount } from "wagmi";
 import { mapRangePools, mapUserRangePositions } from "../../utils/maps";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import InfoIcon from "../../components/Icons/InfoIcon";
@@ -22,11 +21,10 @@ import { Checkbox } from "../../components/ui/checkbox";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { limitPoolTypeIds } from "../../utils/pools";
 import { useShallow } from "zustand/react/shallow";
-import useAddress from "../../hooks/useAddress";
+import useAccount from "../../hooks/useAccount";
 
 export default function Range() {
-  const { isDisconnected } = useAccount();
-  const address = useAddress();
+  const { address, isDisconnected } = useAccount();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [allRangePositions, setAllRangePositions] = useState([]);

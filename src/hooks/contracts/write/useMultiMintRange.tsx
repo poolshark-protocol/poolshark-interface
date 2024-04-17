@@ -15,7 +15,7 @@ import {
 import { getRangeStakerAddress } from "../../../utils/config";
 import { useEffect } from "react";
 import { getZeroForOne, hasBalance } from "../../../utils/tokens";
-import useAddress from "../../useAddress";
+import useAccount from "../../useAccount";
 
 export default function useMultiMintRange({
   positionId,
@@ -59,7 +59,7 @@ export default function useMultiMintRange({
     state.setNeedsBalanceOut,
   ]);
 
-  const address = useAddress();
+  const { address } = useAccount();
 
   const { config } = usePrepareContractWrite({
     address: getRouterAddress(networkName),

@@ -1,8 +1,8 @@
-import { useBalance, useAccount } from "wagmi";
+import { useBalance } from "wagmi";
 import { useConfigStore } from "./useConfigStore";
 import { ZERO_ADDRESS } from "../utils/math/constants";
 import { useRouter } from "next/router";
-import useAddress from "./useAddress";
+import useAccount from "./useAccount";
 
 export default function useTokenBalance({ token }) {
   const [chainId, networkName] = useConfigStore((state) => [
@@ -10,8 +10,7 @@ export default function useTokenBalance({ token }) {
     state.networkName,
   ]);
 
-  const { isConnected } = useAccount();
-  const address = useAddress();
+  const { address, isConnected } = useAccount();
   const router = useRouter();
 
   const { data } = useBalance({

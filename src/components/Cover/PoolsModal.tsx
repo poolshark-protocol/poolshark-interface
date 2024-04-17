@@ -6,10 +6,10 @@ import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useShallow } from "zustand/react/shallow";
-import useAddress from "../../hooks/useAddress";
+import useAccount from "../../hooks/useAccount";
 
 export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
-  const address = useAddress();
+  const { address } = useAccount();
 
   const [searchTerm, setSearchTerm] = useState("");
 

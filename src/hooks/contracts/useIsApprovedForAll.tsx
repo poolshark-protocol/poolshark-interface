@@ -3,7 +3,7 @@ import { useConfigStore } from "../useConfigStore";
 import { useRangeLimitStore } from "../useRangeLimitStore";
 import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
 import { getRangeStakerAddress } from "../../utils/config";
-import useAddress from "../useAddress";
+import useAccount from "../useAccount";
 
 export default function useIsApprovedForAll() {
   const [chainId, networkName] = useConfigStore((state) => [
@@ -13,7 +13,7 @@ export default function useIsApprovedForAll() {
 
   const rangeStore = useRangeLimitStore((state) => state);
 
-  const address = useAddress();
+  const { address } = useAccount();
 
   const { data: stakeApproveStatus } = useContractRead({
     address: rangeStore.rangePoolData.poolToken,

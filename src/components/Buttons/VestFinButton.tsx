@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
-import useAddress from "../../hooks/useAddress";
+import useAccount from "../../hooks/useAccount";
 
 export default function VestFinButton({
   vFinAddress,
@@ -33,7 +33,7 @@ export default function VestFinButton({
   const [bondBalance, setBondBalance] = useState(BN_ZERO);
   const [bondApproved, setBondApproved] = useState(false);
 
-  const address = useAddress();
+  const { address } = useAccount();
 
   const { data: bondBalanceData } = useContractRead({
     address: tellerAddress,

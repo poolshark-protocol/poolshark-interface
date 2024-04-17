@@ -21,7 +21,7 @@ import { hasAllowance, getLogo } from "../../utils/tokens";
 import { getRouterAddress } from "../../utils/config";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { useShallow } from "zustand/react/shallow";
-import useAddress from "../../hooks/useAddress";
+import useAccount from "../../hooks/useAccount";
 
 export default function RangePoolPreview() {
   const [logoMap, networkName, limitSubgraph] = useConfigStore(
@@ -62,7 +62,7 @@ export default function RangePoolPreview() {
     tokenIn.address.localeCompare(tokenOut.address) < 0,
   );
   const router = useRouter();
-  const address = useAddress();
+  const { address } = useAccount();
   const signer = useEthersSigner();
 
   ///////////////////////////////Modal

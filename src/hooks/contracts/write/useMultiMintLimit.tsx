@@ -12,7 +12,7 @@ import { useEffect } from "react";
 import { ethers } from "ethers";
 import { parseUnits } from "viem";
 import { hasBalance } from "../../../utils/tokens";
-import useAddress from "../../useAddress";
+import useAccount from "../../useAccount";
 
 export default function useMultiMintLimit({
   positionId,
@@ -55,7 +55,7 @@ export default function useMultiMintLimit({
     state.setNeedsBalanceOut,
   ]);
 
-  const address = useAddress();
+  const { address } = useAccount();
 
   const { config } = usePrepareContractWrite({
     address: getRouterAddress(networkName),

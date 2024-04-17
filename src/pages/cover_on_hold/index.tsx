@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useAccount, usePublicClient } from "wagmi";
 import { useRouter } from "next/router";
 import Navbar from "../../components/Navbar";
 import { fetchCoverPositions } from "../../utils/queries";
@@ -16,8 +15,9 @@ import { fetchCoverPools } from "../../utils/queries";
 import { mapCoverPools } from "../../utils/maps";
 import { tokenCover } from "../../utils/types";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { chainProperties, supportedNetworkNames } from "../../utils/chains";
+import { chainProperties } from "../../utils/chains";
 import { useShallow } from "zustand/react/shallow";
+import useAccount from "../../hooks/useAccount";
 
 export default function Cover() {
   const [

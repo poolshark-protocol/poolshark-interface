@@ -14,7 +14,7 @@ import { useEffect } from "react";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
 import { SwapNativeButtonsProps } from "../../utils/types";
-import useAddress from "../../hooks/useAddress";
+import useAccount from "../../hooks/useAccount";
 
 export default function SwapUnwrapNativeButton({
   disabled,
@@ -45,7 +45,7 @@ export default function SwapUnwrapNativeButton({
 
   const [toastId, setToastId] = useState(null);
 
-  const address = useAddress();
+  const { address } = useAccount();
 
   const { config } = usePrepareContractWrite({
     address: wethAddress,

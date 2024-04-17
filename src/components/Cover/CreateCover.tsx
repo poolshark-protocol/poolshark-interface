@@ -1,15 +1,15 @@
 import { ChevronDownIcon, ArrowLongRightIcon } from "@heroicons/react/20/solid";
 import SelectToken from "../SelectToken";
-import { erc20ABI, useAccount, useContractRead, useBalance } from "wagmi";
+import { useContractRead, useBalance } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
-import { chainIdsToNames, chainProperties } from "../../utils/chains";
+import { chainIdsToNames } from "../../utils/chains";
 import { useEffect, useMemo, useState } from "react";
 import useInputBox from "../../hooks/useInputBox";
-import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
+import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import { fetchTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
@@ -21,7 +21,6 @@ import {
 import { coverPoolTypes, volatilityTiers } from "../../utils/pools";
 import router from "next/router";
 import CoverCreateAndMintButton from "../Buttons/CoverCreateAndMintButton";
-import { coverPoolABI } from "../../abis/evm/coverPool";
 import { getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
 import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
@@ -31,6 +30,7 @@ import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import useAllowance from "../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
+import useAccount from "../../hooks/useAccount";
 
 export default function CreateCover(props: any) {
   const [chainId, networkName, coverSubgraph, coverFactoryAddress] =
@@ -46,7 +46,7 @@ export default function CreateCover(props: any) {
   const coverStore = useCoverStore();
 
   const signer = useEthersSigner();
-  const { address, isConnected, isDisconnected } = useAccount();
+  const { address, isConnected } = useAccount();
   const { setBnInput, bnInput, inputBox, setDisplay, display } = useInputBox();
   const [loadingPrices, setLoadingPrices] = useState(true);
 

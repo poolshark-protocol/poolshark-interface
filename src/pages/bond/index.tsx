@@ -3,7 +3,7 @@ import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import RedeemMulticallBondButton from "../../components/Buttons/RedeemMulticallBondButton";
 import { useEffect, useState } from "react";
 import { BigNumber } from "ethers";
-import { useAccount, useContractRead } from "wagmi";
+import { useContractRead } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { bondTellerABI } from "../../abis/evm/bondTeller";
 import {
@@ -25,11 +25,10 @@ import { numFormat } from "../../utils/math/valueMath";
 import RedeemBondButton from "../../components/Buttons/RedeemBondButton";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
-import useAddress from "../../hooks/useAddress";
+import useAccount from "../../hooks/useAccount";
 
 export default function Bond() {
-  const { isConnected } = useAccount();
-  const address = useAddress();
+  const { address, isConnected } = useAccount();
 
   const [needsSubgraph, setNeedsSubgraph] = useState(true);
   const [isVested, setIsVested] = useState(true);

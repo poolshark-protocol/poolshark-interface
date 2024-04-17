@@ -1,7 +1,7 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useAccount, useBalance, usePublicClient } from "wagmi";
+import { useBalance, usePublicClient } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import RangeAddLiqButton from "../../Buttons/RangeAddLiqButton";
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../../utils/math/constants";
@@ -24,7 +24,7 @@ import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 import { hasAllowance, getLogo } from "../../../utils/tokens";
 import useAllowance from "../../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
-import useAddress from "../../../hooks/useAddress";
+import useAccount from "../../../hooks/useAccount";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [chainId, networkName, logoMap, limitSubgraph] = useConfigStore(
@@ -90,7 +90,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   } = useInputBox();
   const router = useRouter();
   const provider = usePublicClient();
-  const address = useAddress();
+  const { address, isConnected } = useAccount();
   const signer = useEthersSigner();
 
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -109,7 +109,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [tokenOrder, setTokenOrder] = useState(
     tokenIn.address.localeCompare(tokenOut.address) < 0,
   );
-  const { isConnected } = useAccount();
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(
     JSBI.BigInt(rangePositionData.price),
   );
