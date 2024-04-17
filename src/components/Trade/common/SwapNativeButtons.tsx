@@ -1,4 +1,4 @@
-import SwapUnwrapNativeButton from "../../Buttons/SwapUnwrapNativeButton.1";
+import SwapUnwrapNativeButton from "../../Buttons/SwapUnwrapNativeButton";
 import SwapWrapNativeButton from "../../Buttons/SwapWrapNativeButton";
 import { SwapNativeButtonsProps } from "../../../utils/types";
 
