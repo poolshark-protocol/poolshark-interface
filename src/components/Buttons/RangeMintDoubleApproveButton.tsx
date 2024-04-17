@@ -5,7 +5,6 @@ import {
 } from "wagmi";
 import { erc20ABI } from "wagmi";
 import React, { useEffect, useState } from "react";
-import { BigNumber } from "ethers";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
@@ -34,6 +33,7 @@ export default function RangeMintDoubleApproveButton({
     ]),
   );
 
+  //* hook wrapper
   const { config: t0 } = usePrepareContractWrite({
     address: tokenIn.address,
     abi: erc20ABI,

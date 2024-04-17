@@ -994,14 +994,10 @@ export default function LimitSwap({
                   mintGasLimit.lt(BigNumber.from("100000")) ||
                   tradeStore.tradeButton.disabled
                 }
-                poolAddress={tradeStore.tradePoolData?.id}
-                to={address}
                 amount={tradeStore.amountIn}
-                mintPercent={parseUnits("1", 24)}
                 lower={lowerTick}
                 upper={upperTick}
                 closeModal={() => {}}
-                zeroForOne={tradeStore.tokenIn.callId == 0}
                 gasLimit={mintGasLimit}
                 resetAfterSwap={resetAfterSwap}
               />

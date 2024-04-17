@@ -1,4 +1,3 @@
-import { useWaitForTransaction } from "wagmi";
 import React, { useState, useEffect } from "react";
 import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
@@ -11,8 +10,6 @@ import { useShallow } from "zustand/react/shallow";
 import useMultiMintRange from "../../hooks/contracts/write/useMultiMintRange";
 
 export default function RangeAddLiqButton({
-  routerAddress,
-  poolAddress,
   address,
   lower,
   upper,
@@ -22,8 +19,6 @@ export default function RangeAddLiqButton({
   disabled,
   setIsOpen,
   gasLimit,
-  setSuccessDisplay,
-  setErrorDisplay,
   setIsLoading,
   setTxHash,
 }) {

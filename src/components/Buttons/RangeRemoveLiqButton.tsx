@@ -1,19 +1,10 @@
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
 import React, { useState, useEffect } from "react";
-import { rangePoolABI } from "../../abis/evm/rangePool";
-import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
-import { rangeStakerABI } from "../../abis/evm/rangeStaker";
-import { getRangeStakerAddress } from "../../utils/config";
 import { toast } from "sonner";
-import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
 import useBurnRange from "../../hooks/contracts/write/useBurnRange";
 

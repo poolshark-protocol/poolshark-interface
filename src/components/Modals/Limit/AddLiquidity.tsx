@@ -66,6 +66,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
 
   ////////////////////////////////Token Balances
 
+  //* hook wrapper
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.address,
