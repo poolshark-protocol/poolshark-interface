@@ -1,9 +1,9 @@
-import { useToken } from "wagmi";
+import { useToken as useTokenWagmi } from "wagmi";
 import { useConfigStore } from "../useConfigStore";
 import { ZERO_ADDRESS } from "../../utils/math/constants";
 import { isAddress } from "viem";
 
-export default function useTokenWrapper({ customInput, onSuccess }) {
+export default function useToken({ tokenAddress, onSuccess }) {
   const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
     state.networkName,
@@ -13,9 +13,9 @@ export default function useTokenWrapper({ customInput, onSuccess }) {
     data: tokenData,
     refetch: refetchTokenInfo,
     isLoading,
-  } = useToken({
-    address: customInput as `0x${string}`,
-    enabled: isAddress(customInput) && customInput != ZERO_ADDRESS,
+  } = useTokenWagmi({
+    address: tokenAddress as `0x${string}`,
+    enabled: isAddress(tokenAddress) && tokenAddress != ZERO_ADDRESS,
     chainId: chainId,
     onSuccess() {
       onSuccess();

@@ -12,12 +12,10 @@ import { useConfigStore } from "../hooks/useConfigStore";
 import { defaultTokenLogo, getLogo } from "../utils/tokens";
 import { isAddress } from "@ethersproject/address";
 import { useShallow } from "zustand/react/shallow";
-import useTokenWrapper from "../hooks/contracts/useTokenWrapper";
+import useTokenWrapper from "../hooks/contracts/useToken";
 import { deepConvertBigIntAndBigNumber } from "../utils/misc";
 
 export default function SelectToken(props) {
-  //@memo - useAddress hook wrapper
-  const { address } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
   const [customInput, setCustomInput] = useState("");
   const [tokenInfo, setTokenInfo] = useState(undefined);
@@ -43,9 +41,8 @@ export default function SelectToken(props) {
     else refetchTokenInfo();
   };
 
-  //@memo - useToken hook wrapper
   const { tokenData, refetchTokenInfo } = useTokenWrapper({
-    customInput,
+    tokenAddress: customInput,
     onSuccess,
   });
 

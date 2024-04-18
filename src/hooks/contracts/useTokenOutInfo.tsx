@@ -1,10 +1,9 @@
-import { useToken } from "wagmi";
 import { useRouter } from "next/router";
 import { useTradeStore } from "../useTradeStore";
 import { chainProperties } from "../../utils/chains";
 import { ZERO_ADDRESS } from "../../utils/math/constants";
 import { useConfigStore } from "../useConfigStore";
-import useTokenWrapper from "./useTokenWrapper";
+import useToken from "./useToken";
 
 export default function useTokenOutInfo() {
   const [chainId, networkName] = useConfigStore((state) => [
@@ -37,8 +36,8 @@ export default function useTokenOutInfo() {
     tokenData: tokenOutData,
     refetchTokenInfo: refetchTokenOutInfo,
     isLoading: isTokenOutLoading,
-  } = useTokenWrapper({
-    customInput:
+  } = useToken({
+    tokenAddress:
       (router.query.to as `0x${string}`) ?? (ZERO_ADDRESS as `0x${string}`),
     onSuccess,
   });
