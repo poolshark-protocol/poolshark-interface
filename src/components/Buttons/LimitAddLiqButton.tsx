@@ -1,30 +1,17 @@
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
 import React, { useState, useEffect } from "react";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
-import { ethers } from "ethers";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
-import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
 import useMultiMintLimit from "../../hooks/contracts/write/useMultiMintLimit";
 
 export default function LimitAddLiqButton({
   disabled,
-  routerAddress,
-  poolAddress,
-  to,
   amount,
-  mintPercent,
   lower,
   upper,
   positionId,
-  zeroForOne,
   gasLimit,
   setIsOpen,
   buttonState,
@@ -89,7 +76,7 @@ export default function LimitAddLiqButton({
     });
   };
 
-  const { config, data, write } = useMultiMintLimit({
+  const { data, write } = useMultiMintLimit({
     positionId,
     lower,
     upper,

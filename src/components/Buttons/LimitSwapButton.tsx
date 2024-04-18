@@ -1,31 +1,19 @@
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
 import React, { useState, useEffect } from "react";
 import { useTradeStore } from "../../hooks/useTradeStore";
-import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
-import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+import { BN_ZERO } from "../../utils/math/constants";
 import { ethers } from "ethers";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
-import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
 import useMultiMintLimit from "../../hooks/contracts/write/useMultiMintLimit";
 
 export default function LimitSwapButton({
   disabled,
   routerAddress,
-  poolAddress,
-  to,
   amount,
-  mintPercent,
   lower,
   upper,
-  zeroForOne,
   closeModal,
   gasLimit,
   resetAfterSwap,
@@ -94,7 +82,7 @@ export default function LimitSwapButton({
     });
   };
 
-  const { config, data, write, isLoading } = useMultiMintLimit({
+  const { data, write, isLoading } = useMultiMintLimit({
     positionId: BN_ZERO,
     lower,
     upper,

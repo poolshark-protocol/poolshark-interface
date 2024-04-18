@@ -754,7 +754,6 @@ export default function ViewLimit() {
                 claim={BigNumber.from(claimTick ?? 0)}
                 zeroForOne={tokenIn.callId == 0}
                 gasLimit={collectGasLimit}
-                gasFee={collectGasFee}
                 disabled={
                   !isFullSpacingClaim ||
                   isNaN(parseFloat(limitFilledAmount)) ||

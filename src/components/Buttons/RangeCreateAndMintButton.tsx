@@ -1,14 +1,7 @@
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { BigNumber, ethers } from "ethers";
-import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
-import PositionMintModal from "../Modals/PositionMint";
+import { ethers } from "ethers";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import {
   getRangeMintButtonMsgValue,

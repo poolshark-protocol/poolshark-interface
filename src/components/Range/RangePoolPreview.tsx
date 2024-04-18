@@ -7,7 +7,7 @@ import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButto
 import { useRouter } from "next/router";
 import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { BN_ZERO, ONE, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO, ONE, ZERO_ADDRESS } from "../../utils/math/constants";
 import {
   gasEstimateRangeCreateAndMint,
   gasEstimateRangeMint,

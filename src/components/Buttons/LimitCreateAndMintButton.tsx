@@ -1,15 +1,9 @@
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
 import React, { useState, useEffect } from "react";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import { TickMath } from "../../utils/math/tickMath";
 import { BigNumber, ethers } from "ethers";
-import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO } from "../../utils/math/constants";
 import { getLimitSwapButtonMsgValue } from "../../utils/buttons";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
@@ -19,7 +13,6 @@ import useCreateLimitPoolAndMint from "../../hooks/contracts/write/useCreateLimi
 
 export default function LimitCreateAndMintButton({
   disabled,
-  routerAddress,
   poolTypeId,
   tokenIn,
   tokenOut,

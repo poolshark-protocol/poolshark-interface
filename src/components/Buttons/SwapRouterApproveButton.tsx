@@ -34,6 +34,7 @@ export default function SwapRouterApproveButton({
     (state) => state.setNeedsAllowanceIn,
   );
 
+  //* hook wrapper
   const { config } = usePrepareContractWrite({
     address: approveToken,
     abi: erc20ABI,

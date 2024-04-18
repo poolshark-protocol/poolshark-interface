@@ -3,7 +3,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import useInputBox from "../../../hooks/useInputBox";
 import CoverAddLiqButton from "../../Buttons/CoverAddLiqButton";
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import { BN_ZERO } from "../../../utils/math/constants";
 import CoverMintApproveButton from "../../Buttons/CoverMintApproveButton";
 import { chainIdsToNames } from "../../../utils/chains";

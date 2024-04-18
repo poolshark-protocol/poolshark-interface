@@ -443,6 +443,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     rangePositionData.upperPrice,
   ]);
 
+  //* hasAllowance usage
+
   ////////////////////////////////
 
   return (
@@ -616,8 +618,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                       {tokenInAllowance?.gte(rangeMintParams.tokenInAmount) &&
                       tokenOutAllowance?.gte(rangeMintParams.tokenOutAmount) ? (
                         <RangeAddLiqButton
-                          routerAddress={getRouterAddress(networkName)}
-                          poolAddress={rangePoolAddress}
                           address={address}
                           lower={rangePositionData.min}
                           upper={rangePositionData.max}
@@ -627,8 +627,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                           setIsOpen={setIsOpen}
                           positionId={rangePositionData.positionId}
                           gasLimit={mintGasLimit}
-                          setSuccessDisplay={setSuccessDisplay}
-                          setErrorDisplay={setErrorDisplay}
                           setIsLoading={setIsLoading}
                           setTxHash={setTxHash}
                         />

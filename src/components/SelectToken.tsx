@@ -7,12 +7,12 @@ import {
 import { Transition, Dialog } from "@headlessui/react";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
-import { useToken } from "wagmi";
 import { useConfigStore } from "../hooks/useConfigStore";
-import { defaultTokenLogo, getLogo, logoMapKey } from "../utils/tokens";
+import { defaultTokenLogo, getLogo } from "../utils/tokens";
 import { isAddress } from "@ethersproject/address";
-import { deepConvertBigIntAndBigNumber } from "../utils/misc";
 import { useShallow } from "zustand/react/shallow";
+import useToken from "../hooks/contracts/useToken";
+import { deepConvertBigIntAndBigNumber } from "../utils/misc";
 
 export default function SelectToken(props) {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,18 +35,14 @@ export default function SelectToken(props) {
     ]),
   );
 
-  const {
-    data: tokenData,
-    isError,
-    isLoading,
-    refetch: refetchTokenInfo,
-  } = useToken({
-    address: customInput as `0x${string}`,
-    enabled: isAddress(customInput),
-    onSuccess() {
-      if (tokenData) setTokenInfo(deepConvertBigIntAndBigNumber(tokenData));
-      else refetchTokenInfo();
-    },
+  const onSuccess = () => {
+    if (tokenData) setTokenInfo(deepConvertBigIntAndBigNumber(tokenData));
+    else refetchTokenInfo();
+  };
+
+  const { tokenData, refetchTokenInfo } = useToken({
+    tokenAddress: customInput,
+    onSuccess,
   });
 
   useEffect(() => {
