@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useBalance, useAccount } from "wagmi";
 import { useConfigStore } from "./useConfigStore";
 import { ZERO_ADDRESS } from "../utils/math/constants";

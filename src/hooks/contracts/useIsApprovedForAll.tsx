@@ -1,11 +1,6 @@
 import { useAccount, useContractRead } from "wagmi";
-import { limitPoolABI } from "../../abis/evm/limitPool";
 import { useConfigStore } from "../useConfigStore";
 import { useRangeLimitStore } from "../useRangeLimitStore";
-import { BigNumber } from "ethers";
-import router from "next/router";
-import { parseUnits } from "viem";
-import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
 import { getRangeStakerAddress } from "../../utils/config";
 

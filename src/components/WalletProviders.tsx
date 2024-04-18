@@ -27,6 +27,8 @@ const { chains, publicClient } = configureChains(
   ],
 );
 
+//@memo - insert fuel wallet connectors
+
 // Rainbow Kit
 const { connectors } = getDefaultWallets({
   appName: "Poolshark UI",

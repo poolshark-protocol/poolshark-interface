@@ -1,11 +1,5 @@
-import { BigNumber, ethers } from "ethers";
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
+import { BigNumber } from "ethers";
 import React, { useEffect, useState } from "react";
-import { limitPoolABI } from "../../abis/evm/limitPool";
 import { getClaimTick } from "../../utils/maps";
 import { gasEstimateBurnLimit } from "../../utils/gas";
 import { BN_ZERO } from "../../utils/math/constants";
@@ -16,7 +10,6 @@ import { parseUnits } from "../../utils/math/valueMath";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
-import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
 import useBurnLimit from "../../hooks/contracts/write/useBurnLimit";
 

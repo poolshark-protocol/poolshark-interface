@@ -21,6 +21,8 @@ const ConfigWrapper = ({ children }: PropsWithChildren) => {
   const [walletConnected, setWalletConnected] = useState(false);
   const [tosAccepted, setTosAccepted] = useState(false);
 
+  //@memo - insert fuel config here
+
   useEffect(() => {
     // Check if terms of service is accepted
     const isTosAccepted = localStorage.getItem("tosAccepted") === "true";
