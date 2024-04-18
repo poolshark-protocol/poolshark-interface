@@ -1,8 +1,9 @@
-import { useAccount, useContractRead } from "wagmi";
+import { useContractRead } from "wagmi";
 import { useConfigStore } from "../useConfigStore";
 import { useRangeLimitStore } from "../useRangeLimitStore";
 import { positionERC1155ABI } from "../../abis/evm/positionerc1155";
 import { getRangeStakerAddress } from "../../utils/config";
+import useAccount from "../useAccount";
 
 export default function useIsApprovedForAll() {
   const [chainId, networkName] = useConfigStore((state) => [

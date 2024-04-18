@@ -1,13 +1,9 @@
-import { useAccount, useContractRead } from "wagmi";
-import { limitPoolABI } from "../../abis/evm/limitPool";
+import { useContractRead } from "wagmi";
 import { useConfigStore } from "../useConfigStore";
 import { useRangeLimitStore } from "../useRangeLimitStore";
-import { BigNumber } from "ethers";
-import router from "next/router";
-import { parseUnits } from "viem";
-import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import { ZERO_ADDRESS } from "../../utils/math/constants";
+import useAccount from "../useAccount";
 
 export default function useSnapshotRange() {
   const [chainId, networkName] = useConfigStore((state) => [
@@ -17,7 +13,7 @@ export default function useSnapshotRange() {
 
   const rangeStore = useRangeLimitStore((state) => state);
 
-  const { address, isDisconnected, isConnected } = useAccount();
+  const { isConnected } = useAccount();
 
   const { refetch: refetchSnapshot, data: feesOwed } = useContractRead({
     address: rangeStore.rangePoolAddress,

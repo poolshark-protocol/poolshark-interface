@@ -1,5 +1,4 @@
 import {
-  useAccount,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction,
@@ -13,6 +12,7 @@ import { useEffect } from "react";
 import { ethers } from "ethers";
 import { parseUnits } from "viem";
 import { hasBalance } from "../../../utils/tokens";
+import useAccount from "../../useAccount";
 
 export default function useMultiMintLimit({
   positionId,

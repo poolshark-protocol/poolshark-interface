@@ -1,6 +1,5 @@
 import {
   erc20ABI,
-  useAccount,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction,
@@ -12,6 +11,7 @@ import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
+import useAccount from "../../hooks/useAccount";
 
 export default function ApproveBondButton({
   tellerAddress,
@@ -26,7 +26,6 @@ export default function ApproveBondButton({
   const [toastId, setToastId] = useState(null);
 
   const { address } = useAccount();
-
   const { config } = usePrepareContractWrite({
     address: wethAddress,
     abi: erc20ABI,

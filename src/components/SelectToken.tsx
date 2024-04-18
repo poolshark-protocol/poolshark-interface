@@ -7,12 +7,11 @@ import {
 import { Transition, Dialog } from "@headlessui/react";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
-import { useAccount } from "wagmi";
 import { useConfigStore } from "../hooks/useConfigStore";
 import { defaultTokenLogo, getLogo } from "../utils/tokens";
 import { isAddress } from "@ethersproject/address";
 import { useShallow } from "zustand/react/shallow";
-import useTokenWrapper from "../hooks/contracts/useToken";
+import useToken from "../hooks/contracts/useToken";
 import { deepConvertBigIntAndBigNumber } from "../utils/misc";
 
 export default function SelectToken(props) {
@@ -41,7 +40,7 @@ export default function SelectToken(props) {
     else refetchTokenInfo();
   };
 
-  const { tokenData, refetchTokenInfo } = useTokenWrapper({
+  const { tokenData, refetchTokenInfo } = useToken({
     tokenAddress: customInput,
     onSuccess,
   });

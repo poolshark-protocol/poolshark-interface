@@ -1,7 +1,7 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useAccount, useBalance } from "wagmi";
+import { useBalance } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import LimitAddLiqButton from "../../Buttons/LimitAddLiqButton";
 import { BigNumber, ethers } from "ethers";
@@ -17,6 +17,7 @@ import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
 import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 import useAllowance from "../../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
+import useAccount from "../../../hooks/useAccount";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   const [chainId, logoMap, networkName, limitSubgraph] = useConfigStore(

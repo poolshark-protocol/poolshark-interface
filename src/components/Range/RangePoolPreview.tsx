@@ -2,7 +2,6 @@ import { Fragment, useEffect, useState } from "react";
 import { Transition, Dialog } from "@headlessui/react";
 import RangeMintButton from "../Buttons/RangeMintButton";
 import { BigNumber, ethers } from "ethers";
-import { useAccount } from "wagmi";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButton";
 import { useRouter } from "next/router";
@@ -22,6 +21,7 @@ import { hasAllowance, getLogo } from "../../utils/tokens";
 import { getRouterAddress } from "../../utils/config";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { useShallow } from "zustand/react/shallow";
+import useAccount from "../../hooks/useAccount";
 
 export default function RangePoolPreview() {
   const [logoMap, networkName, limitSubgraph] = useConfigStore(

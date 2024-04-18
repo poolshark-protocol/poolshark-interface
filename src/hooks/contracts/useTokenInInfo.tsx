@@ -3,7 +3,6 @@ import { useTradeStore } from "../useTradeStore";
 import { chainProperties } from "../../utils/chains";
 import { ZERO_ADDRESS } from "../../utils/math/constants";
 import { useConfigStore } from "../useConfigStore";
-import useTokenWrapper from "./useToken";
 import useToken from "./useToken";
 
 export default function useTokenInInfo() {

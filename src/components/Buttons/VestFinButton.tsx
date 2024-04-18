@@ -1,5 +1,4 @@
 import {
-  useAccount,
   useContractRead,
   useContractWrite,
   usePrepareContractWrite,
@@ -12,11 +11,11 @@ import { useEffect, useState } from "react";
 import { BigNumber } from "ethers";
 import { BN_ZERO } from "../../utils/math/constants";
 import { vFinABI } from "../../abis/evm/vFin";
-import { parseUnits } from "../../utils/math/valueMath";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
+import useAccount from "../../hooks/useAccount";
 
 export default function VestFinButton({
   vFinAddress,

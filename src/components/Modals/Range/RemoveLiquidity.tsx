@@ -9,12 +9,12 @@ import { DyDxMath } from "../../../utils/math/dydxMath";
 import { TickMath } from "../../../utils/math/tickMath";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
-import { useAccount } from "wagmi";
 import { gasEstimateRangeBurn } from "../../../utils/gas";
 import { parseUnits } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
-import { getLogo, logoMapKey } from "../../../utils/tokens";
+import { getLogo } from "../../../utils/tokens";
 import { useShallow } from "zustand/react/shallow";
+import useAccount from "../../../hooks/useAccount";
 
 export default function RangeRemoveLiquidity({
   isOpen,

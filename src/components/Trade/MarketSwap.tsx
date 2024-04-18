@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
-import { useAccount } from "wagmi";
 import { useShallow } from "zustand/react/shallow";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { useTradeStore } from "../../hooks/useTradeStore";
@@ -35,6 +34,7 @@ import useUpdateWethFee from "../../hooks/useUpdateWethFee";
 import SwapNativeButtons from "./common/SwapNativeButtons";
 import { hasAllowance, hasBalance } from "../../utils/tokens";
 import { tradeInputBoxes } from "../../utils/tradeInputBoxes";
+import useAccount from "../../hooks/useAccount";
 
 export default function MarketSwap({
   quoteRefetchDelay,

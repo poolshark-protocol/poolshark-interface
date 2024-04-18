@@ -1,9 +1,10 @@
-import { useAccount, useContractRead } from "wagmi";
+import { useContractRead } from "wagmi";
 import { useConfigStore } from "../useConfigStore";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { getRouterAddress } from "../../utils/config";
 import { useTradeStore } from "../useTradeStore";
+import useAccount from "../useAccount";
 
 export default function useMultiSnapshotLimit() {
   const [chainId, networkName] = useConfigStore((state) => [

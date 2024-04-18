@@ -1,5 +1,4 @@
 import {
-  useAccount,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction,
@@ -16,6 +15,7 @@ import {
 import { getRangeStakerAddress } from "../../../utils/config";
 import { useEffect } from "react";
 import { getZeroForOne, hasBalance } from "../../../utils/tokens";
+import useAccount from "../../useAccount";
 
 export default function useMultiMintRange({
   positionId,

@@ -4,10 +4,10 @@ import { gasEstimateWethCall } from "../utils/gas";
 import { chainProperties } from "../utils/chains";
 import { useConfigStore } from "./useConfigStore";
 import { useEthersSigner } from "../utils/viemEthersAdapters";
-import { useAccount } from "wagmi";
 import { useTradeStore } from "./useTradeStore";
 import { BigNumber } from "ethers";
 import { hasAllowance } from "../utils/tokens";
+import useAccount from "./useAccount";
 
 const useUpdateWethFee = ({
   setSwapGasFee,

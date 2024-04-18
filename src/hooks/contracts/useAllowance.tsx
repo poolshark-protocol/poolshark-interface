@@ -1,8 +1,9 @@
-import { erc20ABI, useAccount, useContractRead } from "wagmi";
+import { erc20ABI, useContractRead } from "wagmi";
 import { useConfigStore } from "../useConfigStore";
 import { getRouterAddress } from "../../utils/config";
 import { ZERO_ADDRESS } from "../../utils/math/constants";
 import { useRouter } from "next/router";
+import useAccount from "../useAccount";
 
 export default function useAllowance({ token }) {
   const [chainId, networkName] = useConfigStore((state) => [
@@ -10,8 +11,7 @@ export default function useAllowance({ token }) {
     state.networkName,
   ]);
 
-  const { address, isDisconnected, isConnected } = useAccount();
-
+  const { address, isConnected } = useAccount();
   const router = useRouter();
 
   const { data: allowance, refetch: refetchAllowanceOut } = useContractRead({

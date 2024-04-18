@@ -2,14 +2,11 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
-  useAccount,
 } from "wagmi";
 import React, { useState } from "react";
 import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
-import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { weth9ABI } from "../../abis/evm/weth9";
-import { parseEther } from "ethers/lib/utils.js";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { chainProperties } from "../../utils/chains";
 import { toast } from "sonner";
@@ -17,6 +14,7 @@ import { useEffect } from "react";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
 import { SwapNativeButtonsProps } from "../../utils/types";
+import useAccount from "../../hooks/useAccount";
 
 export default function SwapUnwrapNativeButton({
   disabled,
@@ -48,7 +46,6 @@ export default function SwapUnwrapNativeButton({
   const [toastId, setToastId] = useState(null);
 
   const { address } = useAccount();
-  const userAddress = address;
 
   const { config } = usePrepareContractWrite({
     address: wethAddress,

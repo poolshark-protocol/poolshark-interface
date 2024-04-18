@@ -8,12 +8,11 @@ import {
 } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import useInputBox from "../../hooks/useInputBox";
-import { useAccount, useBalance } from "wagmi";
+import { useBalance } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ONE, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
-import { fetchTokenUSDPrice } from "../../utils/tokens";
 import { InformationCircleIcon } from "@heroicons/react/20/solid";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
@@ -43,6 +42,7 @@ import { getLogo } from "../../utils/tokens";
 import useAllowance from "../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 import useTokenUSDPrice from "../../hooks/useTokenUSDPrice";
+import useAccount from "../../hooks/useAccount";
 
 export default function AddLiquidity({}) {
   const [chainId, networkName, limitSubgraph, logoMap, searchtokenList] =
@@ -59,6 +59,7 @@ export default function AddLiquidity({}) {
   const rangeLimitStore = useRangeLimitStore();
 
   const { address, isConnected } = useAccount();
+
   const {
     inputBox: inputBoxIn,
     setDisplay: setDisplayIn,

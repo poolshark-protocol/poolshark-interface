@@ -1,7 +1,6 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useAccount } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import CoverAddLiqButton from "../../Buttons/CoverAddLiqButton";
 import { ethers } from "ethers";
@@ -18,6 +17,7 @@ import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 import useAllowance from "../../../hooks/contracts/useAllowance";
 import useTokenBalance from "../../../hooks/useTokenBalance";
 import { useShallow } from "zustand/react/shallow";
+import useAccount from "../../../hooks/useAccount";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const [chainId, logoMap, networkName] = useConfigStore(

@@ -1,7 +1,7 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import router from "next/router";
-import { useAccount, useContractRead } from "wagmi";
+import { useContractRead } from "wagmi";
 import CoverCollectButton from "../../components/Buttons/CoverCollectButton";
 import { BigNumber, ethers } from "ethers";
 import { TickMath } from "../../utils/math/tickMath";
@@ -19,6 +19,7 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { useShallow } from "zustand/react/shallow";
+import useAccount from "../../hooks/useAccount";
 
 export default function ViewCover() {
   const [chainId, networkName, coverSubgraph, setCoverSubgraph, logoMap] =
