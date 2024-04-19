@@ -13,7 +13,6 @@ import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getLogo } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
-import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 import useAllowance from "../../../hooks/contracts/useAllowance";
 import useTokenBalance from "../../../hooks/useTokenBalance";
 import { useShallow } from "zustand/react/shallow";

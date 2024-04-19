@@ -3,7 +3,6 @@ import { useShallow } from "zustand/react/shallow";
 import { gasEstimateWethCall } from "../utils/gas";
 import { chainProperties } from "../utils/chains";
 import { useConfigStore } from "./useConfigStore";
-import { useEthersSigner } from "../utils/viemEthersAdapters";
 import { useTradeStore } from "./useTradeStore";
 import { BigNumber } from "ethers";
 import { hasAllowance } from "../utils/tokens";

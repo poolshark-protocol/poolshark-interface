@@ -20,7 +20,6 @@ import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getRouterAddress } from "../../../utils/config";
 import BalanceDisplay from "../../Display/BalanceDisplay";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
-import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 import { hasAllowance, getLogo } from "../../../utils/tokens";
 import useAllowance from "../../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
