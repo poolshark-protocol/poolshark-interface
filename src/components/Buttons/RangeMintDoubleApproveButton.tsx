@@ -33,7 +33,6 @@ export default function RangeMintDoubleApproveButton({
     ]),
   );
 
-  //* hook wrapper
   const { config: t0 } = usePrepareContractWrite({
     address: tokenIn.address,
     abi: erc20ABI,

@@ -5,7 +5,7 @@ import {
 } from "wagmi";
 import { coverPoolABI } from "../../abis/evm/coverPool";
 import React, { useEffect, useState } from "react";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 import Loader from "../Icons/Loader";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { useConfigStore } from "../../hooks/useConfigStore";

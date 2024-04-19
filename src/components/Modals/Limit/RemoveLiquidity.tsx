@@ -2,11 +2,11 @@ import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import LimitRemoveLiqButton from "../../Buttons/LimitRemoveLiqButton";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { parseUnits } from "../../../utils/math/valueMath";
-import { getLogo, logoMapKey } from "../../../utils/tokens";
+import { getLogo } from "../../../utils/tokens";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { useShallow } from "zustand/react/shallow";
 

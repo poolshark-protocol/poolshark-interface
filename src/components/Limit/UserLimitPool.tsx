@@ -18,7 +18,6 @@ import { useShallow } from "zustand/react/shallow";
 export default function UserLimitPool({
   limitPosition,
   limitFilledAmount,
-  address,
   href,
 }) {
   const [limitSubgraph, logoMap] = useConfigStore(

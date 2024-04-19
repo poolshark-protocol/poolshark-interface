@@ -10,7 +10,6 @@ import SwapRouterApproveButton from "../../Buttons/SwapRouterApproveButton";
 import { gasEstimateMintLimit } from "../../../utils/gas";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
-import { parseUnits } from "../../../utils/math/valueMath";
 import { getLogo } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";

@@ -3,7 +3,6 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { coverPoolABI } from "../../abis/evm/coverPool";
 import React, { useState, useEffect } from "react";
 import { BN_ZERO } from "../../utils/math/constants";
 import { useCoverStore } from "../../hooks/useCoverStore";
