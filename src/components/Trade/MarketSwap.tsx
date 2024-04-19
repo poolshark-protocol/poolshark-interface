@@ -21,7 +21,6 @@ import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { getRouterAddress } from "../../utils/config";
 import BalanceDisplay from "../Display/BalanceDisplay";
-import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import SwitchDirection from "./common/SwitchDirection";
 import AmountInDisplay from "./common/AmountInDisplay";
@@ -35,6 +34,7 @@ import SwapNativeButtons from "./common/SwapNativeButtons";
 import { hasAllowance, hasBalance } from "../../utils/tokens";
 import { tradeInputBoxes } from "../../utils/tradeInputBoxes";
 import useAccount from "../../hooks/useAccount";
+import useSigner from "../../hooks/useSigner";
 
 export default function MarketSwap({
   quoteRefetchDelay,
@@ -68,7 +68,7 @@ export default function MarketSwap({
   const { address, isDisconnected, isConnected } = useAccount();
 
   //* signer wrapper
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
 
   const router = useRouter();
 

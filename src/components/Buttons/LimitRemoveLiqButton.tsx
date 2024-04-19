@@ -9,9 +9,9 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { parseUnits } from "../../utils/math/valueMath";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
-import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { useShallow } from "zustand/react/shallow";
 import useBurnLimit from "../../hooks/contracts/write/useBurnLimit";
+import useSigner from "../../hooks/useSigner";
 
 export default function LimitRemoveLiqButton({
   poolAddress,
@@ -25,7 +25,7 @@ export default function LimitRemoveLiqButton({
   closeModal,
   setIsOpen,
 }) {
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
 
   const [chainId, networkName, limitSubgraph] = useConfigStore(
     useShallow((state) => [

@@ -21,12 +21,12 @@ import { tokenRangeLimit } from "../../utils/types";
 import RangeStakeButton from "../../components/Buttons/RangeStakeButton";
 import RangeUnstakeButton from "../../components/Buttons/RangeUnstakeButton";
 import { numFormat } from "../../utils/math/valueMath";
-import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import useSnapshotRange from "../../hooks/contracts/useSnapshotRange";
 import useIsApprovedForAll from "../../hooks/contracts/useIsApprovedForAll";
 import { useShallow } from "zustand/react/shallow";
 import useTokenUSDPrice from "../../hooks/useTokenUSDPrice";
 import useAccount from "../../hooks/useAccount";
+import useSigner from "../../hooks/useSigner";
 
 export default function ViewRange() {
   const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
@@ -85,7 +85,7 @@ export default function ViewRange() {
   );
 
   const { address } = useAccount();
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);

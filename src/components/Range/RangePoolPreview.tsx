@@ -19,9 +19,9 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import JSBI from "jsbi";
 import { hasAllowance, getLogo } from "../../utils/tokens";
 import { getRouterAddress } from "../../utils/config";
-import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { useShallow } from "zustand/react/shallow";
 import useAccount from "../../hooks/useAccount";
+import useSigner from "../../hooks/useSigner";
 
 export default function RangePoolPreview() {
   const [logoMap, networkName, limitSubgraph] = useConfigStore(
@@ -63,7 +63,7 @@ export default function RangePoolPreview() {
   );
   const router = useRouter();
   const { address } = useAccount();
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
 
   ///////////////////////////////Modal
   const [isOpen, setIsOpen] = useState(false);

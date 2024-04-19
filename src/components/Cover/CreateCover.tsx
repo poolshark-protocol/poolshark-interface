@@ -27,10 +27,10 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 import { getRouterAddress } from "../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
-import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import useAllowance from "../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 import useAccount from "../../hooks/useAccount";
+import useSigner from "../../hooks/useSigner";
 
 export default function CreateCover(props: any) {
   const [chainId, networkName, coverSubgraph, coverFactoryAddress] =
@@ -45,7 +45,7 @@ export default function CreateCover(props: any) {
 
   const coverStore = useCoverStore();
 
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
   const { address, isConnected } = useAccount();
   const { setBnInput, bnInput, inputBox, setDisplay, display } = useInputBox();
   const [loadingPrices, setLoadingPrices] = useState(true);
