@@ -19,25 +19,19 @@ export default function RangeUnstakeButton({
   positionId,
   signer,
 }) {
-  const [chainId, networkName, limitSubgraph] = useConfigStore(
-    useShallow((state) => [
-      state.chainId,
-      state.networkName,
-      state.limitSubgraph,
-    ]),
+  const [networkName, limitSubgraph] = useConfigStore(
+    useShallow((state) => [state.networkName, state.limitSubgraph]),
   );
 
   const [
     setNeedsAllowanceIn,
     setNeedsBalanceIn,
-    setNeedsBalanceOut,
     setNeedsRefetch,
     setNeedsPosRefetch,
   ] = useRangeLimitStore(
     useShallow((state) => [
       state.setNeedsAllowanceIn,
       state.setNeedsBalanceIn,
-      state.setNeedsBalanceOut,
       state.setNeedsRefetch,
       state.setNeedsPosRefetch,
     ]),

@@ -1,7 +1,7 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useBalance, usePublicClient } from "wagmi";
+import { useBalance } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import RangeAddLiqButton from "../../Buttons/RangeAddLiqButton";
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../../utils/math/constants";
@@ -51,8 +51,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     setTokenOutAmount,
     setLiquidityAmount,
     rangePositionData,
-    setNeedsAllowanceIn,
-    setNeedsAllowanceOut,
     setNeedsBalanceIn,
     needsBalanceOut,
     setNeedsBalanceOut,
@@ -73,8 +71,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       state.setTokenOutAmount,
       state.setLiquidityAmount,
       state.rangePositionData,
-      state.setNeedsAllowanceIn,
-      state.setNeedsAllowanceOut,
       state.setNeedsBalanceIn,
       state.needsBalanceOut,
       state.setNeedsBalanceOut,
@@ -83,18 +79,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   );
 
   const { bnInput, inputBox, setDisplay } = useInputBox();
-  const {
-    bnInput: bnInput2,
-    inputBox: inputBox2,
-    setDisplay: setDisplay2,
-  } = useInputBox();
-  const router = useRouter();
-  const provider = usePublicClient();
+  const { inputBox: inputBox2, setDisplay: setDisplay2 } = useInputBox();
   const { address, isConnected } = useAccount();
   const signer = useEthersSigner();
 
-  const [successDisplay, setSuccessDisplay] = useState(false);
-  const [errorDisplay, setErrorDisplay] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState();
 
@@ -106,9 +94,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     Number(rangePositionData.max),
   );
   const [stateChainName, setStateChainName] = useState();
-  const [tokenOrder, setTokenOrder] = useState(
-    tokenIn.address.localeCompare(tokenOut.address) < 0,
-  );
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(
     JSBI.BigInt(rangePositionData.price),
   );

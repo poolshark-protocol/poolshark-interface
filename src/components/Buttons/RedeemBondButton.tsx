@@ -5,7 +5,6 @@ import {
 } from "wagmi";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { bondTellerABI } from "../../abis/evm/bondTeller";
-import { useState } from "react";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 
 export default function RedeemBondButton({
@@ -13,12 +12,8 @@ export default function RedeemBondButton({
   tokenId,
   amount,
   disabled,
-  setNeedsBondTokenData,
 }) {
   const chainId = useConfigStore((state) => state.chainId);
-
-  const [errorDisplay, setErrorDisplay] = useState(false);
-  const [successDisplay, setSuccessDisplay] = useState(false);
 
   const { config } = usePrepareContractWrite({
     address: tellerAddress,
@@ -32,17 +27,6 @@ export default function RedeemBondButton({
   });
 
   const { data, write } = useContractWrite(config);
-
-  const { isLoading } = useWaitForTransaction({
-    hash: data?.hash,
-    onSuccess() {
-      setSuccessDisplay(true);
-      setNeedsBondTokenData(true);
-    },
-    onError() {
-      setErrorDisplay(true);
-    },
-  });
 
   return (
     <>

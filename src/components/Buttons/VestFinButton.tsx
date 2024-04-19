@@ -21,7 +21,6 @@ export default function VestFinButton({
   vFinAddress,
   tellerAddress,
   bondTokenId,
-  needsVestingPosition,
   setNeedsVestingPosition,
 }) {
   const [chainId, networkName] = useConfigStore(

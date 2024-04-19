@@ -20,9 +20,8 @@ import { useShallow } from "zustand/react/shallow";
 import useAccount from "../../../hooks/useAccount";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
-  const [chainId, logoMap, networkName, limitSubgraph] = useConfigStore(
+  const [logoMap, networkName, limitSubgraph] = useConfigStore(
     useShallow((state) => [
-      state.chainId,
       state.logoMap,
       state.networkName,
       state.limitSubgraph,
@@ -35,8 +34,6 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
     tokenIn,
     setTokenInBalance,
     tokenOut,
-    needsAllowance,
-    setNeedsAllowance,
     needsBalance,
     setNeedsBalance,
   ] = useRangeLimitStore(
@@ -46,8 +43,6 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
       state.tokenIn,
       state.setTokenInBalance,
       state.tokenOut,
-      state.needsAllowanceIn,
-      state.setNeedsAllowanceIn,
       state.needsBalanceIn,
       state.setNeedsBalanceIn,
     ]),

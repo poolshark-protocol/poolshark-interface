@@ -25,12 +25,8 @@ export default function LimitSwapBurnButton({
 }) {
   const signer = useEthersSigner();
 
-  const [chainId, networkName, limitSubgraph] = useConfigStore(
-    useShallow((state) => [
-      state.chainId,
-      state.networkName,
-      state.limitSubgraph,
-    ]),
+  const [networkName, limitSubgraph] = useConfigStore(
+    useShallow((state) => [state.networkName, state.limitSubgraph]),
   );
 
   const router = useRouter();

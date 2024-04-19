@@ -31,7 +31,6 @@ export default function CoverMintButton({
   buttonMessage,
   gasLimit,
   setSuccessDisplay,
-  setErrorDisplay,
   setIsLoading,
   setTxHash,
 }) {

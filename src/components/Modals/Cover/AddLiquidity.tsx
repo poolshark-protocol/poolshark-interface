@@ -33,10 +33,6 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     setTokenInBalance,
     setTokenInAllowance,
     tokenOut,
-    needsAllowance,
-    setNeedsAllowance,
-    needsBalance,
-    setNeedsBalance,
     setMintButtonState,
   ] = useCoverStore(
     useShallow((state) => [
@@ -48,10 +44,6 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
       state.setTokenInBalance,
       state.setTokenInCoverAllowance,
       state.tokenOut,
-      state.needsAllowance,
-      state.setNeedsAllowance,
-      state.needsBalance,
-      state.setNeedsBalance,
       state.setMintButtonState,
     ]),
   );
@@ -254,7 +246,6 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                     toAddress={address}
                     poolAddress={coverPoolAddress}
                     routerAddress={getRouterAddress(networkName)}
-                    address={address}
                     lower={Number(coverPositionData.min)}
                     upper={Number(coverPositionData.max)}
                     positionId={Number(coverPositionData.positionId)}

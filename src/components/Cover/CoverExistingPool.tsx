@@ -69,13 +69,6 @@ export default function CoverExistingPool({ goBack }) {
 
   const router = useRouter();
 
-  ////////////////////////////////Chain
-  const [stateChainName, setStateChainName] = useState();
-
-  useEffect(() => {
-    setStateChainName(chainIdsToNames[chainId]);
-  }, [chainId]);
-
   ////////////////////////////////Token Order
   const [priceOrder, setPriceOrder] = useState(true);
 
@@ -930,7 +923,6 @@ export default function CoverExistingPool({ goBack }) {
             }
             gasLimit={mintGasLimit}
             setSuccessDisplay={setSuccessDisplay}
-            setErrorDisplay={setErrorDisplay}
             setIsLoading={setIsLoading}
             setTxHash={setTxHash}
           />

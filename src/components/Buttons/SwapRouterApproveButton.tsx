@@ -43,7 +43,7 @@ export default function SwapRouterApproveButton({
     chainId: chainId,
   });
 
-  const { data, isSuccess, write } = useContractWrite(config);
+  const { data, write } = useContractWrite(config);
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,

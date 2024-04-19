@@ -45,8 +45,6 @@ export default function SwapUnwrapNativeButton({
 
   const [toastId, setToastId] = useState(null);
 
-  const { address } = useAccount();
-
   const { config } = usePrepareContractWrite({
     address: wethAddress,
     abi: weth9ABI,

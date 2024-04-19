@@ -58,10 +58,6 @@ export default function RangePoolPreview() {
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState();
-  const [tokenOrder, setTokenOrder] = useState(
-    tokenIn.address.localeCompare(tokenOut.address) < 0,
-  );
-  const router = useRouter();
   const { address } = useAccount();
   const signer = useEthersSigner();
 
@@ -419,7 +415,6 @@ export default function RangePoolPreview() {
                         ) : rangePoolAddress != ZERO_ADDRESS ? (
                           <RangeMintButton
                             routerAddress={getRouterAddress(networkName)}
-                            to={address}
                             poolAddress={rangePoolAddress}
                             lower={
                               rangePositionData.lowerPrice
