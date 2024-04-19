@@ -1,7 +1,6 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useBalance } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import LimitAddLiqButton from "../../Buttons/LimitAddLiqButton";
 import { BigNumber, ethers } from "ethers";
@@ -18,6 +17,7 @@ import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 import useAllowance from "../../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 import useAccount from "../../../hooks/useAccount";
+import useTokenBalance from "../../../hooks/useTokenBalance";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   const [chainId, logoMap, networkName, limitSubgraph] = useConfigStore(
@@ -66,14 +66,11 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   const { allowance: tokenInAllowance } = useAllowance({ token: tokenIn });
 
   ////////////////////////////////Token Balances
-
-  //* hook wrapper
-  const { data: tokenInBal } = useBalance({
-    address: address,
-    token: tokenIn.address,
-    enabled: tokenIn.address != undefined && needsBalance,
+  const { data: tokenInBal } = useTokenBalance({
+    token: tokenIn,
+    enabled: needsBalance,
     watch: needsBalance,
-    onSuccess(data) {
+    onSuccess() {
       setNeedsBalance(false);
     },
   });

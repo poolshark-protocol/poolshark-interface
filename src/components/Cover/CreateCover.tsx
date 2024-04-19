@@ -1,6 +1,6 @@
 import { ChevronDownIcon, ArrowLongRightIcon } from "@heroicons/react/20/solid";
 import SelectToken from "../SelectToken";
-import { useContractRead, useBalance } from "wagmi";
+import { useContractRead } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import { chainIdsToNames } from "../../utils/chains";
@@ -31,6 +31,7 @@ import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import useAllowance from "../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 import useAccount from "../../hooks/useAccount";
+import useTokenBalance from "../../hooks/useTokenBalance";
 
 export default function CreateCover(props: any) {
   const [chainId, networkName, coverSubgraph, coverFactoryAddress] =
@@ -94,12 +95,11 @@ export default function CreateCover(props: any) {
 
   ////////////////////////////////Token Balances
 
-  const { data: tokenInBal } = useBalance({
-    address: address,
-    token: coverStore.tokenIn.native ? undefined : coverStore.tokenIn.address,
-    enabled: coverStore.tokenIn.address != undefined && coverStore.needsBalance,
+  const { data: tokenInBal } = useTokenBalance({
+    token: coverStore.tokenIn,
+    enabled: coverStore.needsBalance,
     watch: coverStore.needsBalance,
-    onSuccess(data) {
+    onSuccess() {
       coverStore.setNeedsBalance(false);
     },
   });

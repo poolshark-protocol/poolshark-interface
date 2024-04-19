@@ -8,7 +8,6 @@ import {
 } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import useInputBox from "../../hooks/useInputBox";
-import { useBalance } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ONE, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
@@ -43,6 +42,7 @@ import useAllowance from "../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 import useTokenUSDPrice from "../../hooks/useTokenUSDPrice";
 import useAccount from "../../hooks/useAccount";
+import useTokenBalance from "../../hooks/useTokenBalance";
 
 export default function AddLiquidity({}) {
   const [chainId, networkName, limitSubgraph, logoMap, searchtokenList] =
@@ -354,16 +354,9 @@ export default function AddLiquidity({}) {
   }, [allowanceInRange, allowanceOutRange]);
 
   ////////////////////////////////Token Balances
-
-  const { data: tokenInBal } = useBalance({
-    address: address,
-    token: rangeLimitStore.tokenIn.native
-      ? undefined
-      : rangeLimitStore.tokenIn.address,
-    enabled: rangeLimitStore.tokenIn.address != ZERO_ADDRESS,
-    watch: true,
-    chainId: chainId,
-    onSuccess(data) {
+  const { data: tokenInBal } = useTokenBalance({
+    token: rangeLimitStore.tokenIn,
+    onSuccess() {
       rangeLimitStore.setNeedsBalanceIn(false);
       setTimeout(() => {
         rangeLimitStore.setNeedsBalanceIn(true);
@@ -371,15 +364,9 @@ export default function AddLiquidity({}) {
     },
   });
 
-  const { data: tokenOutBal } = useBalance({
-    address: address,
-    token: rangeLimitStore.tokenOut.native
-      ? undefined
-      : rangeLimitStore.tokenOut.address,
-    enabled: rangeLimitStore.tokenOut.address != ZERO_ADDRESS,
-    watch: true,
-    chainId: chainId,
-    onSuccess(data) {
+  const { data: tokenOutBal } = useTokenBalance({
+    token: rangeLimitStore.tokenOut,
+    onSuccess() {
       rangeLimitStore.setNeedsBalanceOut(false);
       setTimeout(() => {
         rangeLimitStore.setNeedsBalanceOut(true);

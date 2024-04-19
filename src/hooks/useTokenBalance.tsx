@@ -7,13 +7,15 @@ import useAccount from "./useAccount";
 export default function useTokenBalance({
   token,
   watch = true,
+  enabled = true,
   onSuccess,
   onError,
 }: {
   token: any;
   watch?: boolean;
+  enabled?: boolean;
   onSuccess?: () => void;
-  onError?: () => void;
+  onError?: (err: Error) => void;
 }) {
   const [chainId, networkName] = useConfigStore((state) => [
     state.chainId,
@@ -28,7 +30,8 @@ export default function useTokenBalance({
     token: token.native ? undefined : token.address,
     chainId: chainId,
     watch: router.isReady && watch,
-    enabled: isConnected && token.address && token.address != ZERO_ADDRESS,
+    enabled:
+      isConnected && token.address && token.address != ZERO_ADDRESS && enabled,
     onSuccess,
     onError,
   });

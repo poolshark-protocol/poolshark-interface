@@ -1,7 +1,7 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useBalance, usePublicClient } from "wagmi";
+import { usePublicClient } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import RangeAddLiqButton from "../../Buttons/RangeAddLiqButton";
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../../utils/math/constants";
@@ -25,6 +25,7 @@ import { hasAllowance, getLogo } from "../../../utils/tokens";
 import useAllowance from "../../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 import useAccount from "../../../hooks/useAccount";
+import useTokenBalance from "../../../hooks/useTokenBalance";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [chainId, networkName, logoMap, limitSubgraph] = useConfigStore(
@@ -148,14 +149,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   }, [tokenInAllowance, tokenOutAllowance]);
 
   ////////////////////////////////Balances
-
-  const { data: tokenInBal } = useBalance({
-    address: address,
-    token: tokenIn.address,
-    enabled: tokenIn.address != undefined,
-    watch: true,
-    chainId: chainId,
-    onSuccess(data) {
+  const { data: tokenInBal } = useTokenBalance({
+    token: tokenIn,
+    onSuccess() {
       setNeedsBalanceIn(false);
       setTimeout(() => {
         setNeedsBalanceIn(true);
@@ -163,13 +159,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     },
   });
 
-  const { data: tokenOutBal } = useBalance({
-    address: address,
-    token: tokenOut.address,
-    enabled: tokenOut.address != undefined && needsBalanceOut,
-    watch: true,
-    chainId: chainId,
-    onSuccess(data) {
+  const { data: tokenOutBal } = useTokenBalance({
+    token: tokenOut,
+    enabled: needsBalanceOut,
+    onSuccess() {
       setNeedsBalanceOut(false);
       setTimeout(() => {
         setNeedsBalanceOut(true);

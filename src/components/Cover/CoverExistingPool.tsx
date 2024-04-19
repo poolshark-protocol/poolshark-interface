@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ArrowLongRightIcon } from "@heroicons/react/20/solid";
-import { erc20ABI, useContractRead, useBalance } from "wagmi";
+import { erc20ABI, useContractRead } from "wagmi";
 import DoubleArrowIcon from "../Icons/DoubleArrowIcon";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import { useEffect, useMemo, useState } from "react";
@@ -32,6 +32,7 @@ import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import useAllowance from "../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 import useAccount from "../../hooks/useAccount";
+import useTokenBalance from "../../hooks/useTokenBalance";
 
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -107,13 +108,11 @@ export default function CoverExistingPool({ goBack }) {
 
   ////////////////////////////////Token Balances
 
-  const { data: tokenInBal } = useBalance({
-    address: address,
-    token: coverStore.tokenIn.native ? undefined : coverStore.tokenIn.address,
-    enabled:
-      coverStore.tokenIn.address != ZERO_ADDRESS && coverStore.needsBalance,
+  const { data: tokenInBal } = useTokenBalance({
+    token: coverStore.tokenIn,
+    enabled: coverStore.needsBalance,
     watch: coverStore.needsBalance,
-    onSuccess(data) {
+    onSuccess() {
       coverStore.setNeedsBalance(false);
     },
   });
