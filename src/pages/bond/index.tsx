@@ -586,7 +586,6 @@ export default function Bond() {
                       tellerAddress={bondProtocolConfig["tellerAddress"]} // use teller address
                       tokenId={bondProtocolConfig["bondTokenId"]}
                       amount={bondTokenBalance}
-                      setNeedsBondTokenData={setNeedsBondTokenData}
                       disabled={false}
                     />
                   ) : (
@@ -594,7 +593,6 @@ export default function Bond() {
                       vFinAddress={bondProtocolConfig["vFinAddress"]}
                       tellerAddress={bondProtocolConfig["tellerAddress"]} // use teller address
                       bondTokenId={bondProtocolConfig["bondTokenId"]}
-                      needsVestingPosition={needsVestingPosition}
                       setNeedsVestingPosition={setNeedsVestingPosition}
                     />
                   )}

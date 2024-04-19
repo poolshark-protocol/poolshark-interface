@@ -457,7 +457,6 @@ export default function Trade() {
                                   )
                                 : parseFloat("0.00")
                             }
-                            address={address}
                             href={"/limit/view"}
                             key={allLimitPosition.id}
                           />
