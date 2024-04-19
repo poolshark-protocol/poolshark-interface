@@ -28,10 +28,10 @@ import { mapUserRangePositions } from "../../utils/maps";
 import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 import { getRouterAddress } from "../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
-import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import useAllowance from "../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 import useAccount from "../../hooks/useAccount";
+import useSigner from "../../hooks/useSigner";
 
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -64,7 +64,7 @@ export default function CoverExistingPool({ goBack }) {
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState();
 
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
   const { address, isConnected } = useAccount();
 
   const router = useRouter();

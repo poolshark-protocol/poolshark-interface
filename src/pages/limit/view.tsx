@@ -24,11 +24,11 @@ import { getExpectedAmountOut } from "../../utils/math/priceMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 import { useTradeStore } from "../../hooks/useTradeStore";
-import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import useSnapshotLimit from "../../hooks/contracts/useSnapshotLimit";
 import { useShallow } from "zustand/react/shallow";
 import useTokenUSDPrice from "../../hooks/useTokenUSDPrice";
 import useAccount from "../../hooks/useAccount";
+import useSigner from "../../hooks/useSigner";
 
 export default function ViewLimit() {
   const [chainId, logoMap, networkName, limitSubgraph, setLimitSubgraph] =
@@ -99,7 +99,7 @@ export default function ViewLimit() {
   );
 
   const { address } = useAccount();
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
 
   const router = useRouter();
 

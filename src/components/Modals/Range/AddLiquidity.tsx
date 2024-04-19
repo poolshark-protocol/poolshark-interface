@@ -25,6 +25,7 @@ import { hasAllowance, getLogo } from "../../../utils/tokens";
 import useAllowance from "../../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 import useAccount from "../../../hooks/useAccount";
+import useSigner from "../../../hooks/useSigner";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [chainId, networkName, logoMap, limitSubgraph] = useConfigStore(
@@ -91,7 +92,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const router = useRouter();
   const provider = usePublicClient();
   const { address, isConnected } = useAccount();
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
 
   const [successDisplay, setSuccessDisplay] = useState(false);
   const [errorDisplay, setErrorDisplay] = useState(false);

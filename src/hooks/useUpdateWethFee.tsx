@@ -8,6 +8,7 @@ import { useTradeStore } from "./useTradeStore";
 import { BigNumber } from "ethers";
 import { hasAllowance } from "../utils/tokens";
 import useAccount from "./useAccount";
+import useSigner from "./useSigner";
 
 const useUpdateWethFee = ({
   setSwapGasFee,
@@ -16,7 +17,7 @@ const useUpdateWethFee = ({
   setSwapGasFee: (s: string) => void;
   setSwapGasLimit: (s: BigNumber) => void;
 }) => {
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
   const { isConnected } = useAccount();
 
   const [tokenIn, tokenOut, amountIn] = useTradeStore(

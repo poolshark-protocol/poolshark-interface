@@ -18,6 +18,7 @@ import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 import useAllowance from "../../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 import useAccount from "../../../hooks/useAccount";
+import useSigner from "../../../hooks/useSigner";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   const [chainId, logoMap, networkName, limitSubgraph] = useConfigStore(
@@ -54,7 +55,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   );
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
   const { isConnected } = useAccount();
 
   const [allowanceIn, setAllowanceIn] = useState(BN_ZERO);
