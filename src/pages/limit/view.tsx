@@ -31,10 +31,9 @@ import useAccount from "../../hooks/useAccount";
 import useSigner from "../../hooks/useSigner";
 
 export default function ViewLimit() {
-  const [chainId, logoMap, networkName, limitSubgraph, setLimitSubgraph] =
+  const [logoMap, networkName, limitSubgraph, setLimitSubgraph] =
     useConfigStore(
       useShallow((state) => [
-        state.chainId,
         state.logoMap,
         state.networkName,
         state.limitSubgraph,
@@ -55,7 +54,6 @@ export default function ViewLimit() {
     needsRefetch,
     needsPosRefetch,
     claimTick,
-    needsSnapshot,
     currentAmountOut,
     setTokenIn,
     setTokenOut,
@@ -80,7 +78,6 @@ export default function ViewLimit() {
       state.needsRefetch,
       state.needsPosRefetch,
       state.claimTick,
-      state.needsSnapshot,
       state.currentAmountOut,
       state.setTokenIn,
       state.setTokenOut,

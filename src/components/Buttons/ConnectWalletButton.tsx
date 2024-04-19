@@ -12,22 +12,6 @@ interface Props {
 
 export const ConnectWalletButton = ({ xl = false, center = false }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [tosAccepted, setTosAccepted] = useState(false);
-
-  useEffect(() => {
-    // Check if terms of service is accepted
-    const isTosAccepted = localStorage.getItem("tosAccepted") === "true";
-    setTosAccepted(isTosAccepted);
-
-    // Simulate wallet connection logic
-    // In real scenario, this will be replaced with actual wallet connection logic
-    // setWalletConnected(true/false) based on wallet connection status
-  }, []);
-
-  const handleTosAccept = () => {
-    localStorage.setItem("tosAccepted", "true");
-    setTosAccepted(true);
-  };
 
   return (
     <>

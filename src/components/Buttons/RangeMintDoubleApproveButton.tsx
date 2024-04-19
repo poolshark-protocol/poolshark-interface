@@ -49,17 +49,9 @@ export default function RangeMintDoubleApproveButton({
     chainId: chainId,
   });
 
-  const {
-    data: dataT0,
-    isSuccess: isSuccesT0,
-    write: writeT0,
-  } = useContractWrite(t0);
+  const { data: dataT0, write: writeT0 } = useContractWrite(t0);
 
-  const {
-    data: dataT1,
-    isSuccess: isSuccesT1,
-    write: writeT1,
-  } = useContractWrite(t1);
+  const { data: dataT1, write: writeT1 } = useContractWrite(t1);
 
   const { isLoading: isLoadingT0 } = useWaitForTransaction({
     hash: dataT0?.hash,

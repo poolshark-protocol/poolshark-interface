@@ -59,7 +59,7 @@ export default function CoverRemoveLiqButton({
     gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
   });
 
-  const { data, isSuccess, write } = useContractWrite(config);
+  const { data, write } = useContractWrite(config);
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,

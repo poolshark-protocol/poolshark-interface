@@ -19,8 +19,8 @@ export default function RangeRemoveLiqButton({
   staked,
   disabled,
 }) {
-  const [chainId, networkName] = useConfigStore(
-    useShallow((state) => [state.chainId, state.networkName]),
+  const [networkName] = useConfigStore(
+    useShallow((state) => [state.networkName]),
   );
 
   const [setNeedsRefetch, setNeedsBalanceIn, setNeedsPosRefetch] =

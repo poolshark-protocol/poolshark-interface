@@ -7,8 +7,6 @@ export default function TermsOfService({
   setIsOpen,
   read = false,
 }) {
-  const [isButtonEnabled, setButtonEnabled] = useState(false);
-
   const modalRef = useRef(null);
 
   const handleScroll = () => {
@@ -16,7 +14,6 @@ export default function TermsOfService({
     if (modal) {
       const isScrolledToBottom =
         modal.scrollHeight - modal.scrollTop === modal.clientHeight;
-      setButtonEnabled(isScrolledToBottom);
     }
   };
 

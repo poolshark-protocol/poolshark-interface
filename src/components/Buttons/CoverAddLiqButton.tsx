@@ -18,7 +18,6 @@ import { useShallow } from "zustand/react/shallow";
 export default function CoverAddLiqButton({
   poolAddress,
   routerAddress,
-  address,
   positionId,
   lower,
   upper,
@@ -35,14 +34,12 @@ export default function CoverAddLiqButton({
     useShallow((state) => [state.chainId, state.networkName]),
   );
   const [
-    coverPoolData,
     setNeedsAllowance,
     setNeedsBalance,
     setNeedsRefetch,
     setNeedsPosRefetch,
   ] = useCoverStore(
     useShallow((state) => [
-      state.coverPoolData,
       state.setNeedsAllowance,
       state.setNeedsBalance,
       state.setNeedsRefetch,
@@ -75,7 +72,7 @@ export default function CoverAddLiqButton({
     gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
   });
 
-  const { data, isSuccess, write } = useContractWrite(config);
+  const { data, write } = useContractWrite(config);
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,

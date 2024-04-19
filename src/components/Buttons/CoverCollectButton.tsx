@@ -22,7 +22,6 @@ export default function CoverCollectButton({
   positionId,
   claim,
   zeroForOne,
-  gasFee,
   signer,
   snapshotAmount,
 }) {
@@ -85,7 +84,7 @@ export default function CoverCollectButton({
     gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
   });
 
-  const { data, isSuccess, write } = useContractWrite(config);
+  const { data, write } = useContractWrite(config);
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,

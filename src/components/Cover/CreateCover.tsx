@@ -48,20 +48,12 @@ export default function CreateCover(props: any) {
   const { signer } = useSigner();
   const { address, isConnected } = useAccount();
   const { setBnInput, bnInput, inputBox, setDisplay, display } = useInputBox();
-  const [loadingPrices, setLoadingPrices] = useState(true);
 
   // for mint modal
   const [successDisplay, setSuccessDisplay] = useState(false);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState();
-
-  ////////////////////////////////Chain
-  const [stateChainName, setStateChainName] = useState();
-
-  useEffect(() => {
-    setStateChainName(chainIdsToNames[chainId]);
-  }, [chainId]);
 
   ////////////////////////////////TokenOrder
   const [priceOrder, setPriceOrder] = useState(true);
@@ -870,7 +862,6 @@ export default function CreateCover(props: any) {
             buttonMessage={coverStore.coverMintParams.buttonMessage}
             gasLimit={mintGasLimit}
             setSuccessDisplay={setSuccessDisplay}
-            setErrorDisplay={setErrorDisplay}
             setIsLoading={setIsLoading}
             setTxHash={setTxHash}
           />

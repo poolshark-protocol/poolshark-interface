@@ -17,8 +17,6 @@ const ConfigWrapper = ({ children }: PropsWithChildren) => {
   const { address, isConnected } = useAccount();
   const [_isConnected, _setIsConnected] = useState(false);
   const [_isMobile, _setIsMobile] = useState(false);
-
-  const [walletConnected, setWalletConnected] = useState(false);
   const [tosAccepted, setTosAccepted] = useState(false);
 
   //@memo - insert fuel config here

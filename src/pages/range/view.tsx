@@ -29,10 +29,9 @@ import useAccount from "../../hooks/useAccount";
 import useSigner from "../../hooks/useSigner";
 
 export default function ViewRange() {
-  const [chainId, networkName, limitSubgraph, setLimitSubgraph, logoMap] =
+  const [networkName, limitSubgraph, setLimitSubgraph, logoMap] =
     useConfigStore(
       useShallow((state) => [
-        state.chainId,
         state.networkName,
         state.limitSubgraph,
         state.setLimitSubgraph,

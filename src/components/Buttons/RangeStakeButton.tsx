@@ -16,12 +16,8 @@ export default function RangeStakeButton({
   signer,
   stakeApproved,
 }) {
-  const [chainId, networkName, limitSubgraph] = useConfigStore(
-    useShallow((state) => [
-      state.chainId,
-      state.networkName,
-      state.limitSubgraph,
-    ]),
+  const [networkName, limitSubgraph] = useConfigStore(
+    useShallow((state) => [state.networkName, state.limitSubgraph]),
   );
 
   const [
