@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ArrowLongRightIcon } from "@heroicons/react/20/solid";
-import { erc20ABI, useContractRead, useBalance } from "wagmi";
+import { useContractRead, useBalance } from "wagmi";
 import DoubleArrowIcon from "../Icons/DoubleArrowIcon";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import { useEffect, useMemo, useState } from "react";
@@ -17,7 +17,7 @@ import {
   gasEstimateCoverMint,
 } from "../../utils/gas";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { chainIdsToNames, chainProperties } from "../../utils/chains";
+import { chainIdsToNames } from "../../utils/chains";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { coverPoolTypes, volatilityTiers } from "../../utils/pools";
 import { useRouter } from "next/router";

@@ -8,11 +8,6 @@ import { toast } from "sonner";
 import { useShallow } from "zustand/react/shallow";
 import useRangeUnstake from "../../hooks/contracts/write/useRangeUnstake";
 
-// unstake position
-// add liquidity while staked
-// remove liquidity while staked
-// compound and collect while staked
-
 export default function RangeUnstakeButton({
   address,
   rangePoolAddress,

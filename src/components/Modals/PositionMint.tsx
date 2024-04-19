@@ -1,6 +1,5 @@
 import { Transition, Dialog } from "@headlessui/react";
-import Link from "next/link";
-import router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { Fragment, useState, useEffect } from "react";
 import Loader from "../Icons/Loader";
 import { chainProperties } from "../../utils/chains";

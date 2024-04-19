@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 import inputFilter from "../utils/inputFilter";
 import { BN_ZERO } from "../utils/math/constants";
 import { token } from "../utils/types";

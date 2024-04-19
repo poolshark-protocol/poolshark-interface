@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import {
   usePrepareContractWrite,
   useContractWrite,
@@ -10,7 +9,6 @@ import { useCoverStore } from "../../hooks/useCoverStore";
 import { BN_ZERO } from "../../utils/math/constants";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { parseUnits } from "../../utils/math/valueMath";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
