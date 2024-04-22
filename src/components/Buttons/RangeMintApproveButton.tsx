@@ -36,11 +36,7 @@ export default function RangeMintApproveButton({
     chainId: chainId,
   });
 
-  const {
-    data: dataT0,
-    isSuccess: isSuccesT0,
-    write: writeT0,
-  } = useContractWrite(t0);
+  const { data: dataT0, write: writeT0 } = useContractWrite(t0);
 
   const { isLoading: isLoadingT0 } = useWaitForTransaction({
     hash: dataT0?.hash,

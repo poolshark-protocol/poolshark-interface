@@ -8,36 +8,25 @@ import { toast } from "sonner";
 import { useShallow } from "zustand/react/shallow";
 import useRangeUnstake from "../../hooks/contracts/write/useRangeUnstake";
 
-// unstake position
-// add liquidity while staked
-// remove liquidity while staked
-// compound and collect while staked
-
 export default function RangeUnstakeButton({
   address,
   rangePoolAddress,
   positionId,
   signer,
 }) {
-  const [chainId, networkName, limitSubgraph] = useConfigStore(
-    useShallow((state) => [
-      state.chainId,
-      state.networkName,
-      state.limitSubgraph,
-    ]),
+  const [networkName, limitSubgraph] = useConfigStore(
+    useShallow((state) => [state.networkName, state.limitSubgraph]),
   );
 
   const [
     setNeedsAllowanceIn,
     setNeedsBalanceIn,
-    setNeedsBalanceOut,
     setNeedsRefetch,
     setNeedsPosRefetch,
   ] = useRangeLimitStore(
     useShallow((state) => [
       state.setNeedsAllowanceIn,
       state.setNeedsBalanceIn,
-      state.setNeedsBalanceOut,
       state.setNeedsRefetch,
       state.setNeedsPosRefetch,
     ]),

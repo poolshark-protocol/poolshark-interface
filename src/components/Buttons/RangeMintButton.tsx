@@ -12,7 +12,6 @@ export default function RangeMintButton({
   buttonMessage,
   routerAddress,
   poolAddress,
-  to,
   lower,
   upper,
   amount0,
@@ -23,13 +22,7 @@ export default function RangeMintButton({
   setIsLoading,
   setTxHash,
 }) {
-  const [chainId, networkName] = useConfigStore(
-    useShallow((state) => [state.chainId, state.networkName]),
-  );
-
   const [
-    tokenIn,
-    tokenOut,
     rangeMintParams,
     setNeedsRefetch,
     setNeedsPosRefetch,
@@ -39,8 +32,6 @@ export default function RangeMintButton({
     setNeedsBalanceOut,
   ] = useRangeLimitStore(
     useShallow((state) => [
-      state.tokenIn,
-      state.tokenOut,
       state.rangeMintParams,
       state.setNeedsRefetch,
       state.setNeedsPosRefetch,

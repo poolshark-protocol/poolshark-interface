@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ArrowLongRightIcon } from "@heroicons/react/20/solid";
-import { erc20ABI, useContractRead } from "wagmi";
+import { useContractRead } from "wagmi";
 import DoubleArrowIcon from "../Icons/DoubleArrowIcon";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import { useEffect, useMemo, useState } from "react";
@@ -17,7 +17,7 @@ import {
   gasEstimateCoverMint,
 } from "../../utils/gas";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { chainIdsToNames, chainProperties } from "../../utils/chains";
+import { chainIdsToNames } from "../../utils/chains";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { coverPoolTypes, volatilityTiers } from "../../utils/pools";
 import { useRouter } from "next/router";
@@ -28,11 +28,11 @@ import { mapUserRangePositions } from "../../utils/maps";
 import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 import { getRouterAddress } from "../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
-import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import useAllowance from "../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 import useAccount from "../../hooks/useAccount";
 import useTokenBalance from "../../hooks/useTokenBalance";
+import useSigner from "../../hooks/useSigner";
 
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -65,17 +65,10 @@ export default function CoverExistingPool({ goBack }) {
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState();
 
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
   const { address, isConnected } = useAccount();
 
   const router = useRouter();
-
-  ////////////////////////////////Chain
-  const [stateChainName, setStateChainName] = useState();
-
-  useEffect(() => {
-    setStateChainName(chainIdsToNames[chainId]);
-  }, [chainId]);
 
   ////////////////////////////////Token Order
   const [priceOrder, setPriceOrder] = useState(true);
@@ -929,7 +922,6 @@ export default function CoverExistingPool({ goBack }) {
             }
             gasLimit={mintGasLimit}
             setSuccessDisplay={setSuccessDisplay}
-            setErrorDisplay={setErrorDisplay}
             setIsLoading={setIsLoading}
             setTxHash={setTxHash}
           />

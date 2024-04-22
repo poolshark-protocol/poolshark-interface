@@ -1,8 +1,5 @@
 import { Transition, Dialog } from "@headlessui/react";
-import Link from "next/link";
-import router, { useRouter } from "next/router";
 import { Fragment, useState, useEffect, useRef } from "react";
-import Loader from "../Icons/Loader";
 
 export default function TermsOfService({
   onAccept,
@@ -10,8 +7,6 @@ export default function TermsOfService({
   setIsOpen,
   read = false,
 }) {
-  const [isButtonEnabled, setButtonEnabled] = useState(false);
-
   const modalRef = useRef(null);
 
   const handleScroll = () => {
@@ -19,7 +14,6 @@ export default function TermsOfService({
     if (modal) {
       const isScrolledToBottom =
         modal.scrollHeight - modal.scrollTop === modal.clientHeight;
-      setButtonEnabled(isScrolledToBottom);
     }
   };
 

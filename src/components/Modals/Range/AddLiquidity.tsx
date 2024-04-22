@@ -1,7 +1,6 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { usePublicClient } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import RangeAddLiqButton from "../../Buttons/RangeAddLiqButton";
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../../utils/math/constants";
@@ -14,18 +13,17 @@ import RangeMintDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveBu
 import RangeMintApproveButton from "../../Buttons/RangeMintApproveButton";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { gasEstimateRangeMint } from "../../../utils/gas";
-import { useRouter } from "next/router";
 import { inputHandler } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getRouterAddress } from "../../../utils/config";
 import BalanceDisplay from "../../Display/BalanceDisplay";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
-import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 import { hasAllowance, getLogo } from "../../../utils/tokens";
 import useAllowance from "../../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 import useAccount from "../../../hooks/useAccount";
 import useTokenBalance from "../../../hooks/useTokenBalance";
+import useSigner from "../../../hooks/useSigner";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [chainId, networkName, logoMap, limitSubgraph] = useConfigStore(
@@ -52,8 +50,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     setTokenOutAmount,
     setLiquidityAmount,
     rangePositionData,
-    setNeedsAllowanceIn,
-    setNeedsAllowanceOut,
     setNeedsBalanceIn,
     needsBalanceOut,
     setNeedsBalanceOut,
@@ -74,8 +70,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       state.setTokenOutAmount,
       state.setLiquidityAmount,
       state.rangePositionData,
-      state.setNeedsAllowanceIn,
-      state.setNeedsAllowanceOut,
       state.setNeedsBalanceIn,
       state.needsBalanceOut,
       state.setNeedsBalanceOut,
@@ -84,18 +78,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   );
 
   const { bnInput, inputBox, setDisplay } = useInputBox();
-  const {
-    bnInput: bnInput2,
-    inputBox: inputBox2,
-    setDisplay: setDisplay2,
-  } = useInputBox();
-  const router = useRouter();
-  const provider = usePublicClient();
+  const { inputBox: inputBox2, setDisplay: setDisplay2 } = useInputBox();
   const { address, isConnected } = useAccount();
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
 
-  const [successDisplay, setSuccessDisplay] = useState(false);
-  const [errorDisplay, setErrorDisplay] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState();
 
@@ -107,9 +93,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     Number(rangePositionData.max),
   );
   const [stateChainName, setStateChainName] = useState();
-  const [tokenOrder, setTokenOrder] = useState(
-    tokenIn.address.localeCompare(tokenOut.address) < 0,
-  );
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(
     JSBI.BigInt(rangePositionData.price),
   );

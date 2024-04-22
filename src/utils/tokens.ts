@@ -1,5 +1,3 @@
-//eventually this functions should merge into one
-
 import { Alchemy, Network } from "alchemy-sdk";
 import { alchemyNetworks, chainIdsToNames } from "./chains";
 import { BN_ZERO, ZERO_ADDRESS } from "./math/constants";
@@ -7,7 +5,7 @@ import { fetchTokenPrice } from "./queries";
 import { LimitSubgraph, coinsList, token } from "./types";
 import { BigNumber, ethers } from "ethers";
 import axios from "axios";
-import { numFormat, numStringFormat, parseUnits } from "./math/valueMath";
+import { numStringFormat, parseUnits } from "./math/valueMath";
 import { formatUnits } from "ethers/lib/utils";
 
 export const tokenListsBaseUrl =

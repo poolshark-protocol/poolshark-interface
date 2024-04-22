@@ -14,7 +14,6 @@ import { toast } from "sonner";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
 import { useShallow } from "zustand/react/shallow";
 import { SwapNativeButtonsProps } from "../../utils/types";
-import useAccount from "../../hooks/useAccount";
 
 export default function SwapWrapNativeButton({
   disabled,
@@ -44,8 +43,6 @@ export default function SwapWrapNativeButton({
       state.tradeButton,
     ]),
   );
-
-  const { address } = useAccount();
 
   const { config } = usePrepareContractWrite({
     address: wethAddress,

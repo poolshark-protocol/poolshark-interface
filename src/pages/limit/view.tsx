@@ -24,17 +24,16 @@ import { getExpectedAmountOut } from "../../utils/math/priceMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
 import { useTradeStore } from "../../hooks/useTradeStore";
-import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import useSnapshotLimit from "../../hooks/contracts/useSnapshotLimit";
 import { useShallow } from "zustand/react/shallow";
 import useTokenUSDPrice from "../../hooks/useTokenUSDPrice";
 import useAccount from "../../hooks/useAccount";
+import useSigner from "../../hooks/useSigner";
 
 export default function ViewLimit() {
-  const [chainId, logoMap, networkName, limitSubgraph, setLimitSubgraph] =
+  const [logoMap, networkName, limitSubgraph, setLimitSubgraph] =
     useConfigStore(
       useShallow((state) => [
-        state.chainId,
         state.logoMap,
         state.networkName,
         state.limitSubgraph,
@@ -55,7 +54,6 @@ export default function ViewLimit() {
     needsRefetch,
     needsPosRefetch,
     claimTick,
-    needsSnapshot,
     currentAmountOut,
     setTokenIn,
     setTokenOut,
@@ -80,7 +78,6 @@ export default function ViewLimit() {
       state.needsRefetch,
       state.needsPosRefetch,
       state.claimTick,
-      state.needsSnapshot,
       state.currentAmountOut,
       state.setTokenIn,
       state.setTokenOut,
@@ -99,7 +96,7 @@ export default function ViewLimit() {
   );
 
   const { address } = useAccount();
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
 
   const router = useRouter();
 

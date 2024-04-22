@@ -33,8 +33,8 @@ export default function RangeCreateAndMintButton({
   setIsLoading,
   setTxHash,
 }) {
-  const [chainId, networkName] = useConfigStore(
-    useShallow((state) => [state.chainId, state.networkName]),
+  const [networkName] = useConfigStore(
+    useShallow((state) => [state.networkName]),
   );
 
   const [

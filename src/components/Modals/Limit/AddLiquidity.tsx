@@ -9,20 +9,18 @@ import SwapRouterApproveButton from "../../Buttons/SwapRouterApproveButton";
 import { gasEstimateMintLimit } from "../../../utils/gas";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
-import { parseUnits } from "../../../utils/math/valueMath";
 import { getLogo } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
-import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 import useAllowance from "../../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 import useAccount from "../../../hooks/useAccount";
 import useTokenBalance from "../../../hooks/useTokenBalance";
+import useSigner from "../../../hooks/useSigner";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
-  const [chainId, logoMap, networkName, limitSubgraph] = useConfigStore(
+  const [logoMap, networkName, limitSubgraph] = useConfigStore(
     useShallow((state) => [
-      state.chainId,
       state.logoMap,
       state.networkName,
       state.limitSubgraph,
@@ -35,8 +33,6 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
     tokenIn,
     setTokenInBalance,
     tokenOut,
-    needsAllowance,
-    setNeedsAllowance,
     needsBalance,
     setNeedsBalance,
   ] = useRangeLimitStore(
@@ -46,15 +42,13 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
       state.tokenIn,
       state.setTokenInBalance,
       state.tokenOut,
-      state.needsAllowanceIn,
-      state.setNeedsAllowanceIn,
       state.needsBalanceIn,
       state.setNeedsBalanceIn,
     ]),
   );
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
   const { isConnected } = useAccount();
 
   const [allowanceIn, setAllowanceIn] = useState(BN_ZERO);

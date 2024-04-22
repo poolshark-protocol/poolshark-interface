@@ -3,7 +3,6 @@ import SelectToken from "../SelectToken";
 import { useContractRead } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
-import { chainIdsToNames } from "../../utils/chains";
 import { useEffect, useMemo, useState } from "react";
 import useInputBox from "../../hooks/useInputBox";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
@@ -27,11 +26,11 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
 import { getRouterAddress } from "../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../utils/misc";
-import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import useAllowance from "../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 import useAccount from "../../hooks/useAccount";
 import useTokenBalance from "../../hooks/useTokenBalance";
+import useSigner from "../../hooks/useSigner";
 
 export default function CreateCover(props: any) {
   const [chainId, networkName, coverSubgraph, coverFactoryAddress] =
@@ -46,23 +45,15 @@ export default function CreateCover(props: any) {
 
   const coverStore = useCoverStore();
 
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
   const { address, isConnected } = useAccount();
   const { setBnInput, bnInput, inputBox, setDisplay, display } = useInputBox();
-  const [loadingPrices, setLoadingPrices] = useState(true);
 
   // for mint modal
   const [successDisplay, setSuccessDisplay] = useState(false);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState();
-
-  ////////////////////////////////Chain
-  const [stateChainName, setStateChainName] = useState();
-
-  useEffect(() => {
-    setStateChainName(chainIdsToNames[chainId]);
-  }, [chainId]);
 
   ////////////////////////////////TokenOrder
   const [priceOrder, setPriceOrder] = useState(true);
@@ -870,7 +861,6 @@ export default function CreateCover(props: any) {
             buttonMessage={coverStore.coverMintParams.buttonMessage}
             gasLimit={mintGasLimit}
             setSuccessDisplay={setSuccessDisplay}
-            setErrorDisplay={setErrorDisplay}
             setIsLoading={setIsLoading}
             setTxHash={setTxHash}
           />

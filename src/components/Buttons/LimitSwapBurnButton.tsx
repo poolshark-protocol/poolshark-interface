@@ -9,9 +9,9 @@ import { parseUnits } from "../../utils/math/valueMath";
 import { useRouter } from "next/router";
 import { toast } from "sonner";
 import { chainProperties } from "../../utils/chains";
-import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { useShallow } from "zustand/react/shallow";
 import useBurnLimit from "../../hooks/contracts/write/useBurnLimit";
+import useSigner from "../../hooks/useSigner";
 
 export default function LimitSwapBurnButton({
   poolAddress,
@@ -23,14 +23,10 @@ export default function LimitSwapBurnButton({
   upper,
   burnPercent,
 }) {
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
 
-  const [chainId, networkName, limitSubgraph] = useConfigStore(
-    useShallow((state) => [
-      state.chainId,
-      state.networkName,
-      state.limitSubgraph,
-    ]),
+  const [networkName, limitSubgraph] = useConfigStore(
+    useShallow((state) => [state.networkName, state.limitSubgraph]),
   );
 
   const router = useRouter();

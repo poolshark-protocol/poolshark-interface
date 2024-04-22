@@ -13,11 +13,11 @@ import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getLogo } from "../../../utils/tokens";
 import { getRouterAddress } from "../../../utils/config";
 import { deepConvertBigIntAndBigNumber } from "../../../utils/misc";
-import { useEthersSigner } from "../../../utils/viemEthersAdapters";
 import useAllowance from "../../../hooks/contracts/useAllowance";
 import useTokenBalance from "../../../hooks/useTokenBalance";
 import { useShallow } from "zustand/react/shallow";
 import useAccount from "../../../hooks/useAccount";
+import useSigner from "../../../hooks/useSigner";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const [chainId, logoMap, networkName] = useConfigStore(
@@ -33,10 +33,6 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     setTokenInBalance,
     setTokenInAllowance,
     tokenOut,
-    needsAllowance,
-    setNeedsAllowance,
-    needsBalance,
-    setNeedsBalance,
     setMintButtonState,
   ] = useCoverStore(
     useShallow((state) => [
@@ -48,16 +44,12 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
       state.setTokenInBalance,
       state.setTokenInCoverAllowance,
       state.tokenOut,
-      state.needsAllowance,
-      state.setNeedsAllowance,
-      state.needsBalance,
-      state.setNeedsBalance,
       state.setMintButtonState,
     ]),
   );
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
   const { isConnected } = useAccount();
   const [stateChainName, setStateChainName] = useState();
   const [buttonState, setButtonState] = useState("");
@@ -254,7 +246,6 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                     toAddress={address}
                     poolAddress={coverPoolAddress}
                     routerAddress={getRouterAddress(networkName)}
-                    address={address}
                     lower={Number(coverPositionData.min)}
                     upper={Number(coverPositionData.max)}
                     positionId={Number(coverPositionData.positionId)}

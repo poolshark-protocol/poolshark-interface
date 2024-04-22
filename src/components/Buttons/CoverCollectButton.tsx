@@ -5,7 +5,7 @@ import {
 } from "wagmi";
 import { coverPoolABI } from "../../abis/evm/coverPool";
 import React, { useEffect, useState } from "react";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 import Loader from "../Icons/Loader";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { useConfigStore } from "../../hooks/useConfigStore";
@@ -22,7 +22,6 @@ export default function CoverCollectButton({
   positionId,
   claim,
   zeroForOne,
-  gasFee,
   signer,
   snapshotAmount,
 }) {
@@ -85,7 +84,7 @@ export default function CoverCollectButton({
     gasLimit: deepConvertBigIntAndBigNumber(gasLimit),
   });
 
-  const { data, isSuccess, write } = useContractWrite(config);
+  const { data, write } = useContractWrite(config);
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,

@@ -17,9 +17,9 @@ import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { chainProperties } from "../../utils/chains";
-import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import { useShallow } from "zustand/react/shallow";
 import useAccount from "../../hooks/useAccount";
+import useSigner from "../../hooks/useSigner";
 
 export default function ViewCover() {
   const [chainId, networkName, coverSubgraph, setCoverSubgraph, logoMap] =
@@ -77,7 +77,7 @@ export default function ViewCover() {
 
   const { address, isConnected } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
 
   //cover aux
   const [priceDirection, setPriceDirection] = useState(false);
@@ -93,34 +93,7 @@ export default function ViewCover() {
   //Display and copy flags
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
-  const [is0Copied, setIs0Copied] = useState(false);
-  const [is1Copied, setIs1Copied] = useState(false);
   const [isPoolCopied, setIsPoolCopied] = useState(false);
-
-  const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    tokenIn.address
-      ? tokenIn.address.toString().substring(0, 6) +
-          "..." +
-          tokenIn.address
-            .toString()
-            .substring(
-              tokenIn.address.toString().length - 4,
-              tokenIn.address.toString().length,
-            )
-      : undefined,
-  );
-  const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    tokenOut.address
-      ? tokenOut.address.toString().substring(0, 6) +
-          "..." +
-          tokenOut.address
-            .toString()
-            .substring(
-              tokenOut.address.toString().length - 4,
-              tokenOut.address.toString().length,
-            )
-      : undefined,
-  );
 
   const [poolDisplay, setPoolDisplay] = useState(
     coverPoolAddress
@@ -783,7 +756,6 @@ export default function ViewCover() {
                 positionId={coverPositionData.positionId}
                 claim={claimTick}
                 zeroForOne={Boolean(coverPositionData.zeroForOne)}
-                gasFee={coverMintParams.gasFee}
                 signer={signer}
                 snapshotAmount={
                   filledAmount ? filledAmount[2].add(filledAmount[3]) : BN_ZERO

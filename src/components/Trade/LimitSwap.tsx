@@ -33,7 +33,6 @@ import JSBI from "jsbi";
 import { fetchTokenUSDPrice, hasAllowance } from "../../utils/tokens";
 import BalanceDisplay from "../Display/BalanceDisplay";
 import { getRouterAddress } from "../../utils/config";
-import { useEthersSigner } from "../../utils/viemEthersAdapters";
 import SwitchDirection from "./common/SwitchDirection";
 import AmountInDisplay from "./common/AmountInDisplay";
 import MaxButton from "./common/MaxButton";
@@ -46,6 +45,7 @@ import useUpdateWethFee from "../../hooks/useUpdateWethFee";
 import SwapNativeButtons from "./common/SwapNativeButtons";
 import { tradeInputBoxes } from "../../utils/tradeInputBoxes";
 import useAccount from "../../hooks/useAccount";
+import useSigner from "../../hooks/useSigner";
 
 export default function LimitSwap({
   quoteRefetchDelay,
@@ -69,7 +69,7 @@ export default function LimitSwap({
   } = useInputBox();
 
   const { address, isDisconnected, isConnected } = useAccount();
-  const signer = useEthersSigner();
+  const { signer } = useSigner();
   const [priceRangeSelected, setPriceRangeSelected] = useState(false);
 
   /////////////////////////////Fetch Pools

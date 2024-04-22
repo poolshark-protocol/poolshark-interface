@@ -3,14 +3,11 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { coverPoolABI } from "../../abis/evm/coverPool";
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { roundTick } from "../../utils/math/tickMath";
 import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import router from "next/router";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
-import PositionMintModal from "../Modals/PositionMint";
 import { BN_ZERO } from "../../utils/math/constants";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
@@ -31,7 +28,6 @@ export default function CoverMintButton({
   buttonMessage,
   gasLimit,
   setSuccessDisplay,
-  setErrorDisplay,
   setIsLoading,
   setTxHash,
 }) {
