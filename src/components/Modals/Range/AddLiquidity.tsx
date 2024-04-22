@@ -1,7 +1,6 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useBalance } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import RangeAddLiqButton from "../../Buttons/RangeAddLiqButton";
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../../utils/math/constants";
@@ -14,7 +13,6 @@ import RangeMintDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveBu
 import RangeMintApproveButton from "../../Buttons/RangeMintApproveButton";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { gasEstimateRangeMint } from "../../../utils/gas";
-import { useRouter } from "next/router";
 import { inputHandler } from "../../../utils/math/valueMath";
 import { useConfigStore } from "../../../hooks/useConfigStore";
 import { getRouterAddress } from "../../../utils/config";
@@ -24,6 +22,7 @@ import { hasAllowance, getLogo } from "../../../utils/tokens";
 import useAllowance from "../../../hooks/contracts/useAllowance";
 import { useShallow } from "zustand/react/shallow";
 import useAccount from "../../../hooks/useAccount";
+import useTokenBalance from "../../../hooks/useTokenBalance";
 import useSigner from "../../../hooks/useSigner";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
@@ -133,14 +132,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   }, [tokenInAllowance, tokenOutAllowance]);
 
   ////////////////////////////////Balances
-
-  const { data: tokenInBal } = useBalance({
-    address: address,
-    token: tokenIn.address,
-    enabled: tokenIn.address != undefined,
-    watch: true,
-    chainId: chainId,
-    onSuccess(data) {
+  const { data: tokenInBal } = useTokenBalance({
+    token: tokenIn,
+    onSuccess() {
       setNeedsBalanceIn(false);
       setTimeout(() => {
         setNeedsBalanceIn(true);
@@ -148,13 +142,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     },
   });
 
-  const { data: tokenOutBal } = useBalance({
-    address: address,
-    token: tokenOut.address,
-    enabled: tokenOut.address != undefined && needsBalanceOut,
-    watch: true,
-    chainId: chainId,
-    onSuccess(data) {
+  const { data: tokenOutBal } = useTokenBalance({
+    token: tokenOut,
+    enabled: needsBalanceOut,
+    onSuccess() {
       setNeedsBalanceOut(false);
       setTimeout(() => {
         setNeedsBalanceOut(true);
