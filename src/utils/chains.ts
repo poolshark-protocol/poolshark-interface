@@ -146,7 +146,7 @@ export const supportedNetworkNames = {
 
 export const chainIdToRpc = {
   42161:
-    "https://solemn-evocative-sailboat.arbitrum-mainnet.quiknode.pro/ce11a0c9252587259fa199d37c1844622846bd74/",
+    "https://winter-cool-night.arbitrum-mainnet.quiknode.pro/c6535bd03d8835c3c84e5b297e22c283252227da/",
   421614:
     "https://arbitrum-sepolia.core.chainstack.com/a0fd1794b40136e3d035e89ecbeca764",
   534352:
